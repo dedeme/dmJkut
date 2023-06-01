@@ -1,0 +1,84 @@
+// Copyright 26-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Application entry.
+
+import "data/cts";
+import "pgs/msgPg";
+import "pgs/home/home";
+import "wgs/dmenu";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("KtWeb session is closed.\nAuthenticating from KtWeb:Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+    return;
+  }
+
+  Rp = await client.send({
+    prg: "Main", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (Rp.lang == "en") i18n.en();
+
+  search = window.location.search;
+  LcPath = search == ""
+    ? []
+    : search[1:].split("&")
+  ;
+  if (!LcPath) LcPath.push("home");
+
+  target = switch (LcPath[0]) {
+      "models", "daily", "acc", "settings": LcPath[0];
+      default: "home";
+    };
+  arr.shift(LcPath);
+
+  menuDiv = Q("div");
+  bodyDiv = Q("div");
+  /*menu =*/ dmenu.mk(menuDiv, target);
+
+  switch (target) {
+    default: home.mk(bodyDiv);
+  }
+
+  wg
+    .removeAll()
+    .add(menuDiv)
+    .add(bodyDiv)
+  ;
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+/// Load main window
+load = \ -> {
+  mk(wg);
+};
+
+client.init(true, "KtWeb", \ -> {
+  msgWg = Q("div");
+  msgPg.mk(msgWg, II("Session is expired."), true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+;
+
+load();

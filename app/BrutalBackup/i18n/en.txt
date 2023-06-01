@@ -1,0 +1,62 @@
+# jkut/pgs/bkListEditor.jkut: 42
+'From' is missing = 'From' is missing
+
+# jkut/pgs/bkListEditor.jkut: 44
+'From' is root = 'From' is root
+
+# jkut/pgs/bkListEditor.jkut: 41
+'Id' is missing = 'Id' is missing
+
+# jkut/pgs/bkListEditor.jkut: 43
+'To' is missing = 'To' is missing
+
+# jkut/pgs/bkListEditor.jkut: 45
+'To' is root = 'To' is root
+
+# jkut/pgs/bkListEditor.jkut: 53
+Already exists a backup with id '%0'\nOverwrite? = Already exists a backup with id '%0'\nOverwrite?
+
+# jkut/pgs/runner.jkut: 65
+Backup finalized = Backup finalized
+
+# jkut/pgs/runner.jkut: 116
+Backup of '%0' = Backup of '%0'
+
+# jkut/pgs/msgPg.jkut: 20
+Click %0 to continue. = Click %0 to continue.
+
+# jkut/pgs/bkListEditor.jkut: 81
+Delete '%0'? = Delete '%0'?
+
+# jkut/pgs/bkListEditor.jkut: 130
+# jkut/pgs/bkListEditor.jkut: 178
+From = From
+
+# jkut/pgs/bkListEditor.jkut: 108
+Id = Id
+
+# jkut/main.jkut: 18
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. = KtWeb session is closed.\nAuthenticating from KtWeb:Main.
+
+# jkut/pgs/runner.jkut: 121
+List = List
+
+# jkut/pgs/bkListEditor.jkut: 112
+Paths = Paths
+
+# jkut/main.jkut: 44
+Session is expired. = Session is expired.
+
+# jkut/pgs/runner.jkut: 39
+Time to read files list is not kown yet = Time to read files list is not kown yet
+
+# jkut/pgs/bkListEditor.jkut: 138
+# jkut/pgs/bkListEditor.jkut: 204
+To = To
+
+# jkut/pgs/bkListEditor.jkut: 226
+Without Backups = Without Backups
+
+# jkut/pgs/msgPg.jkut: 17
+here = here
+

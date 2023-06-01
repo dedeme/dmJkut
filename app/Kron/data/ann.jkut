@@ -1,0 +1,59 @@
+// Copyright 23-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Entry of annotations table.
+
+/// Annotation type
+typePERIODIC = 0;
+/// Annotation type
+typeFIX = 1;
+/// Annotation type
+typeMANUAL = 2;
+
+/// Creates a new a<Ann>
+/// id  : Annotation identifier.
+/// type: Type of annotation.
+/// data: JSON array with the following fields:
+///       if type == PERIODIC: 0 -> Float (time in seconds),
+///                            1 -> Array<Int (Weekday 0[Monday]-6)>
+///       if type == FIX: 0 -> Float (time in seconds)
+///       if type == MANUAL: No fields.
+/// text: Command to execute.
+/// \n, n, s, s -> <Ann>
+mk = \id, type, data, text -> return {id, type, data, text};;
+
+/// Returns [time, weekday] if type is Ann_PERIODIC.
+/// \<ann> -> [n...]
+days = \Ann -> {
+  if (Ann.type != typePERIODIC)
+    throw("Expected type typePERIODIC, but it is " + Ann.data);
+  return js.r(Ann.data)[1];
+};
+
+///  Returns 'time' if type is Ann_FIX or Ann_PERIODIC.
+/// \<ann> -> n
+date = \Ann -> {
+  if (Ann.type == typeMANUAL)
+    throw("type must not be Ann_MANUAL");
+  if (Ann.type == typeFIX)
+    return js.r(Ann.data) * 1000;
+  return js.r(Ann.data)[0] * 1000;
+};
+
+/// \<Ann> -> [*(JS)...]
+toJs = \A -> return [
+    A.id,
+    A.type,
+    js.r(A.data),
+    A.text
+  ];;
+
+/// [*(JS)...] -> <Ann>
+fromJs = \A -> {
+  return mk (
+    A[0],
+    A[1],
+    js.w(A[2]),
+    A[3]
+  );
+};

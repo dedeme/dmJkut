@@ -1,0 +1,112 @@
+// Copyright 03-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "cts";
+import "libdm/menu";
+import "data/dpath";
+import "pgs/msgPg";
+import "pgs/pathsPg";
+import "pgs/indexPg";
+import "pgs/modulePg";
+import "pgs/codePg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("KtWeb session is closed.\nAuthenticating from KtWeb:Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+  } else {
+    rp = await client.send({
+      prg: "Main", // Call to KtWeb:Main
+      source: "Main",
+      rq: "lang"
+    });
+    if (rp.lang == "en") i18n.en();
+
+    rp2 = await client.send({
+      prg: "JkutDoc",
+      source: "Main",
+      rq: "idata"
+    });
+    Cf = rp2.conf;
+    Paths = arr.map(rp2.paths, dpath.fromJs);
+    arr.sort(Paths, \p1, p2 -> return str.less(p1.id, p2.id););
+
+    url = ui.url();
+    page = dic.hasKey(url, "0") ? url["0"] : Cf.path;
+
+    parts = page.split("@");
+    pack = page == "@" ? page : parts[0];
+    PkPath = parts.length > 1 & pack != "@" ? [parts[1]] : [];
+
+    Anchor = dic.hasKey(url, "1") ? [url["1"]] : [];
+
+    client.send({
+      prg: "JkutDoc",
+      source: "Main",
+      rq: "savePath",
+      path: PkPath ? pack + "@" + PkPath! : pack
+    });
+
+    Lopts = [menu.ilink("@", "asterisk", [])];
+
+    for (p = Paths) {
+      if (p.isValid & p.isShown) {
+        arr.push(Lopts, menu.separator());
+        arr.push(Lopts, menu.tlink(p.id, p.id, []));
+      }
+    }
+    menuWg = menu.mk(Lopts, [], pack, false);
+
+    body = Q("div");
+    if (pack == "@") pathsPg.mk(body, Cf, Paths);
+    else if (!PkPath) indexPg.mk(body, pack);
+    else if (Anchor) codePg.mk(body, pack, PkPath!, Anchor!);
+    else modulePg.mk(body, pack, PkPath!);
+
+    wg
+      .removeAll()
+      .add(menuWg)
+      .add(body)
+    ;
+  }
+};
+
+wg = Q("div");
+
+/// Load main window
+load = async \ -> {
+
+  await mk(wg);
+
+  Fc = ui.qOp("#autofocus");
+  if (Fc) Fc!.e.focus();
+};
+
+// Main ------------------------------------------------------------------------
+
+client.init(true, "KtWeb", \ -> {
+  wg = Q("div");
+  msgPg.mk(wg, II("Session is expired."), true);
+  Q("@body")
+    .removeAll()
+    .add(wg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+  .add(ui.upTop("up"))
+;
+
+load();

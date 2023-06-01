@@ -1,0 +1,99 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "Accept": "Aceptar",
+  "Activate": "Activar",
+  "Adjustment": "Ajuste",
+  "Background": "Fondo",
+  "Blur": "Desenfoque",
+  "Blur (0 - 100)": "Desenfoque (0 - 100)",
+  "Bottom": "Abajo",
+  "Cancel": "Cancelar",
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Close": "Cerrar",
+  "Color": "Color",
+  "Cut": "Recorte",
+  "Deactivate": "Desactivar",
+  "Image '%0' can not be processed": "La imagen '%0' no puede ser procesada",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "Left": "Izquierda",
+  "Light (0 - 100)": "Luz (0 - 100)",
+  "Percentage (0 - 100)": "Porcentaje (0 - 100)",
+  "Pixels from top / left": "Pixles desde arriba / izquierda",
+  "Pixels to sample": "Pixels para muestra",
+  "Restore": "Restaurar",
+  "Right": "Derecha",
+  "Save in Group %0": "Guadar en el grupo %0",
+  "Save pictures in group %0?": "¿Guardar las imágenes en el grupo %0?",
+  "Session is expired.": "Las sesión ha expirado.",
+  "Stretch": "Estirar",
+  "There are duplicated pictures": "Hay imágenes repetidas",
+  "There are no pictures to adjust": "No hay imágenes para ajustar",
+  "Top": "Arriba",
+  "Update": "Actualizar",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "Accept": "Accept",
+  "Activate": "Activate",
+  "Adjustment": "Adjustment",
+  "Background": "Background",
+  "Blur": "Blur",
+  "Blur (0 - 100)": "Blur (0 - 100)",
+  "Bottom": "Bottom",
+  "Cancel": "Cancel",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Close": "Close",
+  "Color": "Color",
+  "Cut": "Cut",
+  "Deactivate": "Deactivate",
+  "Image '%0' can not be processed": "Image '%0' can not be processed",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
+  "Left": "Left",
+  "Light (0 - 100)": "Light (0 - 100)",
+  "Percentage (0 - 100)": "Percentage (0 - 100)",
+  "Pixels from top / left": "Pixels from top / left",
+  "Pixels to sample": "Pixels to sample",
+  "Restore": "Restore",
+  "Right": "Right",
+  "Save in Group %0": "Save in Group %0",
+  "Save pictures in group %0?": "Save pictures in group %0?",
+  "Session is expired.": "Session is expired.",
+  "Stretch": "Stretch",
+  "There are duplicated pictures": "There are duplicated pictures",
+  "There are no pictures to adjust": "There are no pictures to adjust",
+  "Top": "Top",
+  "Update": "Update",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return T ? T! : s;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

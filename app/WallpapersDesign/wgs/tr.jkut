@@ -1,0 +1,177 @@
+// Copyright 30-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Images row
+
+import "libdm/modalBox";
+import "data/cts";
+import "data/image";
+import "imageViewer";
+import "cutEditor";
+import "adjustmentEditor";
+import "blurEditor";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \[<image>...], n -> <domo>
+mk = \Images, ix -> {
+  Image = [Images[ix]];
+
+  OptionsDiv = Q("div");
+  SourceDiv = Q("div");
+  TargetDiv = Q("div");
+  ImgEditorDiv = Q("div");
+
+  UpdateImage = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  editCut = \ev -> {
+    cutEditor.mk(ImgEditorDiv, Image!, UpdateImage!);
+    modalBox.show(cts.Box, true);
+  };
+
+  // \<event> -> ()
+  editAdjustment = \ev -> {
+    adjustmentEditor.mk(ImgEditorDiv, Image!, UpdateImage!);
+    modalBox.show(cts.Box, true);
+  };
+
+  // \<event> -> ()
+  editBlur = \ev -> {
+    blurEditor.mk(ImgEditorDiv, Image!, UpdateImage!);
+    modalBox.show(cts.Box, true);
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \-> ()
+  showSourceImg = \ -> {
+    action = \ -> {
+      imageViewer.mk(
+        cts.BoxContent, "source/" + Image!.id, 800,
+        \ -> modalBox.show(cts.Box, false);
+      );
+      modalBox.show(cts.Box, true);
+    };
+
+    imageViewer.mk(SourceDiv, "source/" + Image!.id, 240, action);
+  };
+
+  // \ -> ()
+  showOptions = \ -> {
+    OptionsDiv
+      .removeAll()
+      .add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("input")
+              .att("type", "checkbox")
+              .disabled(true)
+              .checked(true & Image!.Cut)))
+          .add(Q("td")
+            .add(ui.link(editCut)
+              .klass("link")
+              .text(II("Cut")))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("input")
+              .att("type", "checkbox")
+              .disabled(true)
+              .checked(true & Image!.Adjustment)))
+          .add(Q("td")
+            .add(ui.link(editAdjustment)
+              .klass("link")
+              .text(II("Adjustment")))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("input")
+              .att("type", "checkbox")
+              .disabled(true)
+              .checked(true & Image!.Blur)))
+          .add(Q("td")
+            .add(ui.link(editBlur)
+              .klass("link")
+              .text(II("Blur")))))
+      )
+    ;
+  };
+
+  // \ -> ()
+  showTargetImg = \ -> {
+    ix = str.lastIndex(Image!.id, ".");
+    newId = ix == -1
+      ? Image!.id + ".jpg"
+      : Image!.id[:ix] + ".jpg"
+    ;
+
+    action = \ -> {
+      imageViewer.mk(
+        cts.BoxContent, "target/" + newId, 800,
+        \ -> modalBox.show(cts.Box, false);
+      );
+      modalBox.show(cts.Box, true);
+    };
+
+    imageViewer.mk(TargetDiv, "target/" + newId, 240, action);
+    imageViewer.mk(ImgEditorDiv, "target/" + newId, 800, \ -> {});
+  };
+
+  // \ -> ()
+  showTarget = async \ -> {
+    OptionsDiv.removeAll().add(ui.img("wait.gif"));
+    TargetDiv.removeAll().add(ui.img("wait.gif"));
+    ImgEditorDiv.removeAll().add(ui.img("wait.gif"));
+    Rp = await client.send({
+      prg: cts.appName,
+      source: "Tr",
+      rq: "idata",
+      image: image.toJs(Image!)
+    });
+    if (!Rp.ok) {
+      ui.alert(i18n.fmt(II("Image '%0' can not be processed"), [Image!.id]));
+      window.location.reload(true);
+    } else {
+      showOptions();
+      showTargetImg();
+    }
+  };
+
+  // \<image> -> ()
+  UpdateImage! = async \Img -> {
+    Image! = Img;
+    Images[ix] = Img;
+    await client.send({
+      prg: cts.appName,
+      source: "Tr",
+      rq: "update",
+      images: arr.map(Images, image.toJs)
+    });
+    showTarget();
+  };
+
+  // \ -> ()
+  update = \ -> {
+    showSourceImg();
+    showTarget();
+  };
+
+  update();
+  return Q("tr")
+    .add(Q("td")
+      .style("text-align:left;vertical-align:middle")
+      .add(OptionsDiv))
+    .add(Q("td").klass("separator"))
+    .add(Q("td")
+      .style("text-align:center;vertical-align:middle")
+      .add(SourceDiv))
+    .add(Q("td").klass("separator"))
+    .add(Q("td")
+      .style("text-align:center;vertical-align:middle")
+      .add(TargetDiv))
+  ;
+
+};

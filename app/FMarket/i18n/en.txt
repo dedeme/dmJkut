@@ -1,0 +1,118 @@
+# jkut/libdm/log.jkut: 35
+# jkut/pgs/home.jkut: 79
+2 Days = 2 Days
+
+# jkut/libdm/log.jkut: 36
+# jkut/pgs/home.jkut: 80
+All = All
+
+# jkut/libdm/log.jkut: 34
+# jkut/pgs/home.jkut: 78
+All log entries will be deleted.\nContinue? = All log entries will be deleted.\nContinue?
+
+# jkut/pgs/rankingsPg.jkut: 226
+AllRankings = All
+
+# jkut/pgs/modelsPg.jkut: 135
+# jkut/pgs/rankingsPg.jkut: 124
+# jkut/pgs/rankingsPg.jkut: 163
+Assets = Assets
+
+# jkut/pgs/modelsPg.jkut: 163
+Assets average = Assets average
+
+# jkut/pgs/modelsPg.jkut: 169
+Bests = Bests
+
+# jkut/pgs/msgPg.jkut: 20
+Click %0 to continue. = Click %0 to continue.
+
+# jkut/pgs/rankingsPg.jkut: 224
+Current = Current
+
+# jkut/pgs/home.jkut: 94
+# jkut/pgs/modelsPg.jkut: 126
+# jkut/pgs/rankingsPg.jkut: 115
+Cycle = Cycle
+
+# jkut/libdm/log.jkut: 38
+# jkut/pgs/home.jkut: 82
+Delete = Delete
+
+# jkut/pgs/modelsPg.jkut: 59
+Duplicates = Duplicates
+
+# jkut/libdm/log.jkut: 39
+# jkut/pgs/home.jkut: 83
+Errors = Errors
+
+# jkut/pgs/home.jkut: 25
+Evaluating = Evaluating
+
+# jkut/pgs/modelsPg.jkut: 149
+Fleas number = Fleas number
+
+# jkut/pgs/home.jkut: 24
+Generating = Generating
+
+# jkut/main.jkut: 36
+Home = Home
+
+# jkut/pgs/modelsPg.jkut: 122
+# jkut/pgs/rankingsPg.jkut: 111
+# jkut/pgs/rankingsPg.jkut: 152
+Id = Id
+
+# jkut/main.jkut: 21
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. = KtWeb session is closed.\nAuthenticating from KtWeb:Main.
+
+# jkut/libdm/log.jkut: 40
+# jkut/pgs/home.jkut: 84
+Log = Log
+
+# jkut/main.jkut: 40
+# jkut/pgs/modelsPg.jkut: 55
+# jkut/pgs/modelsPg.jkut: 131
+# jkut/pgs/rankingsPg.jkut: 120
+Models = Models
+
+# jkut/pgs/rankingsPg.jkut: 159
+Ms. = Ms.
+
+# jkut/pgs/modelsPg.jkut: 118
+Pos. = Pos.
+
+# jkut/pgs/modelsPg.jkut: 156
+Position average = Position average
+
+# jkut/pgs/modelsPg.jkut: 182
+Ranking = Ranking
+
+# jkut/main.jkut: 38
+Rankings = Rankings
+
+# jkut/libdm/log.jkut: 37
+# jkut/pgs/home.jkut: 81
+Reload = Reload
+
+# jkut/pgs/home.jkut: 27
+Saving = Saving
+
+# jkut/pgs/home.jkut: 26
+Selecting = Selecting
+
+# jkut/main.jkut: 73
+Session is expired. = Session is expired.
+
+# jkut/pgs/home.jkut: 110
+Start = Start
+
+# jkut/pgs/home.jkut: 23
+Stopped = Stopped
+
+# jkut/pgs/modelsPg.jkut: 173
+Worsts = Worsts
+
+# jkut/pgs/msgPg.jkut: 17
+here = here
+

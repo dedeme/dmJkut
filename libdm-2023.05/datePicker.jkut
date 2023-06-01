@@ -1,0 +1,381 @@
+// Copyright 17-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// DatePicker widget.
+
+Q = ui.q;
+
+// b. Field. 'true' if language is spanish and false if it is english.
+isEs = 0;
+// [n]|[]. Field. DatePicker date.
+date = isEs + 1;
+// \->(). Field. Function to do when DatePicker is clicked.
+fn = date + 1;
+// n. Field. Date of the first day of 'date'
+dateView = fn + 1;
+// b. Field. If DatePicker is style floating.
+floating = dateView + 1;
+// <domo>. Field. 'span' to show the calendar month.
+elMonth = floating + 1;
+// <domo>. Field. 'span' to show the calendar year.
+elYear = elMonth + 1;
+// [[<domo>...]...]. Field. Tds of table to show the calendar days.
+elDays = elYear + 1;
+// <domo>. Field. 'tr' 6th. row of calendar.
+exTr = elDays + 1;
+// <domo>. Field. 'tr' Last row of calendar
+tr4 = exTr + 1;
+// <domo>. Field. 'table' Table of days.
+tb = tr4 + 1;
+
+/// Constructor
+///   isEs: 'true' if language is spanish and false if it is english.
+///   date: Initial date (e.g. 'time.now()').
+///   fn  : Function to do when DatePicker is clicked.
+///           - If 'none' is clicked an empty string is sent to 'fn'.
+///           - If a day is clicked a date in format 'YYYYMMDD' is sent to 'fn'.
+/// \b, n, (\s->()) -> x<datePicker>
+mk = \isEs, date, fn -> return [
+    isEs, [date], fn,
+    time.mkDate(1, time.month(date), time.year(date)), //dateView
+    false, // floating
+    Q("span"), // elMonth
+    Q("span"), // elYear
+    [], // elDays
+    Q("tr"), // exTr
+    Q("tr"), // tr4
+    Q("table") // tb
+  ];;
+
+/// Returns the selected date.
+/// \<datePocker> -> [s]|[]
+getDate = \Dp -> return Dp[date];;
+
+// \<datePicker> -> [s...]
+months = \Dp -> return Dp[isEs]
+    ? ["ene", "feb", "mar", "abr", "may", "jun", "jul",
+      "ago", "sep", "oct", "nov", "dic"]
+    : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+      "Aug", "Sep", "Oct", "Nov", "Dec"]
+  ;;
+
+// \<datePicker> -> [s...]
+weekDays = \Dp -> return Dp[isEs]
+    ? ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"]
+    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  ;;
+
+// \<datePicker> -> dic
+i18n = \Dp -> return Dp[isEs]
+    ? {firstWeekDay: 1, today: "Hoy", none: "Nada"}
+    : {firstWeekDay: 0, today: "Today", none: "None"}
+  ;;
+
+// \<datePicker>->()
+load = \Dp -> {
+  Dp[elMonth].html(months(Dp)[time.month(Dp[dateView]) - 1]);
+  Dp[elYear].html("" + time.year(Dp[dateView]));
+
+  ix0 = time.weekday(Dp[dateView]) - i18n(Dp).firstWeekDay;
+  ix = ix0 < 0 ? 7 + ix0 : ix0;
+  month = time.month(Dp[dateView]);
+  Date1 = [time.mkDate(time.day(Dp[dateView]) - ix, month, time.year(Dp[dateView]))];
+
+  today = time.now();
+  tyear = time.year(today);
+  tmonth = time.month(today);
+  tday = time.day(today);
+
+  Dyear = [tyear];
+  Dmonth = [tmonth];
+  Dday = [tday];
+
+  if (Dp[date]) {
+    Dyear! = time.year(Dp[date]!);
+    Dmonth! = time.month(Dp[date]!);
+    Dday! = time.day(Dp[date]!);
+  }
+
+  ExtraRow = [false];
+  iter.each([0:6], \i -> {
+    if (i == 5 & time.month(Date1!) == month) ExtraRow! = true;
+    iter.each([0:7], \j -> {
+      d = Dp[elDays][i][j].removeAll();
+      year1 = time.year(Date1!);
+      month1 = time.month(Date1!);
+      day1 = time.day(Date1!);
+
+      if (day1 == Dday! & month1 == Dmonth! & year1 == Dyear!) {
+        d.klass("select");
+      } else {
+        d.klass("day");
+        if (time.month(Date1!) != month) d.klass("dayOut");
+        if (time.weekday(Date1!) == 6 | time.weekday(Date1!) == 0) {
+          d.klass("weekend");
+          if (time.month(Date1!) != month) d.klass("weekendOut");
+        }
+      }
+      if (day1 == tday & month1 == tmonth & year1 == tyear)
+        d.klass("today");
+
+      ddate1 = Date1!;
+      d.html("<span class='day'>" + time.day(ddate1) + "</span>");
+      d.att("id", math.toStr(ddate1));
+      Date1! = time.mkDate(
+        time.day(Date1!) + 1, time.month(Date1!), time.year(Date1!)
+      );
+    });
+  });
+
+  if (Dp[tb].getAtt("hasTrEx") == "true") {
+    Dp[tb].remove(Dp[exTr]);
+    Dp[tb].att("hasTrEx", "false");
+  }
+
+  if (ExtraRow!) {
+    Dp[tb].remove(Dp[tr4]);
+
+    Dp[tb].add(Dp[exTr]).add(Dp[tr4]);
+    Dp[tb].att("hasTrEx", "true");
+  }
+};
+
+// \<datePicker> -> ()
+previousMonth = \Dp -> {
+  Dp[dateView] = time.mkDate(
+    1, time.month(Dp[dateView]) - 1, time.year(Dp[dateView])
+  );
+  load(Dp);
+};
+
+// \<datePicker> -> ()
+nextMonth = \Dp -> {
+  Dp[dateView] = time.mkDate(
+    1, time.month(Dp[dateView]) + 1, time.year(Dp[dateView])
+  );
+  load(Dp);
+};
+
+// \<datePicker> -> ()
+previousYear = \Dp -> {
+  Dp[dateView] = time.mkDate(
+    1, time.month(Dp[dateView]), time.year(Dp[dateView]) - 1
+  );
+  load(Dp);
+};
+
+// \<datePicker> -> ()
+nextYear = \Dp -> {
+  Dp[dateView] = time.mkDate(
+    1, time.month(Dp[dateView]), time.year(Dp[dateView]) + 1
+  );
+  load(Dp);
+};
+
+// \<datePicker> -> ()
+today = \Dp -> {
+  today = time.now();
+  Dp[date]! = today;
+  Dp[dateView] = time.mkDate(1, time.month(today), time.year(today));
+  load(Dp);
+};
+
+// When 'none' is clicked an empty string is sent to 'fn'.
+// \<datePicker> -> ()
+none = \Dp -> {
+  Dp[date] = [];
+  load(Dp);
+  Dp[fn]("");
+};
+
+// When a date is clicked it is sent to 'fn' in format 'YYYYMMDD'.
+// \<datePicker>, n -> ()
+clickDay = \Dp, newDate -> {
+  Dp[date] = [newDate];
+  load(Dp);
+  Dp[fn](time.toStr(newDate));
+};
+
+/// Returns a <datePicker> widget.
+///   Dp: Date picker.
+/// <datePicker> -> <domo>
+mkWg = \Dp -> {
+  // \s, (\->()) -> ()
+  mkArrow = \tx, f -> return Q("td")
+    .klass("arrow")
+    .add(Q("span")
+      .html(tx)
+      .on("click", \e -> f();))
+  ;;
+
+  // \n, s, (\->()), <domo>, s, (\->()) -> domo
+  mkHeader = \colspan, txarr1, farr1, element, txarr2, farr2 -> return Q("td")
+    .att("colspan", colspan)
+    .add(Q("table")
+      .klass("in")
+      .add(Q("tr")
+        .add(mkArrow(txarr1, farr1))
+        .add(Q("td")
+          .style("vertical-align:bottom")
+          .add(element.klass("title")))
+        .add(mkArrow(txarr2, farr2))))
+  ;;
+
+  Dp[elMonth] = Q("span");
+  Dp[elYear] = Q("span");
+  Dp[elDays] = [];
+
+  Dp[tr4] = Q("tr")
+    .add(Q("td")
+      .att("colspan", 4)
+      .klass("left")
+      .add(Q("span").klass("link")
+        .html(i18n(Dp).today)
+        .on("click", \e -> today(Dp);)))
+    .add(Q("td")
+      .att("colspan", 3)
+      .klass("right")
+      .add(Q("span")
+        .klass("link")
+        .html(i18n(Dp).none)
+        .on("click", \e -> none(Dp);)));
+
+  Dp[tb] = Q("table")
+    .att("hasTrEx", "false")
+    .klass("dmDatePicker")
+    .add(Q("tr")
+      .add(mkHeader(
+        3, "&laquo",
+        \ -> previousMonth(Dp);,
+        Dp[elMonth],
+        "&raquo;",
+        \ -> nextMonth(Dp);
+      ))
+      .add(Q("td"))
+      .add(mkHeader(
+        3, "&laquo",
+        \ -> previousYear(Dp);,
+        Dp[elYear],
+        "&raquo;",
+        \ -> nextYear(Dp);
+      )))
+    .add(Q("tr")
+      .adds(arr.fromIter(iter.map([0:7], \i -> {
+        ix0 = i + i18n(Dp).firstWeekDay;
+        ix = ix0 > 6 ? ix0 - 7 : ix0;
+        return Q("td")
+          .html(weekDays(Dp)[ix])
+        ;
+      }))))
+    .adds((\ -> {
+        Rows = arr.fromIter(iter.map([0:5], \i -> {
+          Tds = [];
+          tr = Q("tr")
+            .adds(arr.fromIter(iter.map([0:7], \j -> {
+              td = Q("td");
+              td.on("click", \e -> clickDay(Dp, math.fromStr(td.getAtt("id"))!););
+              arr.push(Tds, td);
+              return td;
+            })))
+          ;
+          Dp[elDays].push(Tds);
+          return tr;
+        }));
+        Tds = [];
+        Dp[exTr] = Q("tr")
+          .adds(arr.fromIter(iter.map([0:7], \i -> {
+            td = Q("td");
+            td.on("click", \e -> clickDay(Dp, math.fromStr(td.getAtt("id"))!););
+            arr.push(Tds, td);
+            return td;
+          })))
+        ;
+        Dp[elDays].push(Tds);
+        return Rows;
+      })())
+    .add(Dp[tr4]);
+  load(Dp);
+  return Q("div")
+    .style(Dp[floating] ? "position:absolute" : "position:relative")
+    .add(Dp[tb])
+  ;
+};
+
+/// Makes a DatePicker which depends on a button.
+///   Dp    : Date picker.
+///   button: A Button.
+/// <datePicker>, <domo> -> <domo>
+mkButton = \Dp, button -> {
+  span = Q("span");
+  IsShow = [false];
+
+  // \<event> -> ()
+  btAction = \ev -> {
+    if (!IsShow!) {
+      span.add(mkWg(Dp));
+      IsShow! = true;
+      return;
+    }
+    span.removeAll();
+    IsShow! = false;
+  };
+  button.on("click", btAction);
+
+  previousFn = Dp[fn];
+  Dp[fn] = \s -> {
+    previousFn(s);
+    span.removeAll();
+    IsShow! = false;
+  };
+
+  Dp[floating] = true;
+  return Q("span")
+    .add(button)
+    .add(span)
+  ;
+};
+
+/// Makes a DatePicker which depends on a text field.
+///   Dp       : Date picker.
+///   textInput: A text input.
+/// <datePicker>, <domo> -> <domo>
+mkText = \Dp, textInput -> {
+  // \s -> s
+  format = \s -> {
+    d = time.fromStr(s);
+    return Dp[isEs] ? time.toIso(d) : time.toEn(d);
+  };
+  span = Q("span");
+  IsShow = [false];
+
+  // \<event> -> ()
+  btAction = \ev -> {
+    if (!IsShow!) {
+      span.add(mkWg(Dp));
+      IsShow! = true;
+      return;
+    }
+    span.removeAll();
+    IsShow! = false;
+  };
+
+  Date = getDate(Dp);
+  val = Date ? format(time.toStr(Date!)) : "";
+  textInput.value(val);
+  textInput.on("click", btAction);
+  textInput.on("keydown", \e -> do "e.preventDefault();";);
+
+  previousFn = Dp[fn];
+  Dp[fn] = \s -> {
+    textInput.value(s == "" ? "" : format(s));
+    previousFn(s);
+    span.removeAll();
+    IsShow! = false;
+  };
+
+  Dp[floating] = true;
+  return Q("span")
+    .add(textInput)
+    .add(span)
+  ;
+};

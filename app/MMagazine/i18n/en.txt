@@ -1,0 +1,121 @@
+# ORPHAN
+Accept = Accept
+
+# ORPHAN
+Accounting = Accounting
+
+# ORPHAN
+Assets = Assets
+
+# ORPHAN
+Cash Prfs. = Cash Prfs.
+
+# ORPHAN
+Check gray squares = Check gray squares
+
+# ORPHAN
+Dates of profits and ibex does not match = Dates of profits and ibex does not match
+
+# ORPHAN
+Grey squares checks are wrong = Grey squares checks are wrong
+
+# ORPHAN
+Hot Maps = Hot Maps
+
+# ORPHAN
+Ibex = Ibex
+
+# ORPHAN
+Investor = Investor
+
+# ORPHAN
+Investors - Ibex = Investors - Ibex
+
+# ORPHAN
+Investors average = Investors average
+
+# ORPHAN
+Keep connected = Keep connected
+
+# ORPHAN
+Login = Login
+
+# ORPHAN
+Model = Model
+
+# ORPHAN
+Models = Models
+
+# ORPHAN
+Password = Password
+
+# ORPHAN
+Password is missing = Password is missing
+
+# ORPHAN
+Percentages = Percentages
+
+# ORPHAN
+Points = Points
+
+# ORPHAN
+Profits = Profits
+
+# ORPHAN
+Reset must be made from server! = Reset must be made from server!
+
+# ORPHAN
+Risk = Risk
+
+# ORPHAN
+User = User
+
+# ORPHAN
+User name is missing = User name is missing
+
+# ORPHAN
+Wrong password = Wrong password
+
+# TO DO
+# jkut/main.jkut: 20
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. =
+
+# jkut/pgs/main/home.jkut: 56
+2 Days = 2 Days
+
+# jkut/pgs/main/home.jkut: 57
+All = All
+
+# jkut/pgs/main/home.jkut: 55
+All log entries will be deleted.\nContinue? = All log entries will be deleted.\nContinue?
+
+# jkut/pgs/msgPg.jkut: 21
+Click %0 to continue. = Click %0 to continue.
+
+# jkut/pgs/main/home.jkut: 59
+Delete = Delete
+
+# jkut/pgs/main/home.jkut: 60
+Errors = Errors
+
+# jkut/wgs/dmenu.jkut: 17
+Home = Home
+
+# jkut/wgs/dmenu.jkut: 19
+KtMarket = KtMarket
+
+# jkut/pgs/main/home.jkut: 61
+Log = Log
+
+# jkut/wgs/dmenu.jkut: 21
+MMarket = MMarket
+
+# jkut/pgs/main/home.jkut: 58
+Reload = Reload
+
+# jkut/main.jkut: 73
+Session is expired. = Session is expired.
+
+# jkut/pgs/msgPg.jkut: 18
+here = here
+

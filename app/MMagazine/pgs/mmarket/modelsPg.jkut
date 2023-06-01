@@ -1,0 +1,109 @@
+// Copyright 29-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Percentages page
+
+import "libdm/menu";
+import "data/cts";
+import "data/modelFloats";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  Url = ui.url();
+  type = dic.hasKey(Url, "2") ? Url["2"] : "";
+  Rp = await client.send({
+    prg: cts.appName,
+    module: "MMarket",
+    source: "ModelsPg",
+    rq: "idata",
+    type
+  });
+  typeSel = Rp.type;
+  DataGroups = arr.map(Rp.dataGroups, modelFloats.fromJs);
+  for (Vs = DataGroups)
+    arr.sort(Vs.Values, \E1, E2 -> return E1.value > E2.value;);
+
+  // View ----------------------------------------------------------------------
+
+  // \<modelFloats> -> <domo>
+  groupTable = \Values -> {trace Values;
+    return Q("table")
+      .klass("flat")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("frame")
+          .att("colspan", 2)
+          .style("text-align:center")
+          .text(time.toIso(time.fromStr(Values.date)))))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("lhead")
+          .text(II("Model")))
+        .add(Q("td")
+          .klass("rhead")
+          .text(typeSel == "points" ? II("Points") : "€")))
+      .adds(arr.map(Values.Values, \E -> return Q("tr")
+        .add(Q("td")
+          .klass("lframe")
+          .text(E.model))
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(E.value, 2)));))
+    ;};
+
+  // \n, n -> <domo>
+  rowGroups = \start, end ->
+    return Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .adds(arr.fromIter(iter.map([start:end], \i ->
+            return Q("td").add(groupTable(DataGroups[i]));
+        ))))
+    ;;
+
+  lopts = [
+    menu.tlink("points", II("Points"), ["mmarket&models"]),
+    menu.separator(),
+    menu.tlink("total", II("Assets"), ["mmarket&models"]),
+    menu.separator(),
+    menu.tlink("cash", II("Cash Prfs."), ["mmarket&models"]),
+    menu.separator(),
+    menu.tlink("ref", II("Risk"), ["mmarket&models"])
+  ];
+  menuWg = menu.mk(lopts, [], typeSel, false);
+
+
+  groups = arr.size(DataGroups);
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(rowGroups(0, groups >= 4 ? 4 : groups))
+  ;
+
+  if (groups >= 4)
+    wg
+      .add(rowGroups(4, groups >= 8 ? 8 : groups))
+    ;
+
+  if (groups >= 8)
+    wg
+      .add(Q("hr"))
+      .add(rowGroups(8, groups >= 13 ? 13 : groups))
+    ;
+
+  if (groups >= 13)
+    wg
+      .add(rowGroups(13, groups >= 18 ? 18 : groups))
+    ;
+
+  if (groups >= 18)
+    wg
+      .add(Q("hr"))
+      .add(rowGroups(18, groups))
+    ;
+
+};

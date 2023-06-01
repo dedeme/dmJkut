@@ -1,0 +1,13 @@
+// Copyright 16-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Flea model.
+
+/// Constructor
+///   modelId: Model identifier.
+///   Params : Model parameters.
+/// \s, [f...] -> <fmodel>
+mk = \modelId, Params -> return {modelId, Params};;
+
+/// \[*(JS)...] -> <fmodel>
+fromJs = \A -> return mk(A[0], A[1]);;

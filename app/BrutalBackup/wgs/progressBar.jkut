@@ -1,0 +1,98 @@
+// Copyright 15-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Progress bar widget
+
+Q = ui.q;
+
+/// Constructor
+/// <progressBar> is a dictionary with the following keys:
+///   show (\->())       : Shows the progress bar.
+///   lock (\s -> ())    : Shows a message and hides progress bar elements.
+///   setValue (\n -> ()): Set the current value.
+/// Parameters:
+///   wg  : Container
+///   fend: Value to finish activity.
+/// \<domo>, n -> <progressBar>
+mk = \wg, fend -> {
+  absoluteSpan = Q("span");
+  relativeSpan = Q("span");
+  progressTable = Q("table");
+  end = math.toInt(fend);
+
+  // Shows the progress bar.
+  // \ -> ()
+  show = \ -> {
+    wg
+      .removeAll()
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align:center")
+            .add(absoluteSpan)))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(progressTable)))
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align:center")
+            .add(relativeSpan))))
+    ;
+  };
+
+  // Shows a message and hides progress bar elements.
+  // \s -> ()
+  lock = \msg -> {
+    wg
+      .removeAll()
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frame")
+            .text(msg))))
+    ;
+  };
+
+  // Set the current value.
+  // \n -> ()
+  setValue = \value -> {
+    width = 400;
+    val = (value > end) ? end : math.toInt(value);
+
+    absoluteSpan
+      .removeAll()
+      .text("" + math.toIso(val, 0) + " / " + math.toIso(end, 0))
+    ;
+
+    relativeSpan
+      .removeAll()
+      .text(end > 0 ? (math.toIso(val * 100 / end, 2) + "%") : "");
+
+    tds = [
+      Q("td")
+        .klass("border")
+        .style(
+            "height:5px;background:#000080;width:" +
+            math.toInt(val * width / end) + "px"
+          )
+    ];
+    if (end != val) tds.push(Q("td"));
+
+    progressTable
+      .removeAll()
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("frame")
+          .add(Q("table")
+            .style("border-collapse : collapse;width:" + width + "px")
+            .add(Q("tr")
+              .adds(tds)))))
+    ;
+  };
+
+  return {show, lock, setValue};
+};
+

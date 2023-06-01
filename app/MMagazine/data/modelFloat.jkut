@@ -1,0 +1,16 @@
+// Copyright 26-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Pair Model - Float.
+
+/// \s, n -> d<ModelFloat>
+mk = \model, value ->  return {
+  model,
+  value
+};;
+
+/// \<ModelValue> -> [*(JS)...]
+toJs = \Mf -> return [Mf.model, Mf.value];;
+
+/// \[*(JS)...] -> <ModelValue>
+fromJs = \A -> return mk(A[0], A[1]);;

@@ -1,0 +1,75 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "Click %0 to continue.": "Hacer click %0 para continuar.",
+  "Delete %0?": "¿Eliminar %0?",
+  "File": "Archivo",
+  "Libraries": "Librerías",
+  "Library path not found o not valid.": "La ruta de la librería no existe o no es válida.",
+  "Name": "Nombre",
+  "Name '%0' contains '%1'": "El nombre '%0' contiene '%1'",
+  "Name '%0' contains blanks": "El nombre '%0' contiene espacios en blanco",
+  "Name '%0' is repeated": "El nombre está repetido",
+  "Name is missing": "Falta el nombre",
+  "Overview": "Resumen",
+  "Path": "Ruta",
+  "Path '%0' does not start with '/'": "El path '%0' no comienza con '/'",
+  "Path is '/'": "El path es '/'",
+  "Path is missing": "Falta la ruta",
+  "Session is expired.": "La sesión ha expirado.",
+  "There are no libraries": "No hay librerías",
+  "This source can not be selected, because it does not exist": "Esta librería no puede seleccionarse por que no existe",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Delete %0?": "Delete %0?",
+  "File": "File",
+  "Libraries": "Libraries",
+  "Library path not found o not valid.": "Library path not found o not valid.",
+  "Name": "Name",
+  "Name '%0' contains '%1'": "Name '%0' contains '%1'",
+  "Name '%0' contains blanks": "Name '%0' contains blanks",
+  "Name '%0' is repeated": "Name '%0' is repeated",
+  "Name is missing": "Name is missing",
+  "Overview": "Overview",
+  "Path": "Path",
+  "Path '%0' does not start with '/'": "Path '%0' does not start with '/'",
+  "Path is '/'": "Path is '/'",
+  "Path is missing": "Path is missing",
+  "Session is expired.": "Session is expired.",
+  "There are no libraries": "There are no libraries",
+  "This source can not be selected, because it does not exist": "This source can not be selected, because it does not exist",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return T ? T! : s;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

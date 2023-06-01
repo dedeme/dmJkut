@@ -1,0 +1,72 @@
+// Copyright 23-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// DatePicker tests
+
+import "libdm/datePicker";
+
+Q = ui.q;
+
+// \-> <domo>
+datePicker1 = \ -> {
+  return Q("div")
+    .add(Q("h2")
+      .html("DatePicker 1"))
+    .add(datePicker.mkWg(datePicker.mk(
+        true,
+        time.addDays(time.now(), 2),
+        \d -> ui.alert("Picked date is '" + d + "'");
+      )));
+};
+
+// \-> <domo>
+datePicker2 = \ -> {
+  bt = Q("button")
+    .html("Date Picker")
+  ;
+
+  Dp = datePicker.mk(
+    false,
+    time.addDays(time.now(), 2),
+    \d -> ui.alert("Picked date is '" + d + "'");
+  );
+
+  return Q("div")
+    .add(Q("h2")
+      .html("DatePicker 2"))
+    .add(Q("p")
+      .add(datePicker.mkButton(Dp, bt))
+      .add(Q("span")
+        .html("Next Text")))
+    .add(Q("h3")
+      .html("Some text"));
+};
+
+// \-> <domo>
+datePicker3 = \ -> {
+  tx = Q("input")
+    .att("type", "text")
+  ;
+
+  Dp = datePicker.mk(
+    true,
+    time.addDays(time.now(), 2),
+    \d -> ui.alert("Picked date is '" + d + "'");
+  );
+
+  return Q("div")
+    .add(Q("h2")
+      .html("DatePicker 3"))
+    .add(Q("p")
+      .add(datePicker.mkText(Dp, tx))
+      .add(Q("span")
+        .html("Next Text")))
+    .add(Q("h3")
+      .html("Some text"));
+};
+
+Q("@body")
+  .add(datePicker1())
+  .add(datePicker2())
+  .add(datePicker3())
+;

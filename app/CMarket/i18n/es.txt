@@ -1,0 +1,64 @@
+# TO DO
+# jkut/pgs/home/home.jkut: 51
+2 Days =
+
+# TO DO
+# jkut/pgs/home/home.jkut: 52
+All =
+
+# TO DO
+# jkut/pgs/home/home.jkut: 50
+All log entries will be deleted.\nContinue? =
+
+# TO DO
+# jkut/pgs/msgPg.jkut: 21
+Click %0 to continue. =
+
+# TO DO
+# jkut/pgs/home/home.jkut: 54
+Delete =
+
+# TO DO
+# jkut/pgs/home/home.jkut: 55
+Errors =
+
+# TO DO
+# jkut/wgs/dmenu.jkut: 17
+Home =
+
+# TO DO
+# jkut/wgs/dmenu.jkut: 19
+KtMarket =
+
+# TO DO
+# jkut/main.jkut: 19
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. =
+
+# TO DO
+# jkut/pgs/home/home.jkut: 56
+Log =
+
+# TO DO
+# jkut/wgs/dmenu.jkut: 21
+MMarket =
+
+# TO DO
+# jkut/data/cts.jkut: 52
+Operation failed.\nSee log. =
+
+# TO DO
+# jkut/data/cts.jkut: 50
+Operation successfully done. =
+
+# TO DO
+# jkut/pgs/home/home.jkut: 53
+Reload =
+
+# TO DO
+# jkut/main.jkut: 70
+Session is expired. =
+
+# TO DO
+# jkut/pgs/msgPg.jkut: 18
+here =
+

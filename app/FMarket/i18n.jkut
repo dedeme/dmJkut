@@ -1,0 +1,105 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "2 Days": "2 días",
+  "All": "Todo",
+  "All log entries will be deleted.\nContinue?": "Todas las entradas serán borradas.\n¿Continuar?",
+  "AllRankings": "Todas",
+  "Assets": "Patrimonio",
+  "Assets average": "Media del patrimonio",
+  "Bests": "Mejores",
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Current": "Actual",
+  "Cycle": "Ciclo",
+  "Delete": "Borrar",
+  "Duplicates": "Repeticiones",
+  "Errors": "Errores",
+  "Evaluating": "Evaluando",
+  "Fleas number": "Numero de pulgas",
+  "Generating": "Generando",
+  "Home": "Inicio",
+  "Id": "Id",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "Log": "Registro",
+  "Models": "Modelos",
+  "Ms.": "Ms.",
+  "Pos.": "Pos.",
+  "Position average": "Posición media",
+  "Ranking": "Clasificación",
+  "Rankings": "Clasificaciones",
+  "Reload": "Recargar",
+  "Saving": "Guardando",
+  "Selecting": "Seleccionando",
+  "Session is expired.": "Las sesión ha expirado.",
+  "Start": "Comenzar",
+  "Stopped": "Detenido",
+  "Worsts": "Peores",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "2 Days": "2 Days",
+  "All": "All",
+  "All log entries will be deleted.\nContinue?": "All log entries will be deleted.\nContinue?",
+  "AllRankings": "All",
+  "Assets": "Assets",
+  "Assets average": "Assets average",
+  "Bests": "Bests",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Current": "Current",
+  "Cycle": "Cycle",
+  "Delete": "Delete",
+  "Duplicates": "Duplicates",
+  "Errors": "Errors",
+  "Evaluating": "Evaluating",
+  "Fleas number": "Fleas number",
+  "Generating": "Generating",
+  "Home": "Home",
+  "Id": "Id",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
+  "Log": "Log",
+  "Models": "Models",
+  "Ms.": "Ms.",
+  "Pos.": "Pos.",
+  "Position average": "Position average",
+  "Ranking": "Ranking",
+  "Rankings": "Rankings",
+  "Reload": "Reload",
+  "Saving": "Saving",
+  "Selecting": "Selecting",
+  "Session is expired.": "Session is expired.",
+  "Start": "Start",
+  "Stopped": "Stopped",
+  "Worsts": "Worsts",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return T ? T! : s;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

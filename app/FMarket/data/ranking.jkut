@@ -1,0 +1,15 @@
+// Copyright 16-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Ranking data.
+
+import "flea";
+
+/// Constructor.
+///   date : Ranking date.
+///   Fleas: Fleas in ranking.
+/// \s, [<flea>...] -> <ranking>
+mk = \date, Fleas -> return {date, Fleas};;
+
+/// \[*(JS)...] -> <ranking>
+fromJs = \A -> return mk(A[0], arr.map(A[1], flea.fromJs));;

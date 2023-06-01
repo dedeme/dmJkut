@@ -1,0 +1,77 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "'From' is missing": "No hay valor para el campo 'Desde'",
+  "'From' is root": "'Desde' es raíz",
+  "'Id' is missing": "No ha valor para el campo 'Id'",
+  "'To' is missing": "No hay valor para el campo 'A'",
+  "'To' is root": "'A' es raíz",
+  "Already exists a backup with id '%0'\nOverwrite?": "Ya existe una copia de seguridad con id '%0'\n¿Sobreescribirla?",
+  "Backup finalized": "Copia de seguridad finalizada",
+  "Backup of '%0'": "Copia de seguridad de '%0'",
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Delete '%0'?": "¿Borrar '%0'?",
+  "From": "Desde",
+  "Id": "Id",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "List": "Lista",
+  "Paths": "Rutas",
+  "Session is expired.": "Las sesión ha expirado.",
+  "Time to read files list is not kown yet": "Tiempo para leer la lista de archivos no finalizado todavía",
+  "To": "A",
+  "Without Backups": "Sin copias de seguridad",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "'From' is missing": "'From' is missing",
+  "'From' is root": "'From' is root",
+  "'Id' is missing": "'Id' is missing",
+  "'To' is missing": "'To' is missing",
+  "'To' is root": "'To' is root",
+  "Already exists a backup with id '%0'\nOverwrite?": "Already exists a backup with id '%0'\nOverwrite?",
+  "Backup finalized": "Backup finalized",
+  "Backup of '%0'": "Backup of '%0'",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Delete '%0'?": "Delete '%0'?",
+  "From": "From",
+  "Id": "Id",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
+  "List": "List",
+  "Paths": "Paths",
+  "Session is expired.": "Session is expired.",
+  "Time to read files list is not kown yet": "Time to read files list is not kown yet",
+  "To": "To",
+  "Without Backups": "Without Backups",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return T ? T! : s;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

@@ -1,0 +1,99 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "2 Days": "2 días",
+  "Active": "Activo",
+  "All": "Todo",
+  "All log entries will be deleted.\nContinue?": "Todas las entradas serán borradas.\n¿Continuar?",
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Command": "Instrucción",
+  "Command value is missing": "No se ha indicado la instrucción a ejecutar",
+  "Day": "Día",
+  "Day value is missing": "Falta indicar el día",
+  "Delete": "Borrar",
+  "Delete annotation?": "¿Elimimar la anotación?",
+  "Errors": "Errores",
+  "Fix": "Fijo",
+  "Fixed days": "Días fijos",
+  "Home": "Inicio",
+  "Hour - Minute": "Hora - Minuto",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "Log": "Registro",
+  "MTWRFSU": "LMXJVSD",
+  "Manual": "Manual",
+  "Periodic": "Periódico",
+  "Periodic days": "Dias periódicos",
+  "Reactivate": "Reactivar",
+  "Reload": "Recargar",
+  "Server": "Servidor",
+  "Session is expired.": "Las sesión ha expirado.",
+  "Stop": "Detener",
+  "Time is equals or previous to the current one": "El tiempo es igual o anterior al actual.",
+  "Week days is missing": "No se ha indicado ningún dia de la semana",
+  "Without entries": "Sin entradas",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "2 Days": "2 Days",
+  "Active": "Active",
+  "All": "All",
+  "All log entries will be deleted.\nContinue?": "All log entries will be deleted.\nContinue?",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Command": "Command",
+  "Command value is missing": "Command value is missing",
+  "Day": "Day",
+  "Day value is missing": "Day value is missing",
+  "Delete": "Delete",
+  "Delete annotation?": "Delete annotation?",
+  "Errors": "Errors",
+  "Fix": "Fix",
+  "Fixed days": "Fixed days",
+  "Home": "Home",
+  "Hour - Minute": "Hour - Minute",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
+  "Log": "Log",
+  "MTWRFSU": "MTWRFSU",
+  "Manual": "Manual",
+  "Periodic": "Periodic",
+  "Periodic days": "Periodic days",
+  "Reactivate": "Reactivate",
+  "Reload": "Reload",
+  "Server": "Server",
+  "Session is expired.": "Session is expired.",
+  "Stop": "Stop",
+  "Time is equals or previous to the current one": "Time is equals or previous to the current one",
+  "Week days is missing": "Week days is missing",
+  "Without entries": "Without entries",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return T ? T! : s;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

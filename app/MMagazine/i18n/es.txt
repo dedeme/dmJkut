@@ -1,0 +1,121 @@
+# ORPHAN
+Accept = Aceptar
+
+# ORPHAN
+Accounting = Contabilidad
+
+# ORPHAN
+Assets = Capital
+
+# ORPHAN
+Cash Prfs. = Bfs. de Caja
+
+# ORPHAN
+Check gray squares = Marcar los cuadrados grises
+
+# ORPHAN
+Dates of profits and ibex does not match = Fechas de beneficios e Ibex no coinciden
+
+# ORPHAN
+Grey squares checks are wrong = Las casillas grises están mal marcadas
+
+# ORPHAN
+Hot Maps = Mapas de calor
+
+# ORPHAN
+Ibex = Ibex
+
+# ORPHAN
+Investor = Inversor
+
+# ORPHAN
+Investors - Ibex = Inversores - Ibex
+
+# ORPHAN
+Investors average = Media de los inversores
+
+# ORPHAN
+Keep connected = Mantenerse conectado
+
+# ORPHAN
+Login = Identificación
+
+# ORPHAN
+Model = Modelo
+
+# ORPHAN
+Models = Modelos
+
+# ORPHAN
+Password = Contraseña
+
+# ORPHAN
+Password is missing = Falta indicar la contraseña
+
+# ORPHAN
+Percentages = Porcentajes
+
+# ORPHAN
+Points = Puntos
+
+# ORPHAN
+Profits = Beneficios
+
+# ORPHAN
+Reset must be made from server! = ¡El borrado debe ser hecho desde el servidor!
+
+# ORPHAN
+Risk = Riesgo
+
+# ORPHAN
+User = Usuario
+
+# ORPHAN
+User name is missing = Falta indicar el nombre del usuario
+
+# ORPHAN
+Wrong password = La contraseña es incorrecta
+
+# TO DO
+# jkut/main.jkut: 20
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. =
+
+# jkut/pgs/main/home.jkut: 56
+2 Days = 2 días
+
+# jkut/pgs/main/home.jkut: 57
+All = Todo
+
+# jkut/pgs/main/home.jkut: 55
+All log entries will be deleted.\nContinue? = \"Todas las entradas serán borradas.\n¿Continuar?
+
+# jkut/pgs/msgPg.jkut: 21
+Click %0 to continue. = Hacer click %0 para continuar.
+
+# jkut/pgs/main/home.jkut: 59
+Delete = Borrar
+
+# jkut/pgs/main/home.jkut: 60
+Errors = Errores
+
+# jkut/wgs/dmenu.jkut: 17
+Home = Inicio
+
+# jkut/wgs/dmenu.jkut: 19
+KtMarket = KtMarket
+
+# jkut/pgs/main/home.jkut: 61
+Log = Registro
+
+# jkut/wgs/dmenu.jkut: 21
+MMarket = MMarket
+
+# jkut/pgs/main/home.jkut: 58
+Reload = Recargar
+
+# jkut/main.jkut: 73
+Session is expired. = La sesión ha expirado.
+
+# jkut/pgs/msgPg.jkut: 18
+here = aquí
+

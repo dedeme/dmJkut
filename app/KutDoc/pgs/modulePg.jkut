@@ -1,0 +1,195 @@
+// Copyright 14-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Module page.
+
+import "i18n";
+import "cts";
+import "msgPg";
+import "data/doc";
+
+Q = ui.q;
+II = i18n.tlt;
+
+tab = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+
+/// \<domo>, s, s -> ()
+mk = async \wg, pack, path -> {
+  Rp = await client.ssend({
+    prg: "KutDoc",
+    source: "ModulePg",
+    rq: "doc",
+    pack: pack,
+    path: path
+  });
+
+  if (!Rp.doc) {
+    msgPg.mk(wg, i18n.fmt(II("[%0] Kut file not found."), [path]), true);
+    return;
+  }
+
+  Doc = doc.fromJs(Rp.doc!);
+
+  arr.sort(Doc.Functions, \E1, E2 -> return str.less(E1.name, E2.name););
+  arr.sort(Doc.Values, \E1, E2 -> return str.less(E1.name, E2.name););
+
+  // \ -> <domo>
+  index = \-> {
+    // \[<docEntry>...], s -> [<domo>...]
+    block = \Entries, name -> {
+      if (!Entries) return [];
+
+      R = [];
+      arr.push(R, Q("tr")
+        .add(Q("td")
+          .att("colspan", "3")
+          .html("<i>" + name + "</i>"))
+      );
+      size = arr.size(Entries);
+      h = Math.floor((size - 1) / 3) + 1;
+      for (y = 0:h) {
+        arr.push(R, Q("tr")
+          .adds(arr.fromIter(iter.map([0:3], \x -> {
+              pos = x * h + y;
+              if (pos < size) {
+                E = Entries[pos];
+                return Q("td")
+                  .add(Q("a")
+                    .att("href", "#hp:" + E.name)
+                    .html(tab + E.name))
+                ;
+              } else {
+                return Q("td");
+              }
+            })))
+        );
+      }
+      return R;
+    };
+
+    return Q("div")
+      .add(Q("p")
+        .klass("frame2")
+        .html("<b>" + path + "</b>"))
+      .add(Q("table")
+        .klass("main")
+        .adds(block(Doc.Values, "Values"))
+        .adds(block(Doc.Functions, "Functions")))
+    ;
+  };
+
+  // \ -> <domo>
+  overview = \ -> {
+    return Q("div")
+      .add(Q("p")
+        .klass("frame")
+        .html("<b>" + II("Overview") + "</b>"))
+      .adds(mkHelp(Doc.doc))
+      .add(Q("p")
+        .html("<b>" + II("File") + "</b>")
+        .add(Q("br"))
+        .add(Q("a")
+          .att("href", "?" + pack + "@" + path + "&hp:")
+          .text(path + ".kut")))
+      .add(Q("hr"))
+    ;
+  };
+
+  // \ -> <domo>
+  body = \ -> {
+    // \[<docEntry>...], s, b -> [<domo>...]
+    block = \Entries, name, isFunction -> {  // false
+      // \<docEntry> -> <domo>
+      endEntry = \E -> {
+        IsNewLine = [true];
+        Bf2 = [""];
+        code = E.code;
+        for (i = 0:str.len(code)) {
+          ch = code[i];
+          if (IsNewLine! & ch != "\n") {
+            if (ch <= " ") {
+              Bf2! += "&nbsp;";
+            } else {
+              Bf2! += ch;
+              IsNewLine! = false;
+            }
+          } else if (ch == "\n") {
+            Bf2! += "<br>";
+            IsNewLine! = true;
+          } else {
+            Bf2! += ch;
+          }
+        }
+        return Q("div")
+          .add(Q("p")
+            .html("<tt>" + Bf2! + "</tt>"))
+          .adds(mkHelp(E.doc))
+          .add(Q("hr"))
+        ;
+      };
+
+      return arr.map(Entries, \E ->
+        return Q("div")
+          .add(Q("h3")
+            .att("id", "hp:" + E.name)
+            .add(Q("span")
+              .text(name + " "))
+            .add(Q("a")
+              .att(
+                "href",
+                "?" + pack + "@" + path + "&hp:" + E.link
+              ).text(E.name)))
+          .add(endEntry(E))
+        ;
+      );
+    };
+
+    return Q("div")
+      .adds(block(Doc.Values, "Value", false))
+      .adds(block(Doc.Functions, "Function", true))
+    ;
+  };
+
+  barIx = str.lastIndex(path, "/") + 1;
+  Q("@title").text(cts.appName + " - " + path[barIx:]);
+
+  wg
+    .removeAll()
+    .add(index())
+    .add(overview())
+    .add(Q("hr").klass("frame"))
+    .add(body())
+    .adds(arr.fromIter(iter.map([0:30], \i -> return Q("p").html("&nbsp;");)))
+  ;
+
+  lc = window.location.href;
+  ix = str.index(lc, "#");
+  if (ix != -1) {
+    tg = lc[ix:];
+    if (tg != "#") {
+      E = null(Q(tg).e);
+      if (E) {
+        E!.scrollIntoView(true);
+      }
+    }
+  }
+
+};
+
+// \s -> [<domo>...]
+mkHelp = \tx -> {
+  if (!str.trim(tx)) return [];
+
+  html = str.replace(str.replace(tx, "&", "&amp;"), "<", "&lt;");
+  R = [];
+  arr.push(R, Q("table")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame")
+        .style("white-space: nowrap")
+        .add(Q("pre")
+          .style("font-size: 14px;")
+          .html(html))))
+  );
+  return R;
+};

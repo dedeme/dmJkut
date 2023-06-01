@@ -1,0 +1,69 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "Amount": "Cantidad",
+  "Bills": "Gastos",
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Date": "Fecha",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "Month": "Mes",
+  "Place": "Lugar",
+  "Session is expired.": "Las sesión ha expirado.",
+  "Set Place": "Poner lugar",
+  "Stays": "Estancias",
+  "Summary": "Resumen",
+  "Sums": "Sumas",
+  "Total": "Total",
+  "Without Data": "Sin datos",
+  "Year": "Año",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "Amount": "Amount",
+  "Bills": "Bills",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Date": "Date",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
+  "Month": "Month",
+  "Place": "Place",
+  "Session is expired.": "Session is expired.",
+  "Set Place": "Set Place",
+  "Stays": "Stays",
+  "Summary": "Summary",
+  "Sums": "Sums",
+  "Total": "Total",
+  "Without Data": "Without Data",
+  "Year": "Year",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return T ? T! : s;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

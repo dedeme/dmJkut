@@ -1,0 +1,736 @@
+// Copyright 26-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Line chart.
+/// LineChart atributes:
+///   - ExArea
+///     -Atts
+///       - background: s
+///       - Border
+///         - color:  s
+///         - dotted: b
+///         - width: n
+///     - height: n
+///     - width: n
+///   - InPadding
+///     - top: n
+///     - right: n
+///     - bottom: n
+///     - left: n
+///   - InAtts
+///     - background: s
+///     - Border
+///       - color:  s
+///       - dotted: b
+///       - width: n
+///   - ChartPadding
+///     - top: n
+///     - right: n
+///     - bottom: n
+///     - left: n
+///   - XAxis
+///     - fontColor: s
+///     - fontSize: n
+///     - isMonospace: b
+///     - isItalic: b
+///     - isBold: b
+///     - Grid
+///       - color:  s
+///       - dotted: b
+///       - width: n
+///   - YAxis
+///     - fontColor: s
+///     - fontSize: n
+///     - isMonospace: b
+///     - isItalic: b
+///     - isBold: b
+///     - Grid
+///       - color:  s
+///       - dotted: b
+///       - width: n
+///     - parts: n
+///   -lang: s
+///
+/// <data> attributes:
+///   - Labels: [s...]
+///   - UnarySets: [<unarySet>...]
+///     · Line
+///       - color:  s
+///       - dotted: b
+///       - width: n
+///     · value: n
+///   - SetValues: [[[n]|[]...]...]
+///   - SetAtts: [<line>...]
+///     · line
+///       - color:  s
+///       - dotted: b
+///       - width: n
+///   - round: n
+///   - maxMinRound: n
+///   - drawGrid: \s, n -> b
+///   - drawLabel: \s, n -> b
+
+Q = ui.q;
+
+// PADDING
+
+/// Playground to draw padding. Mutable.
+/// \n, n, n, n -> d<padding>
+mkPadding = \top, right, bottom, left ->
+  return {top, right, bottom, left};;
+
+/// \<padding> -> <padding>
+paddingCopy = \P -> return mkPadding(P.top, P.right, P.bottom, P.left);;
+
+/// \<padding> -> [*(JS)...]
+paddingToJs = \P -> return [P.top, P.right, P.bottom, P.left];;
+
+/// \[*(JS)...] -> <padding>
+paddingFromJs = \A -> return mkPadding(A[0], A[1], A[2], A[3]);;
+
+/// \ -> <padding>
+mkPaddingExample = \ -> return mkPadding(8, 10, 20, 60);;
+
+// LINE
+
+/// Line properties. Mutable.
+/// \n, s, b -> d<line>
+mkLine = \width, color, dotted -> return {width, color, dotted};;
+
+/// \<line> -> <line>
+lineCopy = \L -> return mkLine(L.width, L.color, L.dotted);;
+
+/// \<line> -> [*(JS)...]
+lineToJs = \L -> return [L.width, L.color, L.dotted];;
+
+/// \[*(JS)...] -> <line>
+lineFromJs = \A -> return mkLine(A[0], A[1], A[2]);;
+
+/// \ -> <line>
+mkLineExample = \ -> return mkLine(1, "#002040", false);;
+
+// AREA-ATTS
+
+/// Attributtes of a chart area (extern or intern). Mutable.
+/// \<line>, s -> d<areaAtts>
+mkAreaAtts = \Border, background -> return {Border, background};;
+
+/// \<areaAtts> -> <areaAtts>
+areaAttsCopy = \A -> return mkAreaAtts(lineCopy(A.Border), A.background);;
+
+/// \<areaAtts> -> [*(JS)...]
+areaAttsToJs = \A -> return [lineToJs(A.Border), A.background];;
+
+/// \[*(JS)...] -> <areaAtts>
+areaAttsFromJs = \A -> return mkAreaAtts(lineFromJs(A[0]), A[1]);;
+
+/// \ -> <areaAtts>
+mkAreaAttsExample = \ -> return mkAreaAtts(mkLineExample(), "#e9eaec");;
+
+// AREA
+
+/// External area attibutes. Mutable.
+/// \n, n, <areaAtts> -> m<area>
+mkArea = \width, height, Atts -> return {width, height, Atts};;
+
+/// \<area> -> <area>
+areaCopy = \A -> return mkArea(A.width, A.height, areaAttsCopy(A.Atts));;
+
+/// \<area> -> [*(JS)...]
+areaToJs = \A -> return [A.width, A.height, areaAttsToJs(A.Atts)];;
+
+/// \[*(JS)...] -> <area>
+areaFromJs = \A -> return mkArea(A[0], A[1], areaAttsFromJs(A[2]));;
+
+/// \ -> <area>
+mkAreaExample = \ -> return mkArea(400, 200, mkAreaAttsExample());;
+
+// UNARY-SET
+
+/// Fixed data set with only one value. (No serializable). Mutable.
+/// \n , <line> -> <unarySet>
+mkUnarySet = \value, Line -> return {value, Line};;
+
+/// \ -> <unarySet>
+mkUnarySetExample = \ -> return mkUnarySet(0, mkLineExample());;
+
+// DATA
+
+/// Labels and datasets. (No serializable). Mutable.
+/// <data> has the following fields:
+///   Labels - [s...]: X axis labels.
+///   SetValues - [[[n]|[]...]...]: Y data series.
+///   SetAtts - [<line>...]: Y lines attibutes.
+///   UnarySets - [<unarySet>...]: Fixed data set with only one value (empty by default).
+///   round - n: Round of values to show. Beetwen 0 and 9, both inclusive (default 0).
+///   maxMinRound - n: Round of chart maximum - minimum values.
+///                      Beetwen -9 and 9, both inclusive:
+///                      ..., -2 -> 0.001, -1 -> 0.01, 0 -> 0, 1 -> 10, 2 -> 100 ...
+///                      default 0.
+///   drawLabel - \s, n -> b: Function to draw labels.
+///                           Default: '\label, index -> return true;'.
+///                             label: Label to decide.
+///                             index: Index of label.
+///     Examples:
+///       - To draw al labels:
+///         drawLabel = \l, i -> return true;
+///       - To draw one of each 5 lines:
+///         drawLabel = \l, i -> return i % 5 == 0 ? true: false;
+///       - To draw some labels:
+///         drawLabel = \l, i -> return l.startsWith("-") ? true : false;
+///   drawGrid: - \s, n -> b: Function to draw grid for labels.
+///                           Default: '\label, index -> return false;'.
+///                             label: Label to decide.
+///                             index: Index of label.
+///     Examples:
+///       - To draw al lines:
+///         drawLine = \l, i -> return true;
+///       - To draw one of each 5 lines:
+///         drawLine = \l, i -> return i % 5 == 0 ? true: false;
+///       - To draw some labels:
+///         drawLine = \l, i -> return l.startsWith("-") ? true : false;
+/// Paramters:
+///   Labels: X axis labels.
+///   SetValues: Y data series.
+///   SetAtts: Y lines attibutes.
+/// \[s...], [[[n]|[]...]...], [<line>...] -> <data>
+mkData = \Labels, SetValues, SetAtts -> {
+    if (!Labels) throw("'Labels' does not have values");
+    if (!SetValues) throw("'SetValuess' does not have values");
+    if (!SetValues[0]) throw("'SetValuess[0]' does not have values");
+    if (arr.size(SetValues) != arr.size(SetAtts))
+      throw (
+        "Number of sets (" + arr.size(SetValues) +
+        ") does not match number of sets Attributes (" + arr.size(SetAtts) + ")"
+      );
+
+    UnarySets = [];
+    drawLabel = \l, i -> return true;;
+    drawGrid = \l, i -> return true;;
+    round = 2;
+    maxMinRound = 0;
+
+    return {
+        Labels, SetValues, SetAtts, UnarySets, round, maxMinRound,
+        drawLabel, drawGrid
+      };
+};
+
+/// \ -> <data>
+mkDataExample = \ -> {
+  Labels = ["Mon", "Tue", "Wen", "Thu", "Fri", "Sat", "Sun"];
+  SetValues = [
+    arr.map([1, 2, 9.54, 10.2, 6.2, -7, 7], \e -> return [e];),
+    arr.map([2, -4, -2.15, -5.2, 7, 3, 4], \e -> return [e];)
+  ];
+  SetAtts = [mkLineExample(),mkLineExample()];
+  SetAtts[0].color = "#000080";
+  SetAtts[1].color = "#800000";
+
+  return mkData(Labels, SetValues, SetAtts);
+};
+
+// X
+
+/// Properties of X axis (labels).
+///   fontSize: Font size.
+///   isMonospace: 'true' if font is 'monospace'. Otherswise it is 'sans'.
+///   isItalic: 'true' if font is italic.
+///   isBold: 'true' if font is bold.
+///   fontColor: Font color.
+///   Grid: Attributes of grid lines.
+/// \n, b, b, b, s, <line> -> <x>
+mkX = \fontSize, isMonospace, isItalic, isBold, fontColor, Grid -> return {
+    fontSize, isMonospace, isItalic, isBold, fontColor, Grid
+  };;
+
+/// \<x> -> <x>
+xCopy = \X -> return mkX(
+    X.fontSize, X.isMonospace, X.isItalic, X.isBold, X.fontColor, X.Grid
+  );;
+
+/// \<x> -> [*(JS)...]
+xToJs = \X -> return [
+    X.fontSize, X.isMonospace, X.isItalic, X.isBold, X.fontColor, lineToJs(X.Grid)
+  ];;
+
+/// \[*(JS)...] -> <x>
+xFromJs = \A -> return mkX(
+    A[0], A[1], A[3], A[4], lineFromJs(A[5])
+  );;
+
+/// \ -> <x>
+mkXExample = \ -> return mkX(
+    12, false, false, false, "#000000", mkLine(1, "#808080", true)
+  );;
+
+// Y
+
+/// Properties of Y axis (values).
+///   fontSize: Font size.
+///   isMonospace: 'true' if font is 'monospace'. Otherswise it is 'sans'.
+///   isItalic: 'true' if font is italic.
+///   isBold: 'true' if font is bold.
+///   fontColor: Font color.
+///   Grid: Attributes of grid lines.
+///   parts: Parts to divide the chart horizontally (minimum 1).
+/// \n, b, b, b, s, <line>, n -> <y>
+mkY = \fontSize, isMonospace, isItalic, isBold, fontColor, Grid, parts -> return {
+    fontSize, isMonospace, isItalic, isBold, fontColor, Grid, parts
+  };;
+
+/// \<y> -> <y>
+yCopy = \Y -> return mkY(
+    Y.fontSize, Y.isMonospace, Y.isItalic, Y.isBold, Y.fontColor, Y.Grid, Y.parts
+  );;
+
+/// \<y> -> [*(JS)...]
+yToJs = \Y -> return [
+    Y.fontSize, Y.isMonospace, Y.isItalic, Y.isBold, Y.fontColor,
+    lineToJs(Y.Grid), Y.parts
+  ];;
+
+/// \[*(JS)...] -> <y>
+yFromJs = \A -> return mkY(
+    A[0], A[1], A[3], A[4], lineFromJs(A[5]), A[6]
+  );;
+
+/// \ -> <x>
+mkYExample = \ -> return mkY(
+    12, false, false, false, "#000000", mkLine(1, "#808080", true), 4
+  );;
+
+// LINE-CHART ------------------------------------------------------------------
+
+/// Constructor
+///   ExArea: External area.
+///   InPadding: Padding between the beginning of external area and the beginning of internal area.
+///   InAtts: Attrubutes of internal area.
+///   ChartPadding: Padding between the beginning of internal area and chart plotting.
+///   XAxis: X axis attributes.
+///   YAxis: Y axis attributes.
+///   lang: Valid values are "es" and "en".
+/// \<area>, <padding>, <areaAtts>, <padding>, <xAxis>, <yAxis>, s -> <lineChart>
+mk = \ExArea, InPadding, InAtts, ChartPadding, XAxis, YAxis, lang -> return {
+    ExArea, InPadding, InAtts, ChartPadding, XAxis, YAxis, lang
+  };;
+
+/// \<lineChart> -> <lineChart>
+copy = \lC -> return mk(
+    areaCopy(lC.ExArea), paddingCopy(lC.InPadding), areaAttsCopy(lC.InAtts),
+    paddingCopy(lC.ChartPadding), xCopy(lC.XAxis), yCopy(lC.YAxis), lC.lang
+  );;
+
+/// \<lineChart> -> [*(JS)...]
+toJs = \lC -> return [
+    areaToJs(lC.ExArea), paddingToJs(lC.InPadding), areaAttsToJs(lC.InAtts),
+    paddingToJs(lC.ChartPadding), xToJs(lC.XAxis), yToJs(lC.YAxis), lC.lang
+  ];;
+
+/// \[*(JS)...] -> <lineChart>
+fromJs = \A -> return mk(
+    areaFromJs(A[0]), paddingFromJs(A[1]), areaAttsFromJs(A[2]),
+    paddingFromJs(A[3]), xFromJs(A[4]), yFromJs(A[5]), A[6]
+  );;
+
+/// \ -> <lineChart>
+mkExample = \ -> {
+  InAtts = mkAreaAttsExample();
+  InAtts.background = "#fbfdff";
+  return mk(
+    mkAreaExample(),
+    mkPaddingExample(),
+    InAtts,
+    mkPadding(2, 1, 2, 1),
+    mkXExample(),
+    mkYExample(),
+    "es"
+  );
+};
+
+/// Returns <lineChart> widget.
+///   lineChart: Model.
+///   data: Chart datasets.
+/// \<lineChart>, <data> -> <domo>
+mkWg = \lC, Data -> {
+  // Value correction to plot.
+  // \n -> n
+  corr = \x -> return Math.floor(x) + 0.5;;
+
+  // \n -> s
+  decFmt = \n -> return lC.lang == "es"
+      ? math.toIso(n, Data.round)
+      : math.toEn(n, Data.round)
+    ;;
+
+  // [n...]
+  HotLabels = [];
+  // [n...]
+  HotUnarySets = [];
+  // [[[n]|[]...]...]
+  HotSetValues = [];
+
+  // [[n]|[]]
+  Max = [[]];
+  Min = [0.0];
+  Gap = [0.0];
+
+  // Set max, min and gap
+
+  for (S = Data.SetValues) for (Val = S) {
+    if (Val) {
+      if (Max!) {
+        Max!! = Val! > Max!! ? Val! : Max!!;
+        Min! = Val! < Min! ? Val! : Min!;
+      } else {
+        arr.push(Max!, Val!);
+        Min! = Val!;
+      }
+    }
+  }
+  for (S = Data.UnarySets) {
+    if (Max!) {
+      Max!! = S.value > Max!! ? S.value : Max!!;
+      Min! = S.value < Min! ? S.value : Min!;
+    } else {
+      arr.push(Max!, S.value);
+      Min! = S.value;
+    }
+  }
+  round = Math.pow(10, Data.maxMinRound);
+  if (Max!) {
+    Max!! = (Math.round(Max!! / round) + 1) * round;
+    Min! = (Math.round(Min! / round) - 1) * round;
+    Gap! = Max!! - Min!;
+  }
+
+  // Set chart dimensions
+
+  w = lC.ExArea.width -
+    lC.InPadding.left - lC.InPadding.right -
+    lC.ChartPadding.left - lC.ChartPadding.right
+  ;
+  h = lC.ExArea.height -
+    lC.InPadding.top - lC.InPadding.bottom -
+    lC.ChartPadding.top - lC.ChartPadding.bottom
+  ;
+  x0 = lC.InPadding.left + lC.ChartPadding.left;
+  xEnd = x0 + w;
+  y0 = lC.ExArea.height - lC.InPadding.bottom - lC.ChartPadding.bottom;
+  yEnd = y0 - h;
+
+  // Start plot
+
+  wg = Q("div");
+
+  cv = Q("canvas")
+    .att("width", lC.ExArea.width)
+    .att("height", lC.ExArea.height)
+    .style("background:" + lC.ExArea.Atts.background)
+  ;
+  cv2 = Q("canvas")
+    .att("width", 0)
+    .att("height", 0)
+    .style(
+        "border: 1px solid black;" +
+        "background:" + lC.InAtts.background + ";" +
+        "position: absolute;" +
+        "visibility: hidden;"
+      )
+  ;
+  cv2.on("mousemove", \ev ->
+    if (
+      ev.offsetX < cv2.getAtt("width") - 6 |
+      ev.offsetY < cv2.getAtt("height") - 6
+    ) cv2.setStyle("visibility", "hidden");
+  );
+  ctx = cv.e.getContext("2d");
+
+  // External area.
+
+  if (lC.ExArea.Atts.Border.width > 0) {
+    ctx.setLineDash(lC.ExArea.Atts.Border.dotted ? [4, 2] : []);
+    ctx.lineWidth = lC.ExArea.Atts.Border.width;
+    ctx.strokeStyle = lC.ExArea.Atts.Border.color;
+    ctx.beginPath();
+    ctx.rect(
+      corr(0),
+      corr(0),
+      Math.round(lC.ExArea.width - 1),
+      Math.round(lC.ExArea.height - 1)
+    );
+    ctx.stroke();
+  }
+
+  // Internal area.
+
+  ilf = lC.InPadding.left;
+  itop = lC.InPadding.top;
+  iw = lC.ExArea.width - lC.InPadding.left - lC.InPadding.right - 1;
+  ih = lC.ExArea.height - lC.InPadding.top - lC.InPadding.bottom - 1;
+
+  ctx.fillStyle = lC.InAtts.background;
+  ctx.beginPath();
+  ctx.rect(ilf, itop, iw, ih);
+  ctx.fill();
+
+  // Draw x
+
+  ctx.fillStyle = lC.XAxis.fontColor;
+  ctx.font = "" + lC.XAxis.fontSize + "px " +
+    (lC.XAxis.isMonospace ? "monospace" : "sans") +
+    (lC.XAxis.isItalic ? " italic" : "") +
+    (lC.XAxis.isBold ? " bold" : "")
+  ;
+  for (i = [0:arr.size(Data.Labels)]) {
+    l = Data.Labels[i];
+
+    if (!Data.drawLabel(l, i)) continue;
+
+    lw = ctx.measureText(l).width;
+    ctx.fillText(l,
+      x0 + i * w / (Data.Labels.length - 1) - lw / 2,
+      y0 + lC.ChartPadding.bottom + lC.XAxis.fontSize
+    );
+  }
+
+  for (i = [0:arr.size(Data.Labels)]) {
+    l = Data.Labels[i];
+    cx = corr(x0 + i * w / (arr.size(Data.Labels) - 1));
+
+    arr.push(HotLabels, cx);
+
+    if (i == 0 | i >= arr.size(Data.Labels) | !Data.drawGrid(l, i)) continue;
+
+    ctx.setLineDash(lC.XAxis.Grid.dotted ? [4, 2] : []);
+    ctx.lineWidth = lC.XAxis.Grid.width;
+    ctx.strokeStyle = lC.XAxis.Grid.color;
+    ctx.beginPath();
+    ctx.moveTo(cx, corr(y0));
+    ctx.lineTo(cx, corr(yEnd));
+    ctx.stroke();
+  }
+
+  // Draw y
+
+  ctx.fillStyle = lC.YAxis.fontColor;
+  ctx.font = "" + lC.YAxis.fontSize + "px " +
+    (lC.YAxis.isMonospace ? "monospace" : "sans") +
+    (lC.YAxis.isItalic ? " italic" : "") +
+    (lC.YAxis.isBold ? " bold" : "")
+  ;
+
+  parts = lC.YAxis.parts < 1 ? 1 : lC.YAxis.parts;
+  for (i = [0:parts+1]) {
+    yVal = Min! + i * Gap! / parts;
+    y = y0 - (yVal - Min!) * h / Gap!;
+
+    n = decFmt(yVal);
+    ms = ctx.measureText(n).width;
+    ctx.fillText(
+      n,
+      lC.InPadding.left - 4 - ms,
+      y + lC.YAxis.fontSize / 2.5
+    );
+
+    if (i == 0 | i == parts) continue;
+
+    ctx.setLineDash(lC.YAxis.Grid.dotted ? [4, 2] : []);
+    ctx.lineWidth = lC.YAxis.Grid.width;
+    ctx.strokeStyle = lC.YAxis.Grid.color;
+    ctx.beginPath();
+    ctx.moveTo(corr(x0), corr(y));
+    ctx.lineTo(corr(xEnd), corr(y));
+    ctx.stroke();
+  }
+
+  // Draw lines data sets.
+  for (Ul = Data.UnarySets) {
+    cy = y0 - (Ul.value - Min!) * h / Gap!;
+    arr.push(HotUnarySets, corr(cy));
+
+    ctx.setLineDash(Ul.Line.dotted ? [4, 2] : []);
+    ctx.lineWidth = Ul.Line.width;
+    ctx.strokeStyle = Ul.Line.color;
+    ctx.beginPath();
+    ctx.moveTo(corr(x0), corr(cy));
+    ctx.lineTo(corr(xEnd), corr(cy));
+    ctx.stroke();
+  }
+
+  // Draw data sets
+
+  if (Max!) {
+    for (i = [0:arr.size(Data.SetValues)]) {
+      S = Data.SetValues[i];
+      sSize = arr.size(S);
+      // [[n]|[]..]
+      HotSetRow = [];
+
+      Cy0 = [0];
+      IxStart = [0];
+      for (j = [0:sSize]) {
+        Sval = S[j];
+        if (!Sval) {
+          arr.push(HotSetRow, []);
+          continue;
+        }
+        IxStart! = j + 1;
+        Cy0! = corr(y0 - (Sval! - Min!) * h / Gap!);
+        arr.push(HotSetRow, [Cy0!]);
+        break;
+      }
+
+      ctx.setLineDash(Data.SetAtts[i].dotted ? [4, 2] : []);
+      ctx.lineWidth = Data.SetAtts[i].width;
+      ctx.strokeStyle = Data.SetAtts[i].color;
+      ctx.beginPath();
+      ctx.moveTo(corr(x0 + (IxStart! - 1) * w / (sSize - 1)), Cy0!);
+      J = [IxStart!];
+      while (J! < sSize) {
+        if (S[J!]) {
+          v = S[J!]!;
+          cy = corr(y0 - (v - Min!) * h / Gap!);
+          arr.push(HotSetRow, [cy]);
+          ctx.lineTo(corr(x0 + J! * w / (sSize - 1)), cy);
+          J! += 1;
+        } else {
+          arr.push(HotSetRow, []);
+          J! += 1;
+          while (J! < sSize) {
+            if (S[J!]!) {
+              v = S[J!]!;
+              cy = corr(y0 - (v - Min!) * h / Gap!);
+              arr.push(HotSetRow, [cy]);
+              ctx.moveTo(corr(x0 + J! * w / (sSize - 1)), cy);
+              J! += 1;
+              break;
+            } else {
+              arr.push(HotSetRow, []);
+              J! += 1;
+            }
+          }
+        }
+      }
+      ctx.stroke();
+
+      arr.push(HotSetValues, HotSetRow);
+    }
+  }
+
+  // Draw internal frame
+
+  if (lC.InAtts.Border.width > 0) {
+    ctx.setLineDash(lC.InAtts.Border.dotted ? [4, 2] : []);
+    ctx.lineWidth = lC.InAtts.Border.width;
+    ctx.strokeStyle = lC.InAtts.Border.color;
+    ctx.beginPath();
+    ctx.rect(corr(ilf), corr(itop), Math.round(iw), Math.round(ih));
+    ctx.stroke();
+  }
+
+  // Movement
+
+  cv.on("mousemove", \ev -> {
+    cx = ev.offsetX;
+    cy = ev.offsetY;
+
+    // x = (cx - x0) * arr.size(Data.Labels) / w;
+    // y = Min! + (y0 - cy) * Gap! / h;
+
+    UnarySetIx = [-1];
+    UnarySetDif = [0];
+    for (i = [0:arr.size(HotUnarySets)]) {
+      v = HotUnarySets[i];
+      dif = Math.abs(v - cy);
+      if (dif < 4 & (UnarySetIx! == -1 | dif < UnarySetDif!)) {
+        UnarySetIx! = i;
+        UnarySetDif! = dif;
+      }
+    }
+
+    SetIx = [-1];
+    SetValIx = [-1];
+    SetDif = [0];
+    for (i = [0:arr.size(Data.SetValues)]) {
+      Vs = Data.SetValues[i];
+      for (j = [0:arr.size(Vs)]) {
+        HotSet = HotSetValues[i][j];
+        if (!HotSet) continue;
+
+        xdif = HotLabels[j] - cx;
+        ydif = HotSet! - cy;
+        dif = Math.sqrt(xdif * xdif + ydif * ydif);
+
+        if (dif < 4 & (SetIx! == -1 | dif <= SetDif!)) {
+          SetIx! = i;
+          SetValIx! = j;
+          SetDif! = dif;
+        }
+      }
+    }
+
+    if (UnarySetIx! != -1 | SetIx! != -1) {
+      yfirst = lC.YAxis.fontSize;
+      ysecond = yfirst * 2 + yfirst / 4;
+      ysize = yfirst * 2.75;
+
+      Tx1 = [""];
+      Tx2 = [""];
+      Color = [""];
+
+      if (SetIx! != -1) {
+        Tx1! = Data.Labels[SetValIx!];
+        Tx2! = decFmt(Data.SetValues[SetIx!][SetValIx!]!);
+        Color! = Data.SetAtts[SetIx!].color;
+      } else {
+        Tx1! = "Line";
+        Tx2! = decFmt(Data.UnarySets[UnarySetIx!].value);
+        Color! = Data.UnarySets[UnarySetIx!].Line.color;
+      }
+
+      ctx2 = cv2.e.getContext("2d");
+      ctx2.font = "" + lC.YAxis.fontSize + "px " +
+        (lC.YAxis.isMonospace ? "monospace" : "sans") +
+        (lC.YAxis.isItalic ? " italic" : "") +
+        (lC.YAxis.isBold ? " bold" : "")
+      ;
+      ms1 = ctx2.measureText(Tx1!).width;
+      ms2 = ctx2.measureText(Tx2!).width;
+
+      Margin1 = [4.0];
+      Margin2 = [Math.abs(ms1 - ms2) / 2 + Margin1!];
+      Ms = [ms1 + Margin1! * 2];
+      if (ms2 > ms1) {
+        Margin1! = Margin2!;
+        Margin2! = 4;
+        Ms! = ms2 + Margin2! * 2;
+      }
+
+      cv2
+        .att("height", ysize)
+        .att("width", Ms!)
+        .setStyle("top", "" + (ui.mouseY(ev) - ysize) + "px")
+        .setStyle("left", "" + (ui.mouseX(ev) - Ms!) + "px")
+        .setStyle("visibility", "visible")
+      ;
+
+      ctx3 = cv2.e.getContext("2d");
+      ctx3.fillStyle = Color!;
+      ctx3.font = "" + lC.YAxis.fontSize + "px " +
+        (lC.YAxis.isMonospace ? "monospace" : "sans") +
+        (lC.YAxis.isItalic ? " italic" : "") +
+        (lC.YAxis.isBold ? " bold" : "")
+      ;
+      ctx3.fillText(Tx1!, Margin1!, yfirst);
+      ctx3.fillText(Tx2!, Margin2!, ysecond);
+    } else {
+      cv2.setStyle("visibility", "hidden");
+    }
+  });
+
+  return wg.add(cv).add(cv2);
+};
+
+/// \-> <domo>
+mkWgExample = \-> return mkWg(mkExample(), mkDataExample());;

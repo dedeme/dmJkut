@@ -1,0 +1,13 @@
+// Copyright 14-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Functions.
+
+import "i18n";
+
+/// Convert float to int.
+/// \f -> i
+ftoi = \n -> return math.toInt(n);;
+
+///
+tlt = i18n.tlt;

@@ -1,0 +1,63 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "2 Days": "2 días",
+  "All": "Todo",
+  "All log entries will be deleted.\nContinue?": "\"Todas las entradas serán borradas.\n¿Continuar?",
+  "Click %0 to continue.": "Hacer click %0 para continuar.",
+  "Delete": "Borrar",
+  "Errors": "Errores",
+  "Home": "Inicio",
+  "KtMarket": "KtMarket",
+  "Log": "Registro",
+  "MMarket": "MMarket",
+  "Reload": "Recargar",
+  "Session is expired.": "La sesión ha expirado.",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "2 Days": "2 Days",
+  "All": "All",
+  "All log entries will be deleted.\nContinue?": "All log entries will be deleted.\nContinue?",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Delete": "Delete",
+  "Errors": "Errors",
+  "Home": "Home",
+  "KtMarket": "KtMarket",
+  "Log": "Log",
+  "MMarket": "MMarket",
+  "Reload": "Reload",
+  "Session is expired.": "Session is expired.",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return T ? T! : s;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

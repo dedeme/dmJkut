@@ -1,0 +1,57 @@
+// Copyright 16-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Flea data.
+
+import "fmodel";
+import "cts";
+import "fns";
+
+/// Constructor
+///   id: Flea identifier.
+///   cycle: Number of cycle when flea was generated.
+///   isMale: 'true' if flea is male.
+///   Models: List of <fmodel>. This list is ordered by 'fmodel.id'.
+///   assets: Flea asssets.
+/// \n, n, b, [<fmodel>...], f -> <flea>
+mk = \id, cycle, isMale, Models, assets -> return {
+    id, cycle, isMale, Models, assets
+  };;
+
+/// \<flea> -> s
+fmtId = \F -> {
+  R = ["" + F.id];
+  while (str.len(R!) < 9) R! = "0" + R!;
+  return R!;
+};
+
+/// \<flea> -> s
+fmtCycle = \F -> {
+  R = ["" + F.cycle];
+  while (str.len(R!) < 4) R! = "0" + R!;
+  return R!;
+};
+
+/// \<flea> -> [s...]
+fmtModels = \F -> {
+  // \<fmodel> -> s
+  fmt = \Md -> {
+    R = [Md.modelId];
+    while (str.len(R!) < 5) R! += " ";
+    return R! + "[" +
+      arr.join(arr.map(Md.Params, \n -> return fns.nFormat2(n, 4);), ", ") +
+      "]"
+    ;
+  };
+  return arr.map(F.Models, fmt);
+};
+
+/// \<flea> -> s
+fmtModels2 = \F -> return arr.join(arr.map(
+    F.Models, \M -> return "" + cts.modelIxs[M.modelId];
+  ), "");;
+
+/// \[*(JS)...] -> <flea>
+fromJs = \A -> return mk (
+    A[0], A[1], A[2], arr.map(A[3], fmodel.fromJs), A[4]
+  );;

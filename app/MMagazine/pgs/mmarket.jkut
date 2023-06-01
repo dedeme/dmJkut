@@ -1,0 +1,36 @@
+// Copyright 26-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// mmarket hub.
+
+import "libdm/menu";
+import "wgs/dmenu";
+import "mmarket/modelsPg";
+import "mmarket/hotMapsPg";
+import "i18n";
+
+II = i18n.tlt;
+
+/// Constructor
+///   wg    : Container.
+///   dmenu : Double menu.
+///   lcPath: Location path.
+/// \<domo>, <dmenu>, [s...] -> ()
+process = \wg, dbmenu, LcPath -> {
+  if (!LcPath) arr.push(LcPath, "models");
+
+  lopts = [
+    dmenu.mkHiddenButton(dbmenu),
+    menu.separator2(),
+    menu.tlink("models", II("Models"), ["mmarket"]),
+    menu.separator(),
+    menu.tlink("hotmaps", II("Hot Maps"), ["mmarket"])
+  ];
+  menuWg = menu.mk(lopts, [], LcPath[0], false);
+  dmenu.setDownMenu(dbmenu, menuWg);
+
+  switch (LcPath[0]) {
+    "hotmaps": hotMapsPg.mk(wg);
+    default: modelsPg.mk(wg);
+  }
+};

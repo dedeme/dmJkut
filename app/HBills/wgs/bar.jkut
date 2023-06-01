@@ -1,0 +1,81 @@
+// Copyright 17-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Immutable graphic bar
+
+Q = ui.q;
+
+/// Constructor
+///   width     : Bar width.
+///   height    : Bar height.
+///   ratio     : Part with foreground.
+///   foreground: Foreground color (type #000000)
+///   background: Background color (type #ffffff)
+/// \n, n, n, s, s -> x<bar>
+mk = \width, height, ratio, foreground, background -> return [
+    width, height, ratio, foreground, background
+  ];;
+
+/// Returns a new Bar copy of 'this' with a new 'width'
+/// \<bar>, n -> <bar>
+withWidth = \b, value -> {
+  R = arr.copy(b);
+  R[0] = value;
+  return R;
+};
+
+/// Returns a new Bar copy of 'this' with a new 'height'
+/// \<bar>, n -> <bar>
+withHeight = \b, value -> {
+  R = arr.copy(b);
+  R[1] = value;
+  return R;
+};
+
+/// Returns a new Bar copy of 'this' with a new 'ratio'
+/// \<bar>, n -> <bar>
+withRatio = \b, value -> {
+  R = arr.copy(b);
+  R[2] = value;
+  return R;
+};
+
+/// Returns a new Bar copy of 'this' with a new 'background'
+/// \<bar>, s -> <bar>
+withForeground = \b, value -> {
+  R = arr.copy(b);
+  R[3] = value;
+  return R;
+};
+
+/// Returns a new Bar copy of 'this' with a new 'foreground'
+/// \<bar>, s -> <bar>
+withBackground = \b, value -> {
+  R = arr.copy(b);
+  R[4] = value;
+  return R;
+};
+
+/// Makes the bar widget to put in page.
+/// \<bar> -> <domo>
+mkWg = \B -> {
+  foreWidth = math.toInt(B[2] * B[0]);
+  return Q("table")
+    .att("align", "left")
+    .style(
+      "border : 1px solid rgb(110,130,150);" +
+      "border-collapse : collapse;" +
+      "background-color : " + B[4] + ";" +
+      "width: " + B[0] + "px;"
+    )
+    .add(Q("tr")
+      .add(Q("td")
+        .style(
+          "border : 1px solid rgb(110,130,150);" +
+          "background-color : " + B[3] + ";" +
+          "width: " + foreWidth + "px;" +
+          "height: " + B[1] + "px;"
+        ))
+      .add(Q("td")))
+  ;
+};

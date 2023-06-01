@@ -1,0 +1,25 @@
+// Copyright 04-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Constants and global functions.
+
+Q = ui.q;
+
+/// Application name.
+appName = "JkutDoc";
+/// Application version.
+version = "202203";
+/// Page foot.
+foot = Q("table")
+  .klass("main")
+  .add(Q("tr")
+    .add(Q("td")
+      .add(Q("hr"))))
+  .add(Q("tr")
+    .add(Q("td")
+      .style("text-align: right;color:#808080;font-size:x-small;")
+      .html(str.fmt("- © ºDeme. %v (%v) -", [appName, version]))))
+;
+
+
+

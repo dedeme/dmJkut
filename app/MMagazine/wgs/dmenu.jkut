@@ -1,0 +1,90 @@
+// Copyright 26-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Double menu widget.
+
+import "libdm/menu";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// Main menu constructor.
+//    selected: Selected option.
+// \s -> <menu>
+mkUpMenu= \selected -> {
+  lopts = [
+    menu.tlink("home", II("Home"), []),
+    menu.separator(),
+    menu.tlink("ktmarket", II("KtMarket"), []),
+    menu.separator(),
+    menu.tlink("mmarket", II("MMarket"), [])
+  ];
+
+  return menu.mk(lopts, [], selected, false);
+};
+
+/// Constructor. Contains the following fields:
+/// Parameters:
+///   wg: Container.
+///   selected: Selected option.
+/// \<domo>, s -> x<dmenu>
+mk = \wg, selected -> {
+  upDiv = Q("div").style("padding:0px");
+  upMenu = mkUpMenu(selected);
+  downDiv = Q("div");
+  Hidden = [false];
+
+  Show = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  change = \ev -> {
+    Hidden! = !Hidden!;
+    upDiv.removeAll().style("padding:0px");
+    if (!Hidden!) upDiv.add(upMenu);
+  };
+
+  /// Sets down menu.
+  /// \<menu> -> ()
+  setDownMenu = \menuWg -> {
+    downDiv
+      .removeAll()
+      .add(menuWg)
+    ;
+    Hidden! = true;
+    upDiv.removeAll().style("padding:0px");
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \->()
+  Show! = \ -> {
+    wg
+      .removeAll()
+      .add(upDiv
+        .removeAll()
+        .style("padding:0px")
+        .add(upMenu))
+      .add(downDiv)
+    ;
+  };
+
+  Show!();
+
+  return {setDownMenu, change};
+};
+
+/// Sets down menu.
+/// \<dmenu>, <menu> -> ()
+setDownMenu = \dmenu, downMenu -> return dmenu.setDownMenu(downMenu);;
+
+/// Returns a button to hidde-show the up menu.
+/// \<dmenu> -> <menuEntry>
+mkHiddenButton = \dmenu -> return menu.mkEntry(
+    [],
+    ui.link(dmenu.change)
+      .add(ui.img("menu")
+        .style("vertical-align:middle"))
+  );;

@@ -1,0 +1,244 @@
+// Copyright 15-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// List editor page.
+
+import "i18n";
+import "data/cts";
+import "data/bkPaths";
+import "runner";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor
+/// \<domo> -> ()
+mk = async \wg -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    source: "BkListEditor",
+    rq: "idata"
+  });
+  List = arr.map(Rp.list, bkPaths.fromJs);
+
+  inId = ui.field("inSource").att("id", "inId").style("width: 150px");
+  inSource = ui.field("inBackup").att("id", "inSource").style("width: 500px");
+  inBackup = ui.field("inId").att("id", "inBackup").style("width: 500px");
+
+  // Control -------------------------------------------------------------------
+
+  // \<event>-> ()
+  add = async \ev -> {
+    id = inId.getValue();
+    From = [inSource.getValue()];
+    To = [inBackup.getValue()];
+    while (str.len(From!) > 1 & str.ends(From!, "/")) From! = From![:-1];
+    while (str.len(To!) > 1 & str.ends(To!, "/")) To! = To![:-1];
+    from = From!;
+    to = To!;
+
+    err = [""];
+    if (id == "") err! = II("'Id' is missing");
+    else if (from == "") err! = II("'From' is missing");
+    else if (to == "") err! = II("'To' is missing");
+    else if (from == "/") err! = II("'From' is root");
+    else if (to == "/") err! = II("'To' is root");
+    if (err!) {
+      ui.alert(err!);
+      return;
+    }
+
+    if (arr.any(List, \e -> return e.id == id;)) {
+      if (!ui.confirm(i18n.fmt(
+        II("Already exists a backup with id '%0'\nOverwrite?"), [id]
+      ))) {
+        return;
+      }
+    }
+
+    await client.ssend({
+      prg: cts.appName,
+      source: "BkListEditor",
+      rq: "addModify",
+      id: id,
+      from: from,
+      to: to
+    });
+    await mk(wg);
+    inId.e.focus();
+  };
+
+  // \<bkPaths> -> ()
+  edit = \bkPs -> {
+    inId.value(bkPs.id);
+    inSource.value(bkPs.source);
+    inBackup.value(bkPs.backup);
+  };
+
+  // \<bkPaths> -> ()
+  del = async \bkPs -> {
+    id = bkPs.id;
+    if (!ui.confirm(i18n.fmt(II("Delete '%0'?"), [id]))) {
+      return;
+    }
+
+    await client.ssend({
+      prg: cts.appName,
+      source: "BkListEditor",
+      rq: "del",
+      id: id
+    });
+    await mk(wg);
+    inId.e.focus();
+  };
+
+  // \<bkPaths> -> ()
+  go = \bkPs -> {
+    runner.mk(wg, bkPs.id);
+  };
+
+  // View ----------------------------------------------------------------------
+
+  tbEntry = Q("table")
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 2))
+      .add(Q("td")
+        .style("text-align:left")
+        .text(II("Id")))
+      .add(Q("td"))
+      .add(Q("td")
+        .style("text-align:left")
+        .text(II("Paths"))))
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 5)
+        .add(Q("hr"))))
+    .add(Q("tr")
+      .add(Q("td")
+        .style("width;5px")
+        .add(ui.img("blank")))
+      .add(Q("td")
+        .style("width;5px")
+        .add(ui.link(add)
+          .klass("link")
+          .add(ui.img("add"))))
+      .add(Q("td")
+        .add(inId))
+      .add(Q("td")
+        .style("text-align:right")
+        .text(II("From")))
+      .add(Q("td")
+        .add(inSource)))
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 3))
+      .add(Q("td")
+        .style("text-align:right")
+        .text(II("To")))
+      .add(Q("td")
+        .add(inBackup)))
+    ;
+
+  trs = List
+    ? arr.map(List, \E -> return Q("tr")
+        .add(Q("td")
+          .klass("border")
+          .add(Q("table")
+            .add(Q("tr")
+              .add(Q("td")
+                .style("width;5px")
+                .add(E.state.length > 0
+                  ? ui.lightImg("edit")
+                  : ui.link(\ev -> edit(E);)
+                    .klass("link")
+                    .add(ui.img("edit"))
+                  ))
+              .add(Q("td")
+                .style("width;5px")
+                .add(E.state.length > 0
+                  ? ui.lightImg("delete")
+                  : ui.link(\ev -> del(E);)
+                    .klass("link")
+                    .add(ui.img("delete"))
+                  ))
+              .add(Q("td")
+                .add(E.sourceError != "" | E.backupError != ""
+                  ? Q("input").att("type", "text").disabled(true)
+                      .style("width:150px;color:#800000")
+                      .value(E.id)
+                  : ui.link(\ev -> go(E);)
+                      .add(Q("input").att("type", "text")
+                        .att("readonly", true)
+                        .style("width:150px;color:#000000;cursor:pointer")
+                        .value(E.id))
+                  ))
+              .add(Q("td")
+                .style("text-align:right")
+                .text(II("From")))
+              .add(Q("td")
+                .add(Q("input").att("type", "text").disabled(true)
+                  .style("width:500px;text-align:right;color:#000000;")
+                  .value(E.source)))
+              .add(Q("td")
+                .att("title", E.sourceError)
+                .add(ui.img(
+                    E.sourceError != ""
+                      ? "error"
+                      : "ok"
+                  )))
+              .add(Q("td")
+                .add(ui.img(
+                    E.sourceError != "" | E.backupError != ""
+                      ? "error"
+                      : bkPaths.isRunning(E)
+                        ? "wait.gif"
+                        : "ok"
+                  )))
+                )
+            .add(Q("tr")
+              .add(Q("td")
+                .att("colspan", 3))
+              .add(Q("td")
+                .style("text-align:right")
+                .text(II("To")))
+              .add(Q("td")
+                .add(Q("input").att("type", "text").disabled(true)
+                  .style("width:500px;text-align:right;color:#000000;")
+                  .value(E.backup)))
+              .add(Q("td")
+                .att("title", E.backupError)
+                .add(ui.img(
+                    E.backupError != ""
+                      ? "error"
+                      : "ok"
+                  )))
+              .add(Q("td")))))
+      ;)
+    : [
+        Q("tr")
+          .add(Q("td")
+            .add(Q("table")
+              .att("align", "center")
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("frame")
+                  .text(II("Without Backups"))))))
+      ]
+  ;
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .style("border-collapse : collapse;")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(tbEntry)))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("hr"))))
+      .adds(trs))
+  ;
+  inId.e.focus();
+};

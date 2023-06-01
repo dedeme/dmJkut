@@ -1,0 +1,55 @@
+// Copyright 25-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Home page.
+
+import "libdm/log";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = \wg -> {
+  logDiv = Q("div");
+
+  // \(\[<logRow>...]->()) -> ()
+  load = async \fn -> {
+    Rp = await client.send({
+      prg: "Main",
+      source: "Home",
+      rq: "getLog"
+    });
+    fn(arr.map(Rp.log, log.logRowFromJs));
+  };
+
+  // \(\->()) -> ()
+  reset = async \fn -> {
+    await client.send({
+      prg: "Main",
+      source: "Home",
+      rq: "resetLog"
+    });
+    fn();
+  };
+
+  // \s -> s
+  tlt = \tx -> return switch (tx) {
+    "All log entries will be deleted.\nContinue?":
+      II("All log entries will be deleted.\nContinue?");
+    "2 Days": II("2 Days");
+    "All": II("All");
+    "Reload": II("Reload");
+    "Delete": II("Delete");
+    "Errors": II("Errors");
+    "Log": II("Log");
+    default: tx;
+  };;
+
+  log.mk(logDiv, load, reset, tlt, true, 100, 25);
+
+  wg
+    .removeAll()
+    .add(logDiv)
+  ;
+};

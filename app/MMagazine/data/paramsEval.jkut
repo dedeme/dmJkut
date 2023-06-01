@@ -1,0 +1,24 @@
+// Copyright 26-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Unsorted model evaluations of a date.
+
+import "data/modelFloat";
+
+/// \[n...], n -> a<ParamsEval>
+mk = \Params, ev -> return {Params, ev};;
+
+/// Returns true if 'P1' are the same parameters that 'P2'.
+/// \[n, ...], [n, ...] -> bool
+eqParams = \P1, P2 -> {
+  if (arr.size(P1) != arr.size(P2)) return false;
+  for (i = 0:arr.size(P1))
+    if (!math.eq(P1[i], P2[i], 0.0000001)) return false;
+  return true;
+};
+
+/// \[*(JS)...] -> <ParamsEval>
+fromJs = \A -> return mk(
+    A[0],
+    math.toInt(A[1])
+  );;

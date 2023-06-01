@@ -1,0 +1,44 @@
+// Copyright 28-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// LineChart test
+
+import "libdm/lineChart" : lC;
+
+Q = ui.q;
+
+Ch1 = lC.mkExample();
+Ch1.ExArea.width = 600;
+Ch1.XAxis.fontSize = 10;
+Ch1.YAxis.fontSize = 10;
+Ch1.lang = "en";
+
+Data = lC.mkDataExample();
+arr.push(Data.UnarySets, lC.mkUnarySet(0, lC.mkLineExample()));
+
+Q("@body")
+  .style("background-color:#f0f1f2")
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("table").att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .add(lC.mkWgExample()))))
+  .add(Q("p").text("a"))
+  .add(Q("p").text("a"))
+  .add(Q("table").att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .add(lC.mkWg(Ch1, Data)))))
+;
+

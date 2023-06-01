@@ -1,0 +1,51 @@
+# jkut/pgs/homePg.jkut: 31
+Add = Add
+
+# jkut/pgs/homePg.jkut: 40
+Bad Format. Use = Bad Format. Use
+
+# jkut/pgs/msgPg.jkut: 20
+Click %0 to continue. = Click %0 to continue.
+
+# jkut/pgs/homePg.jkut: 100
+Duplicated alarm = Duplicated alarm
+
+# jkut/pgs/homePg.jkut: 72
+Hour out of range = Hour out of range
+
+# jkut/main.jkut: 18
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. = KtWeb session is closed.\nAuthenticating from KtWeb:Main.
+
+# jkut/pgs/homePg.jkut: 76
+Minutes out of range = Minutes out of range
+
+# jkut/pgs/homePg.jkut: 141
+New Alarm = New Alarm
+
+# jkut/pgs/homePg.jkut: 157
+Programmed Alarms = Programmed Alarms
+
+# jkut/pgs/homePg.jkut: 106
+Remove the alarm = Remove the alarm
+
+# jkut/pgs/homePg.jkut: 53
+Separator is missing = Separator is missing
+
+# jkut/main.jkut: 47
+Session is expired. = Session is expired.
+
+# jkut/data/alarm.jkut: 19
+Today = Today
+
+# jkut/pgs/homePg.jkut: 164
+Without Alarms = Without Alarms
+
+# jkut/data/alarm.jkut: 20
+at = at
+
+# jkut/pgs/msgPg.jkut: 17
+here = here
+
+# jkut/pgs/homePg.jkut: 39
+or = or
+

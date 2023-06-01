@@ -1,0 +1,133 @@
+// Copyright 07-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Menu widget.
+
+Q = ui.q;
+
+/// Menu entry constructor.
+///   Id: Entry identifier. If the entry is not selectable its value must
+///       be [].
+///   wg: Widget to be shown.
+/// \[s]|[], <domo> -> <menuEntry>{[s]|[], <domo>}
+mkEntry = \Id, wg -> return {Id, wg};;
+
+/// Menu onstructor.
+///   lopts        : Left options.
+///   ropts        : Right options.
+///   selected     : Identifier of the initial selected option. It it does
+///                  not match any identifier, no one will be selected.
+///   withSeparator: If its value is 'true' a vertical bar separates 'lopts'
+///                  and 'ropts'.
+/// \[<menuEntry>...], [<menuEntry...], s, b -> <domo>
+mk = \Lopts, Ropts, selected, withSeparator -> {
+  setId = \o -> {
+    if (o.Id)
+      o.wg.style(o.Id! == selected
+        ?
+          "background-color: rgb(250, 250, 250);" +
+          "border: 1px solid rgb(110,130,150);" +
+          "padding: 4px;border-radius: 4px;"
+        : "text-decoration: none;color: #000080;" +
+          "font-weight: normal;cursor:pointer;"
+      );
+  };
+  for (o = Lopts) setId(o);
+  for (o = Ropts) setId(o);
+
+  return Q("div")
+    .add(Q("table")
+      .style("border-collapse:collapse;width:100%;")
+      .add(Q("tr")
+        .add(Q("td")
+          .style(
+            "text-align:left;padding-right:4px;" +
+            (withSeparator ? 'border-right: 1px solid #000000;' : '')
+          )
+          .adds(arr.map(Lopts, \e -> return e.wg;)))
+        .add(Q("td")
+          .style(
+            "padding-left:4px;vertical-align:top;" +
+            "text-align:right;white-space:nowrap"
+          )
+          .adds(arr.map(Ropts, \e -> return e.wg;)))))
+    .add(Q("hr"))
+  ;
+};
+
+/// Separator ·
+/// \-> <menuEntry>
+separator = \-> return mkEntry([], Q("span").text(" · "));;
+
+/// Separator |
+/// \-> <menuEntry>
+separator2 = \-> return mkEntry([], Q("span").text(" | "));;
+
+/// Option type text.
+///   id: Identifier.
+///   tx: Html text to show.
+///   fn: Function on click.
+/// \s, s, (\->()) -> <menuEntry>
+toption = \id, tx, fn -> return mkEntry([id], ui.link(\ev -> fn();).html(tx));;
+
+
+/// Option type text.
+///   id : Identifier.
+///   img: Image to show. It must be placed in a directory named 'img'.
+///        If it has not extension, '.png' will be used.
+///   fn : Function on click.
+/// \s, s, (\->()) -> <menuEntry>
+ioption = \id, img, fn -> return mkEntry(
+    [id],
+    ui.link(\ev -> fn();)
+      .add(ui.img(img)
+        .style("vertical-align:middle"))
+  );;
+
+/// Option type link.
+/// Link is formed
+///   '"?" + module + "&" + id'
+/// or
+///   '"?" + id' (if module is []).
+/// Parameters:
+///   id: Identifier.
+///   tx: Html text to show.
+///   Module : [moduleName] or [].
+/// \s, s, [s]|[] -> <menuEntry>
+tlink = \id, tx, Module -> return mkEntry(
+    [id],
+    Q("a")
+      .att("href", "?" + (Module ? Module! + "&" : "") + id)
+      .html(tx)
+  );;
+
+/// Option type link.
+/// Link is formed
+///   '"?" + module + "&" + id'
+/// or
+///   '"?" + id' (if module is []).
+/// Parameters:
+///   id: Identifier.
+///   img: Image to show. It must be placed in a directory named 'img'.
+///        If it has not extension, '.png' will be used.
+///   Module : [moduleName] or [].
+/// \s, s, [s]|[] -> <menuEntry>
+ilink = \id, img, Module -> return mkEntry(
+    [id],
+    Q("a")
+      .att("href", "?" + (Module ? Module! + "&" : "") + id)
+      .add(ui.img(img)
+        .style("vertical-align:top"))
+  );;
+
+/// Option close (x)
+///   fbye: Function on click.
+/// \(\->()) -> <menuEntry>
+close = \fbye -> return mkEntry(
+    [],
+    ui.link(\ev -> fbye();)
+      .add(ui.img("cross")
+        .style("vertical-align:middle"))
+  );;
+
+

@@ -1,0 +1,276 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Accounting information, main page.
+
+import "libdm/menu";
+import "libdm/modalBox";
+import "data/cts";
+import "data/co";
+import "wgs/msg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Contents maker.
+///   wg    : Container.
+/// \<domo> -> ()
+mk = async \wg -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    module: "Settings",
+    source: "Nicks",
+    rq: "idata"
+  });
+  Main = [Rp.main]; // If main == "" -> there are no companies.
+  Cos = arr.map(Rp.cos, co.fromJs);
+  volumes = Rp.vol;
+
+  Option =["*v"];
+  cosSize = arr.size(Cos);
+
+  selectedsSize = arr.reduce(Cos, 0, \r, c -> return c.isSelected ? r + 1 : r;);
+  stats = Q("span")
+    .text(i18n.fmt(
+        II("Total: %0. Selected: %1."),
+        [cosSize, selectedsSize]))
+  ;
+  msgWait = Q("div");
+  SetWait = [[]];
+  Show = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  showVolume = \ -> {
+    Option! = "*v";
+    Show!();
+  };
+
+  showList = \ -> {
+    Option! = "*l";
+    Show!();
+  };
+
+  setMain = async \nk -> {
+    await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "Nicks",
+      rq: "setMain",
+      nick: nk
+    });
+    Main! = nk;
+    Show!();
+  };
+
+  select = async \nk -> {
+    C = arr.find(Cos, \C -> return C.nick == nk;);
+    if (C) {
+      await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "Nicks",
+        rq: "select",
+        nick: nk,
+        value: !C!.isSelected
+      });
+
+      C!.isSelected = !C!.isSelected;
+      selectedsSize =
+        arr.reduce(Cos, 0, \r, c -> return c.isSelected ? r + 1 : r;);
+      stats
+        .removeAll()
+        .text(i18n.fmt(
+            II("Total: %0. Selected: %1."),
+            [cosSize, selectedsSize]))
+      ;
+      Show!();
+    }
+  };
+
+  edit = \nk -> {
+    Option! = nk;
+    Show!();
+  };
+
+  download = \ -> {
+  };
+
+  test = \ -> {
+    WithErrors = [false];
+    WithWarnings = [false];
+    test2 = async \Cs -> {
+      if (!Cs) {
+        SetWait!("");
+        if (WithErrors! & WithWarnings!)
+          msg.error(II("Errors and warnings found.<br>See log."), \->{});
+        else if (WithErrors!)
+          msg.error(II("Errors found.<br>See log."), \->{});
+        else if (WithWarnings!)
+          msg.error(II("Warnings found.<br>See log."), \->{});
+        else
+          msg.ok(II("Test ok."), \->{});
+        return;
+      }
+
+      C = arr.pop(Cs);
+      SetWait!(C.nick);
+      Rp = await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "Nicks",
+        rq: "test",
+        nick: C.nick
+      });
+      WithErrors! |= Rp.withErrors;
+      WithWarnings! |= Rp.withWarnings;
+      test2(Cs);
+    };
+    test2(arr.reverse(Cos));
+  };
+
+  // View ----------------------------------------------------------------------
+
+  coTd = \co -> return Q("td")
+      .style(
+          "border-left: 1px solid rgb(110,130,150);" +
+          "border-right: 1px solid rgb(110,130,150);" +
+          "width:100px;white-space:nowrap;"
+        )
+      .add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .att("title", II("Main"))
+            .add(ui.link(\ev -> setMain(co.nick);)
+              .add(ui.img(Main! == co.nick ? "star" : "star2"))))
+          .add(Q("td")
+            .att("title", II("Selection"))
+            .add(ui.link(\ev -> select(co.nick);)
+              .add(co.isSelected
+                  ? ui.img(volumes[co.nick] < 1000000 ? "flag2" : "flag1")
+                  : ui.led("#d0ddde", 6).setStyle("padding", "5px")
+                )))
+          .add(Q("td")
+            .att(
+                "title",
+                i18n.getLang() == "es"
+                  ? math.toIso(volumes[co.nick], 0)
+                  : math.toEn(volumes[co.nick], 0)
+              )
+            .add(ui.link(\ev-> edit(co.nick);)
+              .klass("link")
+              .text(co.nick)))))
+    ;;
+
+  list = \ -> {
+    if (Option! == "*l") arr.sort(Cos, \C1, C2 -> return C1.nick < C2.nick;);
+    else arr.sort(Cos, \C1, C2 -> return volumes[C1.nick] > volumes[C2.nick];);
+
+    Rows = [];
+    ncols = 6;
+    nrows = math.toInt(Math.ceil(cosSize / ncols));
+    for (i = 0:nrows) {
+      Tds = [];
+      for (j = 0:ncols) {
+        ico = j * nrows + i;
+        arr.push(
+          Tds,
+          ico >= cosSize
+            ? Q("td")
+            : coTd(Cos[ico])
+        );
+      }
+      arr.push(
+        Rows,
+        Q("tr")
+          .adds(Tds)
+      );
+    }
+
+    return Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:right")
+          .add(ui.link(\ev -> download();)
+            .klass("link")
+            .text(II("Download")))
+          .add(Q("span").text(" · "))
+          .add(ui.link(\ev -> test();)
+            .klass("link")
+            .text(II("Test")))))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("hr"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("table")
+            .klass("white")
+            .att("align", "center")
+            .adds(Rows))))
+    ;
+  };
+
+  Show! = \ -> {
+    if (Main! == "") {
+      wg
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .klass("frame")
+          .add(Q("tr")
+            .add(Q("td")
+              .text(II("Without companies")))))
+      ;
+      return;
+    }
+
+    if (!arr.any(Cos, \C -> return C.nick == Option!;) & Option! != "*l")
+      Option! = "*v";
+
+    menuWg = menu.mk(
+      [ menu.mkEntry([], stats)],
+      [ menu.toption("*v", II("Volume"), showVolume),
+        menu.separator(),
+        menu.toption("*l", II("List"), showList)
+      ],
+      Option!,
+      false
+    );
+
+    body = Q("div");
+
+    body
+      .add(list())
+    ;
+
+    wg
+      .removeAll()
+      .add(menuWg)
+      .add(body)
+      .add(msgWait)
+    ;
+  };
+
+  // s -> ()
+  SetWait! = \nick -> {
+    msgWait.removeAll();
+
+    if (nick != "") {
+      box = modalBox.mk(
+        Q("div")
+          .add(Q("div")
+            .style("text-align:center")
+            .add(ui.img("wait2.gif").klass("frame")))
+          .add(Q("div").style("text-align:center").html(nick)),
+        false
+      );
+      msgWait.add(box.wg);
+      modalBox.show(box, true);
+    }
+  };
+
+  Show!();
+};
+

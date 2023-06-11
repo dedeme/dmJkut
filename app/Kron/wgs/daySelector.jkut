@@ -24,7 +24,8 @@ mk = \wg, days, editable -> {
 
   // \n -> ();
   click = \n -> {
-    if (arr.any(days, \d -> return d == n;)) arr.remove(days, n);
+    ix = arr.index(days, \d -> return d == n;);
+    if (ix != -1) arr.remove(days, ix);
     else arr.push(days, n);
     Show!();
   };

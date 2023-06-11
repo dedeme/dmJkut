@@ -13,15 +13,21 @@ II = i18n.tlt;
 //    selected: Selected option.
 // \s -> <menu>
 mkUpMenu= \selected -> {
-  lopts = [
+  Lopts = [
     menu.tlink("home", II("Home"), []),
     menu.separator(),
-    menu.tlink("ktmarket", II("KtMarket"), []),
+    menu.tlink("models", II("Models"), []),
     menu.separator(),
-    menu.tlink("mmarket", II("MMarket"), [])
+    menu.tlink("acc", II("Accounting"), []),
+    menu.separator(),
+    menu.tlink("daily", II("Daily Quotes"), [])
   ];
 
-  return menu.mk(lopts, [], selected, false);
+  Ropts = [
+    menu.tlink("settings", II("Annotations & Settings"), [])
+  ];
+
+  return menu.mk(Lopts, Ropts, selected, false);
 };
 
 /// Constructor. Contains the following fields:

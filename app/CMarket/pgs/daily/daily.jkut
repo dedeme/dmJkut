@@ -1,0 +1,26 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Daily charts, main page.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Contents maker.
+///   wg    : Container.
+///   dmenu : Double menu.
+///   lcPath: Location path.
+/// \<domo>, <dmenu>, [s...] -> ()
+mk = \wg, dmenu, LcPath -> {
+  // Control -------------------------------------------------------------------
+
+  // View ----------------------------------------------------------------------
+
+  wg
+    .removeAll()
+    .add(Q("p").text(sys.toStr(LcPath)))
+  ;
+};
+

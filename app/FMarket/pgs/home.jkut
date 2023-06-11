@@ -45,7 +45,7 @@ mk = async \wg -> {
       source: "Home",
       rq: "activate"
     });
-    mk(wg);
+    window.location.reload(true);
   };
 
 // View ------------------------------------------------------------------------

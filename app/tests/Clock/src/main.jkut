@@ -1,0 +1,33 @@
+// Copyright 11-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Clock tests
+
+import "libdm/clock";
+
+Q = ui.q;
+
+cl = clock.mk();
+clock.setWidth(cl, clock.width(cl) * 2);
+clock.setHeight(cl, clock.height(cl) * 2);
+
+cl2 = clock.mkChron();
+clock.setWidth(cl2, clock.width(cl2) * 2);
+clock.setHeight(cl2, clock.height(cl2) * 2);
+Q("@body")
+  .style("background-color:#407080")
+  .add(Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .add(clock.wg(cl)
+          .style("opacity: 0.5")))
+      .add(Q("td")
+        .add(clock.wg(cl2)
+          .att(
+            "style",
+            "background:radial-gradient(#000333,#e6f6f6);" +
+            "border: 1px solid rgb(110,130,150);" +
+            "border-radius: 4px;"
+          )))))
+;

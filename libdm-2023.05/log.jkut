@@ -82,9 +82,9 @@ Q = ui.q;
 ///   linesNumber: Sets the lines number of widget. Good value 25.
 /// \<domo>, \(\[<logRow>...] -> ()) -> (), \(\->()) -> (), \s -> s,
 ///   b, n, n -> ()
-mk = \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
+mk = async \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
   Rows = [];
-  load(\Rs -> arr.each(Rs, \LgRow -> arr.push(Rows, LgRow);););
+  await load(\Rs -> arr.each(Rs, \LgRow -> arr.push(Rows, LgRow);););
 
   Minified = [minified];
   Is2Days = [false];
@@ -209,8 +209,7 @@ mk = \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
     ;
 
     today = time.now();
-    Log = arr.copy(Rows);
-    arr.reverse(Log);
+    Log = arr.reverse(Rows);
     area.value(
       arr.join(
         arr.map(
@@ -221,7 +220,7 @@ mk = \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
               (IsErrors! ? E.isError : true)
             ;
           ),
-          \E -> return E.format(lineWidth);
+          \E -> return logRowFormat(E, lineWidth);
         ), "\n"
       )
     );
@@ -254,11 +253,9 @@ mk = \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
   ;;
   View2! = view2;
 
-  // \ -> ()
-  show = \ -> if (Minified!) view2(); else view1();;
-  Show! = show;
+  Show! = \ -> if (Minified!) view2(); else view1();;
 
-  show();
+  Show!();
 };
 
 // <logRow> ====================================================================
@@ -288,10 +285,10 @@ format2 = \msg, indent, len -> {
 
     L = [l];
     while (str.len(L!) > len) {
-      Line = L![:len];
+      Line = [L![:len]];
       L! = L![len:];
       ix = str.lastIndex(Line!, " ");
-      if (ix != -1 & str.trim(Line![:ix] != "")) {
+      if (ix != -1 & str.trim(Line![:ix]) != "") {
         L! = Line![ix + 1:] + L!;
         Line! = Line![:ix];
       }
@@ -318,4 +315,4 @@ logRowFormat = \LgR, lineWidth -> {
 };
 
 /// \[*(JS)...] -> <logRow>
-logRowFromJs = \A -> mkLogRow(A[0], A[1], A[2]);;
+logRowFromJs = \A -> return mkLogRow(A[0], A[1], A[2]);;

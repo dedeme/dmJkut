@@ -13,8 +13,8 @@ Q = ui.q;
 mkEntry = \Id, wg -> return {Id, wg};;
 
 /// Menu onstructor.
-///   lopts        : Left options.
-///   ropts        : Right options.
+///   Lopts        : Left options.
+///   Ropts        : Right options.
 ///   selected     : Identifier of the initial selected option. It it does
 ///                  not match any identifier, no one will be selected.
 ///   withSeparator: If its value is 'true' a vertical bar separates 'lopts'

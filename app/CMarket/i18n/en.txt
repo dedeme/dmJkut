@@ -1,64 +1,718 @@
-# TO DO
-# jkut/pgs/home/home.jkut: 51
-2 Days =
+# ORPHAN
+%0 Model = %0 Model
 
-# TO DO
-# jkut/pgs/home/home.jkut: 52
-All =
+# ORPHAN
+%0 is missing = %0 is missing
 
-# TO DO
-# jkut/pgs/home/home.jkut: 50
-All log entries will be deleted.\nContinue? =
+# ORPHAN
+'%0' is empty = '%0' is empty
 
-# TO DO
-# jkut/pgs/msgPg.jkut: 21
-Click %0 to continue. =
+# ORPHAN
+'%0' is not a cero or positive number = '%0' is not a cero or positive number
 
-# TO DO
-# jkut/pgs/home/home.jkut: 54
-Delete =
+# ORPHAN
+'%0' is not a positive integer = '%0' is not a positive integer
 
-# TO DO
-# jkut/pgs/home/home.jkut: 55
-Errors =
+# ORPHAN
+'%0' is not a positive number = '%0' is not a positive number
 
-# TO DO
-# jkut/wgs/dmenu.jkut: 17
-Home =
+# ORPHAN
+Accept = Accept
 
-# TO DO
-# jkut/wgs/dmenu.jkut: 19
-KtMarket =
+# ORPHAN
+Accounting profits = Accounting profits
 
-# TO DO
-# jkut/main.jkut: 19
-KtWeb session is closed.\nAuthenticating from KtWeb:Main. =
+# ORPHAN
+Activate = Activate
 
-# TO DO
-# jkut/pgs/home/home.jkut: 56
-Log =
+# ORPHAN
+Active = Active
 
-# TO DO
+# ORPHAN
+All CO's = All CO's
+
+# ORPHAN
+All Companies = All Companies
+
+# ORPHAN
+Amount = Amount
+
+# ORPHAN
+An error was found.<br>See Log. = An error was found.<br>See Log.
+
+# ORPHAN
+Annotation con id '%0' not found = Annotation con id '%0' not found
+
+# ORPHAN
+Application exit? = Application exit?
+
+# ORPHAN
+Assets = Assets
+
+# ORPHAN
+B(uy) = B
+
+# ORPHAN
+Balance = Balance
+
+# ORPHAN
+Balance(Operations) = Balance
+
+# ORPHAN
+Bet = Bet
+
+# ORPHAN
+Buy = Buy
+
+# ORPHAN
+Buys = Buys
+
+# ORPHAN
+C(atch) = C
+
+# ORPHAN
+Calculate = Calculate
+
+# ORPHAN
+Calculated by server:<br>Assets: %0. Buys: %1. Sells: %2 = Calculated by server:<br>Assets: %0. Buys: %1. Sells: %2
+
+# ORPHAN
+Cancel = Cancel
+
+# ORPHAN
+Capital = Capital
+
+# ORPHAN
+Cash = Cash
+
+# ORPHAN
+Cash: = Cash:
+
+# ORPHAN
+Change = Change
+
+# ORPHAN
+Change Language to %0 = Change Language to %0
+
+# ORPHAN
+Change Password = Change Password
+
+# ORPHAN
+Charts = Charts
+
+# ORPHAN
+Check gray squares = Check gray squares
+
+# ORPHAN
+Close Year = Close Year
+
+# ORPHAN
+Co. = Co.
+
+# ORPHAN
+Code = Code
+
+# ORPHAN
+Codes = Codes
+
+# ORPHAN
+Companies = Companies
+
+# ORPHAN
+Confirm password is missing = 'Confirm password' is missing
+
+# ORPHAN
+Current Year = Current Year
+
+# ORPHAN
+Current password = Current password
+
+# ORPHAN
+Current password is missing = 'Current password' is missing
+
+# ORPHAN
+Current profits = Current profits
+
+# ORPHAN
+Daily = Daily
+
+# ORPHAN
+Daily configuration activated = Daily configuration activated
+
+# ORPHAN
+Daily configuration deactivated = Daily configuration deactivated
+
+# ORPHAN
+Daily configuration selected = Daily configuration selected
+
+# ORPHAN
+Daily configuration stopped = Daily configuration stopped
+
+# ORPHAN
+Date separator = Date separator
+
+# ORPHAN
+Date separator is missing = Date separator is missing
+
+# ORPHAN
+Day = Day
+
+# ORPHAN
+Default Model = Default Model
+
+# ORPHAN
+Delete %0? = Delete %0?
+
+# ORPHAN
+Description = Description
+
+# ORPHAN
+Diff. + = Diff. +
+
+# ORPHAN
+Diff. - = Diff. -
+
+# ORPHAN
+Differences = Differences
+
+# ORPHAN
+Download ok. = Download ok.
+
+# ORPHAN
+Downloading... = Downloading...
+
+# ORPHAN
+Edit = Edit
+
+# ORPHAN
+Equity = Equity
+
+# ORPHAN
+Fees = Fees
+
+# ORPHAN
+Fields order = Fields order
+
+# ORPHAN
+Global = Global
+
+# ORPHAN
+Gol = Gol
+
+# ORPHAN
+Grey squares checks are wrong = Grey squares checks are wrong
+
+# ORPHAN
+Historic = Historic
+
+# ORPHAN
+Historic configuration activated = Historic configuration activated
+
+# ORPHAN
+Historic configuration deactivated = Historic configuration deactivated
+
+# ORPHAN
+Historic configuration selected = Historic configuration selected
+
+# ORPHAN
+Historic configuration stopped = Historic configuration stopped
+
+# ORPHAN
+In Stock = In Stock
+
+# ORPHAN
+Income = Income
+
+# ORPHAN
+Intial stockage can not be deleted = Intial stockage can not be deleted
+
+# ORPHAN
+Inv = Inv
+
+# ORPHAN
+Inv- = Inv-
+
+# ORPHAN
+Invest = Invest
+
+# ORPHAN
+Is ISO date? = Is ISO date?
+
+# ORPHAN
+Is ISO number? = Is ISO number?
+
+# ORPHAN
+Jail = Jail
+
+# ORPHAN
+Keep connected = Keep connected
+
+# ORPHAN
+Last Month = Last Month
+
+# ORPHAN
+Last Year = Last Year
+
+# ORPHAN
+Login = Login
+
+# ORPHAN
+Logout-message = <p>%0 has finished.</p><p><b>Good by!</b></p>
+
+# ORPHAN
+Losses = Losses
+
+# ORPHAN
+Max = Max
+
+# ORPHAN
+Min = Min
+
+# ORPHAN
+Model = Model
+
+# ORPHAN
+Name = Name
+
+# ORPHAN
+Name is missing = Name is missing
+
+# ORPHAN
+Names = Names
+
+# ORPHAN
+New = New
+
+# ORPHAN
+New password = New password
+
+# ORPHAN
+New password and confirm password do not match = New password and confirm password do not match
+
+# ORPHAN
+New password is missing = 'New password' is missing
+
+# ORPHAN
+Nick = Nick
+
+# ORPHAN
+Nick '%0' is duplicated = Nick '%0' is duplicated
+
+# ORPHAN
+Nick code is missing = Nick code is missing
+
+# ORPHAN
+Nick model not selected = Nick model not selected
+
+# ORPHAN
+Nick models = Nick models
+
+# ORPHAN
+Nick name is missing = Nick name is missing
+
+# ORPHAN
+No modification was performed.<br>See Log. = No modification was performed.<br>See Log.
+
+# ORPHAN
+No selected company = No selected company
+
+# ORPHAN
+No server selected = No server selected
+
+# ORPHAN
+Nº = Nº
+
+# ORPHAN
+Order by = Order by
+
+# ORPHAN
+Orders = Orders
+
+# ORPHAN
+Overview = Overview
+
+# ORPHAN
+Parameters = Parameters
+
+# ORPHAN
+Password = Password
+
+# ORPHAN
+Password is missing = Password is missing
+
+# ORPHAN
+Password successfully changed = Password successfully changed
+
+# ORPHAN
+Portfolio = Portfolio
+
+# ORPHAN
+Price = Price
+
+# ORPHAN
+Profits = Profits
+
+# ORPHAN
+Profits calculated by server: %0 = Profits calculated by server: %0
+
+# ORPHAN
+Quote = Quote
+
+# ORPHAN
+Quotes = Quotes
+
+# ORPHAN
+Quotes of %0 can not be loaded.<br>See Log. = Quotes of %0 can not be loaded.<br>See Log.
+
+# ORPHAN
+Quotes were successfully modified = Quotes were successfully modified
+
+# ORPHAN
+Ratio = Ratio
+
+# ORPHAN
+Reactivate daily charts? = Reactivate daily charts?
+
+# ORPHAN
+Rebuys = Rebuys
+
+# ORPHAN
+Reference (‰) = Reference (‰)
+
+# ORPHAN
+References = References
+
+# ORPHAN
+RegEx = RegEx
+
+# ORPHAN
+Remove = Remove
+
+# ORPHAN
+Remove %0 configuration? = Remove %0 configuration?
+
+# ORPHAN
+Reverse = Reverse
+
+# ORPHAN
+Rf. (‰) = Rf. (‰)
+
+# ORPHAN
+Risk = Risk
+
+# ORPHAN
+Risk profits = Risk profits
+
+# ORPHAN
+Row end = Row end
+
+# ORPHAN
+Row start = Row start
+
+# ORPHAN
+S(ell) = S
+
+# ORPHAN
+Sales = Sales
+
+# ORPHAN
+Selected = Selected
+
+# ORPHAN
+Sell = Sell
+
+# ORPHAN
+Sells = Sells
+
+# ORPHAN
+Server name is duplicated = Server name is duplicated
+
+# ORPHAN
+Server name is empty = Server name is empty
+
+# ORPHAN
+Settings = Settings
+
+# ORPHAN
+Short Name = Short Name
+
+# ORPHAN
+Short Name is missing = Short Name is missing
+
+# ORPHAN
+Show = Show
+
+# ORPHAN
+Signal = Signal
+
+# ORPHAN
+Sleeping = Sleeping
+
+# ORPHAN
+Some error was found.<br>See Log. = Some error was found.<br>See Log.
+
+# ORPHAN
+Some quote was modified.<br>See Log. = Some quote was modified.<br>See Log.
+
+# ORPHAN
+Some warnings were found.<br>See Log. = Some warnings were found.<br>See Log.
+
+# ORPHAN
+Speedometers = Speedometers
+
+# ORPHAN
+State = State
+
+# ORPHAN
+Stocks = Stocks
+
+# ORPHAN
+Stocks(Operations) = Stocks
+
+# ORPHAN
+Stopped = Stopped
+
+# ORPHAN
+Summary = Summary
+
+# ORPHAN
+Table end = Table end
+
+# ORPHAN
+Table start = Table start
+
+# ORPHAN
+Tests = Tests
+
+# ORPHAN
+To withdraw = To withdraw
+
+# ORPHAN
+Total bet = Total bet
+
+# ORPHAN
+Trading = Trading
+
+# ORPHAN
+URL = URL
+
+# ORPHAN
+URL is missing = URL is missing
+
+# ORPHAN
+Up to = Up to
+
+# ORPHAN
+Update = Update
+
+# ORPHAN
+User = User
+
+# ORPHAN
+User name is missing = User name is missing
+
+# ORPHAN
+Value = Value
+
+# ORPHAN
+Values of '%0' have blanks = Values of '%0' have blanks
+
+# ORPHAN
+Vol = Vol
+
+# ORPHAN
+Withdrawal = Withdrawal
+
+# ORPHAN
+Withdrawals = Withdrawals
+
+# ORPHAN
+Without Data = Without Data
+
+# ORPHAN
+Without data = Without data
+
+# ORPHAN
+Without operations = Without operations
+
+# ORPHAN
+Without<br>Servers = Without<br>Servers
+
+# ORPHAN
+Wrong password = Wrong password
+
+# ORPHAN
+daily = daily
+
+# ORPHAN
+end = end
+
+# ORPHAN
+historic = historic
+
+# ORPHAN
+start = start
+
+# jkut/pgs/home/home.jkut: 44
+2 Days = 2 Days
+
 # jkut/wgs/dmenu.jkut: 21
-MMarket =
+Accounting = Accounting
 
-# TO DO
+# jkut/pgs/home/home.jkut: 45
+All = All
+
+# jkut/pgs/home/home.jkut: 43
+All log entries will be deleted.\nContinue? = All log entries will be deleted.\nContinue?
+
+# jkut/pgs/settings/settings.jkut: 43
+Annotations = Annotations
+
+# jkut/wgs/dmenu.jkut: 27
+Annotations & Settings = Annotations & Settings
+
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 330
+# jkut/pgs/settings/settings.jkut: 49
+Calendar = Calendar
+
+# jkut/pgs/msgPg.jkut: 21
+Click %0 to continue. = Click %0 to continue.
+
+# jkut/wgs/msg.jkut: 43
+# jkut/wgs/msg.jkut: 106
+Close = Close
+
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 144
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 311
+CloseN = Close
+
+# jkut/wgs/dmenu.jkut: 23
+Daily Quotes = Daily Quotes
+
+# jkut/pgs/settings/servers/servers.jkut: 168
+Daily Test = Daily Test
+
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 305
+Date = Date
+
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 88
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 109
+Date '%0' is duplicated = Date '%0' is duplicated
+
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 84
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 105
+Date before today = Date before today
+
+# jkut/pgs/home/home.jkut: 47
+Delete = Delete
+
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 97
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 118
+Delete '%0'? = Delete '%0'?
+
+# jkut/pgs/settings/nicks/nicks.jkut: 198
+Download = Download
+
+# jkut/pgs/home/home.jkut: 48
+Errors = Errors
+
+# jkut/pgs/settings/nicks/nicks.jkut: 107
+Errors and warnings found.<br>See log. = Errors and warnings found.<br>See log.
+
+# jkut/pgs/settings/nicks/nicks.jkut: 109
+Errors found.<br>See log. = Errors found.<br>See log.
+
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 336
+General Time Table = General Time Table
+
+# jkut/pgs/settings/servers/servers.jkut: 179
+Historic Test = Historic Test
+
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 344
+Holidays = Holidays
+
+# jkut/wgs/dmenu.jkut: 17
+Home = Home
+
+# jkut/pgs/settings/settings.jkut: 45
+Investors = Investors
+
+# jkut/main.jkut: 24
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. = KtWeb session is closed.\nAuthenticating from KtWeb:Main.
+
+# jkut/pgs/settings/nicks/nicks.jkut: 236
+List = List
+
+# jkut/pgs/home/home.jkut: 49
+Log = Log
+
+# jkut/pgs/settings/nicks/nicks.jkut: 144
+Main = Main
+
+# jkut/wgs/dmenu.jkut: 19
+Models = Models
+
+# jkut/pgs/settings/servers/servers.jkut: 195
+Modify = Modify
+
+# jkut/pgs/settings/settings.jkut: 39
+Nicks = Nicks
+
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 141
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 308
+Open = Open
+
 # jkut/data/cts.jkut: 52
-Operation failed.\nSee log. =
+Operation failed.\nSee log. = Operation failed.\nSee log.
 
-# TO DO
 # jkut/data/cts.jkut: 50
-Operation successfully done. =
+Operation successfully done. = Operation successfully done.
 
-# TO DO
-# jkut/pgs/home/home.jkut: 53
-Reload =
+# jkut/pgs/home/home.jkut: 46
+Reload = Reload
 
-# TO DO
-# jkut/main.jkut: 70
-Session is expired. =
+# jkut/pgs/settings/servers/servers.jkut: 190
+Reset = Reset
 
-# TO DO
+# jkut/pgs/settings/nicks/nicks.jkut: 148
+Selection = Selection
+
+# jkut/pgs/settings/servers/servers.jkut: 89
+# jkut/pgs/settings/settings.jkut: 41
+Servers = Servers
+
+# jkut/main.jkut: 79
+Session is expired. = Session is expired.
+
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 348
+Special days = Special days
+
+# jkut/pgs/settings/nicks/nicks.jkut: 202
+Test = Test
+
+# jkut/pgs/settings/nicks/nicks.jkut: 113
+Test ok. = Test ok.
+
+# jkut/pgs/settings/nicks/nicks.jkut: 36
+# jkut/pgs/settings/nicks/nicks.jkut: 85
+Total: %0. Selected: %1. = Total: %0. Selected: %1.
+
+# jkut/pgs/settings/nicks/nicks.jkut: 234
+Volume = Volume
+
+# jkut/pgs/settings/nicks/nicks.jkut: 111
+Warnings found.<br>See log. = Warnings found.<br>See log.
+
+# jkut/pgs/settings/servers/servers.jkut: 231
+Without Nicks = Without Nicks
+
+# jkut/pgs/settings/nicks/nicks.jkut: 224
+Without companies = Without companies
+
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 182
+# jkut/pgs/settings/calendarPg/calendarPg.jkut: 253
+Without dates = Without dates
+
 # jkut/pgs/msgPg.jkut: 18
-here =
+here = here
 

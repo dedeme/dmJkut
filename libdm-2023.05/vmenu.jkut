@@ -1,0 +1,54 @@
+// Copyright 06-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Vertical menu widget.
+
+Q = ui.q;
+
+/// Menu entry constructor.
+///   Id  : Entry identifier. If the entry is not selectable its value must
+///         be [].
+///   wg  : Widget to be shown.
+///   selWg: Selected widget to be shown.
+/// \[s]|[], <domo>, domo -> d<menuEntry>
+mkEntry = \Id, wg, selWg -> return {Id, wg, selWg};;
+
+/// Menu onstructor.
+///   Opts        : Left options.
+///   selected     : Identifier of the initial selected option. It it does
+/// \[<menuEntry>...], s -> <domo>
+mk = \Opts, selected -> {
+  td = \ -> return Q("td").style("white-space:nowrap");;
+
+  return Q("div")
+    .add(Q("table")
+      .klass("frame")
+      .adds(arr.map(Opts, \e ->
+          return Q("tr").add(td().add(
+            e.Id & e.Id! == selected ? e.selWg : e.wg
+          ));
+        )))
+  ;
+};
+
+/// Separator
+/// \-> <menuEntry>
+separator = \-> return mkEntry([], Q("hr"), Q("div"));;
+
+/// Menu title
+/// \s -> <menuEntry>
+title = \tx -> return mkEntry(
+    [], Q("span").style("text-align:center").html("<b>" + tx + "</b>"), Q("div")
+  );;
+
+/// Text option.
+///   id: Identifier.
+///   tx: Text to show.
+///   fn: Function on click.
+/// \s, s, (\->()) -> <menuEntry>
+option = \id, tx, fn ->
+  return mkEntry(
+      [id],
+      ui.link(\ev -> fn();).setStyle("text-align", "left").klass("link").html(tx),
+      Q("span").style("text-align:left;font-style:italic;color:#803010").html(tx)
+    );;

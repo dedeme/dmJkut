@@ -1,0 +1,19 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Calendar timetable.
+
+/// Constructor.
+///   hopen : Open hour.
+///   mopen : Open minute.
+///   hclose: Close hour.
+///   mclose: Close minute.
+/// \n, n, n, n -> d<timetable>
+mk = \hopen, mopen, hclose, mclose ->
+  return {hopen, mopen, hclose, mclose};;
+
+/// \<timetable> -> [*(JS)...]
+toJs = \T -> return [T.hopen, T.mopen, T.hclose, T.mclose];;
+
+/// \[*(JS)...] -> <timetable>
+fromJs = \A -> return mk(A[0], A[1], A[2], A[3]);;

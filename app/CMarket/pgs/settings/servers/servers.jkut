@@ -1,0 +1,445 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Accounting information, main page.
+
+import "data/cts";
+import "libdm/modalBox";
+import "libdm/vmenu";
+import "wgs/msg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Contents maker.
+///   wg    : Container.
+///   selected: Server selected identifer.
+/// \<domo> -> ()
+mk = async \wg, selected -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    module: "Settings",
+    source: "Servers",
+    rq: "idata",
+    selected: selected
+  });
+
+  Svs = arr.map(Rp.servers, svDataFromJs);
+  daily = Rp.dailyServer;
+  historic = Rp.historicServer;
+  Codes = Rp.codes;
+  SvSelected = arr.find(Svs, \Sv -> return Sv.id == selected;);
+  Selected = SvSelected ? [SvSelected!.id] : [""];
+  dailyActive = SvSelected ? SvSelected!.withDiary : false;
+  historicActive = SvSelected ? SvSelected!.withHistoric : false;
+
+  dailyTestImg = Q("span");
+  historicTestImg = Q("span");
+  CodeFields = [];
+  TestSpans = [];
+  msgWait = Q("div");
+  SetWait = [[]];
+
+  Show = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  select = \svId -> mk(wg, svId);;
+
+  testDiary = async \-> {
+    dailyTestImg
+      .removeAll()
+      .add(ui.img("wait.gif"))
+    ;
+    Rp = await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "Servers",
+      rq: "testDiary",
+      server: SvSelected!.id
+    });
+    if (Rp.withErrors & Rp.withWarnings)
+      msg.error(II("Errors and warnings found.<br>See log."), \->{});
+    else if (Rp.withErrors)
+      msg.error(II("Errors found.<br>See log."), \->{});
+    else if (Rp.withWarnings)
+      msg.error(II("Warnings found.<br>See log."), \->{});
+    else
+      msg.ok(II("Test ok."), \->{});
+
+    dailyTestImg
+      .removeAll()
+      .add(ui.link(\ev -> testDiary();)
+        .add(ui.img("unknown")
+        .style("vertical-align:top")))
+    ;
+  };
+
+  testHistoric = \-> {
+    NksCds = dic.toArr(Codes);
+    arr.sort(NksCds, \e1, e2 -> return str.great(e1[0], e2[0]););
+
+    WithErrors = [false];
+    WithWarnings = [false];
+    test2 = async \NksCds -> {
+      if (!NksCds) {
+        SetWait!("");
+        if (WithErrors! & WithWarnings!)
+          msg.error(II("Errors and warnings found.<br>See log."), \->{});
+        else if (WithErrors!)
+          msg.error(II("Errors found.<br>See log."), \->{});
+        else if (WithWarnings!)
+          msg.error(II("Warnings found.<br>See log."), \->{});
+        else
+          msg.ok(II("Test ok."), \->{});
+        return;
+      }
+
+      NC = arr.pop(NksCds);
+      nick = NC[0];
+      code = NC[1];
+      SetWait!(nick);
+      Rp = await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "Servers",
+        rq: "testCo",
+        server: SvSelected!.id,
+        nick: nick,
+        code: code
+      });
+      WithErrors! |= Rp.withErrors;
+      WithWarnings! |= Rp.withWarnings;
+      test2(NksCds);
+    };
+    test2(NksCds);
+  };
+
+  // \<domo>, s -> ()
+  testCo = async \span, nick, field -> {
+    code = str.trim(field.getValue());
+    if (!code) {
+      msg.error("Code is empty", \->{});
+      return;
+    }
+
+    span
+      .removeAll()
+      .add(ui.img("wait.gif"))
+    ;
+    Rp = await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "Servers",
+      rq: "testCo",
+      server: SvSelected!.id,
+      nick: nick,
+      code: code
+    });
+    if (Rp.withErrors & Rp.withWarnings)
+      msg.error(II("Errors and warnings found.<br>See log."), \->{});
+    else if (Rp.withErrors)
+      msg.error(II("Errors found.<br>See log."), \->{});
+    else if (Rp.withWarnings)
+      msg.error(II("Warnings found.<br>See log."), \->{});
+    else if (dailyActive) {
+      Rp = await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "Servers",
+        rq: "testDiary",
+        server: SvSelected!.id
+      });
+      if (Rp.withErrors & Rp.withWarnings)
+        msg.error(II("Errors and warnings found.<br>See log."), \->{});
+      else if (Rp.withErrors)
+        msg.error(II("Errors found.<br>See log."), \->{});
+      else if (Rp.withWarnings)
+        msg.error(II("Warnings found.<br>See log."), \->{});
+      else {
+        Codes = Rp.codes;
+        if (!arr.any(Codes, \c -> return c == code;))
+          msg.error(i18n.fmt(
+            II("Code '%0 => %1' not found in diary"), [nick, code]
+          ), \->{});
+        else
+          msg.ok(II("Test ok."), \->{});
+      }
+    } else
+      msg.ok(II("Test ok."), \->{});
+
+    span
+      .removeAll()
+      .add(ui.link(\ev -> testCo(span, nick, field);)
+        .add(ui.img("unknown")
+          .style("vertical-align:top")))
+    ;
+  };
+
+  // \ -> ()
+  reset = \ -> mk(wg, Selected!);;
+
+  // \ -> ()
+  modify = async \ -> {
+    Codes = {};
+    for (field = CodeFields)
+      dic.put(Codes, field.getAtt("id"), str.trim(field.getValue()));
+    await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "Servers",
+      rq: "setCodes",
+      server: Selected!,
+      codes: Codes
+    });
+    mk(wg, Selected!);
+  };
+
+  // View ----------------------------------------------------------------------
+
+  Show! = \ -> {
+    Opts = [vmenu.title(II("Servers")), vmenu.separator()];
+    for (sv = Svs) {
+      dailyWg = \-> return sv.withDiary
+        ? sv.id == daily
+          ? ui.img("star")
+          : ui.led("#d0ddde", 6)
+        : ui.img("stopped")
+      ;;
+
+      historicWg = \ -> return sv.withHistoric
+        ? sv.id == historic
+          ? ui.img("star")
+          : ui.led("#d0ddde", 6)
+        : ui.img("stopped")
+      ;;
+
+      normalWg = Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px")
+            .add(dailyWg().setStyle("vertical-align", "top")))
+          .add(Q("td")
+            .style("width:5px")
+            .add(historicWg().setStyle("vertical-align", "top")))
+          .add(Q("td")
+            .add(ui.link(\ev -> select(sv.id);)
+            .klass("link")
+            .setStyle("text-align", "left")
+            .setStyle("padding-left", "4px")
+            .text(sv.id))))
+      ;
+      selectWg = Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px")
+            .add(dailyWg().setStyle("vertical-align", "top")))
+          .add(Q("td")
+            .style("width:5px")
+            .add(historicWg().setStyle("vertical-align", "top")))
+          .add(Q("td")
+            .add(Q("span")
+              .style(
+                  "padding-left:4px;" +
+                  "text-align:left;" +
+                  "font-style:italic;" +
+                  "color:#803010"
+                )
+              .text(sv.id))))
+      ;
+
+      arr.push(Opts, vmenu.mkEntry([sv.id], normalWg, selectWg));
+    }
+
+    vmenuWg = vmenu.mk(Opts, Selected!);
+
+    Rows = [];
+    cols = 4;
+    if (Selected!) {
+      arr.push(
+        Rows,
+        Q("tr")
+          .add(Q("td")
+            .att("colspan", cols)
+            .add(Q("div")
+              .klass("head")
+              .text(SvSelected!.name)))
+      );
+
+      dailyTestImg
+        .removeAll()
+        .add(dailyActive
+          ? ui.link(\ev -> testDiary();)
+              .add(ui.img("unknown")
+                .style("vertical-align:top"))
+          : ui.img("unknown2")
+            .style("vertical-align:top"))
+      ;
+      historicTestImg
+        .removeAll()
+        .add(historicActive
+          ? ui.link(\ev -> testHistoric();)
+              .add(ui.img("unknown")
+                .style("vertical-align:top"))
+          : ui.img("unknown2")
+            .style("vertical-align:top"))
+      ;
+
+      arr.push(
+        Rows,
+        Q("tr")
+          .add(Q("td")
+            .att("colspan", cols)
+            .style("padding-top:4px;padding-bottom: 4px;" +
+                   "border-bottom: 1px solid rgb(110,130,150);")
+            .add(Q("table")
+              .att("align", "center")
+              .add(Q("tr")
+                .add(Q("td")
+                  .style(
+                      "white-space:nowrap;text-align:right;" +
+                      "width:50%;padding-rigth:4px"
+                    )
+                  .add(Q("span")
+                    .add(dailyTestImg)
+                    .add(Q("span")
+                      .style("padding-left:4px")
+                      .text(II("Daily Test")))))
+                .add(Q("td")
+                  .style(
+                      "white-space:nowrap;text-align:left;" +
+                      "width:50%;padding-left:4px"
+                    )
+                  .add(Q("span")
+                    .add(historicTestImg)
+                    .add(Q("span")
+                      .style("padding-left:4px")
+                      .text(II("Historic Test"))))))))
+      );
+
+      arr.push(
+        Rows,
+        Q("tr")
+          .add(Q("td")
+            .att("colspan", cols)
+            .style("padding-top:4px;padding-bottom: 4px;" +
+                   "border-bottom: 1px solid rgb(110,130,150);" +
+                   "text-align:right;")
+            .add(Q("button")
+              .text(II("Reset"))
+              .on("click", \e -> reset();))
+            .add(Q("span")
+              .text(" "))
+            .add(Q("button")
+              .text(II("Modify"))
+              .on("click", \e -> modify();)))
+      );
+
+      Tds = [];
+      len = dic.size(Codes);
+      Nicks = dic.keys(Codes);
+      arr.sort(Nicks, str.less);
+      for (i = 0:len) {
+        nk = Nicks[i];
+        i1 = i + 1;
+        nextNk = i1 < len ? Nicks[i1] : Nicks[0];
+
+        field = ui.field(nextNk)
+          .att("id", nk)
+          .setStyle("width", "125px")
+          .value(Codes[nk]);
+        CodeFields.push(field);
+
+        span = Q("span")
+          .add(dailyActive | historicActive
+            ? ui.link(\ev -> testCo(span, nk, field);)
+              .add(ui.img("unknown")
+                .style("vertical-align:top"))
+            : ui.img("unknown2")
+                .style("vertical-align:top"));
+        TestSpans.push(span);
+
+        Tds.push(Q("td")
+          .style("text-align:right;white-space: nowrap;")
+          .add(Q("span")
+            .text(nk + ": "))
+          .add(field)
+          .add(span)
+        );
+      }
+
+      rowsLen = Math.ceil(len / cols);
+      if (rowsLen == 0) {
+        Rows.push(Q("tr").add(Q("td").text(II("Without Nicks"))));
+      } else {
+        for (i = 0:rowsLen) {
+          RowTds = [];
+          for (j = 0:cols) {
+            tdix = i + j * rowsLen;
+            RowTds.push(
+              tdix < len
+                ? j == 0
+                  ? Tds[tdix]
+                  : Tds[tdix].setStyle("border-left", "1px solid rgb(110,130,150)")
+                : Q("td").setStyle("border-left", "1px solid rgb(110,130,150)")
+            );
+          }
+          Rows.push(Q("tr").adds(RowTds));
+        }
+      }
+    }
+
+    body = Q("table")
+      .att("align", "center")
+      .style("border-top: 1px solid rgb(110,130,150);" +
+             "border-bottom: 1px solid rgb(110,130,150);" +
+             "border-collapse: collapse;")
+      .adds(Rows)
+    ;
+
+    wg
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px;vertical-align:top")
+            .add(vmenuWg))
+          .add(Q("td")
+            .add(body))))
+      .add(msgWait)
+    ;
+  };
+
+  // s -> ()
+  SetWait! = \nick -> {
+    msgWait.removeAll();
+
+    if (nick != "") {
+      box = modalBox.mk(
+        Q("div")
+          .add(Q("div")
+            .style("text-align:center")
+            .add(ui.img("wait2.gif").klass("frame")))
+          .add(Q("div").style("text-align:center").html(nick)),
+        false
+      );
+      msgWait.add(box.wg);
+      modalBox.show(box, true);
+    }
+  };
+
+  Show!();
+};
+
+// Sever data
+// \s, s, b, b, m[s]{nick, code}] -> <svData>
+mkSvData = \id, name, withDiary, withHistoric, codes ->
+  return {id, name, withDiary, withHistoric, codes};;
+
+// [*...] -> <svData>
+svDataFromJs = \A -> return mkSvData(A[0], A[1], A[2], A[3], A[4]);;

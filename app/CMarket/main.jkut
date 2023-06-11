@@ -6,7 +6,12 @@
 import "data/cts";
 import "pgs/msgPg";
 import "pgs/home/home";
+import "pgs/acc/acc";
+import "pgs/daily/daily";
+import "pgs/models/models";
+import "pgs/settings/settings";
 import "wgs/dmenu";
+import "wgs/msg";
 import "i18n";
 
 Q = ui.q;
@@ -43,9 +48,13 @@ mk = async \wg -> {
 
   menuDiv = Q("div");
   bodyDiv = Q("div");
-  /*menu =*/ dmenu.mk(menuDiv, target);
+  menu = dmenu.mk(menuDiv, target);
 
   switch (target) {
+    "models": models.mk(bodyDiv, menu, LcPath);
+    "daily": daily.mk(bodyDiv, menu, LcPath);
+    "acc": acc.mk(bodyDiv, menu, LcPath);
+    "settings": settings.mk(bodyDiv, menu, LcPath);
     default: home.mk(bodyDiv);
   }
 
@@ -79,6 +88,8 @@ Q("@body")
   .removeAll()
   .add(wg)
   .add(cts.foot)
+  .add(ui.upTop("up"))
+  .add(msg.wg)
 ;
 
 load();

@@ -13,13 +13,6 @@ II = i18n.tlt;
 /// Constructor.
 /// \<domo> -> ()
 mk = async \wg -> {
-  await client.send({
-    prg: cts.appName,
-    module: "Home",
-    source: "Home",
-    rq: "idata"
-  });
-
   logDiv = Q("div");
 
   // \(\[<logRow>...]->()) -> ()
@@ -61,16 +54,6 @@ mk = async \wg -> {
 
   wg
     .removeAll()
-    .adds(arr.map([0, 1], \i -> return Q("div").klass("separator");))
-    .add(Q("table")
-      .klass("frame")
-      .att("align", "center")
-      .add(Q("tr")
-        .add(Q("td")
-          .add(Q("span")
-            .html(
-              "Los mejores resultados de los modelos usados por los inversores son:<br>"
-            )))))
     .add(logDiv)
   ;
 };

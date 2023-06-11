@@ -5,34 +5,10 @@ Accept = Aceptar
 Accounting = Contabilidad
 
 # ORPHAN
-Assets = Capital
-
-# ORPHAN
-Cash Prfs. = Bfs. de Caja
-
-# ORPHAN
 Check gray squares = Marcar los cuadrados grises
 
 # ORPHAN
-Dates of profits and ibex does not match = Fechas de beneficios e Ibex no coinciden
-
-# ORPHAN
 Grey squares checks are wrong = Las casillas grises están mal marcadas
-
-# ORPHAN
-Hot Maps = Mapas de calor
-
-# ORPHAN
-Ibex = Ibex
-
-# ORPHAN
-Investor = Inversor
-
-# ORPHAN
-Investors - Ibex = Inversores - Ibex
-
-# ORPHAN
-Investors average = Media de los inversores
 
 # ORPHAN
 Keep connected = Mantenerse conectado
@@ -41,31 +17,13 @@ Keep connected = Mantenerse conectado
 Login = Identificación
 
 # ORPHAN
-Model = Modelo
-
-# ORPHAN
-Models = Modelos
-
-# ORPHAN
 Password = Contraseña
 
 # ORPHAN
 Password is missing = Falta indicar la contraseña
 
 # ORPHAN
-Percentages = Porcentajes
-
-# ORPHAN
-Points = Puntos
-
-# ORPHAN
-Profits = Beneficios
-
-# ORPHAN
 Reset must be made from server! = ¡El borrado debe ser hecho desde el servidor!
-
-# ORPHAN
-Risk = Riesgo
 
 # ORPHAN
 User = Usuario
@@ -77,7 +35,7 @@ User name is missing = Falta indicar el nombre del usuario
 Wrong password = La contraseña es incorrecta
 
 # TO DO
-# jkut/main.jkut: 20
+# jkut/main.jkut: 21
 KtWeb session is closed.\nAuthenticating from KtWeb:Main. =
 
 # jkut/pgs/main/home.jkut: 56
@@ -89,8 +47,17 @@ All = Todo
 # jkut/pgs/main/home.jkut: 55
 All log entries will be deleted.\nContinue? = \"Todas las entradas serán borradas.\n¿Continuar?
 
+# jkut/pgs/mmarket/modelsPg.jkut: 71
+Assets = Capital
+
+# jkut/pgs/mmarket/modelsPg.jkut: 73
+Cash Prfs. = Bfs. de Caja
+
 # jkut/pgs/msgPg.jkut: 21
 Click %0 to continue. = Hacer click %0 para continuar.
+
+# jkut/pgs/ktmarket/percentsPg.jkut: 61
+Dates of profits and ibex does not match = Fechas de beneficios e Ibex no coinciden
 
 # jkut/pgs/main/home.jkut: 59
 Delete = Borrar
@@ -101,6 +68,22 @@ Errors = Errores
 # jkut/wgs/dmenu.jkut: 17
 Home = Inicio
 
+# jkut/pgs/mmarket.jkut: 27
+Hot Maps = Mapas de calor
+
+# jkut/pgs/ktmarket/percentsPg.jkut: 70
+Ibex = Ibex
+
+# jkut/pgs/ktmarket/percentsPg.jkut: 98
+# jkut/pgs/ktmarket/profitsPg.jkut: 46
+Investor = Inversor
+
+# jkut/pgs/ktmarket/percentsPg.jkut: 131
+Investors - Ibex = Inversores - Ibex
+
+# jkut/pgs/ktmarket/percentsPg.jkut: 117
+Investors average = Media de los inversores
+
 # jkut/wgs/dmenu.jkut: 19
 KtMarket = KtMarket
 
@@ -110,10 +93,30 @@ Log = Registro
 # jkut/wgs/dmenu.jkut: 21
 MMarket = MMarket
 
+# jkut/pgs/mmarket/modelsPg.jkut: 45
+Model = Modelo
+
+# jkut/pgs/mmarket.jkut: 25
+Models = Modelos
+
+# jkut/pgs/ktmarket.jkut: 27
+Percentages = Porcentajes
+
+# jkut/pgs/mmarket/modelsPg.jkut: 48
+# jkut/pgs/mmarket/modelsPg.jkut: 69
+Points = Puntos
+
+# jkut/pgs/ktmarket.jkut: 25
+# jkut/pgs/ktmarket/percentsPg.jkut: 66
+Profits = Beneficios
+
 # jkut/pgs/main/home.jkut: 58
 Reload = Recargar
 
-# jkut/main.jkut: 73
+# jkut/pgs/mmarket/modelsPg.jkut: 75
+Risk = Riesgo
+
+# jkut/main.jkut: 74
 Session is expired. = La sesión ha expirado.
 
 # jkut/pgs/msgPg.jkut: 18

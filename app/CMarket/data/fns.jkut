@@ -1,0 +1,42 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Functions.
+
+/// Format for numeric flea parameters.
+///   v: Value
+///   f: Format. Expected:
+///     0 - Integer
+///     4, 6 - Percentage.
+///     Other - Normal number with 'other' decimals positions.
+/// \n, n -> s
+nformat = \v, f -> return f == 4 | f == 6
+    ? math.toIso(v * 100, f - 2) + "%"
+    : math.toIso(v, f)
+  ;;
+
+
+/// Format for integers < 100
+///   v: Value
+/// \n -> s
+format00 = \n -> return (n < 10) ? "0" + n : "" + n;;
+
+/// Returns 'true' if 'q' > 0
+isValidQuote = \q -> return q > 0;;
+
+/// Return qs['i'] if 'i' is > 0.
+/// Otherwise return the last previous valid quote or 'def' if every previous
+/// quote is <= 0.
+/// \[n...], n, n -> n
+validQuote = \Qs, i, def -> {
+  q = [Qs[i]];
+  I = [i];
+  if (isValidQuote(q)) return q;
+  I! -= 1;
+  while (I! >= 0) {
+    q = Qs[I!];
+    if (isValidQuote(q)) return q;
+    I! -= 1;
+  }
+  return def;
+};

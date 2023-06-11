@@ -48,8 +48,16 @@ mk = \isEs, date, fn -> return [
   ];;
 
 /// Returns the selected date.
-/// \<datePocker> -> [s]|[]
+/// \<datePicker> -> [s]|[]
 getDate = \Dp -> return Dp[date];;
+
+/// Changes the selected date.
+/// Change is not shown until 'datePicker.mkWg' is called.
+/// \<datePicker>, n -> ()
+setDate = \Dp, newDate -> {
+  Dp[date] = [newDate];
+  Dp[dateView] = time.mkDate(1, time.month(newDate), time.year(newDate));
+};
 
 // \<datePicker> -> [s...]
 months = \Dp -> return Dp[isEs]

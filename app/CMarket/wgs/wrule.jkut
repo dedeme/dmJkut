@@ -1,0 +1,37 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Decorative horizontal rule.
+
+Q = ui.q;
+
+/// Constructor
+///   width: Rule width.
+///   color: Color in format #XXXXXX.
+///   title: Rule title.
+/// \n, s, s -> <domo>
+mk = \width, color, title -> {
+  return Q("table")
+    .klass("main")
+    .style("color:" + color)
+    .add(Q("tr")
+      .add(Q("td")
+        .style("width:" + width + "px;")
+        .add(Q("hr")))
+      .add(Q("td")
+        .style("width:5px;white-space: nowrap;")
+        .html(title))
+      .add(Q("td")
+        .add(Q("hr"))))
+  ;
+};
+
+/// Returns a big rule.
+///   title: Rule title.
+/// \s -> <domo>
+mkBig = \title -> return mk(50, "#101010", title);;
+
+/// Returns a small rule.
+///   title: Rule title.
+/// \s -> <domo>
+mkSmall = \title -> return mk(20, "#808080", title);;

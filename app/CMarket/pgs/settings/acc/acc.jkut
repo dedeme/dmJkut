@@ -1,0 +1,24 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Accounting information, main page.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Contents maker.
+///   wg    : Container.
+/// \<domo> -> ()
+mk = \wg -> {
+  // Control -------------------------------------------------------------------
+
+  // View ----------------------------------------------------------------------
+
+  wg
+    .removeAll()
+    .add(Q("p").text(sys.toStr("acc")))
+  ;
+};
+

@@ -1,0 +1,14 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Company data.
+
+/// Constructor
+/// \s, b -> m<co>
+mk = \nick, isSelected -> return {nick, isSelected};;
+
+/// \<co> -> [*...]
+toJs = \C -> return [C.nick, C.isSelected];;
+
+/// \[*...] -> s
+fromJs = \A -> return mk(A[0], A[1]);;

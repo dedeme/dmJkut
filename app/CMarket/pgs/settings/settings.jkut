@@ -1,0 +1,72 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Settings main page.
+
+import "libdm/menu";
+import "acc/acc";
+import "calendarPg/calendarPg";
+import "investorsPg/investorsPg";
+import "nicks/nicks";
+import "servers/servers";
+import "wgs/dmenu";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Contents maker.
+///   wg    : Container.
+///   dbmenu: Double menu.
+///   lcPath: Location path.
+/// \<domo>, <dmenu>, [s...] -> ()
+mk = \wg, dbmenu, LcPath -> {
+  // Control -------------------------------------------------------------------
+
+  // View ----------------------------------------------------------------------
+
+  if (!LcPath) arr.push(LcPath, "nicks");
+  target = switch (LcPath[0]) {
+      "settings", "calendar", "servers", "annotations", "investors":
+        LcPath[0];
+      default:
+        "nicks";
+    };
+
+  Lopts = [
+    dmenu.mkHiddenButton(dbmenu),
+    menu.separator2(),
+    menu.tlink("nicks", II("Nicks"), ["settings"]),
+    menu.separator(),
+    menu.tlink("servers", II("Servers"), ["settings"]),
+    menu.separator2(),
+    menu.tlink("annotations", II("Annotations"), ["settings"]),
+    menu.separator2(),
+    menu.tlink("investors", II("Investors"), ["settings"])
+  ];
+
+  Ropts = [
+    menu.tlink("calendar", II("Calendar"), ["settings"])
+  ];
+
+  dmenu.setDownMenu(dbmenu, menu.mk(Lopts, Ropts, target, false));
+
+  switch (target) {
+    "servers":
+      servers.mk(wg, "");
+    "annotations":
+      acc.mk(wg);
+    "investors": {
+        ix = arr.size(LcPath) == 2 & math.isDigits(LcPath[1])
+          ? math.fromStr(LcPath[1])!
+          : 0
+        ;
+        investorsPg.mk(wg, ix);
+      }
+    "calendar":
+      calendarPg.mk(wg);
+    default:
+      nicks.mk(wg);
+  }
+};
+

@@ -30,7 +30,7 @@ mk = async \wg -> {
   // View ----------------------------------------------------------------------
 
   // \<modelFloats> -> <domo>
-  groupTable = \Values -> {trace Values;
+  groupTable = \Values ->
     return Q("table")
       .klass("flat")
       .add(Q("tr")
@@ -53,7 +53,7 @@ mk = async \wg -> {
         .add(Q("td")
           .klass("rframe")
           .text(math.toIso(E.value, 2)));))
-    ;};
+    ;;
 
   // \n, n -> <domo>
   rowGroups = \start, end ->

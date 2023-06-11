@@ -24,10 +24,11 @@ foot = Q("table")
 /// Model indexes
 modelIxs = {
   APRX: 0,
-  ME: 1,
-  ME2: 2,
-  MM: 3,
-  "MX_MN": 4,
-  QFIJO: 5,
-  QMOV: 6
+  APRX2: 1,
+  ME: 2,
+  ME2: 3,
+  MM: 4,
+  "MX_MN": 5,
+  QFIJO: 6,
+  QMOV: 7
 };

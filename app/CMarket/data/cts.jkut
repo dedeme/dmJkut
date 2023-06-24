@@ -24,6 +24,8 @@ foot = Q("table")
       .html(str.fmt("- © ºDeme. %v (%v) -", [appName, version]))))
 ;
 
+/// Limit over which a company has enough trading.
+trading = 1_500_000;
 /// Ammount to make a buy.
 bet = 10000.0;
 /// Investor initial capital.
@@ -32,10 +34,6 @@ initialCapital = 100000.0;
 minToBet = 11000.0;
 /// Gol multiplicator for coughts
 noLostMultiplicator = 1.05;
-/// Extern program name.
-wget = "Wget";
-/// Extern program name.
-puppeteer = "Puppeteer";
 /// Server state.
 serverStopped = 0;
 /// Server state.

@@ -38,9 +38,6 @@ All Companies = All Companies
 Amount = Amount
 
 # ORPHAN
-An error was found.<br>See Log. = An error was found.<br>See Log.
-
-# ORPHAN
 Annotation con id '%0' not found = Annotation con id '%0' not found
 
 # ORPHAN
@@ -75,9 +72,6 @@ Calculate = Calculate
 
 # ORPHAN
 Calculated by server:<br>Assets: %0. Buys: %1. Sells: %2 = Calculated by server:<br>Assets: %0. Buys: %1. Sells: %2
-
-# ORPHAN
-Cancel = Cancel
 
 # ORPHAN
 Capital = Capital
@@ -176,15 +170,6 @@ Diff. - = Diff. -
 Differences = Differences
 
 # ORPHAN
-Download ok. = Download ok.
-
-# ORPHAN
-Downloading... = Downloading...
-
-# ORPHAN
-Edit = Edit
-
-# ORPHAN
 Equity = Equity
 
 # ORPHAN
@@ -263,12 +248,6 @@ Logout-message = <p>%0 has finished.</p><p><b>Good by!</b></p>
 Losses = Losses
 
 # ORPHAN
-Max = Max
-
-# ORPHAN
-Min = Min
-
-# ORPHAN
 Model = Model
 
 # ORPHAN
@@ -309,9 +288,6 @@ Nick models = Nick models
 
 # ORPHAN
 Nick name is missing = Nick name is missing
-
-# ORPHAN
-No modification was performed.<br>See Log. = No modification was performed.<br>See Log.
 
 # ORPHAN
 No selected company = No selected company
@@ -357,15 +333,6 @@ Profits calculated by server: %0 = Profits calculated by server: %0
 
 # ORPHAN
 Quote = Quote
-
-# ORPHAN
-Quotes = Quotes
-
-# ORPHAN
-Quotes of %0 can not be loaded.<br>See Log. = Quotes of %0 can not be loaded.<br>See Log.
-
-# ORPHAN
-Quotes were successfully modified = Quotes were successfully modified
 
 # ORPHAN
 Ratio = Ratio
@@ -449,19 +416,7 @@ Signal = Signal
 Sleeping = Sleeping
 
 # ORPHAN
-Some error was found.<br>See Log. = Some error was found.<br>See Log.
-
-# ORPHAN
-Some quote was modified.<br>See Log. = Some quote was modified.<br>See Log.
-
-# ORPHAN
-Some warnings were found.<br>See Log. = Some warnings were found.<br>See Log.
-
-# ORPHAN
 Speedometers = Speedometers
-
-# ORPHAN
-State = State
 
 # ORPHAN
 Stocks = Stocks
@@ -518,9 +473,6 @@ Value = Value
 Values of '%0' have blanks = Values of '%0' have blanks
 
 # ORPHAN
-Vol = Vol
-
-# ORPHAN
 Withdrawal = Withdrawal
 
 # ORPHAN
@@ -553,6 +505,17 @@ historic = historic
 # ORPHAN
 start = start
 
+# ORPHAN
+Code '%0 = > %1' not found in diary =
+
+# TO DO
+# jkut/pgs/settings/servers/servers.jkut: 165
+Code '%0 => %1' not found in diary =
+
+# TO DO
+# jkut/pgs/settings/nicks/editor.jkut: 142
+Nick code of $0 is missing =
+
 # jkut/pgs/home/home.jkut: 44
 2 Days = 2 Days
 
@@ -565,6 +528,9 @@ All = All
 # jkut/pgs/home/home.jkut: 43
 All log entries will be deleted.\nContinue? = All log entries will be deleted.\nContinue?
 
+# jkut/pgs/settings/nicks/editor.jkut: 133
+An error was found.<br>See Log. = An error was found.<br>See Log.
+
 # jkut/pgs/settings/settings.jkut: 43
 Annotations = Annotations
 
@@ -575,6 +541,9 @@ Annotations & Settings = Annotations & Settings
 # jkut/pgs/settings/settings.jkut: 49
 Calendar = Calendar
 
+# jkut/pgs/settings/nicks/editor.jkut: 49
+Cancel = Cancel
+
 # jkut/pgs/msgPg.jkut: 21
 Click %0 to continue. = Click %0 to continue.
 
@@ -584,15 +553,17 @@ Close = Close
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 144
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 311
+# jkut/pgs/settings/nicks/editor.jkut: 306
 CloseN = Close
 
 # jkut/wgs/dmenu.jkut: 23
 Daily Quotes = Daily Quotes
 
-# jkut/pgs/settings/servers/servers.jkut: 168
+# jkut/pgs/settings/servers/servers.jkut: 311
 Daily Test = Daily Test
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 305
+# jkut/pgs/settings/nicks/editor.jkut: 304
 Date = Date
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 88
@@ -610,22 +581,42 @@ Delete = Delete
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 118
 Delete '%0'? = Delete '%0'?
 
-# jkut/pgs/settings/nicks/nicks.jkut: 198
+# jkut/pgs/settings/nicks/editor.jkut: 345
+# jkut/pgs/settings/nicks/nicks.jkut: 199
 Download = Download
+
+# jkut/pgs/settings/nicks/editor.jkut: 117
+Download ok. = Download ok.
+
+# jkut/pgs/settings/nicks/editor.jkut: 103
+Downloading... = Downloading...
+
+# jkut/pgs/settings/nicks/editor.jkut: 46
+Edit = Edit
 
 # jkut/pgs/home/home.jkut: 48
 Errors = Errors
 
-# jkut/pgs/settings/nicks/nicks.jkut: 107
+# jkut/pgs/settings/nicks/editor.jkut: 163
+# jkut/pgs/settings/nicks/nicks.jkut: 108
+# jkut/pgs/settings/servers/servers.jkut: 64
+# jkut/pgs/settings/servers/servers.jkut: 90
+# jkut/pgs/settings/servers/servers.jkut: 142
+# jkut/pgs/settings/servers/servers.jkut: 156
 Errors and warnings found.<br>See log. = Errors and warnings found.<br>See log.
 
-# jkut/pgs/settings/nicks/nicks.jkut: 109
+# jkut/pgs/settings/nicks/editor.jkut: 165
+# jkut/pgs/settings/nicks/nicks.jkut: 110
+# jkut/pgs/settings/servers/servers.jkut: 66
+# jkut/pgs/settings/servers/servers.jkut: 92
+# jkut/pgs/settings/servers/servers.jkut: 144
+# jkut/pgs/settings/servers/servers.jkut: 158
 Errors found.<br>See log. = Errors found.<br>See log.
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 336
 General Time Table = General Time Table
 
-# jkut/pgs/settings/servers/servers.jkut: 179
+# jkut/pgs/settings/servers/servers.jkut: 321
 Historic Test = Historic Test
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 344
@@ -640,73 +631,122 @@ Investors = Investors
 # jkut/main.jkut: 24
 KtWeb session is closed.\nAuthenticating from KtWeb:Main. = KtWeb session is closed.\nAuthenticating from KtWeb:Main.
 
-# jkut/pgs/settings/nicks/nicks.jkut: 236
+# jkut/pgs/settings/nicks/nicks.jkut: 237
 List = List
 
 # jkut/pgs/home/home.jkut: 49
 Log = Log
 
-# jkut/pgs/settings/nicks/nicks.jkut: 144
+# jkut/pgs/settings/nicks/nicks.jkut: 145
 Main = Main
+
+# jkut/pgs/settings/nicks/editor.jkut: 307
+Max = Max
+
+# jkut/pgs/settings/nicks/editor.jkut: 308
+Min = Min
 
 # jkut/wgs/dmenu.jkut: 19
 Models = Models
 
-# jkut/pgs/settings/servers/servers.jkut: 195
+# jkut/pgs/settings/nicks/editor.jkut: 53
+# jkut/pgs/settings/servers/servers.jkut: 338
 Modify = Modify
 
 # jkut/pgs/settings/settings.jkut: 39
 Nicks = Nicks
 
+# jkut/pgs/settings/nicks/editor.jkut: 97
+No modification was performed.<br>See Log. = No modification was performed.<br>See Log.
+
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 141
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 308
+# jkut/pgs/settings/nicks/editor.jkut: 305
 Open = Open
 
-# jkut/data/cts.jkut: 52
+# jkut/data/cts.jkut: 50
 Operation failed.\nSee log. = Operation failed.\nSee log.
 
-# jkut/data/cts.jkut: 50
+# jkut/data/cts.jkut: 48
 Operation successfully done. = Operation successfully done.
+
+# jkut/pgs/settings/nicks/editor.jkut: 365
+Quotes = Quotes
+
+# jkut/pgs/settings/nicks/editor.jkut: 204
+Quotes of %0 can not be loaded.<br>See Log. = Quotes of %0 can not be loaded.<br>See Log.
+
+# jkut/pgs/settings/nicks/editor.jkut: 94
+Quotes were successfully modified = Quotes were successfully modified
 
 # jkut/pgs/home/home.jkut: 46
 Reload = Reload
 
-# jkut/pgs/settings/servers/servers.jkut: 190
+# jkut/pgs/settings/servers/servers.jkut: 333
 Reset = Reset
 
-# jkut/pgs/settings/nicks/nicks.jkut: 148
+# jkut/pgs/settings/nicks/nicks.jkut: 149
 Selection = Selection
 
-# jkut/pgs/settings/servers/servers.jkut: 89
+# jkut/pgs/settings/nicks/editor.jkut: 357
+# jkut/pgs/settings/servers/servers.jkut: 203
 # jkut/pgs/settings/settings.jkut: 41
 Servers = Servers
 
 # jkut/main.jkut: 79
 Session is expired. = Session is expired.
 
+# jkut/pgs/settings/nicks/editor.jkut: 115
+Some error was found.<br>See Log. = Some error was found.<br>See Log.
+
+# jkut/pgs/settings/nicks/editor.jkut: 116
+Some quote was modified.<br>See Log. = Some quote was modified.<br>See Log.
+
+# jkut/pgs/settings/nicks/editor.jkut: 134
+Some warnings were found.<br>See Log. = Some warnings were found.<br>See Log.
+
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 348
 Special days = Special days
 
-# jkut/pgs/settings/nicks/nicks.jkut: 202
+# jkut/pgs/settings/nicks/editor.jkut: 310
+State = State
+
+# jkut/pgs/settings/nicks/editor.jkut: 261
+# jkut/pgs/settings/nicks/editor.jkut: 349
+# jkut/pgs/settings/nicks/nicks.jkut: 203
 Test = Test
 
-# jkut/pgs/settings/nicks/nicks.jkut: 113
+# jkut/pgs/settings/nicks/editor.jkut: 135
+# jkut/pgs/settings/nicks/editor.jkut: 169
+# jkut/pgs/settings/nicks/nicks.jkut: 114
+# jkut/pgs/settings/servers/servers.jkut: 70
+# jkut/pgs/settings/servers/servers.jkut: 96
+# jkut/pgs/settings/servers/servers.jkut: 168
+# jkut/pgs/settings/servers/servers.jkut: 171
 Test ok. = Test ok.
 
-# jkut/pgs/settings/nicks/nicks.jkut: 36
-# jkut/pgs/settings/nicks/nicks.jkut: 85
+# jkut/pgs/settings/nicks/nicks.jkut: 37
+# jkut/pgs/settings/nicks/nicks.jkut: 86
 Total: %0. Selected: %1. = Total: %0. Selected: %1.
 
-# jkut/pgs/settings/nicks/nicks.jkut: 234
+# jkut/pgs/settings/nicks/editor.jkut: 309
+Vol = Vol
+
+# jkut/pgs/settings/nicks/nicks.jkut: 235
 Volume = Volume
 
-# jkut/pgs/settings/nicks/nicks.jkut: 111
+# jkut/pgs/settings/nicks/editor.jkut: 167
+# jkut/pgs/settings/nicks/nicks.jkut: 112
+# jkut/pgs/settings/servers/servers.jkut: 68
+# jkut/pgs/settings/servers/servers.jkut: 94
+# jkut/pgs/settings/servers/servers.jkut: 146
+# jkut/pgs/settings/servers/servers.jkut: 160
 Warnings found.<br>See log. = Warnings found.<br>See log.
 
-# jkut/pgs/settings/servers/servers.jkut: 231
+# jkut/pgs/settings/servers/servers.jkut: 377
 Without Nicks = Without Nicks
 
-# jkut/pgs/settings/nicks/nicks.jkut: 224
+# jkut/pgs/settings/nicks/nicks.jkut: 225
 Without companies = Without companies
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 182

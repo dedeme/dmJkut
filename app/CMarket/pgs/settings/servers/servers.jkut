@@ -144,30 +144,7 @@ mk = async \wg, selected -> {
       msg.error(II("Errors found.<br>See log."), \->{});
     else if (Rp.withWarnings)
       msg.error(II("Warnings found.<br>See log."), \->{});
-    else if (dailyActive) {
-      Rp = await client.send({
-        prg: cts.appName,
-        module: "Settings",
-        source: "Servers",
-        rq: "testDiary",
-        server: SvSelected!.id
-      });
-      if (Rp.withErrors & Rp.withWarnings)
-        msg.error(II("Errors and warnings found.<br>See log."), \->{});
-      else if (Rp.withErrors)
-        msg.error(II("Errors found.<br>See log."), \->{});
-      else if (Rp.withWarnings)
-        msg.error(II("Warnings found.<br>See log."), \->{});
-      else {
-        Codes = Rp.codes;
-        if (!arr.any(Codes, \c -> return c == code;))
-          msg.error(i18n.fmt(
-            II("Code '%0 => %1' not found in diary"), [nick, code]
-          ), \->{});
-        else
-          msg.ok(II("Test ok."), \->{});
-      }
-    } else
+    else
       msg.ok(II("Test ok."), \->{});
 
     span
@@ -183,6 +160,7 @@ mk = async \wg, selected -> {
 
   // \ -> ()
   modify = async \ -> {
+    // {s...}
     Codes = {};
     for (field = CodeFields)
       dic.put(Codes, field.getAtt("id"), str.trim(field.getValue()));
@@ -355,7 +333,7 @@ mk = async \wg, selected -> {
         CodeFields.push(field);
 
         span = Q("span")
-          .add(dailyActive | historicActive
+          .add(historicActive
             ? ui.link(\ev -> testCo(span, nk, field);)
               .add(ui.img("unknown")
                 .style("vertical-align:top"))
@@ -437,9 +415,9 @@ mk = async \wg, selected -> {
 };
 
 // Sever data
-// \s, s, b, b, m[s]{nick, code}] -> <svData>
-mkSvData = \id, name, withDiary, withHistoric, codes ->
-  return {id, name, withDiary, withHistoric, codes};;
+// \s, s, b, b] -> <svData>
+mkSvData = \id, name, withDiary, withHistoric ->
+  return {id, name, withDiary, withHistoric};;
 
 // [*...] -> <svData>
-svDataFromJs = \A -> return mkSvData(A[0], A[1], A[2], A[3], A[4]);;
+svDataFromJs = \A -> return mkSvData(A[0], A[1], A[2], A[3]);;

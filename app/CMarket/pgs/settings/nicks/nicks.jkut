@@ -1,13 +1,14 @@
 // Copyright 01-Jun-2023 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
-/// Accounting information, main page.
+/// Nicks management, main page.
 
 import "libdm/menu";
 import "libdm/modalBox";
 import "data/cts";
 import "data/co";
 import "wgs/msg";
+import "editor";
 import "i18n";
 
 Q = ui.q;
@@ -17,6 +18,21 @@ II = i18n.tlt;
 ///   wg    : Container.
 /// \<domo> -> ()
 mk = async \wg -> {
+  msgWait = Q("div");
+  wg
+    .removeAll()
+    .add(msgWait)
+  ;
+  box = modalBox.mk(
+    Q("div")
+      .add(Q("div")
+        .style("text-align:center")
+        .add(ui.img("wait2.gif").klass("frame"))),
+    false
+  );
+  msgWait.add(box.wg);
+  modalBox.show(box, true);
+
   Rp = await client.send({
     prg: cts.appName,
     module: "Settings",
@@ -36,7 +52,6 @@ mk = async \wg -> {
         II("Total: %0. Selected: %1."),
         [cosSize, selectedsSize]))
   ;
-  msgWait = Q("div");
   SetWait = [[]];
   Show = [[]];
 
@@ -95,6 +110,41 @@ mk = async \wg -> {
   };
 
   download = \ -> {
+    WithErrors = [false];
+    WithWarnings = [false];
+    download2 = async \Nks -> {
+      if (!Nks) {
+        SetWait!("");
+        if (WithErrors! & WithWarnings!)
+          msg.error(II("Errors and warnings found.<br>See log."), \->{});
+        else if (WithErrors!)
+          msg.error(II("Errors found.<br>See log."), \->{});
+        else if (WithWarnings!)
+          msg.error(II("Warnings found.<br>See log."), \->{});
+        else
+          msg.ok(II("Download ok."), \->{});
+        return;
+      }
+      nk = arr.pop(Nks);
+      SetWait!(nk);
+      Rp = await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "Nicks/Editor", // Reuse of server call
+        rq: "download",
+        mainNick: Main!,
+        nick: nk
+      });
+      if (Rp.result == "error") WithErrors! = true;
+      else if (Rp.result == "warnings") WithWarnings! = true;
+      download2(Nks);
+    };
+    Nicks = arr.filter(
+      arr.map(Cos, \C -> return C.nick;),
+      \nk -> return nk != Main!;
+    );
+    arr.unshift(Nicks, Main!);
+    download2(arr.reverse(Nicks));
   };
 
   test = \ -> {
@@ -148,7 +198,7 @@ mk = async \wg -> {
             .att("title", II("Selection"))
             .add(ui.link(\ev -> select(co.nick);)
               .add(co.isSelected
-                  ? ui.img(volumes[co.nick] < 1000000 ? "flag2" : "flag1")
+                  ? ui.img(volumes[co.nick] < cts.trading ? "flag2" : "flag1")
                   : ui.led("#d0ddde", 6).setStyle("padding", "5px")
                 )))
           .add(Q("td")
@@ -241,10 +291,10 @@ mk = async \wg -> {
 
     body = Q("div");
 
-    body
-      .add(list())
-    ;
+    if (Option![0] == "*") body.add(list());
+    else editor.mk(body, arr.map(Cos, \C -> return C.nick;), Main!, Option!);
 
+    modalBox.show(box, false);
     wg
       .removeAll()
       .add(menuWg)

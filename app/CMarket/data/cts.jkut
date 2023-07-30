@@ -24,6 +24,15 @@ foot = Q("table")
       .html(str.fmt("- © ºDeme. %v (%v) -", [appName, version]))))
 ;
 
+/// me nick.
+meNick = "<ME>";
+/// Ibex nick
+ibexNick = "<IBEX>";
+/// Euro index nick.
+euroNick = "<EURO>";
+/// Usa index nick.
+usaNick = "<USA>";
+
 /// Limit over which a company has enough trading.
 trading = 1_500_000;
 /// Ammount to make a buy.
@@ -32,8 +41,6 @@ bet = 10000.0;
 initialCapital = 100000.0;
 /// Minimun cash to bet
 minToBet = 11000.0;
-/// Gol multiplicator for coughts
-noLostMultiplicator = 1.05;
 /// Server state.
 serverStopped = 0;
 /// Server state.
@@ -43,21 +50,37 @@ serverSelected = 2;
 /// Number of quotes for accounting charts.
 accountingQuotes = 250;
 
-
 /// Standar messsage for server fails.
 okMsg = II("Operation successfully done.");
 /// Standar messsage for server fails.
 failMsg = II("Operation failed.\nSee log.");
 
 /// ToBuy references colors (one by investor)
-ToBuyColors = [
+toBuyColors = [
   "rgba(160, 0, 0)",
   "rgba(224, 160, 0)",
   "rgba(240, 224, 0)"
 ];
 /// ToSell references colors (one by investor)
-ToSellColors = [
+toSellColors = [
   "rgba(0, 0, 160)",
   "rgba(0, 160, 224)",
   "rgba(0, 160, 0)"
 ];
+
+/// Activity state.
+active = "Active";
+
+/// Activity state.
+sleeping = "Sleeping";
+
+/// Order type in daily charts.
+chartOrderNick = 0;
+
+/// Order type in daily charts.
+chartOrderDay = 1;
+
+/// Order type in daily charts.
+chartOrderSignal = 2;
+
+

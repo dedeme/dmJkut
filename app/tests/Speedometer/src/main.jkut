@@ -1,0 +1,22 @@
+// Copyright 11-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Clock tests
+
+import "libdm/speedometer";
+
+Q = ui.q;
+
+s1 = speedometer.mk(
+  0.1587, 0.8, ["#6e8296"], ["white"]
+);
+s2 = speedometer.mk(0.21, 0.15, [], []);
+Q("@body")
+  .style("background-color:#f0f1f2")
+  .add(Q("table").att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .add(s1)
+      .add(Q("td")
+        .add(s2)))))
+;

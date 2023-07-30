@@ -1,0 +1,197 @@
+// Copyright 27-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Historic chart page.
+
+import "libdm/menu";
+import "libdm/lineChart";
+import "data/model";
+import "data/result";
+import "data/modelEval";
+import "i18n";
+import "fns";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, s -> ()
+mk = async \wg, modelId -> {
+  // [[n...]] | []
+  Params = [];
+  Url = ui.url();
+  Uparams = dic.get(Url, "2");
+  if (Uparams) {
+    try {
+      A = js.r(Uparams!);
+      ok = arr.reduce(
+        A, true, \r, e -> return r & sys.type(e) == "number" & e >= 0;
+      );
+      if (ok) arr.push(Params, A);
+    } catch (e) {}
+  }
+
+  Rp = await client.send({
+    prg: "CMMarket",
+    source: "HistoricPg",
+    rq: "idata",
+    modelId,
+    params: Params // Can be []
+  });
+  if (!Rp.ok) {
+    ui.alert(i18n.fmt(II("%0%1 not found."), [modelId, sys.toStr(Params)]));
+    window.location.assign("?");
+    return;
+  }
+  Model = model.fromJs(Rp.model);
+  Result = result.fromJs(Rp.result);
+  MdEval = modelEval.fromJs(Rp["eval"]);
+  Dates = Rp.dates; // [s...]
+  Assets = Rp.assets; // [n...]
+  Withdrawals = Rp.withdrawals; // [n...]
+
+  // \b -> <domo>
+  mkGr = \isAssets -> {
+    Labels = arr.map(Dates, \d -> return d[4:6];);
+
+    Ch = lineChart.mkExample();
+    Ch.ExArea.width = 600;
+    Ch.ExArea.height = isAssets ? 300 : 150;
+    Ch.InPadding.left = 100;
+    Ch.ExArea.Atts.background = "#ffffff";
+    Ch.InAtts.background = "#e9e9e9";
+
+    Data = lineChart.mkData(
+      Labels,
+      isAssets
+        ? [arr.map(Assets, \e->return [e];)]
+        : [arr.map(Withdrawals, \e->return [e];)],
+      [ lineChart.mkLine(1, "#000000", false)]
+    );
+    Data.round = 0;
+    PrevLabel = [Labels[0]];
+    Data.drawLabel = \l, i -> {
+      if (i == 0) return false;
+      if (l != PrevLabel! & (l == "01" | l == "04" | l == "07"| l == "10")) {
+        PrevLabel! = l;
+        return true;
+      }
+      return false;
+    };
+    PrevLabel2 = [Labels[0]];
+    Data.drawGrid = \l, i -> {
+      if (i == 0) return false;
+      if (l != PrevLabel2! & (l == "01" | l == "04" | l == "07"| l == "10")) {
+        PrevLabel2! = l;
+        return true;
+      }
+      return false;
+    };
+
+    return lineChart.mkWg(Ch, Data);
+  };
+
+  wg
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .text(II("Historic")))
+    .add(Q("div").klass("separator"))
+    .add(Q("table")
+      .att("align", "center")
+      .klass("flat")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("chead")
+          .text(II("Model")))
+        .adds(arr.map(Model.paramNames, \n -> return Q("td")
+            .klass("rhead")
+            .text(n)
+          ;)))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("cframe")
+          .text(Model.name))
+        .adds(arr.fromIter(iter.map(
+          [0:arr.size(MdEval.params)],
+          \i -> return Q("td")
+            .klass("rframe")
+            .text(fns.paramFmt(Model.paramTypes[i], MdEval.params[i]))
+          ;)))))
+    .add(Q("div").klass("separator2"))
+    .add(Q("table")
+      .att("align", "center")
+      .klass("flat")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Assets")))
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Profits (%)")))
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Eval.")))
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Sales"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(Result.assets, 2)))
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(Result.profits * 100, 2)))
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(fns.evaluate(Result.assets, Result.profits), 0)))
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(Result.sales, 0)))))
+    .add(Q("div").klass("separator2"))
+    .add(Q("table")
+      .att("align", "center")
+      .klass("flat")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("H. Eval.")))
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("H. Sales")))
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Eval.")))
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Sales"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(fns.evaluate(MdEval.hassets, MdEval.hprofits), 0)))
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(MdEval.hsales, 0)))
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(fns.evaluate(MdEval.assets, MdEval.profits), 0)))
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(MdEval.sales, 0)))))
+    .add(Q("div")
+      .klass("head")
+      .text(II("Assets")))
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(mkGr(true)))))
+    .add(Q("div")
+      .klass("head")
+      .text(II("Withdrawals")))
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(mkGr(false)))))
+  ;
+};

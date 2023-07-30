@@ -1,43 +1,3 @@
-# ORPHAN
-Accept = Accept
-
-# ORPHAN
-Accounting = Accounting
-
-# ORPHAN
-Check gray squares = Check gray squares
-
-# ORPHAN
-Grey squares checks are wrong = Grey squares checks are wrong
-
-# ORPHAN
-Keep connected = Keep connected
-
-# ORPHAN
-Login = Login
-
-# ORPHAN
-Password = Password
-
-# ORPHAN
-Password is missing = Password is missing
-
-# ORPHAN
-Reset must be made from server! = Reset must be made from server!
-
-# ORPHAN
-User = User
-
-# ORPHAN
-User name is missing = User name is missing
-
-# ORPHAN
-Wrong password = Wrong password
-
-# TO DO
-# jkut/main.jkut: 21
-KtWeb session is closed.\nAuthenticating from KtWeb:Main. =
-
 # jkut/pgs/main/home.jkut: 56
 2 Days = 2 Days
 
@@ -47,16 +7,16 @@ All = All
 # jkut/pgs/main/home.jkut: 55
 All log entries will be deleted.\nContinue? = All log entries will be deleted.\nContinue?
 
-# jkut/pgs/mmarket/modelsPg.jkut: 71
+# jkut/pgs/mmarket/modelsPg.jkut: 96
 Assets = Assets
 
-# jkut/pgs/mmarket/modelsPg.jkut: 73
-Cash Prfs. = Cash Prfs.
+# jkut/wgs/dmenu.jkut: 19
+CMarket = CMarket
 
 # jkut/pgs/msgPg.jkut: 21
 Click %0 to continue. = Click %0 to continue.
 
-# jkut/pgs/ktmarket/percentsPg.jkut: 61
+# jkut/pgs/cmarket/percentsPg.jkut: 61
 Dates of profits and ibex does not match = Dates of profits and ibex does not match
 
 # jkut/pgs/main/home.jkut: 59
@@ -71,21 +31,21 @@ Home = Home
 # jkut/pgs/mmarket.jkut: 27
 Hot Maps = Hot Maps
 
-# jkut/pgs/ktmarket/percentsPg.jkut: 70
+# jkut/pgs/cmarket/percentsPg.jkut: 70
 Ibex = Ibex
 
-# jkut/pgs/ktmarket/percentsPg.jkut: 98
-# jkut/pgs/ktmarket/profitsPg.jkut: 46
+# jkut/pgs/cmarket/percentsPg.jkut: 98
+# jkut/pgs/cmarket/profitsPg.jkut: 46
 Investor = Investor
 
-# jkut/pgs/ktmarket/percentsPg.jkut: 131
+# jkut/pgs/cmarket/percentsPg.jkut: 131
 Investors - Ibex = Investors - Ibex
 
-# jkut/pgs/ktmarket/percentsPg.jkut: 117
+# jkut/pgs/cmarket/percentsPg.jkut: 117
 Investors average = Investors average
 
-# jkut/wgs/dmenu.jkut: 19
-KtMarket = KtMarket
+# jkut/main.jkut: 21
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. = KtWeb session is closed.\nAuthenticating from KtWeb:Main.
 
 # jkut/pgs/main/home.jkut: 61
 Log = Log
@@ -93,28 +53,26 @@ Log = Log
 # jkut/wgs/dmenu.jkut: 21
 MMarket = MMarket
 
-# jkut/pgs/mmarket/modelsPg.jkut: 45
+# jkut/pgs/mmarket/modelsPg.jkut: 56
 Model = Model
 
 # jkut/pgs/mmarket.jkut: 25
 Models = Models
 
-# jkut/pgs/ktmarket.jkut: 27
+# jkut/pgs/cmarket.jkut: 27
 Percentages = Percentages
 
-# jkut/pgs/mmarket/modelsPg.jkut: 48
-# jkut/pgs/mmarket/modelsPg.jkut: 69
+# jkut/pgs/mmarket/modelsPg.jkut: 60
+# jkut/pgs/mmarket/modelsPg.jkut: 94
 Points = Points
 
-# jkut/pgs/ktmarket.jkut: 25
-# jkut/pgs/ktmarket/percentsPg.jkut: 66
+# jkut/pgs/cmarket.jkut: 25
+# jkut/pgs/cmarket/percentsPg.jkut: 66
+# jkut/pgs/mmarket/modelsPg.jkut: 98
 Profits = Profits
 
 # jkut/pgs/main/home.jkut: 58
 Reload = Reload
-
-# jkut/pgs/mmarket/modelsPg.jkut: 75
-Risk = Risk
 
 # jkut/main.jkut: 74
 Session is expired. = Session is expired.

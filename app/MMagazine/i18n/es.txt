@@ -1,43 +1,3 @@
-# ORPHAN
-Accept = Aceptar
-
-# ORPHAN
-Accounting = Contabilidad
-
-# ORPHAN
-Check gray squares = Marcar los cuadrados grises
-
-# ORPHAN
-Grey squares checks are wrong = Las casillas grises están mal marcadas
-
-# ORPHAN
-Keep connected = Mantenerse conectado
-
-# ORPHAN
-Login = Identificación
-
-# ORPHAN
-Password = Contraseña
-
-# ORPHAN
-Password is missing = Falta indicar la contraseña
-
-# ORPHAN
-Reset must be made from server! = ¡El borrado debe ser hecho desde el servidor!
-
-# ORPHAN
-User = Usuario
-
-# ORPHAN
-User name is missing = Falta indicar el nombre del usuario
-
-# ORPHAN
-Wrong password = La contraseña es incorrecta
-
-# TO DO
-# jkut/main.jkut: 21
-KtWeb session is closed.\nAuthenticating from KtWeb:Main. =
-
 # jkut/pgs/main/home.jkut: 56
 2 Days = 2 días
 
@@ -47,16 +7,16 @@ All = Todo
 # jkut/pgs/main/home.jkut: 55
 All log entries will be deleted.\nContinue? = \"Todas las entradas serán borradas.\n¿Continuar?
 
-# jkut/pgs/mmarket/modelsPg.jkut: 71
+# jkut/pgs/mmarket/modelsPg.jkut: 96
 Assets = Capital
 
-# jkut/pgs/mmarket/modelsPg.jkut: 73
-Cash Prfs. = Bfs. de Caja
+# jkut/wgs/dmenu.jkut: 19
+CMarket = CMarket
 
 # jkut/pgs/msgPg.jkut: 21
 Click %0 to continue. = Hacer click %0 para continuar.
 
-# jkut/pgs/ktmarket/percentsPg.jkut: 61
+# jkut/pgs/cmarket/percentsPg.jkut: 61
 Dates of profits and ibex does not match = Fechas de beneficios e Ibex no coinciden
 
 # jkut/pgs/main/home.jkut: 59
@@ -71,21 +31,21 @@ Home = Inicio
 # jkut/pgs/mmarket.jkut: 27
 Hot Maps = Mapas de calor
 
-# jkut/pgs/ktmarket/percentsPg.jkut: 70
+# jkut/pgs/cmarket/percentsPg.jkut: 70
 Ibex = Ibex
 
-# jkut/pgs/ktmarket/percentsPg.jkut: 98
-# jkut/pgs/ktmarket/profitsPg.jkut: 46
+# jkut/pgs/cmarket/percentsPg.jkut: 98
+# jkut/pgs/cmarket/profitsPg.jkut: 46
 Investor = Inversor
 
-# jkut/pgs/ktmarket/percentsPg.jkut: 131
+# jkut/pgs/cmarket/percentsPg.jkut: 131
 Investors - Ibex = Inversores - Ibex
 
-# jkut/pgs/ktmarket/percentsPg.jkut: 117
+# jkut/pgs/cmarket/percentsPg.jkut: 117
 Investors average = Media de los inversores
 
-# jkut/wgs/dmenu.jkut: 19
-KtMarket = KtMarket
+# jkut/main.jkut: 21
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. = La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.
 
 # jkut/pgs/main/home.jkut: 61
 Log = Registro
@@ -93,28 +53,26 @@ Log = Registro
 # jkut/wgs/dmenu.jkut: 21
 MMarket = MMarket
 
-# jkut/pgs/mmarket/modelsPg.jkut: 45
+# jkut/pgs/mmarket/modelsPg.jkut: 56
 Model = Modelo
 
 # jkut/pgs/mmarket.jkut: 25
 Models = Modelos
 
-# jkut/pgs/ktmarket.jkut: 27
+# jkut/pgs/cmarket.jkut: 27
 Percentages = Porcentajes
 
-# jkut/pgs/mmarket/modelsPg.jkut: 48
-# jkut/pgs/mmarket/modelsPg.jkut: 69
+# jkut/pgs/mmarket/modelsPg.jkut: 60
+# jkut/pgs/mmarket/modelsPg.jkut: 94
 Points = Puntos
 
-# jkut/pgs/ktmarket.jkut: 25
-# jkut/pgs/ktmarket/percentsPg.jkut: 66
+# jkut/pgs/cmarket.jkut: 25
+# jkut/pgs/cmarket/percentsPg.jkut: 66
+# jkut/pgs/mmarket/modelsPg.jkut: 98
 Profits = Beneficios
 
 # jkut/pgs/main/home.jkut: 58
 Reload = Recargar
-
-# jkut/pgs/mmarket/modelsPg.jkut: 75
-Risk = Riesgo
 
 # jkut/main.jkut: 74
 Session is expired. = La sesión ha expirado.

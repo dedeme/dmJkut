@@ -1,0 +1,12 @@
+// Copyright 27-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Result of a model maket test
+
+import "cts";
+
+/// \n, n, n, n -> d<result>
+mk = \assets, profits, points, sales -> return {assets, profits, points, sales};;
+
+/// \[JS...] -> <result>
+fromJs = \A -> return mk(A[0], A[1], A[2], A[3]);;

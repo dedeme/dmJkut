@@ -1,0 +1,20 @@
+// Copyright 27-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Model evaluation data.
+
+/// Constructor
+///   params  : Calculus parameters.
+///   times   : Historic evaluarions number.
+///   hassets : Historic assets. (Money -- e.g. 104012.53)
+///   hprofits: Historic profits. (Ratio -- e.g. 0.0321 [that is 3.21%]).
+///   hsale   : Historic number of sales.
+///   assets  : Last simulation assets. (Money -- e.g. 104012.53)
+///   profits : Last simultarion profits. (Ratio -- e.g. 0.0321 [that is 3.21%]).
+///   sales   : Number of sales.
+/// \[n...], n, n, n, n, n, n, n -> d<modelEval>
+mk = \params, times, hassets, hprofits, hsales, assets, profits, sales ->
+  return {params, times, hassets, hprofits, hsales, assets, profits, sales};;
+
+/// \[JS...] -> <modelEval>
+fromJs = \A -> return mk(A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7]);;

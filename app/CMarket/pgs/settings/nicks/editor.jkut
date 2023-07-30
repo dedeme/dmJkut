@@ -142,7 +142,7 @@ mk = async \wg, nicks, mainNick, nick -> {
   // \s, s -> ()
   updateCode = async \sId, code -> {
     if (code == "")
-      msg.error(i18n.fmt(II("Nick code of $0 is missing"), [sId]), \ -> {});
+      msg.error(i18n.fmt(II("Nick code of %0 is missing"), [sId]), \ -> {});
     else
       UpdatingServer! = true;
       await client.send({

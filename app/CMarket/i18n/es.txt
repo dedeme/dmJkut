@@ -1,557 +1,119 @@
-# ORPHAN
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 210
 %0 Model = Modelo %0
 
-# ORPHAN
-%0 is missing = Falta %0
-
-# ORPHAN
+# jkut/pgs/settings/acc/invWg.jkut: 24
 '%0' is empty = Falta rellenar el campo '%0'
 
-# ORPHAN
-'%0' is not a cero or positive number = '%0' no es cero ni un número positivo
-
-# ORPHAN
+# jkut/pgs/settings/acc/invWg.jkut: 30
 '%0' is not a positive integer = '%0' no es un entero positivo
 
-# ORPHAN
+# jkut/pgs/settings/acc/invWg.jkut: 36
 '%0' is not a positive number = '%0' no es un número positivo
 
-# ORPHAN
-Accept = Aceptar
-
-# ORPHAN
-Accounting profits = Beneficios contables
-
-# ORPHAN
-Activate = Activar
-
-# ORPHAN
-Active = Activo
-
-# ORPHAN
-All CO's = Todas las Cías.
-
-# ORPHAN
-All Companies = Todas las empresas
-
-# ORPHAN
-Amount = Cantidad
-
-# ORPHAN
-Annotation con id '%0' not found = No encontrada la anotación con id '%0'
-
-# ORPHAN
-Application exit? = ¿Salir de la aplicación?
-
-# ORPHAN
-Assets = Activo
-
-# ORPHAN
-B(uy) = C
-
-# ORPHAN
-Balance = Balance
-
-# ORPHAN
-Balance(Operations) = Saldo
-
-# ORPHAN
-Bet = Apuesta
-
-# ORPHAN
-Buy = Compra
-
-# ORPHAN
-Buys = Compras
-
-# ORPHAN
-C(atch) = A
-
-# ORPHAN
-Calculate = Calcular
-
-# ORPHAN
-Calculated by server:<br>Assets: %0. Buys: %1. Sells: %2 = Calculado por el servidor:<br>Activo: %0. Compras: %1. Ventas: %2
-
-# ORPHAN
-Capital = Capital
-
-# ORPHAN
-Cash = Caja
-
-# ORPHAN
-Cash: = Caja:
-
-# ORPHAN
-Change = Cambiar
-
-# ORPHAN
-Change Language to %0 = Cambiar el idioma a %0
-
-# ORPHAN
-Change Password = Cambiar la contraseña
-
-# ORPHAN
-Charts = Gráficos
-
-# ORPHAN
-Check gray squares = Marcar los cuadrados grises
-
-# ORPHAN
-Close Year = Cierre de ejercicio
-
-# ORPHAN
-Co. = Cia.
-
-# ORPHAN
-Code = Código
-
-# ORPHAN
-Codes = Códigos
-
-# ORPHAN
-Companies = Empresas
-
-# ORPHAN
-Confirm password is missing = Falta la confirmación de la contraseña
-
-# ORPHAN
-Current Year = Año actual
-
-# ORPHAN
-Current password = Contraseña actual
-
-# ORPHAN
-Current password is missing = Falta indicar la contraseña actual
-
-# ORPHAN
-Current profits = Beneficios reales
-
-# ORPHAN
-Daily = Diario
-
-# ORPHAN
-Daily configuration activated = Activada configuración diaria
-
-# ORPHAN
-Daily configuration deactivated = Desactivada configuración diaria
-
-# ORPHAN
-Daily configuration selected = Seleccionada configuración diaria
-
-# ORPHAN
-Daily configuration stopped = Detenida configuración diaria
-
-# ORPHAN
-Date separator = Separador de fechas
-
-# ORPHAN
-Date separator is missing = Falta el separador de fechas
-
-# ORPHAN
-Day = Día
-
-# ORPHAN
-Default Model = Modelo por defecto
-
-# ORPHAN
-Delete %0? = ¿Eliminar %0?
-
-# ORPHAN
-Description = Concepto
-
-# ORPHAN
-Diff. + = Dif. +
-
-# ORPHAN
-Diff. - = Dif. -
-
-# ORPHAN
-Differences = Diferencias
-
-# ORPHAN
-Equity = Pasivo
-
-# ORPHAN
-Errors and warnings found.\nSee log. = Se han producido errores y avisos.\nVer log.
-
-# ORPHAN
-Errors found.\nSee log. = Se han producido errores.\nVer log.
-
-# ORPHAN
-Fees = Comisiones
-
-# ORPHAN
-Fields order = Orden de los campos
-
-# ORPHAN
-Global = Global
-
-# ORPHAN
-Gol = Objetivo
-
-# ORPHAN
-Grey squares checks are wrong = Las casillas grises están mal marcadas
-
-# ORPHAN
-Historic = Histórico
-
-# ORPHAN
-Historic configuration activated = Configuración del histórico activada
-
-# ORPHAN
-Historic configuration deactivated = Configuración del histórico desactivada
-
-# ORPHAN
-Historic configuration selected = Configuración del histórico seleccionada
-
-# ORPHAN
-Historic configuration stopped = Configuración del histórico detenida
-
-# ORPHAN
-In Stock = En cartera
-
-# ORPHAN
-Income = Ingreso
-
-# ORPHAN
-Intial stockage can not be deleted = Cartera inicial no puede ser eliminada
-
-# ORPHAN
-Inv = Inv
-
-# ORPHAN
-Inv- = Inv-
-
-# ORPHAN
-Invest = Inversión
-
-# ORPHAN
-Is ISO date? = ¿Es la fecha ISO?
-
-# ORPHAN
-Is ISO number? = ¿Es un número ISO?
-
-# ORPHAN
-Jail = Atrapados
-
-# ORPHAN
-Keep connected = Mantenerse conectado
-
-# ORPHAN
-Last Month = Último mes
-
-# ORPHAN
-Last Year = Último año
-
-# ORPHAN
-Login = Identificación
-
-# ORPHAN
-Logout-message = <p>%0 ha terminado.</p><p><b>¡Hasta pronto!</b></p>
-
-# ORPHAN
-Losses = Pérdidas
-
-# ORPHAN
-Model = Modelo
-
-# ORPHAN
-Name = Nombre
-
-# ORPHAN
-Name is missing = Falta el nombre
-
-# ORPHAN
-Names = Nombres
-
-# ORPHAN
-New = Nuevo
-
-# ORPHAN
-New password = Nueva contraseña
-
-# ORPHAN
-New password and confirm password do not match = La nueva contraseña y su confirmación no coinciden
-
-# ORPHAN
-New password is missing = Falta indicar la nueva contraseña
-
-# ORPHAN
-Nick = Nick
-
-# ORPHAN
-Nick '%0' is duplicated = Nick '%0' está repetido
-
-# ORPHAN
-Nick code is missing = Falta el código del nick
-
-# ORPHAN
-Nick model not selected = No se ha seleccionado el nick modelo.
-
-# ORPHAN
-Nick models = Modelos de Nicks
-
-# ORPHAN
-Nick name is missing = Falta en nombre del nick
-
-# ORPHAN
-No selected company = No se ha seleccionado ninguna compañía
-
-# ORPHAN
-No server selected = Ningún servidor está seleccionado
-
-# ORPHAN
-Nº = Nº
-
-# ORPHAN
-Order by = Ordenado por
-
-# ORPHAN
-Orders = Órdenes
-
-# ORPHAN
-Overview = Resumen
-
-# ORPHAN
-Parameters = Parámetros
-
-# ORPHAN
-Password = Contraseña
-
-# ORPHAN
-Password is missing = Falta indicar la contraseña
-
-# ORPHAN
-Password successfully changed = La contraseña se cambió correctamente
-
-# ORPHAN
-Portfolio = Cartera
-
-# ORPHAN
-Price = Precio
-
-# ORPHAN
-Profits = Beneficios
-
-# ORPHAN
-Profits calculated by server: %0 = Beneficios calculados por el servidor: %0
-
-# ORPHAN
-Quote = Cotización
-
-# ORPHAN
-Ratio = Ratio
-
-# ORPHAN
-Reactivate daily charts? = ¿Reactivar los gráficos del día?
-
-# ORPHAN
-Rebuys = Recompras
-
-# ORPHAN
-Reference (‰) = Referencia (‰)
-
-# ORPHAN
-References = Referencias
-
-# ORPHAN
-RegEx = RegEx
-
-# ORPHAN
-Remove = Eliminar
-
-# ORPHAN
-Remove %0 configuration? = ¿Eliminar la configuración de %0?
-
-# ORPHAN
-Reverse = Reverso
-
-# ORPHAN
-Rf. (‰) = Rf. (‰)
-
-# ORPHAN
-Risk = Riesgo
-
-# ORPHAN
-Risk profits = Beneficios - riesgo
-
-# ORPHAN
-Row end = Fin de fila
-
-# ORPHAN
-Row start = Inicio de fila
-
-# ORPHAN
-S(ell) = V
-
-# ORPHAN
-Sales = Ventas
-
-# ORPHAN
-Selected = Seleccionado
-
-# ORPHAN
-Sell = Venta
-
-# ORPHAN
-Sells = Ventas
-
-# ORPHAN
-Server name is duplicated = El nombre del servidor está duplicado
-
-# ORPHAN
-Server name is empty = No se ha indicado el nombre del servidor
-
-# ORPHAN
-Settings = Configuración
-
-# ORPHAN
-Short Name = Nombre corto
-
-# ORPHAN
-Short Name is missing = Falta el nombre corto
-
-# ORPHAN
-Show = Mostrar
-
-# ORPHAN
-Signal = Señal
-
-# ORPHAN
-Sleeping = Dormido
-
-# ORPHAN
-Speedometers = Velocímetros
-
-# ORPHAN
-Stocks = Acciones
-
-# ORPHAN
-Stocks(Operations) = Acc.
-
-# ORPHAN
-Stopped = Detenido
-
-# ORPHAN
-Summary = Resumen
-
-# ORPHAN
-Table end = Fin de tabla
-
-# ORPHAN
-Table start = Inicio de tabla
-
-# ORPHAN
-Tests = Pruebas
-
-# ORPHAN
-To withdraw = Para retirar
-
-# ORPHAN
-Total bet = Apuesta total
-
-# ORPHAN
-Trading = Operaciones
-
-# ORPHAN
-URL = URL
-
-# ORPHAN
-URL is missing = Falta la URL
-
-# ORPHAN
-Up to = Hasta
-
-# ORPHAN
-Update = Actualizar
-
-# ORPHAN
-User = Usuario
-
-# ORPHAN
-User name is missing = Falta indicar el nombre del usuario
-
-# ORPHAN
-Value = Valor
-
-# ORPHAN
-Values of '%0' have blanks = Los valores de '%0' tienen blancos
-
-# ORPHAN
-Warning found.\nSee log. = Se han producido avisos.\nVer log.
-
-# ORPHAN
-Withdrawal = Reintegro
-
-# ORPHAN
-Withdrawals = Retiradas
-
-# ORPHAN
-Without Data = Sin datos
-
-# ORPHAN
-Without data = Sin datos
-
-# ORPHAN
-Without operations = Sin operaciones
-
-# ORPHAN
-Without<br>Servers = Sin<br>Servidores
-
-# ORPHAN
-Wrong password = La contraseña es incorrecta
-
-# ORPHAN
-daily = diario
-
-# ORPHAN
-end = fin
-
-# ORPHAN
-historic = histórico
-
-# ORPHAN
-start = Empezar
-
-# ORPHAN
-Code '%0 = > %1' not found in diary =
-
-# TO DO
-# jkut/pgs/settings/servers/servers.jkut: 165
-Code '%0 => %1' not found in diary =
-
-# TO DO
-# jkut/pgs/settings/nicks/editor.jkut: 142
-Nick code of $0 is missing =
+# jkut/pgs/acc/tradingPg.jkut: 124
+# jkut/pgs/acc/tradingPg.jkut: 132
+# jkut/pgs/acc/tradingPg.jkut: 155
+'%0' is not a valid number. = '%0' no es un número válido.
 
 # jkut/pgs/home/home.jkut: 44
 2 Days = 2 Días
 
-# jkut/wgs/dmenu.jkut: 21
+# jkut/pgs/settings/acc/invWg.jkut: 156
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 191
+Accept = Aceptar
+
+# jkut/wgs/dmenu.jkut: 19
 Accounting = Contabilidad
 
+# jkut/pgs/acc/balance.jkut: 239
+Accounting profits = Beneficios contables
+
+# jkut/pgs/acc/balance.jkut: 82
+# jkut/pgs/acc/profitsPg.jkut: 55
+# jkut/pgs/acc/profitsPg.jkut: 398
 # jkut/pgs/home/home.jkut: 45
+# jkut/pgs/settings/acc/accPg.jkut: 71
 All = Todo
+
+# jkut/pgs/daily/dailyPg.jkut: 505
+All CO's = Todas las Cías.
+
+# jkut/pgs/acc/companiesPg.jkut: 368
+All Companies = Todas las empresas
 
 # jkut/pgs/home/home.jkut: 43
 All log entries will be deleted.\nContinue? = Todas las entradas del registro será borradas.\n¿Continuar?
 
-# jkut/pgs/settings/nicks/editor.jkut: 133
+# jkut/pgs/settings/acc/invWg.jkut: 241
+# jkut/pgs/settings/acc/invWg.jkut: 256
+# jkut/pgs/settings/acc/invWg.jkut: 271
+# jkut/pgs/settings/acc/invWg.jkut: 286
+# jkut/pgs/settings/acc/invWg.jkut: 302
+# jkut/pgs/settings/acc/invWg.jkut: 318
+# jkut/pgs/settings/acc/invWg.jkut: 335
+# jkut/pgs/settings/acc/invWg.jkut: 351
+# jkut/pgs/settings/acc/invWg.jkut: 368
+# jkut/pgs/settings/acc/invWg.jkut: 384
+# jkut/pgs/settings/acc/invWg.jkut: 401
+# jkut/pgs/settings/acc/invWg.jkut: 417
+Amount = Cantidad
+
+# jkut/pgs/settings/nicks/editor.jkut: 136
 An error was found.<br>See Log. = Se ha encontrado un error.<br>Ver Log.
 
+# jkut/pgs/settings/acc/invWg.jkut: 84
+Annotation con id '%0' not found = No encontrada la anotación con id '%0'
+
+# jkut/pgs/settings/acc/allWg.jkut: 63
+# jkut/pgs/settings/acc/invWg.jkut: 466
 # jkut/pgs/settings/settings.jkut: 43
 Annotations = Asientos
 
-# jkut/wgs/dmenu.jkut: 27
+# jkut/wgs/dmenu.jkut: 25
 Annotations & Settings = Anotaciones & configuración
+
+# jkut/pgs/acc/balance.jkut: 268
+Assets = Activo
+
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 132
+Bad number [%0] = Número no válido [%0]
+
+# jkut/pgs/acc/acc.jkut: 35
+# jkut/pgs/acc/balance.jkut: 259
+Balance = Balance
+
+# jkut/pgs/acc/balance.jkut: 363
+# jkut/pgs/acc/tradingPg.jkut: 172
+# jkut/pgs/settings/acc/annotationsWg.jkut: 47
+# jkut/pgs/settings/acc/invWg.jkut: 222
+# jkut/pgs/settings/acc/invWg.jkut: 434
+Buy = Compra
+
+# jkut/pgs/acc/tradingPg.jkut: 433
+Buys = Compras
+
+# jkut/pgs/acc/tradingPg.jkut: 197
+# jkut/pgs/acc/tradingPg.jkut: 257
+Calculate = Calcular
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 330
 # jkut/pgs/settings/settings.jkut: 49
 Calendar = Calendario
 
-# jkut/pgs/settings/nicks/editor.jkut: 49
+# jkut/pgs/settings/acc/invWg.jkut: 152
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 186
+# jkut/pgs/settings/nicks/editor.jkut: 51
 Cancel = Cancelar
+
+# jkut/pgs/acc/balance.jkut: 297
+Cash = Caja
+
+# jkut/pgs/settings/acc/allWg.jkut: 76
+# jkut/pgs/settings/acc/invWg.jkut: 484
+Cash: = Caja:
+
+# jkut/pgs/settings/acc/allWg.jkut: 97
+Change = Cambiar
 
 # jkut/pgs/msgPg.jkut: 21
 Click %0 to continue. = Hacer click %0 para continuar.
@@ -560,19 +122,54 @@ Click %0 to continue. = Hacer click %0 para continuar.
 # jkut/wgs/msg.jkut: 106
 Close = Cerrar
 
+# jkut/pgs/settings/acc/accPg.jkut: 78
+Close Year Help = Ayuda para cerrar el ejercicio
+
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 144
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 311
-# jkut/pgs/settings/nicks/editor.jkut: 306
+# jkut/pgs/settings/nicks/editor.jkut: 318
 CloseN = Cierre
 
-# jkut/wgs/dmenu.jkut: 23
+# jkut/pgs/acc/balance.jkut: 359
+# jkut/pgs/acc/tradingPg.jkut: 397
+# jkut/pgs/acc/tradingPg.jkut: 402
+# jkut/pgs/acc/tradingPg.jkut: 416
+# jkut/pgs/acc/tradingPg.jkut: 438
+# jkut/pgs/acc/tradingPg.jkut: 448
+Co. = Cia.
+
+# jkut/pgs/acc/acc.jkut: 33
+# jkut/pgs/acc/speedometers.jkut: 158
+Companies = Empresas
+
+# jkut/pgs/acc/profitsPg.jkut: 394
+Current Year = Año actual
+
+# jkut/pgs/acc/balance.jkut: 227
+Current profits = Beneficios reales
+
+# jkut/pgs/daily/dailyPg.jkut: 93
+Currently this functions is deactivated = Esta función está actualmente desactivada
+
+# jkut/wgs/dmenu.jkut: 21
 Daily Quotes = Cotizaciones del día
 
-# jkut/pgs/settings/servers/servers.jkut: 311
+# jkut/pgs/settings/servers/servers.jkut: 289
 Daily Test = Prueba diario
 
+# jkut/pgs/acc/tradingPg.jkut: 398
+# jkut/pgs/acc/tradingPg.jkut: 403
+# jkut/pgs/settings/acc/invWg.jkut: 122
+# jkut/pgs/settings/acc/invWg.jkut: 170
+# jkut/pgs/settings/acc/invWg.jkut: 206
+# jkut/pgs/settings/acc/invWg.jkut: 240
+# jkut/pgs/settings/acc/invWg.jkut: 270
+# jkut/pgs/settings/acc/invWg.jkut: 301
+# jkut/pgs/settings/acc/invWg.jkut: 334
+# jkut/pgs/settings/acc/invWg.jkut: 367
+# jkut/pgs/settings/acc/invWg.jkut: 400
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 305
-# jkut/pgs/settings/nicks/editor.jkut: 304
+# jkut/pgs/settings/nicks/editor.jkut: 316
 Date = Fecha
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 88
@@ -583,49 +180,99 @@ Date '%0' is duplicated = La fecha '%0' está repetida
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 105
 Date before today = Fecha anterior a hoy
 
+# jkut/pgs/daily/dailyPg.jkut: 427
+Day = Día
+
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 175
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 209
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 246
+Default Model = Modelo por defecto
+
 # jkut/pgs/home/home.jkut: 47
 Delete = Eliminar
+
+# jkut/pgs/settings/acc/invWg.jkut: 88
+Delete %0? = ¿Eliminar %0?
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 97
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 118
 Delete '%0'? = ¿Eliminar '%0'?
 
-# jkut/pgs/settings/nicks/editor.jkut: 345
-# jkut/pgs/settings/nicks/nicks.jkut: 199
+# jkut/pgs/settings/acc/invWg.jkut: 303
+# jkut/pgs/settings/acc/invWg.jkut: 319
+# jkut/pgs/settings/acc/invWg.jkut: 336
+# jkut/pgs/settings/acc/invWg.jkut: 352
+# jkut/pgs/settings/acc/invWg.jkut: 402
+# jkut/pgs/settings/acc/invWg.jkut: 418
+Description = Concepto
+
+# jkut/pgs/daily/ixsSummaryChart.jkut: 38
+Dif. 0 = Dif. 0
+
+# jkut/pgs/settings/acc/annotationsWg.jkut: 67
+# jkut/pgs/settings/acc/invWg.jkut: 369
+# jkut/pgs/settings/acc/invWg.jkut: 385
+# jkut/pgs/settings/acc/invWg.jkut: 442
+Diff. + = Dif. +
+
+# jkut/pgs/settings/acc/annotationsWg.jkut: 70
+# jkut/pgs/settings/acc/invWg.jkut: 415
+# jkut/pgs/settings/acc/invWg.jkut: 443
+Diff. - = Dif. -
+
+# jkut/pgs/acc/balance.jkut: 342
+Differences = Diferencias
+
+# jkut/pgs/settings/nicks/editor.jkut: 357
+# jkut/pgs/settings/nicks/nicks.jkut: 235
 Download = Descarga
 
-# jkut/pgs/settings/nicks/editor.jkut: 117
+# jkut/pgs/settings/nicks/editor.jkut: 119
+# jkut/pgs/settings/nicks/nicks.jkut: 112
 Download ok. = Descarga correcta.
 
-# jkut/pgs/settings/nicks/editor.jkut: 103
+# jkut/pgs/settings/nicks/editor.jkut: 105
 Downloading... = Descargando ...
 
-# jkut/pgs/settings/nicks/editor.jkut: 46
+# jkut/pgs/settings/nicks/editor.jkut: 48
 Edit = Editar
+
+# jkut/pgs/acc/balance.jkut: 288
+Equity = Capital
 
 # jkut/pgs/home/home.jkut: 48
 Errors = Errores
 
-# jkut/pgs/settings/nicks/editor.jkut: 163
-# jkut/pgs/settings/nicks/nicks.jkut: 108
+# jkut/pgs/settings/nicks/editor.jkut: 175
+# jkut/pgs/settings/nicks/nicks.jkut: 106
+# jkut/pgs/settings/nicks/nicks.jkut: 144
 # jkut/pgs/settings/servers/servers.jkut: 64
 # jkut/pgs/settings/servers/servers.jkut: 90
 # jkut/pgs/settings/servers/servers.jkut: 142
-# jkut/pgs/settings/servers/servers.jkut: 156
 Errors and warnings found.<br>See log. = Se han producido errores y avisos.<br>Ver log.
 
-# jkut/pgs/settings/nicks/editor.jkut: 165
-# jkut/pgs/settings/nicks/nicks.jkut: 110
+# jkut/pgs/settings/nicks/editor.jkut: 177
+# jkut/pgs/settings/nicks/nicks.jkut: 108
+# jkut/pgs/settings/nicks/nicks.jkut: 146
 # jkut/pgs/settings/servers/servers.jkut: 66
 # jkut/pgs/settings/servers/servers.jkut: 92
 # jkut/pgs/settings/servers/servers.jkut: 144
-# jkut/pgs/settings/servers/servers.jkut: 158
 Errors found.<br>See log. = Se han producido errores.<br>Ver log.
+
+# jkut/pgs/acc/balance.jkut: 318
+# jkut/pgs/settings/acc/annotationsWg.jkut: 58
+# jkut/pgs/settings/acc/invWg.jkut: 349
+# jkut/pgs/settings/acc/invWg.jkut: 382
+# jkut/pgs/settings/acc/invWg.jkut: 440
+Fees = Comisiones
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 336
 General Time Table = Horario general
 
-# jkut/pgs/settings/servers/servers.jkut: 321
+# jkut/pgs/acc/speedometers.jkut: 92
+Global = Global
+
+# jkut/pgs/settings/servers/servers.jkut: 299
 Historic Test = Prueba histórico
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 344
@@ -634,133 +281,320 @@ Holidays = Fiestas
 # jkut/wgs/dmenu.jkut: 17
 Home = Inicio
 
+# jkut/pgs/settings/acc/annotationsWg.jkut: 51
+In Stock = En cartera
+
+# jkut/pgs/settings/acc/annotationsWg.jkut: 61
+# jkut/pgs/settings/acc/invWg.jkut: 254
+# jkut/pgs/settings/acc/invWg.jkut: 436
+Income = Ingreso
+
+# jkut/pgs/acc/profitsPg.jkut: 61
+# jkut/pgs/acc/tradingPg.jkut: 439
+# jkut/pgs/acc/tradingPg.jkut: 449
+# jkut/pgs/settings/acc/accPg.jkut: 44
+# jkut/pgs/settings/acc/accPg.jkut: 74
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 39
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 224
+Inv = Inv
+
+# jkut/pgs/acc/balance.jkut: 85
+Inv- = Inv-
+
+# jkut/pgs/acc/tradingPg.jkut: 181
+Invest = Inversión
+
+# jkut/pgs/acc/speedometers.jkut: 98
+# jkut/pgs/acc/speedometers.jkut: 131
+# jkut/pgs/acc/speedometers.jkut: 172
+Investment = Inversión
+
 # jkut/pgs/settings/settings.jkut: 45
 Investors = Inversores
 
 # jkut/main.jkut: 24
 KtWeb session is closed.\nAuthenticating from KtWeb:Main. = La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.
 
-# jkut/pgs/settings/nicks/nicks.jkut: 237
+# jkut/pgs/acc/profitsPg.jkut: 392
+Last Month = Último mes
+
+# jkut/pgs/acc/profitsPg.jkut: 396
+Last Year = Último año
+
+# jkut/pgs/acc/balance.jkut: 274
+Liabilities = Pasivo
+
+# jkut/pgs/settings/nicks/nicks.jkut: 273
 List = Lista
 
 # jkut/pgs/home/home.jkut: 49
 Log = Registro
 
-# jkut/pgs/settings/nicks/nicks.jkut: 145
+# jkut/pgs/acc/tradingPg.jkut: 417
+Losses = Pérdidas
+
+# jkut/pgs/settings/nicks/nicks.jkut: 181
 Main = Principal
 
-# jkut/pgs/settings/nicks/editor.jkut: 307
+# jkut/pgs/settings/nicks/editor.jkut: 319
 Max = Max
 
-# jkut/pgs/settings/nicks/editor.jkut: 308
+# jkut/pgs/settings/nicks/editor.jkut: 320
 Min = Min
 
-# jkut/wgs/dmenu.jkut: 19
-Models = Modelos
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 253
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 285
+Model = Modelo
 
-# jkut/pgs/settings/nicks/editor.jkut: 53
-# jkut/pgs/settings/servers/servers.jkut: 338
+# jkut/pgs/settings/nicks/editor.jkut: 55
+# jkut/pgs/settings/servers/servers.jkut: 316
 Modify = Modificar
+
+# jkut/pgs/daily/dailyPg.jkut: 422
+# jkut/pgs/settings/acc/invWg.jkut: 171
+# jkut/pgs/settings/acc/invWg.jkut: 188
+# jkut/pgs/settings/acc/invWg.jkut: 207
+# jkut/pgs/settings/acc/invWg.jkut: 224
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 282
+Nick = Nick
+
+# jkut/pgs/settings/nicks/editor.jkut: 145
+Nick code of %0 is missing = Falta el codigo del nick %0
+
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 275
+Nick models = Modelos de Nicks
 
 # jkut/pgs/settings/settings.jkut: 39
 Nicks = Nicks
 
-# jkut/pgs/settings/nicks/editor.jkut: 97
+# jkut/pgs/settings/nicks/editor.jkut: 99
 No modification was performed.<br>See Log. = No se realizó ninguna modificación.<br>Ver el registro.
+
+# jkut/pgs/daily/dailyPg.jkut: 447
+No selected company = No se ha seleccionado ninguna compañía
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 141
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 308
-# jkut/pgs/settings/nicks/editor.jkut: 305
+# jkut/pgs/settings/nicks/editor.jkut: 317
 Open = Apertura
 
-# jkut/data/cts.jkut: 50
+# jkut/data/cts.jkut: 56
 Operation failed.\nSee log. = La operación ha fallado.\nVer el registro.
 
-# jkut/data/cts.jkut: 48
+# jkut/data/cts.jkut: 54
 Operation successfully done. = Operatión terminada correctamente.
 
-# jkut/pgs/settings/nicks/editor.jkut: 365
+# jkut/pgs/daily/dailyPg.jkut: 419
+Order by = Ordenado por
+
+# jkut/pgs/acc/companiesPg.jkut: 367
+# jkut/pgs/daily/dailyPg.jkut: 503
+Portfolio = Cartera
+
+# jkut/pgs/acc/companiesPg.jkut: 175
+# jkut/pgs/acc/companiesPg.jkut: 238
+# jkut/pgs/acc/tradingPg.jkut: 188
+# jkut/pgs/acc/tradingPg.jkut: 218
+# jkut/pgs/acc/tradingPg.jkut: 248
+# jkut/pgs/acc/tradingPg.jkut: 267
+# jkut/pgs/acc/tradingPg.jkut: 451
+# jkut/pgs/settings/acc/invWg.jkut: 173
+# jkut/pgs/settings/acc/invWg.jkut: 190
+# jkut/pgs/settings/acc/invWg.jkut: 209
+# jkut/pgs/settings/acc/invWg.jkut: 226
+Price = Precio
+
+# jkut/pgs/acc/tradingPg.jkut: 137
+Price is 0 = El precio es 0
+
+# jkut/pgs/acc/acc.jkut: 39
+# jkut/pgs/acc/balance.jkut: 218
+# jkut/pgs/acc/balance.jkut: 330
+# jkut/pgs/acc/balance.jkut: 374
+# jkut/pgs/acc/speedometers.jkut: 101
+# jkut/pgs/acc/speedometers.jkut: 134
+# jkut/pgs/acc/speedometers.jkut: 180
+# jkut/pgs/settings/acc/annotationsWg.jkut: 55
+# jkut/pgs/settings/acc/invWg.jkut: 316
+# jkut/pgs/settings/acc/invWg.jkut: 439
+Profits = Beneficios
+
+# jkut/pgs/acc/tradingPg.jkut: 452
+Quote = Cotización
+
+# jkut/pgs/settings/nicks/editor.jkut: 377
 Quotes = Cotizaciones
 
-# jkut/pgs/settings/nicks/editor.jkut: 204
+# jkut/pgs/settings/nicks/editor.jkut: 216
 Quotes of %0 can not be loaded.<br>See Log. = Las cotizaciones de %0 no se puede cargar.<br>Ver log.
 
-# jkut/pgs/settings/nicks/editor.jkut: 94
+# jkut/pgs/settings/nicks/editor.jkut: 96
 Quotes were successfully modified = Las cotizaciones se modificaron correctamente
+
+# jkut/pgs/daily/dailyPg.jkut: 76
+Reactivate daily charts? = ¿Reactivar los gráficos del día?
+
+# jkut/pgs/acc/tradingPg.jkut: 390
+Rebuys = Recompras
+
+# jkut/pgs/daily/coChart.jkut: 53
+# jkut/pgs/daily/coChart.jkut: 60
+Reference = Referencia
 
 # jkut/pgs/home/home.jkut: 46
 Reload = Recargar
 
-# jkut/pgs/settings/servers/servers.jkut: 333
+# jkut/pgs/settings/servers/servers.jkut: 311
 Reset = Reiniciar
 
-# jkut/pgs/settings/nicks/nicks.jkut: 149
+# jkut/pgs/daily/dailyPg.jkut: 437
+Reverse = Reverso
+
+# jkut/pgs/acc/balance.jkut: 379
+Rf. (%) = Rf. (%)
+
+# jkut/pgs/acc/speedometers.jkut: 104
+# jkut/pgs/acc/speedometers.jkut: 137
+# jkut/pgs/acc/speedometers.jkut: 188
+Risk = Riesgo
+
+# jkut/pgs/daily/dailyPg.jkut: 507
+# jkut/pgs/settings/nicks/nicks.jkut: 185
 Selection = Selección
 
-# jkut/pgs/settings/nicks/editor.jkut: 357
-# jkut/pgs/settings/servers/servers.jkut: 203
+# jkut/pgs/acc/balance.jkut: 365
+# jkut/pgs/acc/tradingPg.jkut: 239
+# jkut/pgs/settings/acc/annotationsWg.jkut: 43
+# jkut/pgs/settings/acc/invWg.jkut: 186
+# jkut/pgs/settings/acc/invWg.jkut: 433
+Sell = Venta
+
+# jkut/pgs/acc/balance.jkut: 306
+# jkut/pgs/acc/tradingPg.jkut: 443
+Sells = Ventas
+
+# jkut/pgs/settings/nicks/editor.jkut: 369
+# jkut/pgs/settings/servers/servers.jkut: 181
 # jkut/pgs/settings/settings.jkut: 41
 Servers = Servidores
 
-# jkut/main.jkut: 79
+# jkut/main.jkut: 78
 Session is expired. = La sesión ha expirado.
 
-# jkut/pgs/settings/nicks/editor.jkut: 115
+# jkut/pgs/daily/dailyPg.jkut: 432
+Signal = Señal
+
+# jkut/pgs/daily/dailyPg.jkut: 515
+Sleeping = Dormido
+
+# jkut/pgs/settings/acc/allWg.jkut: 28
+# jkut/pgs/settings/acc/invWg.jkut: 53
+# jkut/pgs/settings/nicks/editor.jkut: 117
 Some error was found.<br>See Log. = Se han encontrado errores.<br>Ver el registro.
 
-# jkut/pgs/settings/nicks/editor.jkut: 116
+# jkut/pgs/settings/nicks/editor.jkut: 118
 Some quote was modified.<br>See Log. = Se modificaron algunas cotizaciones.<br>Ver el registro.
 
-# jkut/pgs/settings/nicks/editor.jkut: 134
+# jkut/pgs/settings/nicks/editor.jkut: 137
 Some warnings were found.<br>See Log. = Se han encontrado avisos.<br>Ver Log.
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 348
 Special days = Días especiales
 
-# jkut/pgs/settings/nicks/editor.jkut: 310
+# jkut/pgs/acc/acc.jkut: 41
+Speedometers = Velocímetros
+
+# jkut/pgs/settings/nicks/editor.jkut: 322
 State = Estado
 
-# jkut/pgs/settings/nicks/editor.jkut: 261
-# jkut/pgs/settings/nicks/editor.jkut: 349
-# jkut/pgs/settings/nicks/nicks.jkut: 203
+# jkut/pgs/acc/balance.jkut: 279
+# jkut/pgs/acc/balance.jkut: 350
+# jkut/pgs/acc/speedometers.jkut: 125
+# jkut/pgs/acc/tradingPg.jkut: 207
+# jkut/pgs/acc/tradingPg.jkut: 225
+# jkut/pgs/acc/tradingPg.jkut: 450
+# jkut/pgs/settings/acc/invWg.jkut: 172
+# jkut/pgs/settings/acc/invWg.jkut: 189
+# jkut/pgs/settings/acc/invWg.jkut: 208
+# jkut/pgs/settings/acc/invWg.jkut: 225
+Stocks = Acciones
+
+# jkut/pgs/daily/dailyPg.jkut: 312
+# jkut/pgs/daily/dailyPg.jkut: 501
+Summary = Resumen
+
+# jkut/pgs/settings/nicks/editor.jkut: 273
+# jkut/pgs/settings/nicks/editor.jkut: 361
+# jkut/pgs/settings/nicks/nicks.jkut: 239
 Test = Prueba
 
-# jkut/pgs/settings/nicks/editor.jkut: 135
-# jkut/pgs/settings/nicks/editor.jkut: 169
-# jkut/pgs/settings/nicks/nicks.jkut: 114
+# jkut/pgs/settings/nicks/editor.jkut: 138
+# jkut/pgs/settings/nicks/editor.jkut: 181
+# jkut/pgs/settings/nicks/nicks.jkut: 150
 # jkut/pgs/settings/servers/servers.jkut: 70
 # jkut/pgs/settings/servers/servers.jkut: 96
-# jkut/pgs/settings/servers/servers.jkut: 168
-# jkut/pgs/settings/servers/servers.jkut: 171
+# jkut/pgs/settings/servers/servers.jkut: 148
 Test ok. = Test correcto.
 
-# jkut/pgs/settings/nicks/nicks.jkut: 37
-# jkut/pgs/settings/nicks/nicks.jkut: 86
+# jkut/pgs/acc/balance.jkut: 251
+To withdraw = Para retirar
+
+# jkut/pgs/settings/nicks/nicks.jkut: 39
+# jkut/pgs/settings/nicks/nicks.jkut: 87
 Total: %0. Selected: %1. = Total: %0. Seleccionados: %1.
 
-# jkut/pgs/settings/nicks/editor.jkut: 309
+# jkut/pgs/acc/acc.jkut: 37
+Trading = Operaciones
+
+# jkut/pgs/settings/acc/allWg.jkut: 108
+Up to = Hasta
+
+# jkut/pgs/acc/tradingPg.jkut: 378
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 228
+Update = Actualizar
+
+# jkut/pgs/acc/balance.jkut: 369
+Value = Valor
+
+# jkut/pgs/settings/nicks/editor.jkut: 321
 Vol = Vol
 
-# jkut/pgs/settings/nicks/nicks.jkut: 235
+# jkut/pgs/settings/nicks/nicks.jkut: 271
 Volume = Volumen
 
-# jkut/pgs/settings/nicks/editor.jkut: 167
-# jkut/pgs/settings/nicks/nicks.jkut: 112
+# jkut/pgs/settings/nicks/editor.jkut: 179
+# jkut/pgs/settings/nicks/nicks.jkut: 110
+# jkut/pgs/settings/nicks/nicks.jkut: 148
 # jkut/pgs/settings/servers/servers.jkut: 68
 # jkut/pgs/settings/servers/servers.jkut: 94
 # jkut/pgs/settings/servers/servers.jkut: 146
-# jkut/pgs/settings/servers/servers.jkut: 160
 Warnings found.<br>See log. = Se han producido avisos.<br>Ver log.
 
-# jkut/pgs/settings/servers/servers.jkut: 377
+# jkut/pgs/settings/acc/annotationsWg.jkut: 64
+# jkut/pgs/settings/acc/invWg.jkut: 284
+# jkut/pgs/settings/acc/invWg.jkut: 437
+Withdrawal = Reintegro
+
+# jkut/pgs/settings/acc/annotationsWg.jkut: 85
+Without Data = Sin datos
+
+# jkut/pgs/settings/servers/servers.jkut: 355
 Without Nicks = Sin nicks
 
-# jkut/pgs/settings/nicks/nicks.jkut: 225
+# jkut/pgs/settings/nicks/nicks.jkut: 261
 Without companies = Sin compañías
 
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 182
 # jkut/pgs/settings/calendarPg/calendarPg.jkut: 253
 Without dates = Sin fechas
+
+# jkut/pgs/acc/tradingPg.jkut: 304
+# jkut/pgs/acc/tradingPg.jkut: 331
+# jkut/pgs/acc/tradingPg.jkut: 357
+Without operations = Sin operaciones
+
+# jkut/pgs/settings/investorsPg/investorsPg.jkut: 142
+[%0] Value out of range = [%0] Valor fuera de rango
 
 # jkut/pgs/msgPg.jkut: 18
 here = aquí

@@ -1,0 +1,119 @@
+// Copyright 28-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Rankings page.
+
+import "data/cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, b -> ()
+mk = async \wg, isNear -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    source: "RankingsPg",
+    rq: "idata",
+    isNear
+  });
+
+  // {[[s,n,n,n,n]...], [[s,n,n,n,n]...], [[s,n,n,n,n]...]} ::
+  //  {date -> [best, average, worst]}, where
+  //    best, average and worst are arrays [days, assets, profits, points, sales].
+  Summary = Rp.summary;
+  Dates = dic.keys(Summary);
+  arr.sort(Dates, \d1, d2 -> return d1 > d2;);
+
+  size = arr.size(Dates);
+  iV = [0];
+  Trs = []; // [<domo>...]
+  while (true) {
+    if (iV! == size) break;
+    tr = Q("tr");
+    for (i = 0:3) {
+      if (iV! == size) {
+        for (j = i:3) tr.add(Q("td"));
+        break;
+      }
+      d = Dates[iV!];
+      tr.add(Q("td").add(mkDay(d, Summary[d])));
+      arr.push(Trs, tr);
+      iV! += 1;
+    }
+  }
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .adds(Trs))
+  ;
+
+};
+
+// Makes a date table.
+//    date   : Date in format YYYYMMDD
+//    summary: [best, average, worst] where
+//             best, average and worst are arrays [days, assets, profits, points, sales].
+// \s, [[s,n,n,n,n], [s,n,n,n,n], [s,n,n,n,n]} -> <domo>
+mkDay = \date, Summary -> {
+  return Q("table")
+    .klass("border")
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 5)
+        .klass("borderWhite")
+        .style("text-align:center")
+        .text(time.toIso(time.fromStr(date)))))
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 5)
+        .klass("header")
+        .text(II("Best"))))
+    .adds(mkResults(Summary[0]))
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 5)
+        .klass("header")
+        .text(II("Average"))))
+    .adds(mkResults(Summary[1]))
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 5)
+        .klass("header")
+        .text(II("Worst"))))
+    .adds(mkResults(Summary[2]))
+  ;
+};
+
+// Makes a results row.
+//    Rs: Array of model identifier and results of assets, profits, points and sales.
+// \[[s, n, n, n, n]...] -> <domo>
+mkResults = \Rs -> {
+  arr.sort(Rs, \R1, R2 -> return R1[3] > R2[3];);
+  Trs = []; // [<domo>...]
+  for (R = Rs) {
+    arr.push(Trs, Q("tr")
+      .add(Q("td")
+        .klass("borderWhite")
+        .text(R[0]))
+      .add(mkTdN(R[1], 2))
+      .add(mkTdN(R[2], 4))
+      .add(mkTdN(R[3], 0))
+      .add(mkTdN(R[4], 0))
+    );
+  }
+  return Trs;
+};
+
+// Returns a numeric 'td'. Its number is formatted with 'dec' decimals.
+// \n, n -> <domo>
+mkTdN = \n, dec -> return Q("td")
+    .klass("fnumber")
+    .text(i18n.getLang() == "es"
+        ? math.toIso(n, dec)
+        : math.toEn(n, dec)
+      )
+  ;;
+

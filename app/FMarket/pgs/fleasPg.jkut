@@ -1,0 +1,191 @@
+// Copyright 22-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "data/cts";
+import "data/flea";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo>, [<flea>...], s -> ()
+mk2 = \wg, Fleas, order -> {
+  switch (order) {
+    "1id":
+      arr.sort(Fleas, \F1, F2 -> return F1.id < F2.id;);
+    "2id":
+      arr.sort(Fleas, \F1, F2 -> return F1.id > F2.id;);
+    "1cy":
+      arr.sort(Fleas, \F1, F2 -> return F1.cycle == F2.cycle
+        ? flea.greater(F1, F2)
+        : F1.cycle > F2.cycle
+      ;);
+    "2cy":
+      arr.sort(Fleas, \F1, F2 -> return F1.cycle == F2.cycle
+        ? flea.greater(F1, F2)
+        : F1.cycle < F2.cycle
+      ;);
+    "1p1":
+      arr.sort(Fleas, \F1, F2 -> return F1.params[0] == F2.params[0]
+        ? flea.greater(F1, F2)
+        : F1.params[0] < F2.params[0]
+      ;);
+    "2p1":
+      arr.sort(Fleas, \F1, F2 -> return F1.params[0] == F2.params[0]
+        ? flea.greater(F1, F2)
+        : F1.params[0] > F2.params[0]
+      ;);
+    "1p2":
+      arr.sort(Fleas, \F1, F2 -> return F1.params[1] == F2.params[1]
+        ? flea.greater(F1, F2)
+        : F1.params[1] < F2.params[1]
+      ;);
+    "2p2":
+      arr.sort(Fleas, \F1, F2 -> return F1.params[1] == F2.params[1]
+        ? flea.greater(F1, F2)
+        : F1.params[1] > F2.params[1]
+      ;);
+    "1as":
+      arr.sort(Fleas, \F1, F2 -> return F1.assets == F2.assets
+        ? flea.greater(F1, F2)
+        : F1.assets > F2.assets
+      ;);
+    "2as":
+      arr.sort(Fleas, \F1, F2 -> return F1.assets == F2.assets
+        ? flea.greater(F1, F2)
+        : F1.assets < F2.assets
+      ;);
+    "1pr":
+      arr.sort(Fleas, \F1, F2 -> return F1.profits == F2.profits
+        ? flea.greater(F1, F2)
+        : F1.profits > F2.profits
+      ;);
+    "2pr":
+      arr.sort(Fleas, \F1, F2 -> return F1.profits == F2.profits
+        ? flea.greater(F1, F2)
+        : F1.profits < F2.profits
+      ;);
+    "1po":
+      arr.sort(Fleas, flea.greater);
+    "2po":
+      arr.sort(Fleas, \F1, F2 -> return !flea.greater(F1, F2););
+    "1sa":
+      arr.sort(Fleas, \F1, F2 -> return F1.sales == F2.sales
+        ? flea.greater(F1, F2)
+        : F1.profits > F2.profits
+      ;);
+    "2sa":
+      arr.sort(Fleas, \F1, F2 -> return F1.sales == F2.sales
+        ? flea.greater(F1, F2)
+        : F1.profits < F2.profits
+      ;);
+    default:
+      arr.sort(Fleas, flea.greater);
+  }
+  F0 = Fleas[0];
+  npars = arr.size(F0.params);
+  isDate = arr.any(
+    ["ME", "ME2", "MM", "MX_MN"],
+    \m -> return m == F0.model;
+  );
+
+  // Control -------------------------------------------------------------------
+
+  setOrder = \o ->
+    if ("1" + o == order) mk2(wg, Fleas, "2" + o);
+    else mk2(wg, Fleas, "1" + o);
+  ;
+
+  // View ----------------------------------------------------------------------
+
+  rId = 0;
+  rCy = 1;
+  rP1 = 2;
+  rP2 = 3;
+  rAs = 4;
+  rPr = 5;
+  rPo = 6;
+  rSa = 7;
+  Rows = arr.map(Fleas, \F -> return [
+      F.id, F.cycle, F.params[0],
+      npars == 2 ? F.params[1] : -1,
+      F.assets, F.profits, F.points, F.sales
+    ];);
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .klass("border")
+      .att("align", "center")
+      .add(Q("tr")
+        .adds(\ -> {
+            Tds = [];
+            arr.push(Tds, fns.mkTh(II("Id."), \-> setOrder("id");));
+            arr.push(Tds, fns.mkTh(II("Cy."), \-> setOrder("cy");));
+            arr.push(Tds, fns.mkTh(II("P1"), \-> setOrder("p1");));
+            if (npars > 1) arr.push(Tds, fns.mkTh(II("P2"), \-> setOrder("p2");));
+            arr.push(Tds, fns.mkTh(II("Assets"), \-> setOrder("as");));
+            arr.push(Tds, fns.mkTh(II("Profits"), \-> setOrder("pr");));
+            arr.push(Tds, fns.mkTh(II("Points"), \-> setOrder("po");));
+            arr.push(Tds, fns.mkTh(II("Sales"), \-> setOrder("sa");));
+            return Tds;
+          }()))
+      .adds(arr.map(Rows, \R -> {
+          Tds = [];
+          arr.push(Tds, fns.mkTdN(R[rId], 0));
+          arr.push(Tds, fns.mkTdN(R[rCy], 0));
+          arr.push(Tds, fns.mkTdN(R[rP1], isDate ? 0 : 4));
+          if (npars > 1) arr.push(Tds, fns.mkTdN(R[rP2], 4));
+          arr.push(Tds, fns.mkTdN(R[rAs], 2));
+          arr.push(Tds, fns.mkTdN(R[rPr], 4));
+          arr.push(Tds, fns.mkTdN(R[rPo], 0));
+          arr.push(Tds, fns.mkTdN(R[rSa], 0));
+          return Q("tr").adds(Tds);
+        })))
+  ;
+
+};
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  Url = ui.url();
+  modelId = dic.hasKey(Url, "1") ? Url["1"] : "";
+
+  Rp = await client.send({
+    prg: cts.appName,
+    source: "FleasPg",
+    rq: "idata",
+    modelId
+  });
+
+  mdId = Rp.mdId;
+  Models = Rp.models;
+  Fleas = arr.map(Rp.fleas, flea.fromJs);
+  page = "fleas&" + mdId;
+
+  Lopts = arr.reduce(
+    Models, [],
+    \R, mId -> {
+      arr.push(R, menu.tlink("fleas&" + mId, mId, []));
+      arr.push(R, menu.separator());
+      return R;
+    }
+  );
+  arr.pop(Lopts);
+
+  menuWg = menu.mk(Lopts, [], page, false);
+
+  body = Q("div");
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+  ;
+
+  mk2(body, Fleas, "1po");
+};

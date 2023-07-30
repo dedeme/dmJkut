@@ -1,0 +1,39 @@
+// Copyright 26-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Market model
+
+/// Type of day parameter.
+/// i
+dayParam = 0;
+
+/// Type of percentage parameter.
+/// i
+percParam = 1;
+
+/// Constructor.
+///   id: Model identifier (short name in uppercase).
+///   name         : Model name.
+///   doc          : Model documentation.
+///   ParamNames   : Parameter names.
+///   ParamTypes   : Parameter types. Each parameter can be:
+///                  model.dayParam or model.percParam.
+///   paramBases   : Minimum parameters to make simulations.
+///   paramBaseIncs: ParamBase increments.
+///   paramEnvIncs : Environment increments.
+/// \s, s, s, [s...], [n...], [n...], [n...], [n...] -> ())
+/// -> d<model>
+mk = \id, name, doc, paramNames, paramTypes,
+       paramBases, paramBaseIncs, paramEnvIncs ->
+  return {id, name, doc, paramNames, paramTypes,
+          paramBases, paramBaseIncs, paramEnvIncs};;
+
+/// Returns the indicative maximun value of parameters
+/// \model -> [f...]
+maxs = \Md -> return arr.fromIter(iter.map(
+    [0:arr.size(Md.paramBases)],
+    \i -> return Md.paramBases[i] + Md.paramBaseIncs[i] * 20;
+  ));;
+
+/// \JS -> <model>
+fromJs = \A -> return mk(A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7]);;

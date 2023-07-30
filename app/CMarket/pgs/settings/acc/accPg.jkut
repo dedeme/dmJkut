@@ -1,0 +1,93 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Accounting information, main page.
+
+import "libdm/menu";
+import "data/cts";
+import "data/acc/ann";
+import "wgs/msg";
+import "allWg";
+import "invWg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Contents maker.
+///   wg    : Container.
+/// \<domo> -> ()
+mk = async \wg -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    module: "Settings",
+    source: "acc/AccPg",
+    rq: "idata"
+  });
+  investors = Rp.investors; // n
+
+  menuDiv = Q("div");
+  body = Q("div");
+
+  MkMenu = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \ -> ()
+  all = \ -> {
+    MkMenu!("all");
+    allWg.mk(body);
+  };
+
+  // \i -> ()
+  investor = \inv -> {
+    MkMenu!(II("Inv") + "-" + inv);
+    invWg.mk(body, inv);
+  };
+
+  // \ -> ()
+  closeYear = \ -> msg.info("""
+    <p>Para cerrar el ejercicio hay que reiniciar el servidor una vez que
+    el nuevo año ha comenzado.</p>
+    <p>Para modificar datos del año anterior hay que
+      <ol>
+        <li>Eliminar los archivos 'data/investor/diaries/<i>lastYear</i>.db'.</li>
+        <li>Recargar la página web (sin reiniciar el servidor)</li>
+        <li>Realizar las modificaciones.</li>
+        <li>Reiniciar el servidor.</li>
+      </ol></p>
+    <p><i>Todos los datos del actual ejercicio se perderán</i></p>
+    <p>Antes del paso '1' se puede hacer una copia de los archivos que se van
+    a eliminar, borrando los asientos de inicialización, y después del proceso
+    pegar dichos archivos a los nuevos creados.</p>
+  """, \->{});;
+
+
+  // View ----------------------------------------------------------------------
+
+  // \s -> ()
+  MkMenu! = \sel -> {
+    Lopts = [
+      menu.toption("all", II("All"), all)
+    ];
+    for (i = 0:investors) {
+      lb = II("Inv") + "-" + i;
+      arr.push(Lopts, menu.separator());
+      arr.push(Lopts, menu.toption(lb, lb, \ -> investor(i);));
+    }
+    Ropts = [menu.toption("close", II("Close Year Help"), closeYear)];
+    menuDiv
+      .removeAll()
+      .add(menu.mk(Lopts, Ropts, sel, false))
+    ;
+  };
+
+  wg
+    .removeAll()
+    .add(menuDiv)
+    .add(body)
+  ;
+
+  all();
+};
+

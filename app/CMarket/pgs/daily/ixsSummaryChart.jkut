@@ -1,0 +1,56 @@
+// Copyright 18-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Companies summary chart,
+
+import "libdm/lineChart";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \[s...], [[[f]...]...] -> <domo>
+mk = \Labels, Values -> {
+  back = "#fafafa";
+
+  Chart = lineChart.mkExample();
+  Chart.ExArea.width = 610;
+  Chart.ExArea.height = 160;
+  Chart.ExArea.Atts.Border.width = 0;
+  Chart.ExArea.Atts.background = back;
+  Chart.InPadding.right = 6;
+  Chart.InPadding.bottom = 12;
+  Chart.InPadding.left = 85;
+  Chart.ChartPadding.top = 4;
+  Chart.ChartPadding.right = 4;
+  Chart.ChartPadding.bottom = 4;
+  Chart.ChartPadding.left = 4;
+  Chart.InAtts.background = "#e9e9e9";
+
+  Atts = [
+    lineChart.mkLine(1, "#000080", false),
+    lineChart.mkLine(1, "#008000", false),
+    lineChart.mkLine(1, "#800000", false)
+  ];
+
+  Data = lineChart.mkData(Labels, Values, Atts);
+  Data.UnarySets = [lineChart.mkUnarySet(
+    II("Dif. 0"), 0, lineChart.mkLine(1, "#000000", false)
+  )];
+  Data.round = 2;
+  Data.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    return Labels[i - 1] != lb;
+  };
+  Data.drawLabel = Data.drawGrid;
+  Data.maxMinRound = \x, n -> return -2;;
+
+  return Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + back)
+        .add(lineChart.mkWg(Chart, Data))))
+  ;
+};

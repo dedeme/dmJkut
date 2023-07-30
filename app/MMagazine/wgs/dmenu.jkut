@@ -16,7 +16,7 @@ mkUpMenu= \selected -> {
   lopts = [
     menu.tlink("home", II("Home"), []),
     menu.separator(),
-    menu.tlink("ktmarket", II("KtMarket"), []),
+    menu.tlink("cmarket", II("CMarket"), []),
     menu.separator(),
     menu.tlink("mmarket", II("MMarket"), [])
   ];

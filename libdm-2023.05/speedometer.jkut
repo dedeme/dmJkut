@@ -1,0 +1,166 @@
+// Copyright 21-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Speedometer wigdet.
+
+Q = ui.q;
+
+/// Returns a speedometer.
+///   value   : A value between 0 and 1, both inclusive.
+///   wgRratio: Size ratio of 'wg'. Default: 1.
+///   border  : A style color like "#6e8296" or "black". If it is [] 'wg'
+///             has not border.
+///   back    : A style color like "#6e8296" or "white". If it is [] 'bg'
+///             has no background.
+/// \n, n, [s]|[], [s]|[] -> <domo>
+mk = \value, wgRatio, borderOp, backOp -> {
+  ratio = wgRatio < 0 ? 0 : wgRatio;
+  w = math.toInt(300 * ratio);
+  h = math.toInt(170 * ratio);
+
+  styleV = [""];
+  styleV! += borderOp ? "border:1px solid " + borderOp! + ";" : "";
+  styleV! += backOp ? "background:" + backOp! + ";" : "";
+
+  wg = Q("canvas")
+    .att("width", w)
+    .att("height", h)
+    .style(styleV!)
+  ;
+
+  ctx = wg.e.getContext("2d");
+
+  // \n, n -> d<pt>
+  mkPt = \x, y -> {
+    R = {x, y};
+    dic.put(R, "rotate", \angle -> {
+      cos = Math.cos(angle);
+      sin = Math.sin(angle);
+      return mkPt(
+        -R.x * cos + R.y * sin,
+        R.y * cos + R.x * sin
+      );
+    });
+    return R;
+  };
+
+
+  // \ -> ();
+  mkDial = \ -> {
+    // \<pt>, <pt>, c1, c2 -> <CanvasGradient>
+    grad = \P1, P2, c1, c2 -> {
+      grd = ctx.createLinearGradient(
+        math.toInt(P1.x), math.toInt(P1.y),
+        math.toInt(P2.x), math.toInt(P2.y)
+      );
+      grd.addColorStop(0, c1);
+      grd.addColorStop(1, c2);
+      return grd;
+    };
+
+    ctx.lineWidth = math.toInt(50 * ratio);
+    radius = math.toInt(120 * ratio);
+
+    // \n, n -> ()
+    arc = \start, end -> {
+      ctx.beginPath();
+      ctx.arc(
+        math.toInt(150 * ratio), math.toInt(150 * ratio),
+        radius,
+        start, end,
+        false
+      );
+      ctx.stroke();
+    };
+
+    ctx.strokeStyle = grad(
+      mkPt(28 * ratio, 146 * ratio),
+      mkPt(65 * ratio, 64 * ratio),
+      "#40a040", "#4040a0"
+    );
+    arc(-Math.PI * 1, -Math.PI * 0.65);
+
+    ctx.strokeStyle = grad(
+      mkPt(65 * ratio, 64 * ratio),
+      mkPt(149 * ratio, 29 * ratio),
+      "#4040a0", "#a040f0"
+    );
+    arc(-Math.PI * 0.75, -Math.PI * 0.5);
+
+
+    ctx.strokeStyle = grad(
+      mkPt(149 * ratio, 29 * ratio),
+      mkPt(237 * ratio, 64 * ratio),
+      "#a040f0", "#a040a0"
+    );
+    arc(-Math.PI * 0.50, -Math.PI * 0.25);
+
+    ctx.strokeStyle = grad(
+      mkPt(237 * ratio, 64 * ratio),
+      mkPt(273 * ratio, 146 * ratio),
+      "#a040a0", "#a04040"
+    );
+    arc(-Math.PI * 0.255, -Math.PI * 0);
+  };
+
+  // \ -> ();
+  mkNeedle = \ -> {
+    angle = Math.PI * value;
+
+    dx = math.toInt(150 * ratio);
+    dy = math.toInt(150 * ratio);
+    // \<pt> -> n
+    getX = \P -> return P.x + dx;;
+    // \<pt> -> n
+    getY = \P -> return dy - P.y;;
+
+    P1 = mkPt(130 * ratio, 0).rotate(angle);
+    P2 = mkPt(0, -16 * ratio).rotate(angle);
+    P3 = mkPt(0, 16 * ratio).rotate(angle);
+
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 4 * ratio;
+    ctx.strokeStyle = backOp ? backOp! : "black";
+    ctx.fillStyle = "black";
+
+    ctx.beginPath();
+    ctx.moveTo(getX(P1), getY(P1));
+    ctx.lineTo(getX(P2), getY(P2));
+    ctx.lineTo(getX(P3), getY(P3));
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fill();
+
+    ctx.lineJoin = "miter";
+  };
+
+  // \ -> ();
+  mkArc = \ -> {
+    ctx.lineWidth = math.toInt(6 * ratio);
+    ctx.strokeStyle = "#406080";
+    ctx.fillStyle   = "black";
+
+    ctx.beginPath();
+    ctx.arc(math.toInt(150 * ratio), math.toInt(150 * ratio),
+    math.toInt(40 * ratio),
+    0, Math.PI,
+    true);
+    ctx.lineTo(math.toInt(110 * ratio), math.toInt(165 * ratio));
+    ctx.lineTo(math.toInt(190 * ratio), math.toInt(165 * ratio));
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(math.toInt(2 * ratio), math.toInt(165 * ratio));
+    ctx.lineTo(math.toInt(298 * ratio), math.toInt(165 * ratio));
+    ctx.stroke();
+  };
+
+  mkDial();
+  mkNeedle();
+  mkArc();
+
+  return wg;
+};
+

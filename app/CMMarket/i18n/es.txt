@@ -1,0 +1,157 @@
+# jkut/pgs/charts/cosPg.jkut: 42
+# jkut/pgs/charts/historicPg.jkut: 41
+# jkut/pgs/charts/operationsPg.jkut: 43
+%0%1 not found. = %0%1 no encontrado.
+
+# jkut/pgs/charts/cosPg.jkut: 250
+# jkut/pgs/charts/historicPg.jkut: 127
+# jkut/pgs/charts/historicPg.jkut: 182
+# jkut/pgs/charts/operationsPg.jkut: 194
+# jkut/pgs/charts/operationsPg.jkut: 249
+# jkut/pgs/resultsPg.jkut: 68
+# jkut/pgs/resultsPg.jkut: 81
+Assets = Activo
+
+# jkut/pgs/descriptionPg.jkut: 59
+Base = Base
+
+# jkut/pgs/descriptionPg.jkut: 69
+Base Increment = Incremento de la base
+
+# jkut/pgs/charts/operationsPg.jkut: 271
+Buys = Compras
+
+# jkut/pgs/charts/operationsPg.jkut: 287
+Cash = Caja
+
+# jkut/data/main.jkut: 60
+# jkut/main.jkut: 65
+Charts = Gráficos
+
+# jkut/pgs/msgPg.jkut: 21
+Click %0 to continue. = Hacer click %0 para continuar.
+
+# jkut/pgs/charts/cosPg.jkut: 90
+Close = Cierre
+
+# jkut/pgs/charts/cosPg.jkut: 220
+# jkut/pgs/chartsPg.jkut: 34
+Companies = Compañías
+
+# jkut/pgs/hotPg.jkut: 150
+# jkut/pgs/resultsPg.jkut: 52
+Current = Actual
+
+# jkut/pgs/charts/operationsPg.jkut: 267
+Date = Fecha
+
+# jkut/data/main.jkut: 54
+# jkut/main.jkut: 59
+Description = Descripción
+
+# jkut/pgs/descriptionPg.jkut: 79
+Environment Increment = Incremento del entorno
+
+# jkut/pgs/charts/cosPg.jkut: 256
+# jkut/pgs/charts/cosPg.jkut: 286
+# jkut/pgs/charts/historicPg.jkut: 133
+# jkut/pgs/charts/historicPg.jkut: 163
+# jkut/pgs/charts/operationsPg.jkut: 200
+# jkut/pgs/charts/operationsPg.jkut: 230
+# jkut/pgs/resultsPg.jkut: 74
+# jkut/pgs/resultsPg.jkut: 87
+Eval. = Eval.
+
+# jkut/pgs/charts/cosPg.jkut: 280
+# jkut/pgs/charts/historicPg.jkut: 157
+# jkut/pgs/charts/operationsPg.jkut: 224
+H. Eval. = H. Eval.
+
+# jkut/pgs/charts/cosPg.jkut: 283
+# jkut/pgs/charts/historicPg.jkut: 160
+# jkut/pgs/charts/operationsPg.jkut: 227
+H. Sales = H. Ventas
+
+# jkut/pgs/charts/historicPg.jkut: 97
+# jkut/pgs/charts/operationsPg.jkut: 164
+# jkut/pgs/chartsPg.jkut: 36
+# jkut/pgs/hotPg.jkut: 152
+# jkut/pgs/resultsPg.jkut: 59
+Historic = Histórico
+
+# jkut/data/main.jkut: 58
+# jkut/main.jkut: 63
+Hot Map = Mapa de calor
+
+# jkut/pgs/descriptionPg.jkut: 35
+Id = Id
+
+# jkut/data/main.jkut: 18
+# jkut/main.jkut: 23
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. = La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.
+
+# jkut/pgs/charts/cosPg.jkut: 228
+# jkut/pgs/charts/historicPg.jkut: 105
+# jkut/pgs/charts/operationsPg.jkut: 172
+Model = Modelo
+
+# jkut/data/main.jkut: 68
+# jkut/main.jkut: 73
+Models = Modelos
+
+# jkut/pgs/descriptionPg.jkut: 42
+Name = Nombre
+
+# jkut/pgs/chartsPg.jkut: 38
+Operations = Operaciones
+
+# jkut/pgs/charts/operationsPg.jkut: 259
+Orders = Órdenes
+
+# jkut/pgs/charts/operationsPg.jkut: 279
+Portfolio = Cartera
+
+# jkut/pgs/resultsPg.jkut: 71
+# jkut/pgs/resultsPg.jkut: 84
+Prfs. = Bfs.
+
+# jkut/pgs/charts/cosPg.jkut: 253
+# jkut/pgs/charts/historicPg.jkut: 130
+# jkut/pgs/charts/operationsPg.jkut: 197
+Profits (%) = Beneficios (%)
+
+# jkut/pgs/charts/operationsPg.jkut: 283
+Quarantine = Cuarentena
+
+# jkut/data/main.jkut: 56
+# jkut/main.jkut: 61
+Results = Resultados
+
+# jkut/pgs/charts/cosPg.jkut: 259
+# jkut/pgs/charts/cosPg.jkut: 289
+# jkut/pgs/charts/historicPg.jkut: 136
+# jkut/pgs/charts/historicPg.jkut: 166
+# jkut/pgs/charts/operationsPg.jkut: 203
+# jkut/pgs/charts/operationsPg.jkut: 233
+Sales = Ventas
+
+# jkut/pgs/charts/operationsPg.jkut: 275
+Sells = Ventas
+
+# jkut/data/main.jkut: 126
+# jkut/main.jkut: 125
+Session is expired. = La sesión ha expirado.
+
+# jkut/pgs/resultsPg.jkut: 77
+# jkut/pgs/resultsPg.jkut: 90
+Sls. = Vts.
+
+# jkut/pgs/charts/historicPg.jkut: 190
+Withdrawals = Retiradas
+
+# jkut/pgs/charts/operationsPg.jkut: 156
+Without Data = Sin datos
+
+# jkut/pgs/msgPg.jkut: 18
+here = aquí
+

@@ -1,0 +1,135 @@
+# jkut/pgs/listPg.jkut: 103
+Appr. = Appr.
+
+# jkut/pgs/chartsPg.jkut: 115
+# jkut/pgs/hotMapPg.jkut: 53
+Approximation = Approximation
+
+# jkut/pgs/charts/historicPg.jkut: 72
+# jkut/pgs/charts/operationsPg.jkut: 141
+# jkut/pgs/chartsPg.jkut: 130
+# jkut/pgs/listPg.jkut: 107
+Assets = Assets
+
+# jkut/pgs/rankingsPg.jkut: 79
+Average = Average
+
+# jkut/pgs/rankingsPg.jkut: 73
+Best = Best
+
+# jkut/pgs/charts/operationsPg.jkut: 163
+Buys = Buys
+
+# jkut/pgs/charts/operationsPg.jkut: 179
+Cash = Cash
+
+# jkut/pgs/listPg.jkut: 69
+Change near start corner from\n[%0, %1]\nto\n[%2, %3]? = Change near start corner from\n[%0, %1]\nto\n[%2, %3]?
+
+# jkut/main.jkut: 119
+Charts = Charts
+
+# jkut/pgs/msgPg.jkut: 21
+Click %0 to continue. = Click %0 to continue.
+
+# jkut/pgs/charts/cosPg.jkut: 57
+Close = Close
+
+# jkut/pgs/chartsPg.jkut: 93
+# jkut/pgs/chartsPg.jkut: 104
+Companies = Companies
+
+# jkut/pgs/charts/operationsPg.jkut: 159
+Date = Date
+
+# jkut/pgs/chartsPg.jkut: 136
+# jkut/pgs/listPg.jkut: 113
+Eval. = Eval.
+
+# jkut/main.jkut: 86
+Far - Ranking = Far - Ranking
+
+# jkut/pgs/chartsPg.jkut: 95
+Historic = Historic
+
+# jkut/main.jkut: 22
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. = KtWeb session is closed.\nAuthenticating from KtWeb:Main.
+
+# jkut/pgs/chartsPg.jkut: 30
+# jkut/pgs/chartsPg.jkut: 50
+Malformed URL = Malformed URL
+
+# jkut/main.jkut: 84
+Near - Ranking = Near - Ranking
+
+# jkut/pgs/chartsPg.jkut: 97
+Operations = Operations
+
+# jkut/pgs/charts/operationsPg.jkut: 151
+Orders = Orders
+
+# jkut/pgs/charts/operationsPg.jkut: 171
+Portfolio = Portfolio
+
+# jkut/pgs/listPg.jkut: 110
+Prfs. = Prfs.
+
+# jkut/pgs/chartsPg.jkut: 133
+Profits (%) = Profits (%)
+
+# jkut/pgs/charts/operationsPg.jkut: 175
+Quarantine = Quarantine
+
+# jkut/pgs/chartsPg.jkut: 139
+Sales = Sales
+
+# jkut/pgs/charts/operationsPg.jkut: 167
+Sells = Sells
+
+# jkut/main.jkut: 171
+Session is expired. = Session is expired.
+
+# jkut/pgs/listPg.jkut: 116
+Sls. = Sls.
+
+# jkut/pgs/listPg.jkut: 83
+Soon the near star corner will be changed to\n[%0, %1] = Soon the near star corner will be changed to\n[%0, %1]
+
+# jkut/pgs/chartsPg.jkut: 112
+# jkut/pgs/hotMapPg.jkut: 48
+# jkut/pgs/listPg.jkut: 100
+Start = Start
+
+# jkut/pgs/chartsPg.jkut: 36
+Value '%0' for 'days loss' is not valid = Value '%0' for 'days loss' is not valid
+
+# jkut/pgs/chartsPg.jkut: 34
+Value '%0' for 'days win' is not valid = Value '%0' for 'days win' is not valid
+
+# jkut/pgs/chartsPg.jkut: 53
+Value [%0,%1] for parameters is not valid = Value [%0,%1] for parameters is not valid
+
+# jkut/pgs/charts/historicPg.jkut: 80
+Withdrawals = Withdrawals
+
+# jkut/pgs/charts/operationsPg.jkut: 133
+Without Data = Without Data
+
+# jkut/pgs/rankingsPg.jkut: 85
+Worst = Worst
+
+# jkut/main.jkut: 116
+[Far - Hot Map] = [Far - Hot Map]
+
+# jkut/main.jkut: 114
+[Far - List] = [Far - List]
+
+# jkut/main.jkut: 112
+[Near - Hot Map] = [Near - Hot Map]
+
+# jkut/main.jkut: 110
+[Near - List] = [Near - List]
+
+# jkut/pgs/msgPg.jkut: 18
+here = here
+

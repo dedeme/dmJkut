@@ -1,0 +1,121 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "Appr.": "Aprx.",
+  "Approximation": "Aproximación",
+  "Assets": "Activo",
+  "Average": "Media",
+  "Best": "Mejores",
+  "Buys": "Compras",
+  "Cash": "Caja",
+  "Change near start corner from\n[%0, %1]\nto\n[%2, %3]?": "¿Cambiar la esquina de comienzo (Cerca) desde\n[%0, %1]\na\n[%2, %3]?",
+  "Charts": "Gráficos",
+  "Click %0 to continue.": "Hacer click %0 para continuar.",
+  "Close": "Cierre",
+  "Companies": "Compañías",
+  "Date": "Fecha",
+  "Eval.": "Eval.",
+  "Far - Ranking": "Clasificación (Lejos)",
+  "Historic": "Histórico",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "Malformed URL": "URL mal formada",
+  "Near - Ranking": "Clasificación (Cerca)",
+  "Operations": "Operaciones",
+  "Orders": "Órdenes",
+  "Portfolio": "Cartera",
+  "Prfs.": "Bfs.",
+  "Profits (%)": "Beneficios (%)",
+  "Quarantine": "Cuarentena",
+  "Sales": "Ventas",
+  "Sells": "Ventas",
+  "Session is expired.": "La sesión ha expirado.",
+  "Sls.": "Vts.",
+  "Soon the near star corner will be changed to\n[%0, %1]": "En breve la esquina de comienzo (Cerca) se cambiará a\n[%0, %1]",
+  "Start": "Inicio",
+  "Value '%0' for 'days loss' is not valid": "El valor %0 no es valido para 'dias perdiendo'",
+  "Value '%0' for 'days win' is not valid": "El valor %0 no es valido para 'dias ganando'",
+  "Value [%0,%1] for parameters is not valid": "El valor de [%0,%1] no es válido para los parámetros",
+  "Withdrawals": "Retiradas",
+  "Without Data": "Sin datos",
+  "Worst": "Peores",
+  "[Far - Hot Map]": "Mapa de calor (Lejos)",
+  "[Far - List]": "Listado (Lejos)",
+  "[Near - Hot Map]": "Mapa de calor (Cerca)",
+  "[Near - List]": "Listado (Cerca)",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "Appr.": "Appr.",
+  "Approximation": "Approximation",
+  "Assets": "Assets",
+  "Average": "Average",
+  "Best": "Best",
+  "Buys": "Buys",
+  "Cash": "Cash",
+  "Change near start corner from\n[%0, %1]\nto\n[%2, %3]?": "Change near start corner from\n[%0, %1]\nto\n[%2, %3]?",
+  "Charts": "Charts",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Close": "Close",
+  "Companies": "Companies",
+  "Date": "Date",
+  "Eval.": "Eval.",
+  "Far - Ranking": "Far - Ranking",
+  "Historic": "Historic",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
+  "Malformed URL": "Malformed URL",
+  "Near - Ranking": "Near - Ranking",
+  "Operations": "Operations",
+  "Orders": "Orders",
+  "Portfolio": "Portfolio",
+  "Prfs.": "Prfs.",
+  "Profits (%)": "Profits (%)",
+  "Quarantine": "Quarantine",
+  "Sales": "Sales",
+  "Sells": "Sells",
+  "Session is expired.": "Session is expired.",
+  "Sls.": "Sls.",
+  "Soon the near star corner will be changed to\n[%0, %1]": "Soon the near star corner will be changed to\n[%0, %1]",
+  "Start": "Start",
+  "Value '%0' for 'days loss' is not valid": "Value '%0' for 'days loss' is not valid",
+  "Value '%0' for 'days win' is not valid": "Value '%0' for 'days win' is not valid",
+  "Value [%0,%1] for parameters is not valid": "Value [%0,%1] for parameters is not valid",
+  "Withdrawals": "Withdrawals",
+  "Without Data": "Without Data",
+  "Worst": "Worst",
+  "[Far - Hot Map]": "[Far - Hot Map]",
+  "[Far - List]": "[Far - List]",
+  "[Near - Hot Map]": "[Near - Hot Map]",
+  "[Near - List]": "[Near - List]",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return T ? T! : s;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

@@ -7,7 +7,7 @@ esDic = {
   "All": "Todo",
   "All log entries will be deleted.\nContinue?": "\"Todas las entradas serán borradas.\n¿Continuar?",
   "Assets": "Capital",
-  "Cash Prfs.": "Bfs. de Caja",
+  "CMarket": "CMarket",
   "Click %0 to continue.": "Hacer click %0 para continuar.",
   "Dates of profits and ibex does not match": "Fechas de beneficios e Ibex no coinciden",
   "Delete": "Borrar",
@@ -18,7 +18,7 @@ esDic = {
   "Investor": "Inversor",
   "Investors - Ibex": "Inversores - Ibex",
   "Investors average": "Media de los inversores",
-  "KtMarket": "KtMarket",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
   "Log": "Registro",
   "MMarket": "MMarket",
   "Model": "Modelo",
@@ -27,7 +27,6 @@ esDic = {
   "Points": "Puntos",
   "Profits": "Beneficios",
   "Reload": "Recargar",
-  "Risk": "Riesgo",
   "Session is expired.": "La sesión ha expirado.",
   "here": "aquí"
 };
@@ -39,7 +38,7 @@ enDic = {
   "All": "All",
   "All log entries will be deleted.\nContinue?": "All log entries will be deleted.\nContinue?",
   "Assets": "Assets",
-  "Cash Prfs.": "Cash Prfs.",
+  "CMarket": "CMarket",
   "Click %0 to continue.": "Click %0 to continue.",
   "Dates of profits and ibex does not match": "Dates of profits and ibex does not match",
   "Delete": "Delete",
@@ -50,7 +49,7 @@ enDic = {
   "Investor": "Investor",
   "Investors - Ibex": "Investors - Ibex",
   "Investors average": "Investors average",
-  "KtMarket": "KtMarket",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
   "Log": "Log",
   "MMarket": "MMarket",
   "Model": "Model",
@@ -59,7 +58,6 @@ enDic = {
   "Points": "Points",
   "Profits": "Profits",
   "Reload": "Reload",
-  "Risk": "Risk",
   "Session is expired.": "Session is expired.",
   "here": "here"
 };

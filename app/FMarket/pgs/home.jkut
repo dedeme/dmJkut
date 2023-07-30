@@ -21,10 +21,7 @@ mk = async \wg -> {
 
   activities = {
     stopped: II("Stopped"),
-    Generating: II("Generating"),
-    Evaluating: II("Evaluating"),
-    Selecting: II("Selecting"),
-    Saving: II("Saving")
+    active: II("Active")
   };
 
   logDiv = Q("div");
@@ -32,18 +29,19 @@ mk = async \wg -> {
 // Control ---------------------------------------------------------------------
 
   activate = async \ev -> {
-    logDiv
-      .removeAll()
-      .add(Q("table")
-        .att("align", "center")
-        .add(Q("tr")
-          .add(Q("td")
-            .add(ui.img("wait.gif")))))
-    ;
     await client.send({
       prg: cts.appName,
       source: "Home",
       rq: "activate"
+    });
+    window.location.reload(true);
+  };
+
+  deactivate = async \ev -> {
+    await client.send({
+      prg: cts.appName,
+      source: "Home",
+      rq: "deactivate"
     });
     window.location.reload(true);
   };
@@ -103,12 +101,13 @@ mk = async \wg -> {
           .add(Q("td")
             .style("width:100px;text-align:center")
             .add(activity != "stopped"
-                ? Q("span")
-                  .text("* * *")
+                ? ui.link(deactivate)
+                  .klass("link")
+                  .text(II("Stop"))
                 : ui.link(activate)
                   .klass("link")
-                  .text(II("Start")
-              )))))
+                  .text(II("Start"))
+              ))))
       .add(Q("hr"))
       .add(logDiv)
     ;

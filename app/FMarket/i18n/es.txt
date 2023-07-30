@@ -1,117 +1,98 @@
-# jkut/libdm/log.jkut: 35
-# jkut/pgs/home.jkut: 79
+# jkut/pgs/home.jkut: 77
 2 Days = 2 días
 
-# jkut/libdm/log.jkut: 36
-# jkut/pgs/home.jkut: 80
+# jkut/pgs/home.jkut: 24
+Active = Activo
+
+# jkut/pgs/home.jkut: 78
 All = Todo
 
-# jkut/libdm/log.jkut: 34
-# jkut/pgs/home.jkut: 78
+# jkut/pgs/home.jkut: 76
 All log entries will be deleted.\nContinue? = Todas las entradas serán borradas.\n¿Continuar?
 
-# jkut/pgs/rankingsPg.jkut: 226
-AllRankings = Todas
-
-# jkut/pgs/modelsPg.jkut: 135
-# jkut/pgs/rankingsPg.jkut: 124
-# jkut/pgs/rankingsPg.jkut: 163
+# jkut/pgs/fleasPg.jkut: 131
 Assets = Patrimonio
 
-# jkut/pgs/modelsPg.jkut: 163
-Assets average = Media del patrimonio
+# jkut/pgs/summaryPg.jkut: 104
+Average = Media
 
-# jkut/pgs/modelsPg.jkut: 169
-Bests = Mejores
+# jkut/pgs/summaryPg.jkut: 92
+Best = Mejor
 
 # jkut/pgs/msgPg.jkut: 20
 Click %0 to continue. = Click %0 para continuar.
 
-# jkut/pgs/rankingsPg.jkut: 224
-Current = Actual
+# jkut/pgs/fleasPg.jkut: 128
+# jkut/pgs/rksPg.jkut: 137
+Cy. = Ci.
 
-# jkut/pgs/home.jkut: 94
-# jkut/pgs/modelsPg.jkut: 126
-# jkut/pgs/rankingsPg.jkut: 115
+# jkut/pgs/home.jkut: 92
 Cycle = Ciclo
 
-# jkut/libdm/log.jkut: 38
-# jkut/pgs/home.jkut: 82
+# jkut/pgs/home.jkut: 80
 Delete = Borrar
 
-# jkut/pgs/modelsPg.jkut: 59
-Duplicates = Repeticiones
-
-# jkut/libdm/log.jkut: 39
-# jkut/pgs/home.jkut: 83
+# jkut/pgs/home.jkut: 81
 Errors = Errores
 
-# jkut/pgs/home.jkut: 25
-Evaluating = Evaluando
+# jkut/main.jkut: 39
+Fleas = Pulgas
 
-# jkut/pgs/modelsPg.jkut: 149
-Fleas number = Numero de pulgas
-
-# jkut/pgs/home.jkut: 24
-Generating = Generando
-
-# jkut/main.jkut: 36
+# jkut/main.jkut: 37
 Home = Inicio
 
-# jkut/pgs/modelsPg.jkut: 122
-# jkut/pgs/rankingsPg.jkut: 111
-# jkut/pgs/rankingsPg.jkut: 152
-Id = Id
+# jkut/pgs/fleasPg.jkut: 127
+# jkut/pgs/rksPg.jkut: 134
+Id. = Id.
 
-# jkut/main.jkut: 21
+# jkut/main.jkut: 22
 KtWeb session is closed.\nAuthenticating from KtWeb:Main. = La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.
 
-# jkut/libdm/log.jkut: 40
-# jkut/pgs/home.jkut: 84
+# jkut/pgs/home.jkut: 82
 Log = Registro
 
-# jkut/main.jkut: 40
-# jkut/pgs/modelsPg.jkut: 55
-# jkut/pgs/modelsPg.jkut: 131
-# jkut/pgs/rankingsPg.jkut: 120
-Models = Modelos
+# jkut/pgs/fleasPg.jkut: 129
+# jkut/pgs/rksPg.jkut: 141
+# jkut/pgs/rksPg.jkut: 145
+P1 = P1
 
-# jkut/pgs/rankingsPg.jkut: 159
-Ms. = Ms.
+# jkut/pgs/fleasPg.jkut: 130
+# jkut/pgs/rksPg.jkut: 148
+P2 = P2
 
-# jkut/pgs/modelsPg.jkut: 118
-Pos. = Pos.
+# jkut/pgs/fleasPg.jkut: 133
+# jkut/pgs/rksPg.jkut: 153
+Points = Puntos
 
-# jkut/pgs/modelsPg.jkut: 156
-Position average = Posición media
+# jkut/pgs/fleasPg.jkut: 132
+Profits = Beneficios
 
-# jkut/pgs/modelsPg.jkut: 182
-Ranking = Clasificación
-
-# jkut/main.jkut: 38
+# jkut/main.jkut: 41
 Rankings = Clasificaciones
 
-# jkut/libdm/log.jkut: 37
-# jkut/pgs/home.jkut: 81
+# jkut/pgs/home.jkut: 79
 Reload = Recargar
 
-# jkut/pgs/home.jkut: 27
-Saving = Guardando
+# jkut/pgs/fleasPg.jkut: 134
+Sales = Ventas
 
-# jkut/pgs/home.jkut: 26
-Selecting = Seleccionando
-
-# jkut/main.jkut: 73
+# jkut/main.jkut: 77
 Session is expired. = Las sesión ha expirado.
 
-# jkut/pgs/home.jkut: 110
+# jkut/pgs/home.jkut: 109
 Start = Comenzar
+
+# jkut/pgs/home.jkut: 106
+Stop = Detener
 
 # jkut/pgs/home.jkut: 23
 Stopped = Detenido
 
-# jkut/pgs/modelsPg.jkut: 173
-Worsts = Peores
+# jkut/main.jkut: 43
+Summary = Resumen
+
+# jkut/pgs/summaryPg.jkut: 98
+Worst = Peor
 
 # jkut/pgs/msgPg.jkut: 17
 here = aquí

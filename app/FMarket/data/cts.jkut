@@ -8,7 +8,7 @@ Q = ui.q;
 /// Application name.
 appName = "FMarket";
 /// Application version.
-version = "202205";
+version = "202207";
 /// Page foot.
 foot = Q("table")
   .klass("main")
@@ -21,14 +21,18 @@ foot = Q("table")
       .html(str.fmt("- © ºDeme. %v (%v) -", [appName, version]))))
 ;
 
-/// Model indexes
-modelIxs = {
-  APRX: 0,
-  APRX2: 1,
-  ME: 2,
-  ME2: 3,
-  MM: 4,
-  "MX_MN": 5,
-  QFIJO: 6,
-  QMOV: 7
-};
+/// Investors initial capital for each cycle
+initialCapital = 250000.0;
+
+/// Assets ratio for evaluation.
+assetsRatio = 0.7;
+
+/// Profits ratio for evaluation.
+profitsAvgRatio = 1.0 - assetsRatio;
+
+/// Maximum ratio for profits evaluation. (1€ generates 3€)
+maxProfitsAvgRatio = 3.0;
+
+/// Maximum assets to calculate evaluation ratio. (IC € generate IC*MPAR €)
+maxAssets = initialCapital * maxProfitsAvgRatio;
+

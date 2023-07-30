@@ -5,7 +5,7 @@
 
 import "data/cts";
 import "pgs/msgPg";
-import "pgs/ktmarket";
+import "pgs/cmarket";
 import "pgs/mmarket";
 import "pgs/main/home";
 import "wgs/dmenu";
@@ -38,7 +38,7 @@ mk = async \wg -> {
   if (!LcPath) LcPath.push("home");
 
   target = switch (LcPath[0]) {
-      "models", "ktmarket", "mmarket": LcPath[0];
+      "cmarket", "mmarket": LcPath[0];
       default: "home";
     };
   arr.shift(LcPath);
@@ -48,7 +48,7 @@ mk = async \wg -> {
   menu = dmenu.mk(menuDiv, target);
 
   switch (target) {
-    "ktmarket": ktmarket.process(bodyDiv, menu, LcPath);
+    "cmarket": cmarket.process(bodyDiv, menu, LcPath);
     "mmarket": mmarket.process(bodyDiv, menu, LcPath);
     default: home.mk(bodyDiv);
   }

@@ -11,12 +11,10 @@ II = i18n.tlt;
 
 // Main menu constructor.
 //    selected: Selected option.
-// \s -> <menu>
+// \s -> <domo>
 mkUpMenu= \selected -> {
   Lopts = [
     menu.tlink("home", II("Home"), []),
-    menu.separator(),
-    menu.tlink("models", II("Models"), []),
     menu.separator(),
     menu.tlink("acc", II("Accounting"), []),
     menu.separator(),
@@ -52,8 +50,8 @@ mk = \wg, selected -> {
     if (!Hidden!) upDiv.add(upMenu);
   };
 
-  /// Sets down menu.
-  /// \<menu> -> ()
+  // Sets down menu.
+  // \<menu> -> ()
   setDownMenu = \menuWg -> {
     downDiv
       .removeAll()
@@ -83,14 +81,14 @@ mk = \wg, selected -> {
 };
 
 /// Sets down menu.
-/// \<dmenu>, <menu> -> ()
-setDownMenu = \dmenu, downMenu -> return dmenu.setDownMenu(downMenu);;
+/// \<dmenu>, <domo> -> ()
+setDownMenu = \dbmenu, downMenu -> return dbmenu.setDownMenu(downMenu);;
 
 /// Returns a button to hidde-show the up menu.
 /// \<dmenu> -> <menuEntry>
-mkHiddenButton = \dmenu -> return menu.mkEntry(
+mkHiddenButton = \dbmenu -> return menu.mkEntry(
     [],
-    ui.link(dmenu.change)
+    ui.link(dbmenu.change)
       .add(ui.img("menu")
         .style("vertical-align:middle"))
   );;

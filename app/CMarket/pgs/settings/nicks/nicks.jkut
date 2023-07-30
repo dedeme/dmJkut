@@ -19,19 +19,6 @@ II = i18n.tlt;
 /// \<domo> -> ()
 mk = async \wg -> {
   msgWait = Q("div");
-  wg
-    .removeAll()
-    .add(msgWait)
-  ;
-  box = modalBox.mk(
-    Q("div")
-      .add(Q("div")
-        .style("text-align:center")
-        .add(ui.img("wait2.gif").klass("frame"))),
-    false
-  );
-  msgWait.add(box.wg);
-  modalBox.show(box, true);
 
   Rp = await client.send({
     prg: cts.appName,
@@ -294,7 +281,6 @@ mk = async \wg -> {
     if (Option![0] == "*") body.add(list());
     else editor.mk(body, arr.map(Cos, \C -> return C.nick;), Main!, Option!);
 
-    modalBox.show(box, false);
     wg
       .removeAll()
       .add(menuWg)

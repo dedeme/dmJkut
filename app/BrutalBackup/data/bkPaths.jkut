@@ -3,8 +3,6 @@
 
 /// Backup paths data.
 
-import "data/fns";
-
 /// Constructor:
 ///   id: Backup paths identifier.
 ///   source: Absolute path of backup source.
@@ -49,7 +47,7 @@ fromJs = \A -> {
     A[3],
     A[4],
     A[5],
-    fns.ftoi(A[6]),
-    arr.map(A[7], fns.ftoi)
+    A[6],
+    A[7]
   );
 };

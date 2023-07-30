@@ -1,0 +1,119 @@
+// Copyright 11-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Accounting annotations of all the investors widget.
+
+import "libdm/menu";
+import "libdm/datePicker";
+import "wgs/msg";
+import "data/cts";
+import "data/acc/ann";
+import "annotationsWg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, s, s -> ()
+mk2 = async \wg, year0, date -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    module: "Settings",
+    source: "acc/AllWg",
+    rq: "idata",
+    year: year0,
+    date
+  });
+  if (!Rp.ok)
+    msg.error(II("Some error was found.<br>See Log."), \->{});
+  year = Rp.year; // s
+  Years = Rp.years; // [s...]
+  Anns = arr.map(Rp.anns, ann.fromJs);
+  arr.sort(Anns, \A1, A2 -> return A1.date > A2.date;); // reverse order
+  cash = Rp.cash; // n
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  changeYear = \y -> mk2(wg, y, "");;
+
+  // \s -> ()
+  changeLastDate = \d -> mk2(wg, year, time.toStr(time.fromIso(d, "/")));;
+
+  // View ----------------------------------------------------------------------
+
+  Lopts = [];
+  arr.eachIx(Years, \y, i -> {
+    if (i > 0) arr.push(Lopts, menu.separator());
+    arr.push(Lopts, menu.toption(y, y, \ -> changeYear(y);));
+  });
+  menuWg = menu.mk(Lopts, [], year, false);
+
+  lastDateDiv = Q("div");
+
+  annsWg = Q("div");
+  annotationsWg.mk(annsWg, Anns, []);
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(Q("div")
+      .add(Q("div")
+        .klass("head")
+        .html(II("Annotations")))
+      .add(lastDateDiv)
+      .add(Q("table")
+        .att("align", "center")
+        .klass("frame3")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("table")
+              .att("align", "right")
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rlabel")
+                  .add(Q("span")
+                    .html(II("Cash:"))))
+                .add(Q("td")
+                  .klass("number")
+                  .text(math.toIso(cash, 2)))
+                .add(Q("td"))))))
+        .add(Q("tr")
+          .add(Q("td").klass("frame")
+            .add(annsWg)))))
+  ;
+
+  if (year == Years[0] & Anns) {
+    dp = datePicker.mk(
+      i18n.getLang() == "es",
+      time.fromStr(Anns[0].date),
+      \s -> {}
+    );
+    input = Q("input")
+      .att("type", "text")
+      .style("text-align:center;width:166px")
+    ;
+    button = Q("button")
+      .text(II("Change"))
+      .on("click", \e -> changeLastDate(input.getValue());)
+    ;
+    lastDateDiv
+      .removeAll()
+      .style("text-align: center")
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("width:120px;text-align:right")
+            .text(II("Up to") + ": "))
+          .add(Q("td")
+            .add(datePicker.mkText(dp, input)))
+          .add(Q("td")
+            .style("width:120px;text-align:left")
+            .add(button))))
+    ;
+  }
+};
+
+/// \<domo> -> ()
+mk = async \wg -> mk2(wg, "", "");;

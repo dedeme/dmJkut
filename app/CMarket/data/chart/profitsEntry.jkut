@@ -1,0 +1,15 @@
+// Copyright 15-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Entry for profits charts.
+
+/// Constructor
+///   date : Date in base format (YYYYMMDD)
+///   total: Total profits.
+///   acc  : Accounting profits.
+///   risk : Risk profits.
+/// \s, f, f, f -> d<profitsEntry>
+mk = \date, total, acc, risk -> return {date, total, acc, risk};;
+
+/// \JS -> <profitsEntry>
+fromJs = \A -> return mk(A[0], A[1], A[2], A[3]);;

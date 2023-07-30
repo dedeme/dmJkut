@@ -27,19 +27,26 @@ mk = async \wg -> {
   modelSel = Rp.model;
   // [s...]
   Models = Rp.models;
-  MapsGroup = arr.map(Rp.mapsGroup, hotMap.fromJs);
+  arr.sort(Models, \m1, m2 -> return m1 < m2;);
+  //[s...]
+  DateGroups = Rp.datesGroup;
+  arr.sort(DateGroups, \d1, d2 -> return d1 > d2;);
 
   // View ----------------------------------------------------------------------
 
-  // [<paramsEval>...] -> <domo>
-  twoChart = \Es -> {
-    firstParam = Es[0].Params[0];
-    cols = arr.size(arr.takeWhile(Es, \E -> return E.Params[0] == firstParam;));
-    rows = math.toInt(arr.size(Es) / cols);
-    nfmt0 = fns.paramFormatter(Es[0].Params[0], Es[cols].Params[0]);
-    nfmt1 = fns.paramFormatter(Es[0].Params[1], Es[1].Params[1]);
-    max = arr.reduce(Es, Es[0].ev, \r, E -> return E.ev > r ? E.ev : r;);
-    min = arr.reduce(Es, Es[0].ev, \r, E -> return E.ev < r ? E.ev : r;);
+  // [[[f, f], s]...] -> <domo>
+  twoChart = \PsEvs -> {
+    firstParam = PsEvs[0][0][0];
+    cols = arr.size(arr.takeWhile(PsEvs, \PsE -> return PsE[0][0] == firstParam;));
+    rows = math.toInt(arr.size(PsEvs) / cols);
+    nfmt0 = fns.paramFormatter(PsEvs[0][0][0], PsEvs[cols][0][0]);
+    nfmt1 = fns.paramFormatter(PsEvs[0][0][1], PsEvs[1][0][1]);
+    max = arr.reduce(
+      PsEvs, PsEvs[0][1], \r, PsE -> return PsE[1] > r ? PsE[1] : r;
+    );
+    min = arr.reduce(
+      PsEvs, PsEvs[0][1], \r, PsE -> return PsE[1] < r ? PsE[1] : r;
+    );
     color = fns.valueColor(max, min);
 
     return Q("table")
@@ -47,18 +54,18 @@ mk = async \wg -> {
       .adds(arr.fromIter(iter.map([0:rows], \row -> return Q("tr")
           .adds(arr.fromIter(iter.map([0:cols], \col ->  {
               i = row * cols + col;
-              E = Es[i];
+              PsE = PsEvs[i];
               return Q("td")
                 .style(
                     "padding:0px;" +
                     "width: 6px; height: 6px;" +
-                    "background: " + color(E.ev)
+                    "background: " + color(PsE[1])
                   )
                 .att(
                     "title",
-                    nfmt0(E.Params[0]) + " - " +
-                    nfmt1(E.Params[1]) + "\n" +
-                    math.toIso(E.ev / 100, 2)
+                    nfmt0(PsE[0][0]) + " - " +
+                    nfmt1(PsE[0][1]) + "\n" +
+                    math.toIso(PsE[1], 0)
                   )
               ;
             })))
@@ -66,55 +73,72 @@ mk = async \wg -> {
     ;
   };
 
-  // [<paramsEval>...] -> <domo>
-  oneChart = \Es -> {
-    nfmt = fns.paramFormatter(Es[0].Params[0], Es[1].Params[0]);
-    max = arr.reduce(Es, Es[0].ev, \r, E -> return E.ev > r ? E.ev : r;);
-    min = arr.reduce(Es, Es[0].ev, \r, E -> return E.ev < r ? E.ev : r;);
+  // [[[f], s]...] -> <domo>
+  oneChart = \PsEvs -> {
+    nfmt = fns.paramFormatter(PsEvs[0][0][0], PsEvs[1][0][0]);
+    max = arr.reduce(
+      PsEvs, PsEvs[0][1], \r, PsE -> return PsE[1] > r ? PsE[1] : r;
+    );
+    min = arr.reduce(
+      PsEvs, PsEvs[0][1], \r, PsE -> return PsE[1] < r ? PsE[1] : r;
+    );
     color = fns.valueColor(max, min);
 
     return Q("table")
       .klass("flat")
-      .adds(arr.map(Es, \E -> return Q("tr")
+      .adds(arr.map(PsEvs, \PsE -> return Q("tr")
         .add(Q("td")
           .style(
               "padding:0px;" +
               "width: 120px; height: 6px;" +
-              "background: " + color(E.ev)
+              "background: " + color(PsE[1])
             )
           .att(
               "title",
-              nfmt(E.Params[0]) + "\n" +
-              math.toIso(E.ev / 100, 2)
+              nfmt(PsE[0][0]) + "\n" +
+              math.toIso(PsE[1], 0)
             ));))
       ;
   };
 
-  // \<hotMap> -> <domo>
-  mapChart = \Map ->
-    return Q("table")
+  // \<domo>, s -> <domo>
+  mapChart = async \td, date -> {
+    Rp = await client.send({
+      prg: cts.appName,
+      module: "MMarket",
+      source: "HotMapsPg",
+      rq: "evals",
+      modelSel,
+      date
+    });
+    ParamsEvals = Rp.paramsEvals; //[[[f...], s]...]
+
+    td.add(
+      Q("table")
       .klass("flat")
       .add(Q("tr")
         .add(Q("td")
           .klass("frame")
           .style("text-align:center")
-          .text(time.toIso(time.fromStr(Map.date)))))
+          .text(time.toIso(time.fromStr(date)))))
       .add(Q("tr")
         .add(Q("td")
-          .add(arr.size(Map.Entries[0].Params) == 1
-            ? oneChart(Map.Entries)
-            : twoChart(Map.Entries))))
-    ;;
+          .add(arr.size(ParamsEvals[0][0]) == 1
+            ? oneChart(ParamsEvals)
+            : twoChart(ParamsEvals))))
+    );
+  };
 
   // \n, n -> <domo>
-  rowGroups = \start, end ->
+  rowGroups = \start, end -> {
+    Tds = [];
+    for (i = start:end) arr.push(Tds, Q("td"));
+    for (i = start:end) mapChart(Tds[i], DateGroups[i]);
     return Q("table")
       .att("align", "center")
-      .add(Q("tr")
-        .adds(arr.fromIter(iter.map([start:end],  \i ->
-          return Q("td").add(mapChart(MapsGroup[i]));
-        ))))
-    ;;
+      .add(Q("tr").adds(Tds))
+    ;
+  };
 
   Lopts = [];
   for (M = Models) {
@@ -125,7 +149,7 @@ mk = async \wg -> {
   menuWg = menu.mk(Lopts, [], modelSel, false);
 
 
-  groups = arr.size(MapsGroup);
+  groups = arr.size(DateGroups);
   wg
     .removeAll()
     .add(menuWg)

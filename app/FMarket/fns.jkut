@@ -1,0 +1,27 @@
+// Copyright 24-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Global functions.
+
+import "i18n";
+
+Q = ui.q;
+
+/// Returns a header cliclable "td".
+/// \s, \->() -> <domo>
+mkTh = \label, fn -> return Q("td")
+    .klass("header")
+    .add(ui.link(\e -> fn();)
+      .klass("link")
+      .text(label))
+  ;;
+
+/// Returns a numeric 'td'. Its number is formatted with 'dec' decimals.
+/// \n, n -> <domo>
+mkTdN = \n, dec -> return Q("td")
+    .klass("fnumber")
+    .text(i18n.getLang() == "es"
+        ? math.toIso(n, dec)
+        : math.toEn(n, dec)
+      )
+  ;;

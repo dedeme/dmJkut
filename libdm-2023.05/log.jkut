@@ -207,7 +207,6 @@ mk = async \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
       .add(Q("span")
         .add(mkOption(!IsErrors!, tlt("All"), \ -> onAll();)))
     ;
-
     today = time.now();
     Log = arr.reverse(Rows);
     area.value(
@@ -216,7 +215,7 @@ mk = async \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
           arr.filter(
             Log,
             \E -> return
-              (Is2Days! ? time.dfDays(today, E.date) < 3 : true) &
+              (Is2Days! ? time.dfDays(today, logRowDate(E)) < 3 : true) &
               (IsErrors! ? E.isError : true)
             ;
           ),

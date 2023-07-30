@@ -1,0 +1,201 @@
+// Copyright 22-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "data/cts";
+import "data/flea";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  Url = ui.url();
+  modelId = dic.hasKey(Url, "1") ? Url["1"] : "";
+
+  Rp = await client.send({
+    prg: cts.appName,
+    source: "RksPg",
+    rq: "idata",
+    modelId
+  });
+
+  mdId = Rp.mdId;
+  Models = Rp.models;
+  Rks = dic.fromArr(
+    arr.map(Rp.rks, \Kv -> return [Kv[0], arr.map(Kv[1], flea.fromJs)];)
+  );
+  Dates = dic.keys(Rks);
+  arr.sort(Dates, \d1, d2 -> return d1 > d2;);
+  page = "rankings&" + mdId;
+
+  Lopts = arr.reduce(
+    Models, [],
+    \R, mId -> {
+      arr.push(R, menu.tlink("rankings&" + mId, mId, []));
+      arr.push(R, menu.separator());
+      return R;
+    }
+  );
+  arr.pop(Lopts);
+
+  menuWg = menu.mk(Lopts, [], page, false);
+
+  size = arr.size(Dates);
+  iV = [0];
+  Trs = []; // [<domo>...]
+  while (true) {
+    if (iV! == size) break;
+    tr = Q("tr");
+    for (i = 0:3) {
+      if (iV! == size) {
+        for (j = i:3) tr.add(Q("td"));
+        break;
+      }
+      d = Dates[iV!];
+      Lst = Rks[Dates[0]];
+      Prv = iV! == size - 1 ? [] : Rks[Dates[iV!+1]];
+      Nxt = iV! == 0 ? [] : Rks[Dates[iV!-1]];
+      tr.add(Q("td").add(mkRk(Lst, Prv, Nxt, d, Rks[d])));
+      arr.push(Trs, tr);
+      iV! += 1;
+    }
+  }
+
+  body = Q("table")
+    .att("align", "center")
+    .adds(Trs)
+  ;
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+  ;
+
+};
+
+// Make a ranking
+//  Lst : More current ranking.
+//  prv : Previous ranking.
+//  Nxt : Next ranking.
+//  date: Date of current ranking.
+//  rk  : Current ranking.
+// \[<flea>...], s, [<flea>...] -> <domo>
+mkRk = \Lst, Prv, Nxt, date, Rk -> {
+  Rk0 = Rk[0];
+  npars = arr.size(Rk0.params);
+  isDate = arr.any(
+    ["ME", "ME2", "MM", "MX_MN"],
+    \m -> return m == Rk0.model;
+  );
+
+  Trs = []; // [<domo>...]
+  for (i = 0:arr.size(Rk)) {
+    F = Rk[i];
+    arr.push(
+      Trs,
+      Q("tr")
+        .add(Q("td")
+          .klass("fnumber")
+          .add(mkSym(Prv, F.id, i)))
+        .add(fns.mkTdN(F.id, 0)
+            .style("" +
+              mkLineThrough(Nxt, F.id) +
+              mkBackground(Lst, F.id)
+            )
+          )
+        .add(fns.mkTdN(F.cycle, 0))
+        .adds(npars == 1
+            ? [fns.mkTdN(F.params[0], 4)]
+            : [ fns.mkTdN(F.params[0], isDate ? 0 : 4),
+                fns.mkTdN(F.params[1], 4)
+              ]
+          )
+        .add(fns.mkTdN(F.points, 0))
+    );
+  }
+  return Q("table")
+    .klass("border")
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", npars == 1 ? 5 : 6)
+        .klass("header")
+        .text(time.toIso(time.fromStr(date)))))
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("header"))
+      .add(Q("td")
+        .klass("header")
+        .text(II("Id.")))
+      .add(Q("td")
+        .klass("header")
+        .text(II("Cy.")))
+      .adds(npars == 1
+          ? [ Q("td")
+                .klass("header")
+                .text(II("P1"))
+            ]
+          : [ Q("td")
+                .klass("header")
+                .text(II("P1")),
+              Q("td")
+                .klass("header")
+                .text(II("P2"))
+            ]
+        )
+      .add(Q("td")
+        .klass("header")
+        .text(II("Points"))))
+    .adds(Trs)
+  ;
+
+};
+
+// Make an evaluation symbol
+// \[<flea>...], s, n -> <domo>
+mkSym = \Prv, id, i -> {
+  ix = arr.index(Prv, \F -> return F.id == id;);
+  d = ix - i;
+  return ui.img(
+    ix == -1
+      ? "rk-new"
+      : d > 4
+        ? "rk-up2"
+        : d > 0
+          ? "rk-up"
+          : d == 0
+            ? "rk-eq"
+            : d >= -4
+              ? "rk-down"
+              : "rk-down2"
+  );
+};
+
+// Return css style for line-trough
+// \[<flea>...], s -> s
+mkLineThrough = \Next, id -> {
+  return Next
+    ? arr.any(Next, \F -> return F.id == id;)
+      ? ""
+      : "text-decoration: line-through;"
+    : ""
+  ;
+};
+
+// Return css style for background.
+// \[<flea>...], s  -> s
+mkBackground = \Last, id -> {
+  return id == Last[0].id
+    ? "background-color: #a89247;"
+    : id == Last[1].id
+      ? "background-color: #b8b8b8;"
+      : id == Last[2].id
+        ? "background-color: #b7805b;"
+        : ""
+  ;
+};

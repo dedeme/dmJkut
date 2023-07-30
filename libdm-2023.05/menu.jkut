@@ -32,6 +32,7 @@ mk = \Lopts, Ropts, selected, withSeparator -> {
           "font-weight: normal;cursor:pointer;"
       );
   };
+
   for (o = Lopts) setId(o);
   for (o = Ropts) setId(o);
 

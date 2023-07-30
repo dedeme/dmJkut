@@ -1,0 +1,140 @@
+// Copyright 26-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Application entry.
+
+import "libdm/menu";
+import "libdm/vmenu";
+import "data/cts";
+import "pgs/msgPg";
+import "pgs/descriptionPg";
+import "pgs/resultsPg";
+import "pgs/hotPg";
+import "pgs/chartsPg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("KtWeb session is closed.\nAuthenticating from KtWeb:Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+    return;
+  }
+
+  Rp0 = await client.send({
+    prg: "Main", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (Rp0.lang == "en") i18n.en();
+
+  Rp = await client.send({
+    prg: "CMMarket",
+    source: "Main",
+    rq: "idata"
+  });
+  //[s...]
+  ModelIds = Rp.modelIds;
+
+  Url = ui.url();
+  Pg = dic.get(Url, "1");
+  pg = Pg
+    ? switch (Pg!) {
+        "description", "results", "hot", "charts" : Pg!;
+        default: "description";
+      }
+    : "description";
+  SelectedModel = dic.get(Url, "0");
+  model =
+    SelectedModel & arr.any(ModelIds, \id -> return id == SelectedModel!;)
+    ? SelectedModel!
+    : ModelIds[0]
+  ;
+
+  Lopts = [
+    menu.tlink("description", II("Description"), [model]),
+    menu.separator2(),
+    menu.tlink("results", II("Results"), [model]),
+    menu.separator(),
+    menu.tlink("hot", II("Hot Map"), [model]),
+    menu.separator(),
+    menu.tlink("charts", II("Charts"), [model])
+  ];
+  menuWg = menu.mk(Lopts, [], pg, false);
+
+  body = Q("div");
+
+  body2 = Q("div");
+  Vopts = [
+    vmenu.title(II("Models")),
+    vmenu.separator()
+  ];
+  for (id = ModelIds)
+    arr.push(
+      Vopts,
+      vmenu.option(
+        id,
+        id,
+        \ -> window.location.assign("?" + id + "&" + pg);
+      )
+    );
+  vmenuWg = vmenu.mk(Vopts, model);
+
+  body
+    .removeAll()
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width: 5px; vertical-align: top")
+          .add(vmenuWg))
+        .add(Q("td")
+          .style("vertical-align: top")
+          .add(body2))))
+  ;
+
+  switch (pg) {
+    "results": resultsPg.mk(body2, model);
+    "hot": hotPg.mk(body2, model);
+    "charts": chartsPg.mk(body2, model);
+    default: descriptionPg.mk(body2, model);
+  }
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+  ;
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+/// Load main window
+load = \ -> {
+  mk(wg);
+};
+
+client.init(true, "KtWeb", \ -> {
+  msgWg = Q("div");
+  msgPg.mk(msgWg, II("Session is expired."), true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+  .add(ui.upTop("up"))
+;
+
+load();

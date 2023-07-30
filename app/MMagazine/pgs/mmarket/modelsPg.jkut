@@ -14,70 +14,93 @@ II = i18n.tlt;
 /// \<domo> -> ()
 mk = async \wg -> {
   Url = ui.url();
-  type = dic.hasKey(Url, "2") ? Url["2"] : "";
+  type0 = dic.hasKey(Url, "2") ? Url["2"] : "";
+  type = type0 != "assets" & type0 != "profits" ? "points" : type0;
   Rp = await client.send({
     prg: cts.appName,
     module: "MMarket",
     source: "ModelsPg",
-    rq: "idata",
-    type
+    rq: "idata"
   });
-  typeSel = Rp.type;
-  DataGroups = arr.map(Rp.dataGroups, modelFloats.fromJs);
-  for (Vs = DataGroups)
-    arr.sort(Vs.Values, \E1, E2 -> return E1.value > E2.value;);
+  //[s...]
+  DateGroups = Rp.dateGroups;
+  arr.sort(DateGroups, \d1, d2 -> return d1 > d2;);
 
   // View ----------------------------------------------------------------------
 
-  // \<modelFloats> -> <domo>
-  groupTable = \Values ->
-    return Q("table")
+  // \<domo>, s -> ()
+  groupTable = async \td, date -> {
+    Rp = await client.send({
+      prg: cts.appName,
+      module: "MMarket",
+      source: "ModelsPg",
+      rq: "rank",
+      date,
+      type
+    });
+    ModelValues = Rp.modelValues;
+    arr.sort(ModelValues, \Mv1, Mv2 -> return Mv1[1] > Mv2[1];);
+
+  td.add(
+    Q("table")
       .klass("flat")
       .add(Q("tr")
         .add(Q("td")
           .klass("frame")
           .att("colspan", 2)
           .style("text-align:center")
-          .text(time.toIso(time.fromStr(Values.date)))))
+          .text(time.toIso(time.fromStr(date)))))
       .add(Q("tr")
         .add(Q("td")
           .klass("lhead")
           .text(II("Model")))
         .add(Q("td")
           .klass("rhead")
-          .text(typeSel == "points" ? II("Points") : "€")))
-      .adds(arr.map(Values.Values, \E -> return Q("tr")
+          .text(type == "points"
+              ? II("Points")
+              : type == "profits"
+                ? "%"
+                : "€"
+            )))
+      .adds(arr.map(ModelValues, \Mv -> return Q("tr")
         .add(Q("td")
           .klass("lframe")
-          .text(E.model))
+          .text(Mv[0]))
         .add(Q("td")
           .klass("rframe")
-          .text(math.toIso(E.value, 2)));))
-    ;;
+          .text(math.toIso(
+              Mv[1],
+              type == "points"
+                ? 0
+                : type == "profits"
+                  ? 4
+                  : 0
+            )));))
+    );
+  };
 
   // \n, n -> <domo>
-  rowGroups = \start, end ->
+  rowGroups = \start, end -> {
+    Tds = [];
+    for (i = start:end) arr.push(Tds, Q("td"));
+    for (i = start:end) groupTable(Tds[i], DateGroups[i]);
     return Q("table")
       .att("align", "center")
-      .add(Q("tr")
-        .adds(arr.fromIter(iter.map([start:end], \i ->
-            return Q("td").add(groupTable(DataGroups[i]));
-        ))))
-    ;;
+      .add(Q("tr").adds(Tds))
+    ;
+  };
 
   lopts = [
     menu.tlink("points", II("Points"), ["mmarket&models"]),
     menu.separator(),
-    menu.tlink("total", II("Assets"), ["mmarket&models"]),
+    menu.tlink("assets", II("Assets"), ["mmarket&models"]),
     menu.separator(),
-    menu.tlink("cash", II("Cash Prfs."), ["mmarket&models"]),
-    menu.separator(),
-    menu.tlink("ref", II("Risk"), ["mmarket&models"])
+    menu.tlink("profits", II("Profits"), ["mmarket&models"])
   ];
-  menuWg = menu.mk(lopts, [], typeSel, false);
+  menuWg = menu.mk(lopts, [], type, false);
 
 
-  groups = arr.size(DataGroups);
+  groups = arr.size(DateGroups);
   wg
     .removeAll()
     .add(menuWg)

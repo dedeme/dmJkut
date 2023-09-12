@@ -23,10 +23,13 @@ Buys = Compras
 # jkut/pgs/charts/operationsPg.jkut: 179
 Cash = Caja
 
+# jkut/main.jkut: 81
+Change near start corner for every group? = ¿Cambiar la esquina de comienzo de todos los grupos?
+
 # jkut/pgs/listPg.jkut: 69
 Change near start corner from\n[%0, %1]\nto\n[%2, %3]? = ¿Cambiar la esquina de comienzo (Cerca) desde\n[%0, %1]\na\n[%2, %3]?
 
-# jkut/main.jkut: 119
+# jkut/main.jkut: 139
 Charts = Gráficos
 
 # jkut/pgs/msgPg.jkut: 21
@@ -46,7 +49,7 @@ Date = Fecha
 # jkut/pgs/listPg.jkut: 113
 Eval. = Eval.
 
-# jkut/main.jkut: 86
+# jkut/main.jkut: 103
 Far - Ranking = Clasificación (Lejos)
 
 # jkut/pgs/chartsPg.jkut: 95
@@ -59,7 +62,7 @@ KtWeb session is closed.\nAuthenticating from KtWeb:Main. = La sesión de KtWeb 
 # jkut/pgs/chartsPg.jkut: 50
 Malformed URL = URL mal formada
 
-# jkut/main.jkut: 84
+# jkut/main.jkut: 101
 Near - Ranking = Clasificación (Cerca)
 
 # jkut/pgs/chartsPg.jkut: 97
@@ -86,11 +89,14 @@ Sales = Ventas
 # jkut/pgs/charts/operationsPg.jkut: 167
 Sells = Ventas
 
-# jkut/main.jkut: 171
+# jkut/main.jkut: 191
 Session is expired. = La sesión ha expirado.
 
 # jkut/pgs/listPg.jkut: 116
 Sls. = Vts.
+
+# jkut/main.jkut: 89
+Soon the near star corner will be changed = En breve la esquina de comienzo se cambiará
 
 # jkut/pgs/listPg.jkut: 83
 Soon the near star corner will be changed to\n[%0, %1] = En breve la esquina de comienzo (Cerca) se cambiará a\n[%0, %1]
@@ -118,16 +124,16 @@ Without Data = Sin datos
 # jkut/pgs/rankingsPg.jkut: 85
 Worst = Peores
 
-# jkut/main.jkut: 116
+# jkut/main.jkut: 136
 [Far - Hot Map] = Mapa de calor (Lejos)
 
-# jkut/main.jkut: 114
+# jkut/main.jkut: 134
 [Far - List] = Listado (Lejos)
 
-# jkut/main.jkut: 112
+# jkut/main.jkut: 132
 [Near - Hot Map] = Mapa de calor (Cerca)
 
-# jkut/main.jkut: 110
+# jkut/main.jkut: 130
 [Near - List] = Listado (Cerca)
 
 # jkut/pgs/msgPg.jkut: 18

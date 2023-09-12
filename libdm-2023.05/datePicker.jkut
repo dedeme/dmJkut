@@ -48,7 +48,7 @@ mk = \isEs, date, fn -> return [
   ];;
 
 /// Returns the selected date.
-/// \<datePicker> -> [s]|[]
+/// \<datePicker> -> [n]|[]
 getDate = \Dp -> return Dp[date];;
 
 /// Changes the selected date.
@@ -268,35 +268,35 @@ mkWg = \Dp -> {
         \ -> nextYear(Dp);
       )))
     .add(Q("tr")
-      .adds(arr.fromIter(iter.map([0:7], \i -> {
+      .adds(iter.map([0:7], \i -> {
         ix0 = i + i18n(Dp).firstWeekDay;
         ix = ix0 > 6 ? ix0 - 7 : ix0;
         return Q("td")
           .html(weekDays(Dp)[ix])
         ;
-      }))))
+      })))
     .adds((\ -> {
         Rows = arr.fromIter(iter.map([0:5], \i -> {
           Tds = [];
           tr = Q("tr")
-            .adds(arr.fromIter(iter.map([0:7], \j -> {
+            .adds(iter.map([0:7], \j -> {
               td = Q("td");
               td.on("click", \e -> clickDay(Dp, math.fromStr(td.getAtt("id"))!););
               arr.push(Tds, td);
               return td;
-            })))
+            }))
           ;
           Dp[elDays].push(Tds);
           return tr;
         }));
         Tds = [];
         Dp[exTr] = Q("tr")
-          .adds(arr.fromIter(iter.map([0:7], \i -> {
+          .adds(iter.map([0:7], \i -> {
             td = Q("td");
             td.on("click", \e -> clickDay(Dp, math.fromStr(td.getAtt("id"))!););
             arr.push(Tds, td);
             return td;
-          })))
+          }))
         ;
         Dp[elDays].push(Tds);
         return Rows;
@@ -350,7 +350,7 @@ mkButton = \Dp, button -> {
 mkText = \Dp, textInput -> {
   // \s -> s
   format = \s -> {
-    d = time.fromStr(s);
+    d = time.fromStr(s)!;
     return Dp[isEs] ? time.toIso(d) : time.toEn(d);
   };
   span = Q("span");

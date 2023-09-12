@@ -328,7 +328,7 @@ mk = async \wg, pack, path, anchor  -> {
         .add(Q("td")
           .klass("prer")
           .html(Right!))))
-    .adds(arr.fromIter(iter.map([0:30], \i -> return Q("p").html("&nbsp;");)))
+    .adds(iter.map([0:30], \i -> return Q("p").html("&nbsp;");))
   ;
 
   Tg = null(Q("#" + anchor).e);

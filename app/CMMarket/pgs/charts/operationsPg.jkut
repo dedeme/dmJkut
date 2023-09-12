@@ -59,7 +59,7 @@ mk = async \wg, modelId -> {
     return Q("tr")
       .add(Q("td")
         .klass("lframe")
-        .text(time.toIso(time.fromStr(date))))
+        .text(time.toIso(time.fromStr(date)!)))
       .add(Q("td")
         .klass("lframe")
         .style("width:100px")
@@ -95,8 +95,9 @@ mk = async \wg, modelId -> {
     for (O = Orders) {
       date = O.date;
       QRemoves = []; //[s...]
-      for (nk = dic.keys(Quarantine))
-        if (Quarantine[nk] <= date) arr.push(QRemoves, nk);
+      for (nk, d = Quarantine)
+        if (d <= date) arr.push(QRemoves, nk);
+
       for (nk = QRemoves) dic.remove(Quarantine, nk);
 
       if (!LastDate!) {
@@ -120,7 +121,7 @@ mk = async \wg, modelId -> {
           pr = Portfolio[nk][1];
           dic.remove(Portfolio, nk);
           Cash! += broker.sell(O.stocks, O.price);
-          dt0 = time.fromStr(date);
+          dt0 = time.fromStr(date)!;
           dt = time.addDays(dt0, (O.price >= pr * cts.noLossMultiplicator)
             ? cts.daysWin
             : cts.daysLoss
@@ -178,12 +179,12 @@ mk = async \wg, modelId -> {
         .add(Q("td")
           .klass("cframe")
           .text(Model.name))
-        .adds(arr.fromIter(iter.map(
+        .adds(iter.map(
           [0:arr.size(MdEval.params)],
           \i -> return Q("td")
             .klass("rframe")
             .text(fns.paramFmt(Model.paramTypes[i], MdEval.params[i]))
-          ;)))))
+          ;))))
     .add(Q("div").klass("separator2"))
     .add(Q("table")
       .att("align", "center")

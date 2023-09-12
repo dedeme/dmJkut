@@ -22,6 +22,8 @@ mkUpMenu= \selected -> {
   ];
 
   Ropts = [
+    menu.tlink("verification", II("Verification"), []),
+    menu.separator2(),
     menu.tlink("settings", II("Annotations & Settings"), [])
   ];
 

@@ -509,7 +509,7 @@ mkWg = \lC, Data -> {
     (lC.XAxis.isItalic ? " italic" : "") +
     (lC.XAxis.isBold ? " bold" : "")
   ;
-  for (i = [0:arr.size(Data.Labels)]) {
+  for (i = 0:arr.size(Data.Labels)) {
     l0 = Data.Labels[i];
 
     if (!Data.drawLabel(l0, i)) continue;
@@ -522,7 +522,7 @@ mkWg = \lC, Data -> {
     );
   }
 
-  for (i = [0:arr.size(Data.Labels)]) {
+  for (i = 0:arr.size(Data.Labels)) {
     l = Data.Labels[i];
     cx = corr(x0 + lC.ChartPadding.left + i * w / (arr.size(Data.Labels) - 1));
 
@@ -549,7 +549,7 @@ mkWg = \lC, Data -> {
   ;
 
   parts = lC.YAxis.parts < 1 ? 1 : lC.YAxis.parts;
-  for (i = [0:parts+1]) {
+  for (i = 0:parts+1) {
     yVal = Min! + i * Gap! / parts;
     y = y0 - (yVal - Min!) * h / Gap!;
 
@@ -589,7 +589,7 @@ mkWg = \lC, Data -> {
   // Draw data sets
 
   if (Max!) {
-    for (i = [0:arr.size(Data.SetValues)]) {
+    for (i = 0:arr.size(Data.SetValues)) {
       S = Data.SetValues[i];
       sSize = arr.size(S);
       // [[n]|[]..]
@@ -597,7 +597,7 @@ mkWg = \lC, Data -> {
 
       Cy0 = [0];
       IxStart = [0];
-      for (j = [0:sSize]) {
+      for (j = 0:sSize) {
         Sval = S[j];
         if (!Sval) {
           arr.push(HotSetRow, []);
@@ -680,7 +680,7 @@ mkWg = \lC, Data -> {
 
     UnarySetIx = [-1];
     UnarySetDif = [0];
-    for (i = [0:arr.size(HotUnarySets)]) {
+    for (i = 0:arr.size(HotUnarySets)) {
       v = HotUnarySets[i];
       dif = Math.abs(v - cy);
       if (dif < 4 & (UnarySetIx! == -1 | dif < UnarySetDif!)) {
@@ -692,11 +692,11 @@ mkWg = \lC, Data -> {
     SetIx = [-1];
     SetValIx = [-1];
     SetDif = [0];
-    for (i = [0:arr.size(Data.SetValues)]) {
+    for (i = 0:arr.size(Data.SetValues)) {
       if (i < 0 | i > arr.size(HotSetValues)) continue;
       HotSetValuesRow = HotSetValues[i];
       Vs = Data.SetValues[i];
-      for (j = [0:arr.size(Vs)]) {
+      for (j = 0:arr.size(Vs)) {
         if (j < 0 | j > arr.size(HotSetValuesRow)) continue;
         HotSet = HotSetValuesRow[j];
         if (!HotSet) continue;

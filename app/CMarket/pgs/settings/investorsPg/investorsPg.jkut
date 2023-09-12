@@ -111,7 +111,7 @@ mk = async \wg, investorIx -> {
 
     paramsWg = Q("table").klass("frame")
       .add(Q("tr")
-        .adds(arr.fromIter(iter.map(
+        .adds(iter.map(
           [0:arr.size(Md.paramNames)],
           \i -> return Q("td")
             .add(Q("div")
@@ -154,7 +154,7 @@ mk = async \wg, investorIx -> {
               .add(Q("div")
                 .style("text-align:center;color:#c9c9c9;font-style:italic")
                 .text(math.toIso(model.maxs(Md)[i], 6))))
-          ;))))
+          ;)))
     ;
 
     paramsDiv
@@ -261,7 +261,7 @@ mk = async \wg, investorIx -> {
             .add(ui.link(\e -> edit("");)
               .klass("link")
               .html(Md.id)))
-          .adds(arr.fromIter(iter.map(
+          .adds(iter.map(
             [0:arr.size(Base.params)],
             \ix -> return Q("td")
               .klass("number")
@@ -269,7 +269,7 @@ mk = async \wg, investorIx -> {
                   Md.paramTypes[ix],
                   Base.params[ix]
                 ))
-            ;)))))
+            ;))))
       .add(Q("div")
         .klass("head")
         .html(II("Nick models")))
@@ -283,12 +283,12 @@ mk = async \wg, investorIx -> {
           .add(Q("td")
             .klass("header")
             .html(II("Model")))
-          .adds(arr.fromIter(iter.map(
+          .adds(iter.map(
             [0:maxNParams],
             \n -> return Q("td")
               .klass("header")
               .html("P. " + (n + 1))
-            ;)))
+            ;))
           .add(Q("td")
             .klass("header")
             .text("·")))
@@ -305,7 +305,7 @@ mk = async \wg, investorIx -> {
               .add(ui.link(\e -> edit(nk);)
                 .klass("link")
                 .text(Md.id)))
-            .adds(arr.fromIter(iter.map(
+            .adds(iter.map(
               [0:maxNParams],
               \ix -> return
                 ix >= arr.size(Str.params)
@@ -314,7 +314,7 @@ mk = async \wg, investorIx -> {
                   : Q("td")
                     .klass("number")
                     .text(fns.paramFmt(Md.paramTypes[ix], Str.params[ix]))
-              ;)))
+              ;))
             .add(Q("td")
               .klass("border")
               .add(ui.img(istrategy.eq(Base, Str) ? "blank" : "warning")))

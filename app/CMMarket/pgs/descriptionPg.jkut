@@ -57,32 +57,32 @@ mk = async \wg, modelId -> {
         .add(Q("td")
           .klass("rhead")
           .text(II("Base") + ":"))
-        .adds(arr.fromIter(iter.map(
+        .adds(iter.map(
           [0:arr.size(Md.paramNames)],
           \i -> return Q("td")
             .klass("rframe")
             .text(fns.paramFmt(Md.paramTypes[i], Md.paramBases[i]))
-          ;))))
+          ;)))
       .add(Q("tr")
         .add(Q("td")
           .klass("rhead")
           .text(II("Base Increment") + ":"))
-        .adds(arr.fromIter(iter.map(
+        .adds(iter.map(
           [0:arr.size(Md.paramNames)],
           \i -> return Q("td")
             .klass("rframe")
             .text(fns.paramFmt(Md.paramTypes[i], Md.paramBaseIncs[i]))
-          ;))))
+          ;)))
       .add(Q("tr")
         .add(Q("td")
           .klass("rhead")
           .text(II("Environment Increment") + ":"))
-        .adds(arr.fromIter(iter.map(
+        .adds(iter.map(
           [0:arr.size(Md.paramNames)],
           \i -> return Q("td")
             .klass("rframe")
             .text(fns.paramFmt(Md.paramTypes[i], Md.paramEnvIncs[i]))
-          ;)))))
+          ;))))
     .add(Q("div").klass("separator"))
     .add(Q("div")
       .klass("frame")

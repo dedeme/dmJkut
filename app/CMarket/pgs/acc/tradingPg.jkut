@@ -283,13 +283,13 @@ mk = async \wg -> {
           .add(ciaTd(Tp[0]))
           .add(ciaTd(
             i18n.getLang() == "es"
-              ? time.toIso(time.fromStr(Tp[1]))
-              : time.toEn(time.fromStr(Tp[1]))))
+              ? time.toIso(time.fromStr(Tp[1])!)
+              : time.toEn(time.fromStr(Tp[1])!)))
         ;
         if (iV! % 3 != 2)
           trV!.add(Q("td").klass("separator"));
         iV! += 1;
-        if (iV! % 3 == 0 & iV! < arr.size(RebuysArr)) {
+        if (iV! % 3 == 0) {
           arr.push(Trs, trV!);
           trV! = Q("tr");
         }
@@ -332,7 +332,9 @@ mk = async \wg -> {
       ]
   ;
 
-  SellOps = arr.filter(InvOperations, \O -> return O.stocks > 0;);
+  SellOps = arr.filter(InvOperations, \O ->
+    return O.stocks > 0 & dic.hasKey(Portfolios[O.investor], O.nick);
+  );
   sellTrs = SellOps
     ? arr.map(
         SellOps,
@@ -373,7 +375,7 @@ mk = async \wg -> {
               .att("align", "center")
               .add(Q("tr")
                 .add(Q("td")
-                  .add(ui.link(\e -> update();)
+                  .add(ui.link(\e ->update();)
                     .klass("link")
                     .text(II("Update")))))
               .add(Q("tr")
@@ -406,25 +408,7 @@ mk = async \wg -> {
                             return R;
                           }
                         )))
-                    .adds(rebuyTrs))
-                  .add(Q("div").style("padding:7px"))
-                  .add(Q("table")
-                    .klass("frame3")
-                    .att("align", "center")
-                    .style("border-collapse : collapse;")
-                    .add(Q("tr")
-                      .add(Q("td").klass("head").html(II("Co.")))
-                      .add(Q("td").klass("head").html(II("Losses"))))
-                    .add(Q("tr")
-                      .add(ciaTd("EDR"))
-                      .add(moneyTd(1992.17)))
-                    .add(Q("tr")
-                      .add(ciaTd("MEL"))
-                      .add(moneyTd(1296.53)))
-                    .add(Q("tr")
-                      .add(ciaTd("MTS"))
-                      .add(moneyTd(21.73)))
-                  ))))
+                    .adds(rebuyTrs)))))
           .add(Q("div")
             .klass("head")
             .html("&nbsp;"))

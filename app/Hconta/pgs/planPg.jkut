@@ -1,0 +1,375 @@
+// Copyright 15-Aug-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Plan page.
+
+import "data/acc";
+import "data/all";
+import "data/cts";
+import "data/balance";
+import "data/profits";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, s -> ()
+mk = \wg, account -> {
+  ac = acc.descriptionOf(account) == "" | str.len(account) > 3 ? "" : account;
+  acLen = str.len(ac);
+  modIdV = [""];
+
+  selectIdDiv = Q("div");
+  selectIdV = [[]];
+
+  nameField = ui.field("newBt")
+    .att("id", "autofocus")
+  ;
+  groupField = Q("input")
+    .att("type", "text")
+    .klass("frame")
+    .style("width:45px;color:#000000;text-align:center;")
+    .disabled(true)
+  ;
+
+  modIdTd = Q("td")
+    .att("colspan", "2")
+  ;
+  // Control -------------------------------------------------------------------
+
+  // \ -> ()
+  update = async \ -> {
+    desc = nameField.getValue().trim();
+    if (desc == "") {
+      ui.alert(II("Description is missing"));
+      return;
+    }
+    summary = groupField.getValue().trim();
+    if (acLen == 2 & summary == "") {
+      ui.alert(II("Group is missing"));
+      return;
+    }
+    id = ac + selectIdV!.getValue();
+
+    error = modIdV! == ""
+    ? switch (acLen) {
+        1: acc.subgroupAdd(id, desc);
+        2: acc.accountAdd(id, desc, summary);
+        default: acc.subaccountAdd(id, desc);
+      }
+    : switch (acLen) {
+        1: acc.subgroupMod(modIdV!, id, desc);
+        2: acc.accountMod(modIdV!, id, desc, summary);
+        default: acc.subaccountMod(modIdV!, id, desc);
+      }
+    ;
+
+    if (error != "") {
+      ui.alert(error);
+      return;
+    }
+    await all.send();
+    mk(wg, ac);
+  };
+
+  // \ -> ()
+  modifyCancel = \ -> {
+    modIdV! = "";
+    modIdTd
+      .removeAll()
+      .att("colspan", "2");
+    selectId = ui.select("enterId", acc.available(ac, ""));
+    selectIdDiv
+      .removeAll()
+      .add(selectId)
+    ;
+    nameField.value("");
+    groupField.value("");
+  };
+
+  // \s, s, s -> ()
+  modifyStart = \id, description, summary -> {
+    modIdV! = id;
+    modIdTd
+      .removeAll()
+      .att("colspan", "2")
+      .add(ui.link(\e -> modifyCancel();)
+            .add(ui.img("cancel")));
+    idKey = id[acLen:];
+    selectIdV! = ui.select("enterId", acc.available(ac, idKey));
+    selectIdV!.value(idKey);
+    selectIdDiv
+      .removeAll()
+      .add(selectIdV!)
+    ;
+    nameField.value(description);
+    groupField.value(summary);
+  };
+
+  // \s, s -> ()
+  del = async \id, description -> {
+    if (!ui.confirm(i18n.fmt(II("Delete '%0'?"), [id + " - " + description]))) {
+      return;
+    }
+    error = switch (acLen) {
+      1: acc.subgroupDeletable(id);
+      2: acc.accountDeletable(id);
+      default: acc.subaccountDeletable(id);
+    };
+    if (error != "") {
+      ui.alert(error);
+      return;
+    }
+    switch (acLen) {
+      1: acc.subgroupDel(id);
+      2: acc.accountDel(id);
+      default: acc.subaccountDel(id);
+    }
+    await all.send();
+    mk(wg, ac);
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \-> <domo>
+  left = \-> {
+    // \ -> [<domo>.]
+    mkBalance = \ -> {
+      R = []; // [<domo>.]
+      Groups = balance.groups();
+      for (gkey, gname = Groups) {
+        Sub = []; // [<domo>.]
+        Entries = balance.entries();
+        for (ekey, ename = Entries) {
+          if (balance.groupOf(ekey) == gkey) {
+            arr.push(Sub, Q("li")
+              .add(ui.link(\e -> groupField.value("B" + ekey);)
+                .klass("link")
+                .att("title", "B" + ekey)
+                .html(fns.cutRight(ename, 45)))
+            );
+          }
+        }
+        arr.push(R, Q("li")
+          .html("<a href='#' onclick='return false;'>" + gname + "</a>")
+          .add(Q("ul").att("id", "hlist")
+            .style("list-style:none;padding-left:10px;")
+            .adds(Sub))
+        );
+      }
+      return R;
+    };
+
+    // \ -> [<domo.>]
+    mkProfits = \ -> {
+      R = []; // [<domo>.]
+      Groups = profits.groups();
+      for (gkey, gname = Groups) {
+        Sub = []; // [<domo>.]
+        Entries = profits.entries();
+        for (ekey, ename = Entries) {
+          if (profits.groupOf(ekey) == gkey) {
+            arr.push(Sub, Q("li")
+              .add(ui.link(\e -> groupField.value("P" + ekey);)
+                .klass("link")
+                .att("title", "P" + ekey)
+                .html(fns.cutRight(ename, 45)))
+            );
+          }
+        }
+        arr.push(R, Q("li")
+          .html("<a href='#' onclick='return false;'>" + gname + "</a>")
+          .add(Q("ul").att("id", "hlist")
+            .style("list-style:none;padding-left:10px;")
+            .adds(Sub))
+        );
+      }
+      return R;
+    };
+
+    return Q("td")
+      .klass("frame")
+      .style("width:350px;vertical-align:top;")
+        .add(Q("p")
+          .html("<b>Balance</b>"))
+        .add(Q("ul")
+          .style("list-style:none;padding-left:0px;")
+          .adds(mkBalance()))
+        .add(Q("p")
+          .html("<b>PyG</b>"))
+        .add(Q("ul")
+          .style("list-style:none;padding-left:0px;")
+          .adds(mkProfits()))
+    ;
+  };
+
+  // \ -> <domo>
+  right = \ -> {
+    title = switch (arr.size(ac)) {
+      1: II("Subgroups");
+      2: II("Accounts");
+      3: II("Subaccounts");
+      default: II("Groups");
+    };
+
+    // \-> <domo>
+    mkSubmenu = \ -> {
+      // \ -> <domo>
+      separator = \ -> return Q("span").text("|");;
+
+      // \s, s -> <domo>
+      entry = \tx, lk ->
+        return ui.link(\e -> window.location.assign("?plan&" + lk);)
+          .klass("link")
+          .text(" " + tx + " ")
+      ;;
+
+      Es = [separator(), entry("*", ""), separator()];
+      // \s, s -> ()
+      add = \tx, lk -> {
+        arr.push(Es, entry(tx, lk));
+        arr.push(Es, separator());
+      };
+      if (acLen > 0) add(ac[0], ac[0]);
+      if (acLen > 1) add(ac[1], ac[:2]);
+      if (acLen > 2) add(ac[2], ac);
+      return Q("p").adds(Es);
+    };
+
+    nameField.value("");
+    groupField.value("");
+    selectIdV! = ui.select("enterId", acc.available(ac, ""));
+    selectIdDiv
+      .removeAll()
+      .add(selectIdV!)
+    ;
+    if (!all.isLastYear()) {
+      nameField.disabled(true);
+      selectIdV!.disabled(true);
+    }
+
+    Rows = []; // [<domo>.]
+    colsV = [2];
+    if (ac != "") colsV! += 2;
+    if (acLen == 2) colsV! += 1;
+    cols = colsV!;
+
+    // Edition row
+    if (ac != "") {
+      Tds = [
+        Q("td")
+          .att("colspan", 2)
+          .add(Q("button")
+            .style("border:1px solid #a0a9ae;padding:0px;width:32px;")
+            .att("id", "newBt")
+              .add(ui.img("enter")
+                .att("style", "padding:0px;margin:0px;vertical-align:-20%"))
+            .disabled(!all.isLastYear())
+            .on("click", \e -> update();)),
+        Q("td")
+          .add(selectIdDiv),
+        Q("td")
+          .add(nameField)
+      ];
+      if (acLen == 2) arr.push(Tds, Q("td").add(groupField));
+
+      arr.push(Rows, Q("tr").adds(Tds));
+      arr.push(Rows, Q("tr")
+        .add(Q("td")
+          .att("colspan", cols)
+          .add(Q("hr")))
+      );
+    }
+
+    // Head row
+    Tds = []; // [<domo>.]
+    if (ac != "") {
+      arr.push(Tds, modIdTd);
+    }
+    arr.push(Tds, Q("td")
+      .html(II("Nº")));
+    arr.push(Tds, Q("td")
+      .style("text-align:left;").html(II("Description")));
+    if (acLen == 2) {
+      arr.push(Tds, Q("td")
+        .html(II("Group")));
+    }
+    arr.push(Rows, Q("tr").adds(Tds));
+    arr.push(Rows, Q("tr")
+      .add(Q("td")
+        .att("colspan", cols)
+        .add(Q("hr")))
+    );
+
+    // Body rows
+    Sub = acc.sub(ac);
+    for (k, V = Sub) {
+      Tds = []; // [<domo.]
+      if (ac != "") {
+        if (
+          k == cts.cash[:2] |
+          k == cts.cash[:3] |
+          k == cts.cash |
+          k == cts.capital[:2] |
+          k == cts.capital[:3] |
+          k == cts.capital |
+          k == cts.results[:2] |
+          k == cts.results[:3] |
+          k == cts.results |
+          !all.isLastYear()
+        ) {
+          arr.push(Tds, Q("td").add(ui.lightImg("edit")));
+          arr.push(Tds, Q("td").add(ui.lightImg("delete")));
+        } else {
+          arr.push(Tds, Q("td")
+            .add(ui.link(\e -> modifyStart(k, V.description, V.summary);)
+              .add(ui.img("edit"))));
+          arr.push(Tds, Q("td")
+            .add(ui.link(\e -> del(k, V.description);)
+              .add(ui.img("delete"))));
+        }
+      }
+      arr.push(Tds, Q("td")
+        .style("text-align:right;")
+        .text(k[acLen:])
+      );
+      arr.push(Tds, Q("td")
+        .style("text-align:left;")
+        .add(acLen < 3
+          ? ui.link(\e -> window.location.assign("?plan&" + k);)
+            .klass("link")
+            .add(Q("span").text(V.description))
+          : Q("span").text(V.description))
+      );
+      if (acLen == 2) {
+        arr.push(Tds, Q("td")
+          .style("text-align:left;")
+          .text(V.summary)
+        );
+      }
+      arr.push(Rows, Q("tr").adds(Tds));
+    }
+
+    return Q("td")
+      .style("text-align:center;vertical-align:top;")
+      .add(Q("div")
+        .klass("head")
+        .html(title))
+      .add(mkSubmenu())
+      .add(Q("table")
+        .att("align", "center")
+        .klass("frame")
+        .adds(Rows))
+    ;
+  };
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(acLen == 2 & all.isLastYear() ? left() : Q("div"))
+        .add(right())))
+  ;
+};

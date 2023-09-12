@@ -159,7 +159,7 @@ mk = async \wg -> {
 
   mkSave(TdSave);
   mkDim(TdDim);
-  for (ix = [0:arr.size(Images)]) arr.push(Trs, tr.mk(Images, ix));
+  for (ix = 0:arr.size(Images)) arr.push(Trs, tr.mk(Images, ix));
 
   wg
     .removeAll()

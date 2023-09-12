@@ -1,0 +1,49 @@
+// Copyright 03-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Cash of Hconta table
+
+/// Constructor
+/// \[<cashEntry>.] -> d<cash>
+mk = \entries -> return {entries};;
+
+/// Returns 5 previous entries of ix
+/// \<cash>, n -> [<cashEntry>.]
+previous = \Cash, ix -> {
+  start0 = ix - 5;
+  start = start0 < 0 ? 0 : start0;
+  return Cash.entries[start:ix];
+};
+
+/// Returns 5 next entries of ix
+/// \<cash>, n -> [<cashEntry>.]
+next = \Cash, ix -> {
+  sz = arr.size(Cash.entries);
+  end0 = ix + 6;
+  end = end0 > sz ? sz : end0;
+  return Cash.entries[ix + 1:end];
+};
+
+/// \JS -> <cash>
+fromJs = \A -> return mk(arr.map(A, entryFromJs));;
+
+/// Constructor
+///   month: Entry month.
+///   desc : Entry description.
+///   isIncome: 'true' if entry is an income.
+///   am: amount of annotation (ever positive)
+/// \s, s, b, n -> d<cashEntry>
+mkEntry = \month, desc, isIncome, am -> return {month, desc, isIncome, am };;
+
+/// Returns 'true' if CashEntry == DiaryEntry matching Hconta and CashFlow entries.
+/// \<cashEntry>, <diaryEntry> -> b
+eqHcC = \CashEntry, DiaryEntry -> return
+    DiaryEntry.month == CashEntry.month &
+    DiaryEntry.desc == CashEntry.desc &
+    DiaryEntry.isIncome == CashEntry.isIncome &
+    math.eq(DiaryEntry.am, CashEntry.am, 0.0001)
+  ;;
+
+/// \JS -> <cashEntry>
+entryFromJs = \A -> return mkEntry(A[0], A[1], A[2], A[3]);;
+

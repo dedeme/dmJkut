@@ -1,4 +1,4 @@
-import * as iter from '../_js/iter.js';import * as str from '../_js/str.js';import * as bytes from '../_js/bytes.js';import * as cryp from '../_js/cryp.js';import * as dic from '../_js/dic.js';import * as timer from '../_js/timer.js';import * as js from '../_js/js.js';import * as storage from '../_js/storage.js';import * as sys from '../_js/sys.js';import * as math from '../_js/math.js';import * as domo from '../_js/domo.js';import * as ui from '../_js/ui.js';import * as arr from '../_js/arr.js';import * as time from '../_js/time.js';import * as client from '../_js/client.js';import * as b64 from '../_js/b64.js';
+import * as math from '../_js/math.js';import * as js from '../_js/js.js';import * as arr from '../_js/arr.js';import * as client from '../_js/client.js';import * as bytes from '../_js/bytes.js';import * as str from '../_js/str.js';import * as ui from '../_js/ui.js';import * as dic from '../_js/dic.js';import * as timer from '../_js/timer.js';import * as time from '../_js/time.js';import * as storage from '../_js/storage.js';import * as b64 from '../_js/b64.js';import * as sys from '../_js/sys.js';import * as iter from '../_js/iter.js';import * as domo from '../_js/domo.js';import * as cryp from '../_js/cryp.js';
 
 
 
@@ -46,6 +46,18 @@ export  function mk(isEs, date, fn)  {sys.$params(arguments.length, 3);  return 
     Q("tr"), 
     Q("table") 
   ];};
+
+
+
+export  function getDate(Dp)  {sys.$params(arguments.length, 1);  return Dp[date];};
+
+
+
+
+export  function setDate(Dp, newDate)  {sys.$params(arguments.length, 2);
+  Dp[date] =sys.$checkExists(Dp[date],sys.$checkNull( [newDate]));
+  Dp[dateView] =sys.$checkExists(Dp[dateView],sys.$checkNull( time.mkDate(1, time.month(newDate), time.year(newDate))));
+};
 
 
  function months(Dp)  {sys.$params(arguments.length, 1); return sys.asBool( Dp[isEs])
@@ -124,16 +136,12 @@ export  function mk(isEs, date, fn)  {sys.$params(arguments.length, 3);  return 
   });
 
   if (sys.asBool(sys.$eq(Dp[tb].getAtt("hasTrEx") , "true"))) {
-
     Dp[tb].remove(Dp[exTr]);
     Dp[tb].att("hasTrEx", "false");
   }
 
   if (sys.asBool(ExtraRow[0])) {
-
     Dp[tb].remove(Dp[tr4]);
-
-
 
     Dp[tb].add(Dp[exTr]).add(Dp[tr4]);
     Dp[tb].att("hasTrEx", "true");
@@ -260,35 +268,35 @@ export  function mkWg(Dp)  {sys.$params(arguments.length, 1);
         function()  {sys.$params(arguments.length, 0); nextYear(Dp);}
       )))
     .add(Q("tr")
-      .adds(arr.fromIter(iter.map(iter.$range(0,7), function(i)  {sys.$params(arguments.length, 1);
+      .adds(iter.map(iter.$range(0,7), function(i)  {sys.$params(arguments.length, 1);
         const ix0 =sys.$checkNull( i + i18n(Dp).firstWeekDay);
         const ix =sys.$checkNull(sys.asBool( ix0 > 6) ? ix0 - 7 : ix0);
          return Q("td")
           .html(weekDays(Dp)[ix])
         ;
-      }))))
+      })))
     .adds((function()  {sys.$params(arguments.length, 0);
         const Rows =sys.$checkNull( arr.fromIter(iter.map(iter.$range(0,5), function(i)  {sys.$params(arguments.length, 1);
           const Tds =sys.$checkNull( []);
           const tr =sys.$checkNull( Q("tr")
-            .adds(arr.fromIter(iter.map(iter.$range(0,7), function(j)  {sys.$params(arguments.length, 1);
+            .adds(iter.map(iter.$range(0,7), function(j)  {sys.$params(arguments.length, 1);
               const td =sys.$checkNull( Q("td"));
               td.on("click", function(e)  {sys.$params(arguments.length, 1); clickDay(Dp, math.fromStr(td.getAtt("id"))[0]);});
               arr.push(Tds, td);
                return td;
-            }))))
+            })))
           ;
           Dp[elDays].push(Tds);
            return tr;
         })));
         const Tds =sys.$checkNull( []);
         Dp[exTr] =sys.$checkExists(Dp[exTr],sys.$checkNull( Q("tr")
-          .adds(arr.fromIter(iter.map(iter.$range(0,7), function(i)  {sys.$params(arguments.length, 1);
+          .adds(iter.map(iter.$range(0,7), function(i)  {sys.$params(arguments.length, 1);
             const td =sys.$checkNull( Q("td"));
             td.on("click", function(e)  {sys.$params(arguments.length, 1); clickDay(Dp, math.fromStr(td.getAtt("id"))[0]);});
             arr.push(Tds, td);
              return td;
-          })))))
+          }))))
         ;
         Dp[elDays].push(Tds);
          return Rows;
@@ -342,7 +350,7 @@ export  function mkButton(Dp, button)  {sys.$params(arguments.length, 2);
 export  function mkText(Dp, textInput)  {sys.$params(arguments.length, 2);
   
    function format(s)  {sys.$params(arguments.length, 1);
-    const d =sys.$checkNull( time.fromStr(s));
+    const d =sys.$checkNull( time.fromStr(s)[0]);
     return sys.asBool( Dp[isEs]) ? time.toIso(d) : time.toEn(d);
   };
   const span =sys.$checkNull( Q("span"));
@@ -358,7 +366,10 @@ export  function mkText(Dp, textInput)  {sys.$params(arguments.length, 2);
     span.removeAll();
     IsShow[0] =sys.$checkExists(IsShow[0],sys.$checkNull( false));
   };
-  textInput.value(format(time.toStr(date)));
+
+  const Date =sys.$checkNull( getDate(Dp));
+  const val =sys.$checkNull(sys.asBool( Date) ? format(time.toStr(Date[0])) : "");
+  textInput.value(val);
   textInput.on("click", btAction);
   textInput.on("keydown", function(e)  {sys.$params(arguments.length, 1);  e.preventDefault();;});
 

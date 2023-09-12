@@ -1,0 +1,28 @@
+// Copyright 13-Aug-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Global functions.
+
+/// Cut an string appending '...' if it is neccessary.
+/// \s -> s
+cutRight = \s, len -> return str.len(s) <= len
+    ? s
+    : s[:len-3] + "..."
+  ;;
+
+/// Returns the float value of 'n', parsing "" as 0.
+/// \s -> ([n]|[])
+float = \n -> {
+  n2 = str.replace(
+    str.replace(
+      str.trim(n),
+      ".", ""
+    ),
+    ",", "."
+  );
+  if (n2 == "") return [0];
+  rOp = math.fromStr(n2);
+  if (rOp) return [math.round(rOp!, 2)];
+  return rOp;
+};
+

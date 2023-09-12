@@ -120,8 +120,7 @@ mk = async \wg -> {
       D.accountStocks += L.stocks;
       D.cash += L.cash;
 
-      for (nk = dic.keys(P)) {
-        SP = P[nk];
+      for (nk, SP = P) {
         stocks = SP[0];
         price = SP[1];
         Rfs = dic.get(Refs, nk);

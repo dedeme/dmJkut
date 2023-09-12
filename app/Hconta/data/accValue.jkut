@@ -1,0 +1,16 @@
+// Copyright 13-Aug-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Accounting value data.
+
+/// Constructor
+///   description: Account description.
+///   summary: Summary code (for balance and profits)
+/// \s, s -> <accValue>
+mk = \description, summary -> return {description, summary};;
+
+/// \<accValue> -> JS
+toJs = \D -> return [D.description, D.summary];;
+
+/// \JS -> <accValue>
+fromJs = \A -> return mk(A[0], A[1]);;

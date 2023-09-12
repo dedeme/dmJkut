@@ -135,7 +135,7 @@ wg = \C -> {
     ctx.font = radius * 0.16 + "px sans-serif";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
-    for (num = [1:13]) {
+    for (num = 1:13) {
       ang = num * Math.PI / 6;
       ctx.rotate(ang);
       ctx.translate(0, -radius * 0.82);

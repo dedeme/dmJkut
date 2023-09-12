@@ -1,0 +1,249 @@
+// Copyright 07-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Module page.
+
+import "i18n";
+import "data/cts";
+import "msgPg";
+import "data/doc";
+
+Q = ui.q;
+II = i18n.tlt;
+
+tab = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+
+// \<docEntry>, <docEntry> -> b
+fsort = \e1, e2 -> return e1.name < e2.name;;
+
+/// \<domo>, s, s -> ()
+mk = async \wg, module, path -> {
+
+  Rp = await client.ssend({
+    prg: "CDoc",
+    source: "ModulePg",
+    rq: "doc",
+    pack: module,
+    path: path
+  });
+
+  if (!Rp.doc) {
+    msgPg.mk(wg, i18n.fmt(II("[%0] Kut file not found."), [path]), true);
+    return;
+  }
+
+  Doc = doc.fromJs(Rp.doc!);
+
+  arr.sort(Doc.enums, fsort);
+  arr.sort(Doc.structs, fsort);
+  arr.sort(Doc.unions, fsort);
+  arr.sort(Doc.typedefs, fsort);
+  arr.sort(Doc.functions, fsort);
+  arr.sort(Doc.vars, fsort);
+  arr.sort(Doc.defines, fsort);
+
+  Q("@title").text(cts.appName + " - " + arr.peek(str.split(path, "/")));
+
+  // \ -> >domo>
+  index = \ -> {
+    // [<docEntry.>], s -> [<domo>.]
+    block = \Entries, name -> {
+      sz = arr.size(Entries);
+      if (sz == 0) return [];
+
+      R = []; // [<domo>.]
+      arr.push(R, Q("tr")
+        .add(Q("td")
+          .att("colspan", "3")
+          .html("<i>" + name + "</i>"))
+      );
+      h = Math.floor((sz - 1) / 3) + 1;
+      for (y = 0:h) {
+        arr.push(R, Q("tr")
+          .adds(iter.map([0:3], \x -> {
+              pos = x * h + y;
+              if (pos < sz) {
+                E = Entries[pos];
+                return Q("td")
+                  .add(Q("a")
+                    .att("href", "#hp:" + E.name)
+                    .html(tab + E.name))
+                ;
+              } else {
+                return Q("td");
+              }
+            }))
+        );
+      }
+      return R;
+    };
+
+    return Q("div")
+      .add(Q("p")
+        .klass("frame2")
+        .html("<b>" + path + "</b>"))
+      .add(Q("table")
+        .klass("main")
+        .adds(block(Doc.defines, "Defines"))
+        .adds(block(Doc.enums, "Enums"))
+        .adds(block(Doc.structs, "Structs"))
+        .adds(block(Doc.unions, "Unions"))
+        .adds(block(Doc.typedefs, "Typedefs"))
+        .adds(block(Doc.functions, "Functions"))
+        .adds(block(Doc.vars, "Variables")))
+    ;
+  };
+
+  // \ -> <domo>
+  overview = \ -> {
+    return Q("div")
+      .add(Q("p")
+        .klass("frame")
+        .html("<b>" + II("Overview") + "</b>"))
+      .adds(mkHelp(Doc.doc))
+      .add(Q("p")
+        .html("<b>" + II("File") + "</b>")
+        .add(Q("br"))
+        .add(Q("a")
+          .att("href", "?" + module + "@" + path + "&hp:")
+          .text(path + ".h"))
+        .add(Q("span")
+          .text(" | "))
+        .add(Q("a")
+          .att("href", "?" + module + "@" + path + "&hp::")
+          .text(path + ".c")))
+      .add(Q("hr"))
+    ;
+  };
+
+  // \ -> <domo>
+  body = \ -> {
+    // \[<docEntry>.], s, b -> [<domo>.]
+    block = \Entries, name, isFunction -> {
+      // \<docEntry> -> <domo>
+      endEntry = \E -> {
+        isNewLineV = [true];
+        Bf2 = []; // [s.]
+        code = str.replace(
+          str.replace(E.code, "&", "&amp;"),
+          "<", "&lt;"
+        );
+        for (i = 0:str.len(code)) {
+          ch = code[i];
+          if (isNewLineV! & ch != "\n") {
+            if (ch <= " ") {
+              arr.push(Bf2, "&nbsp;");
+            } else {
+              arr.push(Bf2, ch);
+              isNewLineV! = false;
+            }
+          } else if (ch == "\n") {
+            arr.push(Bf2, "<br>");
+            isNewLineV! = true;
+          } else {
+            arr.push(Bf2, ch);
+          }
+        }
+        return Q("div")
+          .add(Q("p")
+            .html("<tt>" + arr.join(Bf2, "") + "</tt>"))
+          .adds(mkHelp(E.doc))
+          .add(Q("hr"))
+        ;
+      };
+
+      return arr.map(Entries, \E -> return Q("div")
+          .add(Q("h3")
+            .att("id", "hp:" + E.name)
+            .add(Q("span")
+              .text(name + " "))
+            .add(Q("a")
+              .att(
+                "href",
+                "?" + module + "@" + path + "&hp" +
+                  (isFunction ? "::" : ":") + E.link
+              ).text(E.name)))
+          .add(endEntry(E))
+        ;);
+    };
+
+    return Q("div")
+      .adds(block(Doc.defines, "Defines", false))
+      .adds(block(Doc.enums, "Enums", false))
+      .adds(block(Doc.structs, "Structs", false))
+      .adds(block(Doc.unions, "Unions", false))
+      .adds(block(Doc.typedefs, "Typedefs", false))
+      .adds(block(Doc.functions, "Functions", true))
+      .adds(block(Doc.vars, "Variables", false))
+    ;
+  };
+
+  wg
+    .removeAll()
+    .add(index())
+    .add(overview())
+    .add(Q("hr").klass("frame"))
+    .add(body())
+    .adds(iter.map([0:30], \i -> return Q("p").html("&nbsp;");))
+  ;
+
+  lc = window.location.href;
+  ix = str.index(lc, "#");
+  if (ix != -1) {
+    tg = lc[ix:];
+    if (tg != "#") {
+      eOp = null(window.document.getElementById(tg[ix + 1:]));
+      if (eOp) eOp!.scrollIntoView(true);
+    }
+  }
+
+};
+
+// \s -> [<domo>.]
+mkHelp = \tx -> {
+  if (!str.trim(tx)) return [];
+
+  R = []; // [<domo>.]
+  Tx1 = []; //[s.]
+  Tx2 = []; // [s.]
+  TxxV = [Tx1];
+  for (l = str.split(tx, "\n")) {
+    if (str.starts(l, "  ")) {
+      ix = str.index(l, ":");
+      if (ix != -1) {
+        word = str.trim(l[:ix]);
+        if (str.index(word, " ") == -1) {
+          TxxV! = Tx2;
+        }
+      }
+    }
+    arr.push(TxxV!, l);
+  }
+
+  arr.push(R, Q("table")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("GrFrame")
+        .style("white-space: nowrap")
+        .add(Q("pre")
+          .style("font-size: 14px;")
+          .html(str.replace(
+            str.replace(arr.join(Tx1, "\n"), "&", "&amp;"),
+            "<", "&lt;")))))
+  );
+  if (arr.size(Tx2) > 0)
+    arr.push(R, Q("table")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("white-space: nowrap")
+          .add(Q("div")
+            .klass("frame")
+            .style("padding-right:20px")
+              .add(Q("pre")
+                .html(str.replace(
+                  str.replace(arr.join(Tx2, "\n"), "&", "&amp;"),
+                  "<", "&lt;"))))))
+    );
+
+  return R;
+};

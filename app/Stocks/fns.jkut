@@ -1,0 +1,22 @@
+// Copyright 09-Aug-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Global functions
+
+/// Returns the float value of 'wg' with 'dec' decimals.
+/// \<domo>, n -> [n]
+float = \wg, dec -> {
+  n = str.trim(wg.getValue()).replace(".", "").replace(",", ".");
+  if (!n) return [];
+  rOp = math.fromStr(n);
+  return rOp ? [math.round(rOp!, dec)] : [];
+};
+
+/// Returns the int value of 'wg' with 'dec' decimals.
+/// \<domo> -> [n]
+int = \wg -> {
+  n = str.trim(wg.getValue()).replace(".", "").replace(",", ".");
+  if (!n) return [];
+  rOp = math.fromStr(n);
+  return rOp ? [math.toInt(rOp!)] : [];
+};

@@ -1,0 +1,485 @@
+// Copyright 13-Aug-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Accounting data.
+
+import "cts";
+import "accValue";
+import "diaryEntry";
+import "i18n";
+
+II = i18n.tlt;
+
+/// Returns ledger subgroups (number -> description).
+/// \ -> {s.}
+groups = \ -> return {
+    "1": "Financiación básica",
+    "2": "Inmovilizado",
+    "3": "Existencias",
+    "4": "Acreedores y deudores",
+    "5": "Cuentas financieras",
+    "6": "Compras y gastos",
+    "7": "Ventas e ingresos",
+    "8": "Gastos del patrimonio neto",
+    "9": "Ingresos del patrimonio neto"
+  };;
+
+/// Returns ledger subgroups (number -> description).
+/// \ -> {s.}
+subgroups = \ -> return SubgroupsV!;;
+SubgroupsV = [dic.fromArr([
+    [cts.cash[0:2], "Tesorería"],
+    [cts.capital[0:2], "Capital"],
+    [cts.results[0:2], "Resultados pendientes de aplicación"]
+  ])];
+
+
+/// Returns ledger accounts (number -> account data).
+/// \ -> {<accValue.}
+accounts = \ -> return AccountsV!;;
+AccountsV = [dic.fromArr([
+    [cts.cash[0:3], accValue.mk("Bancos, cuentas de ahorro, euros", "BABVI")],
+    [cts.capital[0:3], accValue.mk("Capital", "BPAI")],
+    [cts.results[0:3], accValue.mk("Resultados del ejercicio", "BPAVII")]
+  ])];
+
+/// Returns ledger subaccounts (number -> description).
+/// \ -> {s.}
+subaccounts = \ -> return SubaccountsV!;;
+SubaccountsV = [dic.fromArr([
+    [cts.cash, "CaixaBank. Cta."],
+    [cts.capital, "Capital"],
+    [cts.results, "Resultados del ejercicio"]
+  ])];
+
+/// Returns diary annotations.
+/// \ -> [<diaryEntry>.]
+diary = \ -> return DiaryV!;;
+DiaryV = [[]];
+
+/// Serializes subgroups, accounts, subaccounts and diary.
+/// \ -> JS
+toJs = \ -> return [
+    subgroups(),
+    dic.fromArr(arr.map(
+      dic.toArr(accounts()),
+      \Kv -> return [Kv[0], accValue.toJs(Kv[1])];
+    )),
+    subaccounts(),
+    arr.map(diary(), diaryEntry.toJs)
+  ];;
+
+/// Restores subgroups, accounts, subaccounts and diary.
+/// \JS -> ()
+fromJs = \A -> {
+  if (!A) return; // Initialization.
+
+  SubgroupsV! = A[0];
+  AccountsV! = dic.fromArr(arr.map(
+      dic.toArr(A[1]),
+      \Kv -> return [Kv[0], accValue.fromJs(Kv[1])];
+    ));
+  SubaccountsV! = A[2];
+  DiaryV! = arr.map(A[3], diaryEntry.fromJs);
+};
+
+// Common functions
+
+// \s -> <iter>[[s, <accValue>].]
+sub0 = \ac -> {
+  // \[s, s] -> [s, <accValue>]
+  mkAccValue = \Kv -> return [Kv[0], accValue.mk(Kv[1], "")];;
+
+  it = switch(str.len(ac)) {
+    0: iter.map(dic.toIter(groups()), mkAccValue);
+    1: iter.map(dic.toIter(SubgroupsV!), mkAccValue);
+    3: iter.map(dic.toIter(SubaccountsV!), mkAccValue);
+    default: dic.toIter(AccountsV!);
+  };
+  return iter.filter(it, \Kv -> return str.starts(Kv[0], ac););
+};
+
+/// Returns groups, subgroups, accounts or subaccounts of the next down level,
+/// which start with 'ac'.
+/// NOTE: AccValue.summary is "", but when the map is of accounts.
+///   ac: "" or 'id' of a group, subgroup or account
+/// \s -> {<accValue>.}
+sub = \ac -> return dic.fromIter(sub0(ac));;
+
+/// Returns and formated account.
+/// \s -> s
+accFormat = \ac -> return str.len(ac) > 3 ? ac[:3] + "." + ac[3:] : ac;;
+
+
+// Subgroups functions ---------------------------------------------------------
+
+/// Add a subgroup. Returns "" if all is ok or an error message.
+///   id         : Identifier with 2 digits. It must be valid.
+///   description: Subgroup description.
+/// \s, s -> s
+subgroupAdd = \id, description -> {
+  if (dic.hasKey(SubgroupsV!, id))
+    return i18n.fmt(II("Subgroup '%0' is duplicated"), [id]);
+  dic.put(SubgroupsV!, id, description);
+  return "";
+};
+
+/// Returns "" if 'id' is deletable (no annotations afected by deleting 'id').
+/// Otherwise returns a error message pointing the number of annotations afected.
+///   id         : Identifier with 2 digits.
+subgroupDeletable = \id -> {
+  for (k = dic.keys(sub(id))) {
+    error = accountDeletable(k);
+    if (error) return error;
+  }
+  return "";
+};
+
+/// Delete a subgroup and all its accounts. It does not modify the Diary.
+///   id: Identifier with 2 digits.
+/// \s -> ()
+subgroupDel = \id -> {
+  for (k = dic.keys(sub(id))) accountDel(k);
+  dic.remove(SubgroupsV!, id);
+};
+
+/// Modifies a subgroup. Returns "" if all is ok or an error message.
+///   oldId      : Old identifier with 2 digits.
+///   newId      : New identifier with 2 digits. It must be valid.
+///   description: Subgroup description.
+/// \s, s, s -> s
+subgroupMod = \oldId, newId, description -> {
+  Subs = SubgroupsV!;
+  if (oldId == newId) {
+    dic.put(Subs, newId, description);
+    return "";
+  }
+  if (dic.hasKey(Subs, newId))
+    return i18n.fmt(II("Subgroup '%0' is duplicated"), [newId]);
+
+  lg = str.len(newId);
+  Accs = sub(oldId);
+  for (k, A = Accs) accountMod(k, newId + k[lg:], A.desscription, A.summary);
+
+  dic.remove(Subs, oldId);
+  dic.put(Subs, newId, description);
+  return "";
+};
+
+// Accounts functions ----------------------------------------------------------
+
+/// Add an account. Returns "" if all is ok or an error message.
+///   id         : Identifier with 3 digits. It must be valid.
+///   description: Account description.
+///   summary    : Summary code (for balance and profits)
+/// \s, s, s -> s
+accountAdd = \id, description, summary -> {
+  if (dic.hasKey(AccountsV!, id))
+    return i18n.fmt(II("Account '%0' is duplicated"), [id]);
+  dic.put(AccountsV!, id, accValue.mk(description, summary));
+  return "";
+};
+
+/// Returns "" if 'id' is deletable (no annotations afected by deleting 'id').
+/// Otherwise returns a error message pointing the number of annotations afected.
+///   id         : Identifier with 3 digits. It must be valid.
+/// \s -> s
+accountDeletable = \id -> {
+  for (k = dic.keys(sub(id))) {
+    error = subaccountDeletable(k);
+    if (error) return error;
+  }
+  return "";
+};
+
+/// Delete an account and all its subaccounts. It does not modify the Diary.
+/// \s -> ()
+accountDel = \id -> {
+  for (k = dic.keys(sub(id))) subaccountDel(k);
+  dic.remove(AccountsV!, id);
+};
+
+/// Modifies a account. Returns "" if all is ok or an error message.
+///   oldId      : Old identifier with 3 digits.
+///   newId      : New identifier with 3 digits. It must be valid.
+///   description: Account description.
+///   summary    : Summary code (for balance and profits)
+/// \s, s, s, s -> s
+accountMod = \oldId, newId, description, summary -> {
+  As = AccountsV!;
+  if (oldId == newId) {
+    dic.put(As, newId, accValue.mk(description, summary));
+    return "";
+  }
+
+  if (dic.hasKey(As, newId))
+    return i18n.fmt(II("Account '%0' is duplicated"), [newId]);
+
+  lg = str.len(newId);
+  Accs = sub(oldId);
+  for (k, A = Accs) subaccountMod(k, newId + k[lg:], A.description);
+
+  dic.remove(As, oldId);
+  dic.put(As, newId, accValue(description, summary));
+  return "";
+};
+
+// Subaccounts functions -------------------------------------------------------
+
+/// Add a subaccount. Returns "" if all is ok or an error message.
+///   id         : Identifier with 5 digits. It must be valid.
+///   description: Subaccount description.
+/// \s, s -> s
+subaccountAdd = \id, description -> {
+  if (dic.hasKey(SubaccountsV!, id))
+    return i18n.fmt(II("Subaccount '%0' is duplicated"), [id]);
+  dic.put(SubaccountsV!, id, description);
+  return "";
+};
+
+/// Returns "" if 'id' is deletable (no annotations afected by deleting 'id').
+/// Otherwise returns a error message pointing the number of annotations afected.
+///   id         : Identifier with 5 digits. It must be valid.
+/// \s -> s
+subaccountDeletable = \id -> {
+  n = usedSubaccounts(id).length;
+  if (n != 0)
+    return i18n.fmt(II("Subaccount '%0' can not be removed.\n"), [id]) +
+      i18n.fmt(II("It is used in %0 annotations."), ["" + n]);
+  return "";
+};
+
+/// Delete a subaccount. It does not modify the Diary.
+/// \s -> ()
+subaccountDel = \id -> return dic.remove(SubaccountsV!, id);;
+
+/// Modifies a subaccount. Returns "" if all is ok or an error message.
+///   oldId      : Old identifier with 5 digits.
+///   newId      : New identifier with 5 digits. It must be valid.
+///   description: Subaccount description.
+subaccountMod = \oldId, newId, description -> {
+  Subs = SubaccountsV!;
+  if (oldId == newId) {
+    dic.put(Subs, newId, description);
+    return "";
+  }
+
+  if (dic.hasKey(Subs, newId))
+    return i18n.fmt(II("Subaccount '%0' is duplicated"), [newId]);
+
+  Diary = DiaryV!;
+  for (i = usedSubaccounts(oldId)) {
+    E = Diary[i];
+    if (dic.hasKey(E.debits, oldId)) {
+      v = E.debits[oldId];
+      dic.remove(E.debits, oldId);
+      dic.put(E.debits, newId, v);
+    }
+    if (dic.hasKey(E.credits, oldId)) {
+      v = E.credits[oldId];
+      dic.remove(E.credits, oldId);
+      dic.put(E.credits, newId, v);
+    }
+  }
+  dic.remove(Subs, oldId);
+  dic.put(Subs, newId, description);
+  return "";
+};
+
+// Diary -----------------------------------------------------------------------
+
+/// Returns the index in Diary of entries which use 'ac'
+///   ac  : Identifier of group, subgroup, account or subaccount
+///         (1, 2, 3 ir 5 digits).
+/// \s -> [i.]
+usedAccs = \ac -> {
+  len = str.len(ac);
+  R = []; // [i.]
+  arr.eachIx(DiaryV!, \E, i -> {
+    if (
+      arr.any(dic.toArr(E.debits), \Kv -> return Kv[0][:len] == ac;) |
+      arr.any(dic.toArr(E.credits), \Kv -> return Kv[0][:len] == ac;)
+    )
+      arr.push(R, i);
+  });
+  return R;
+};
+
+/// Returns the index in Diary of entries which use 'subacc'
+///   subacc: Subaccount code.
+/// \s -> [i.]
+usedSubaccounts = \subacc -> {
+  R = []; // [i.]
+  arr.eachIx(DiaryV!, \E, i ->
+    if (dic.hasKey(E.debits, subacc) | dic.hasKey(E.credits, subacc))
+      arr.push(R, i);
+  );
+  return R;
+};
+
+/// Returns the most used subaccounts ([subaccount, description]).
+///   forCash: If it is 'true', only searh in accounts used with the main cash
+///            (Caixabank).
+/// \b -> [[s, s].]
+mostUsedSubaccounts = \forCash -> {
+  Diary = DiaryV!;
+  Subs = {}; // {i.} :: {number -> duplicates}
+  if (forCash) for (i = usedSubaccounts(cts.cash)) {
+    E = Diary[i];
+    for (k = dic.keys(E.debits)) {
+      if (k == cts.cash) continue;
+      if (dic.hasKey(Subs, k)) Subs[k] += 1;
+      else dic.put(Subs, k, 1);
+    }
+    for (k = dic.keys(E.credits)) {
+      if (k == cts.cash) continue;
+      if (dic.hasKey(Subs, k)) Subs[k] += 1;
+      else dic.put(Subs, k, 1);
+    }
+  } else for (E = Diary) {
+    for (k = dic.keys(E.debits)) {
+      if (dic.hasKey(Subs, k)) Subs[k] += 1;
+      else dic.put(Subs, k, 1);
+    }
+    for (k = dic.keys(E.credits)) {
+      if (dic.hasKey(Subs, k)) Subs[k] += 1;
+      else dic.put(Subs, k, 1);
+    }
+  }
+
+  Ss = SubaccountsV!;
+  R = dic.toArr(Subs);
+  arr.sort(R, \Kv1, Kv2 -> return Kv1[1] > Kv2[1];);
+  return arr.map(
+    arr.take(R, cts.mostUsedLen),
+    \Kv -> return [Kv[0], Ss[Kv[0]]];
+  );
+};
+
+/// Returns the description of a group, subgroup, account or subaccount.
+/// If 'ac' is not found, returns "".
+///   ac: Id of a group, subgroup, account or subaccount
+descriptionOf = \ac -> {
+  lg = str.len(ac);
+  if (lg == 3) {
+    return dic.hasKey(AccountsV!, ac) ? AccountsV![ac].description : "";
+  } else {
+    D = lg == 1 ? groups()
+      : lg == 2 ? SubgroupsV!
+      : SubaccountsV!
+    ;
+    return dic.hasKey(D, ac) ? D[ac]: "";
+  }
+};
+
+/// Returns groups, subgroups, accounts or subaccounts which start with
+/// 'ac' and have a subaccount created.
+/// NOTE: AccValue.summary is "", but when the map is of accounts.
+///   ac: "" or 'id' of a group, subgroup or account
+/// \s -> {<accValue>.} :: {accountNumber -> accountValue}
+subOf = \ac -> {
+  return dic.fromIter(iter.filter(
+    sub0(ac),
+    \A -> return arr.any(
+        dic.toArr(SubaccountsV!),
+        \Kv -> return str.starts(Kv[0], A[0]);
+      );
+  ));
+};
+
+/// Returns the idenfitiers available for a group, subgroup or account.
+///   ac   : Identifier of group, subgroup or account (1, 2 or 3 digits).
+///   extra: Identifier to add to result. If its value is "", no identifier
+///          will be added.
+/// \s, s -> [s.]
+available = \ac, extra -> {
+  Subs = sub(ac);
+  it = str.len(ac) == 3
+    ? iter.map([0:26], \i -> return i < 10 ? "0" + i : "" + i;)
+    : iter.map([0:10], \i -> return "" + i;)
+  ;
+  R = arr.filter(arr.fromIter(it), \id -> return !dic.hasKey(Subs, ac + id););
+  if (extra != "") arr.push(R, extra);
+  arr.sort(R, \i1, i2 -> return i1 < i2;);
+  return R;
+};
+
+/// Adds an entry to Diary and returns its index.
+/// \<diaryEntry> -> i
+addDiary = \Entry -> {
+  date = Entry.date;
+  R = []; // [<diaryEntry>.]
+  ixV = [0];
+  rIxV = [-1];
+  for (E = DiaryV!) {
+    if (rIxV! == -1 & E.date > date) {
+      arr.push(R, Entry);
+      rIxV! = ixV!;
+    }
+    arr.push(R, E);
+    ixV! += 1;
+  }
+  if (rIxV! == -1) {
+    arr.push(R, Entry);
+    rIxV! = ixV!;
+  }
+  DiaryV! = R;
+  return rIxV!;
+};
+
+/// Change diary with a new one with only one open annotation.
+///   newYear: The annotation date will be 1-Jan-newYear.
+///  \i -> ()
+close = \newYear -> {
+  Accs = {}; // {f.} :: {countNumber -> amount}
+  // \s, f -> ()
+  add = \ac , am ->
+    if (dic.hasKey(Accs, ac)) Accs[ac] += am;
+    else dic.put(Accs, ac, am);
+  ;
+
+  Accounts = AccountsV!;
+  sumV = [0];
+  for (E = DiaryV!) {
+    arr.each(
+      arr.filter(
+        dic.toArr(E.debits),
+        \Kv -> return Accounts[Kv[0][0:3]].summary[0] == "B";
+      ),
+      \Kv -> {
+        v = Kv[1];
+        sumV! += v;
+        add(Kv[0], v);
+      }
+    );
+    arr.each(
+      arr.filter(
+        dic.toArr(E.credits),
+        \Kv -> return Accounts[Kv[0][0:3]].summary[0] == "B";
+      ),
+      \Kv -> {
+        v = -Kv[1];
+        sumV! += v;
+        add(Kv[0], v);
+      }
+    );
+  }
+  add("10200", -sumV!);
+
+  DiaryV! = [diaryEntry.mk(
+    time.mkDate(1, 1, newYear),
+    "Asiento de apertura",
+    dic.fromArr(arr.filter(
+      arr.map(dic.toArr(Accs), \Kv -> return [Kv[0], math.round(Kv[1], 2)];),
+      \Kv -> return Kv[1] > 0;
+    )),
+    dic.fromArr(arr.map(
+      arr.filter(
+        arr.map(dic.toArr(Accs), \Kv -> return [Kv[0], math.round(Kv[1], 2)];),
+        \Kv -> return Kv[1] < 0;
+      ),
+      \Kv -> return [Kv[0], -Kv[1]];
+    ))
+   )];
+};
+

@@ -1,0 +1,89 @@
+// Copyright 04-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Problem-Error data.
+
+import "cash";
+import "diary";
+
+/// Constructor.
+///   ix     : Index of problem or -1
+///   hcErr  : Error entry or empty if there is any extra Hcpmta entry.
+///   hcPrevs: 5 previous entries from before to after.
+///   hcNexts: 5 next entries from before to after.
+///   cErr   : Error entry or empty if there is any extra CashFlow entry.
+///   cPrevs : 5 previous entries from before to after.
+///   cNexts : 5 next entries from before to after.
+/// \n, [<cashEntry>]|[], [<cashEntry>.], [<cashEntry>.],
+///     [<diaryEntry>]|[], [<diaryEntry>.], [<diaryEntry>.] -> d<problem>
+mk = \ix, hcErr, hcPrevs, hcNexts, cErr, cPrevs, cNexts ->
+  return {ix, hcErr, hcPrevs, hcNexts, cErr, cPrevs, cNexts};;
+
+// Returns a nomal error.
+// \<cash>, <diary>, n -> <problem>
+mkNormal = \HcDiary, CDiary, ix -> return mk(
+    ix,
+
+    [HcDiary.entries[ix]],
+    cash.previous(HcDiary, ix),
+    cash.next(HcDiary, ix),
+
+    [CDiary.entries[ix]],
+    diary.previous(CDiary, ix),
+    diary.next(CDiary, ix)
+  );;
+
+// Returns an extra CashFlow annotation error.
+// \<cash>, <diary>, n -> <problem>
+mkExtraC = \HcDiary, CDiary, ix -> return mk(
+    ix,
+
+    [],
+    cash.previous(HcDiary, ix),
+    [],
+
+    [CDiary.entries[ix]],
+    diary.previous(CDiary, ix),
+    diary.next(CDiary, ix)
+  );;
+
+// Returns an extra Hconta annotation error.
+// \<cash>, <diary>, n -> <problem>
+mkExtraHc = \HcDiary, CDiary, ix -> return mk(
+    ix,
+
+    [HcDiary.entries[ix]],
+    cash.previous(HcDiary, ix),
+    cash.next(HcDiary, ix),
+
+    [],
+    diary.previous(CDiary, ix),
+    []
+  );;
+
+// Returns a 'No problem'
+// \ -> <problem>
+mkOk = \ -> return mk(-1, [], [], [], [], [], []);;
+
+
+/// Return the first problem of matching 'hcDiary' and 'cDiary'.
+///    HcDiary: Hconta diary.
+///    CDiary: CashFlow Diary.
+/// \<cash>, <diary> -> <problem>
+firstProblem = \HcDiary, CDiary -> {
+  szHc = arr.size(HcDiary.entries);
+  szC = arr.size(CDiary.entries);
+  sz = szHc < szC ? szHc : szC;
+
+  for (i = 0:sz)
+    if (!cash.eqHcC(HcDiary.entries[i], CDiary.entries[i]))
+      return mkNormal(HcDiary, CDiary, i);
+
+  if (sz == szHc) {
+    if (sz == szC) return mkOk();
+    return mkExtraC(HcDiary, CDiary, sz);
+  }
+
+  return mkExtraHc(HcDiary, CDiary, sz);
+};
+

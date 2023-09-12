@@ -1,0 +1,118 @@
+// Copyright 30-Aug-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Plan and plan entry data
+
+import "diary";
+import "i18n";
+
+II = i18n.tlt;
+
+/// Constructor
+///   entries: Plan entries.
+/// \[<planEntry>.] -> d<plan>
+mk = \entries -> return {entries};;
+
+/// Return "" or a message of error if 'add' fails.
+/// \<plan>, <planEntry> -> s
+add = \Plan, Entry -> {
+  id = Entry.id;
+
+  if (id == "") return II("Id is missing");
+  if (Entry.desc == "") return II("Description is missing");
+
+  if (contains(Plan, id))
+    return i18n.fmt(II("The account '%0' already exists"), [id]);
+
+  arr.push(Plan.entries, Entry);
+  return "";
+};
+
+/// Return "" or a message of error if 'del' fails.
+/// \<plan>, s, [s.] -> s
+del = \Plan, idEntry, DiaryAccs -> {
+  if (arr.any(DiaryAccs, \a -> return a == idEntry;))
+    return i18n.fmt(
+      II("The account '%0' has annotations and can not be deleted"),
+      [idEntry]
+    );
+
+  ix = arr.index(Plan.entries, \E -> return E.id == idEntry;);
+  if (ix != -1) arr.remove(Plan.entries, ix);
+  return "";
+};
+
+/// Modifies 'diary' if idEntry != entry.id.
+/// Return "" or a message of error if 'modify' fails.
+/// \<plan>, s, <planEntry>, <diary> -> s
+modify = \Plan, idEntry, Entry, Diary -> {
+  newId = Entry.id;
+
+  if (newId == "") return II("Id is missing");
+  if (Entry.desc == "") return II("Description is missing");
+
+  Entries = Plan.entries;
+  if (idEntry == newId) {
+    for (i = 0:arr.size(Entries)) {
+      if (Entries[i].id == idEntry) {
+        Entries[i] = Entry;
+        break;
+      }
+    }
+    return "";
+  }
+
+  if (contains(Plan, newId))
+    return i18n.fmt(II("The account '%0' already exists"), [newId]);
+
+  for (i = 0:arr.size(Entries)) {
+    if (Entries[i].id == idEntry) {
+      Entries[i] = Entry;
+      break;
+    }
+  }
+
+  diary.changeAcc(Diary, idEntry, newId);
+
+  return "";
+};
+
+/// Returns 'true' if Plan contains one entry with identifier 'id'.
+/// \<plan>, s -> b
+contains = \Plan, id ->
+  return arr.index(Plan.entries, \E -> return E.id == id;) != -1;;
+
+/// Returns 'true' if id is an income.
+/// \<plan>, s -> b
+isIncome = \Plan, id -> {
+  EOp = arr.find(Plan.entries, \E -> return E.id == id;);
+  if (EOp) return EOp!.isIncome;
+  throw("Count " + id + " not found");
+};
+
+/// Returns desciption of the entry with identifier 'id'.
+/// \<plan>, s -> s
+desc = \Plan, id -> {
+  EOp = arr.find(Plan.entries, \E -> return E.id == id;);
+  if (EOp) return EOp!.desc;
+  throw("Count " + id + " not found");
+};
+
+/// \<plan> -> JS
+toJs = \Plan -> return arr.map(Plan.entries, entryToJs);;
+
+/// \JS -> <plan>
+fromJs = \A -> return mk(arr.map(A, entryFromJs));;
+
+/// Constructor
+///   isIncome: 'true' if entry is an income.
+///   id      : Entry identifier.
+///   desc    : Entry description.
+/// \b, s, s -> d<planEntry>
+mkEntry = \isIncome, id, desc -> return {isIncome, id, desc};;
+
+/// \<planEntry> -> JS
+entryToJs = \E -> return [E.isIncome, E.id, E.desc];;
+
+/// \JS -> <planEntry>
+entryFromJs = \A -> return mkEntry(A[0], A[1], A[2]);;

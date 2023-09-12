@@ -1,0 +1,174 @@
+# jkut/pgs/cashPg.jkut: 74
+# jkut/pgs/diaryPg.jkut: 189
+# jkut/pgs/diaryPg.jkut: 212
+# jkut/pgs/diaryPg.jkut: 314
+'%0' is not a number = '%0' is not a number
+
+# jkut/pgs/cashPg.jkut: 197
+# jkut/pgs/diaryPg.jkut: 440
+Accept = Accept
+
+# jkut/pgs/diaryPg.jkut: 183
+# jkut/pgs/diaryPg.jkut: 206
+Account %0 is repeated = Account %0 is repeated
+
+# jkut/data/acc.jkut: 180
+# jkut/data/acc.jkut: 218
+Account '%0' is duplicated = Account '%0' is duplicated
+
+# jkut/pgs/diaryPg.jkut: 196
+# jkut/pgs/diaryPg.jkut: 219
+Account for ammount %0 is missing = Account for ammount %0 is missing
+
+# jkut/pgs/cashPg.jkut: 62
+Account is missing = Account is missing
+
+# jkut/pgs/planPg.jkut: 215
+# jkut/pgs/summaryPg.jkut: 62
+Accounts = Accounts
+
+# jkut/main.jkut: 53
+# jkut/pgs/accsPg.jkut: 265
+Accs = Accs
+
+# jkut/pgs/accsPg.jkut: 257
+All = All
+
+# jkut/pgs/cashPg.jkut: 79
+Ammount is 0 = Ammount is 0
+
+# jkut/pgs/summaryPg.jkut: 54
+# jkut/pgs/summaryPg.jkut: 468
+Balance = Balance
+
+# jkut/pgs/diaryPg.jkut: 434
+Cancel = Cancel
+
+# jkut/main.jkut: 51
+# jkut/pgs/cashPg.jkut: 330
+Cash = Cash
+
+# jkut/pgs/yearPg.jkut: 105
+Change = Change
+
+# jkut/pgs/msgPg.jkut: 20
+Click %0 to continue. = Click %0 to continue.
+
+# jkut/pgs/yearPg.jkut: 112
+Close = Close
+
+# jkut/pgs/yearPg.jkut: 84
+Close year = Close year
+
+# jkut/pgs/cashPg.jkut: 55
+# jkut/pgs/diaryPg.jkut: 165
+Date is missing = Date is missing
+
+# jkut/pgs/diaryPg.jkut: 229
+Debits sum is different from Credits sum = Debits sum is different from Credits sum
+
+# jkut/pgs/planPg.jkut: 112
+Delete '%0'? = Delete '%0'?
+
+# jkut/pgs/diaryPg.jkut: 139
+Delete annotation %0:\n%1? = Delete annotation %0:\n%1?
+
+# jkut/pgs/planPg.jkut: 297
+Description = Description
+
+# jkut/pgs/cashPg.jkut: 68
+# jkut/pgs/diaryPg.jkut: 172
+# jkut/pgs/planPg.jkut: 45
+Description is missing = Description is missing
+
+# jkut/main.jkut: 49
+# jkut/pgs/diaryPg.jkut: 551
+Diary = Diary
+
+# jkut/pgs/diaryPg.jkut: 320
+Difference is 0 = Difference is 0
+
+# jkut/pgs/yearPg.jkut: 33
+Fail trying to change current year. = Fail trying to change current year.
+
+# jkut/pgs/planPg.jkut: 300
+Group = Group
+
+# jkut/pgs/planPg.jkut: 50
+Group is missing = Group is missing
+
+# jkut/pgs/planPg.jkut: 217
+Groups = Groups
+
+# jkut/data/acc.jkut: 252
+It is used in %0 annotations. = It is used in %0 annotations.
+
+# jkut/main.jkut: 26
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. = KtWeb session is closed.\nAuthenticating from KtWeb:Main.
+
+# jkut/wgs/accountSelector.jkut: 95
+Most used accounts = Most used accounts
+
+# jkut/pgs/diaryPg.jkut: 560
+# jkut/pgs/diaryPg.jkut: 561
+New = New
+
+# jkut/pgs/planPg.jkut: 295
+Nº = Nº
+
+# jkut/pgs/summaryPg.jkut: 52
+# jkut/pgs/summaryPg.jkut: 467
+P & L = P & L
+
+# jkut/main.jkut: 57
+# jkut/wgs/accountSelector.jkut: 107
+Plan = Plan
+
+# jkut/main.jkut: 118
+Session is expired. = Session is expired.
+
+# jkut/pgs/summaryPg.jkut: 50
+# jkut/pgs/summaryPg.jkut: 374
+Statements = Statements
+
+# jkut/data/acc.jkut: 251
+Subaccount '%0' can not be removed.\n = Subaccount '%0' can not be removed.\n
+
+# jkut/data/acc.jkut: 239
+# jkut/data/acc.jkut: 272
+Subaccount '%0' is duplicated = Subaccount '%0' is duplicated
+
+# jkut/pgs/planPg.jkut: 216
+# jkut/pgs/summaryPg.jkut: 64
+Subaccounts = Subaccounts
+
+# jkut/data/acc.jkut: 122
+# jkut/data/acc.jkut: 158
+Subgroup '%0' is duplicated = Subgroup '%0' is duplicated
+
+# jkut/pgs/planPg.jkut: 214
+Subgroups = Subgroups
+
+# jkut/main.jkut: 55
+# jkut/pgs/summaryPg.jkut: 515
+Summaries = Summaries
+
+# jkut/pgs/summaryPg.jkut: 60
+# jkut/pgs/summaryPg.jkut: 469
+Summary = Summary
+
+# jkut/pgs/diaryPg.jkut: 234
+Sums of Debits and Credits are zero = Sums of Debits and Credits are zero
+
+# jkut/pgs/yearPg.jkut: 87
+This operation only can be manually undone.\nContinue? = This operation only can be manually undone.\nContinue?
+
+# jkut/pgs/yearPg.jkut: 101
+Year = Year
+
+# jkut/pgs/yearPg.jkut: 37
+Year %0 not found = Year %0 not found
+
+# jkut/pgs/msgPg.jkut: 17
+here = here
+

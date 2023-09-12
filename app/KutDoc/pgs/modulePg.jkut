@@ -49,7 +49,7 @@ mk = async \wg, pack, path -> {
       h = Math.floor((size - 1) / 3) + 1;
       for (y = 0:h) {
         arr.push(R, Q("tr")
-          .adds(arr.fromIter(iter.map([0:3], \x -> {
+          .adds(iter.map([0:3], \x -> {
               pos = x * h + y;
               if (pos < size) {
                 E = Entries[pos];
@@ -61,7 +61,7 @@ mk = async \wg, pack, path -> {
               } else {
                 return Q("td");
               }
-            })))
+            }))
         );
       }
       return R;
@@ -159,7 +159,7 @@ mk = async \wg, pack, path -> {
     .add(overview())
     .add(Q("hr").klass("frame"))
     .add(body())
-    .adds(arr.fromIter(iter.map([0:30], \i -> return Q("p").html("&nbsp;");)))
+    .adds(iter.map([0:30], \i -> return Q("p").html("&nbsp;");))
   ;
 
   lc = window.location.href;

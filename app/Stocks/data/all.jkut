@@ -1,0 +1,295 @@
+// Copyright 06-Aug-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// All the years data.
+
+import "year";
+import "formRow";
+import "report";
+import "cts";
+import "ann";
+import "i18n";
+
+II = i18n.tlt;
+
+/// Request data ({year -> YearData}) to server.
+/// \ -> <promise>{Year.}
+request = async \ -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    source: "Main",
+    rq: "read"
+  });
+
+  if (!Rp["data"]) {
+    All = {}; // {Year.}
+    dic.put(All, cts.initialYear, year.mk(0, []));
+    return new Promise(\resolve, reject -> resolve(All););
+  }
+
+  All = fromJs(Rp["data"]!);
+  y = lastYearId(All);
+  currentYear = "" + time.year(time.now());
+  if (y != currentYear) {
+    dic.put(All, currentYear, year.mk(0, []));
+    return new Promise(\resolve, reject -> resolve(All););
+  }
+  return new Promise(\resolve, reject -> resolve(All););
+};
+
+/// Sends 'data' to server.
+///   Data: {year -> YearData}
+/// \{Year.} -> <promise>[]
+send = async \Data -> {
+  await client.ssend({
+    prg: cts.appName,
+    source: "Main",
+    rq: "write",
+    data: toJs(Data)
+  });
+};
+
+/// Returns last year identifier.
+///   Data: {year -> YearData}
+/// \{Year.} -> s
+lastYearId = \Data -> return arr.reduce(
+  dic.keys(Data), "",
+  \r, e -> return e > r ? e : r;
+);;
+
+/// Returns a sorted list of year identifiers (from before to after).
+///   Data: {year -> YearData}
+/// \{Year.} -> [s.]
+yearIds = \Data -> {
+  R = arr.copy(dic.keys(Data));
+  arr.sort(R, \y1, y2 -> return y1 < y2;);
+  return R;
+};
+
+/// Returns 'true' if 'nick' is found in 'YearData's.
+///   Data: {year -> YearData}
+/// \{Year.} -> b
+duplicateNick = \Data, nick -> {
+  for (V = Data) for (A = V.anns) if (A.nick == nick) return true;
+  return false;
+};
+
+/// Returns a sorted list of nicks for an investor and a year.
+///   Data: {year -> YearData}
+///   type: 'report.all', 'report.withFees' or number of investor.
+///   Year: Year of report. If its value is [], report is of every year.
+/// \{Year.}, n, [s] -> [s.]
+nicks = \Data, type, Year -> {
+  R = []; // [s.]
+  for (k, V = Data) {
+    if (Year & Year! != k) continue;
+    for (A = V.anns) {
+      if (type >= 0 & A.inv != type) continue;
+      if (!arr.any(R, \n -> return n == A.nick;))
+        arr.push(R, A.nick);
+    }
+  }
+  arr.sort(R, \n1, n2 -> return n1 < n2;);
+  return R;
+};
+
+/// Returns form of a nick.
+///   Data: {year -> YearData}
+///   type: 'report.all', 'report.withFees' or number of investor.
+///   nick: Nick to show.
+///   Year: Year of report. If its value is [], report is of every year.
+/// \{Year.}, n, s, [s] -> [<formRow>.]
+form = \Data, type, nick, Year -> {
+  R = []; // [<formRow>.]
+
+  for (k, V = Data) {
+    if (Year & Year! != k) continue;
+
+    for (A = V.anns) {
+      if ((type >= 0 & A.inv != type) | A.nick != nick) continue;
+
+      if (!R) { // First row
+        stocks = A.stocks;
+        priceV = [A.price];
+        totalV = [stocks * priceV!];
+        feesOp = [];
+        if (type == report.withFees) {
+          arr.push(feesOp, Math.abs(totalV! - A.cash));
+          totalV! = A.cash;
+          priceV! = totalV! / stocks;
+        }
+
+        if (A.isSell) { // This would be an error
+          arr.push(R, formRow.mk(
+            time.toIso(A.date),
+            0, 0, 0,
+            stocks, priceV!, totalV!,
+            0, 0, 0,
+            [], 0.0,
+            feesOp, feesOp ? [] : [feesOp!]
+          ));
+        } else {
+          arr.push(R, formRow.mk(
+            time.toIso(A.date),
+            stocks, priceV!, totalV!,
+            0, 0, 0,
+            stocks, priceV!, totalV!,
+            [], 0,
+            feesOp, feesOp ? [feesOp!] : []
+          ));
+        }
+      } else {
+        if (!Year & time.day(A.date) == 1 & time.month(A.date) == 1) continue;
+
+        stocks = A.stocks;
+        priceV = [A.price];
+        totalV = [stocks * priceV!];
+        feesOp = [];
+        if (type == report.withFees) {
+          arr.push(feesOp, Math.abs(totalV! - A.cash));
+          totalV! = A.cash;
+          priceV! = totalV! / stocks;
+        }
+
+        if (A.isSell) {
+          previousE = arr.peek(R);
+          previousStocks = previousE.ts;
+          previousPrice = previousE.tp;
+          previousTotal = previousE.tt;
+          sellTotal = stocks * previousPrice;
+          finalStocks0 = previousStocks - stocks;
+          finalStocks = finalStocks0 < 0 ? 0 : finalStocks0;
+
+          finalTotal = previousTotal - sellTotal;
+          finalPrice = finalStocks > 0 ? finalTotal / finalStocks : 0;
+
+          profits = math.round(totalV! - sellTotal, 2);
+
+          arr.push(R, formRow.mk(
+            time.toIso(A.date),
+            0, 0, 0,
+            stocks, previousPrice, sellTotal,
+            finalStocks, finalPrice, finalTotal,
+            [profits], previousE.ttProfits + profits,
+            feesOp, feesOp ? [previousE.ttFees! + feesOp!] : []
+          ));
+        } else {
+          previousE = arr.peek(R);
+          previousStocks = previousE.ts;
+          previousTotal = previousE.tt;
+          finalStocks = previousStocks + stocks;
+          finalTotal = previousTotal + totalV!;
+          finalPrice = finalTotal / finalStocks;
+
+          arr.push(R, formRow.mk(
+            time.toIso(A.date),
+            stocks, priceV!, totalV!,
+            0, 0, 0,
+            finalStocks, finalPrice, finalTotal,
+            [], previousE.ttProfits,
+            feesOp, feesOp ? [previousE.ttFees! + feesOp!] : []
+          ));
+        }
+      }
+    }
+  }
+
+  return R;
+};
+
+/// Make in Data annotation of the first of January and returns a promise.
+/// It all is correct the promise is an empty string, otherwise no annotation
+/// is made and returns an error message.
+///   Data: {year -> YearData}
+///   year: New year already created.
+/// \{Year.}, s -> <promise>s
+set0101 = \Data, selYear -> {
+  lastYear = lastYearId(Data);
+  if (lastYear > selYear) {
+    msg = selYear + " is not the last year";
+    return new Promise(\resolve, reject -> resolve(msg););
+  }
+
+  previousYear = "" + math.fromStr(lastYear)! - 1;
+  PyearOp = dic.get(Data, previousYear);
+  if (!PyearOp) {
+    msg = i18n.fmt(II("There is no annotation of year %0"), [previousYear]);
+    return new Promise(\resolve, reject -> resolve(msg););
+  }
+  Pyear = PyearOp!;
+
+  /// 'ucash' is price by stock, including fees.
+  /// [{n, n, n}.] :: [{nick -> {stocks, price, ucash}}.] one dictionary for investor.
+  Invs = arr.fromIter(iter.map([0:cts.investors], \i -> return {};));
+
+  for (A = Pyear.anns) {
+    DOp = dic.get(Invs[A.inv], A.nick);
+
+    if (A.isSell) {
+      if (!DOp) {
+        msg = i18n.fmt(
+          II("No previous buy in annotation:\n%0"),
+          [ann.toStr(A)]
+        );
+        return new Promise(\resolve, reject -> resolve(msg););
+      }
+      D = DOp!;
+      if (D.stocks < A.stocks) {
+        msg = i18n.fmt(
+          II("Selling %0 stocks when there are %1\n%2"),
+          [""+ A.stocks, "" + D.stocks, ann.toStr(A)]
+        );
+        return new Promise(\resolve, reject -> resolve(msg););
+      }
+      D.stocks -= A.stocks;
+      continue;
+    }
+
+    if (!DOp & A.stocks > 0) {
+      dic.put(
+        Invs[A.inv], A.nick,
+        {stocks: A.stocks, price: A.price, ucash: A.cash / A.stocks}
+      );
+    } if (DOp) {
+      D = DOp!;
+      stocks = D.stocks + A.stocks;
+      D.price = (D.stocks * D.price + A.stocks * A.price) / stocks;
+      D.ucash = (D.stocks * D.ucash + A.cash) / stocks;
+      D.stocks = stocks;
+    }
+  }
+
+  Cyear = Data[lastYear];
+  for (A = arr.copy(Cyear.anns))
+    if (time.day(A.date) == 1 & time.month(A.date) == 1)
+      year.remove(Cyear, A.id);
+
+  for (i = 0:cts.investors) {
+    NkDs = arr.filter(dic.toArr(Invs[i]), \NkD -> return NkD[1].stocks > 0;);
+    arr.sort(NkDs, \NkD1, NkD2 -> return NkD1[0] < NkD2[0];);
+    for (NkD = NkDs) {
+      D = NkD[1];
+      year.add(Cyear, [], ann.mk(
+        -1, false, time.fromStr(lastYear + "0101")!, i, NkD[0],
+        D.stocks, D.price, D.ucash * D.stocks
+      ));
+    }
+  }
+
+  return new Promise(\resolve, reject -> resolve(""););
+};
+
+/// JSONizes 'Data'
+///   Data: {year -> YearData}
+/// \{Year.} -> JS
+toJs = \Data -> return arr.map(
+    dic.toArr(Data),
+    \Tp -> return [Tp[0], year.toJs(Tp[1])];
+  );;
+
+/// Returns data JSONized with 'toJs'.
+/// \JS -> {Year.} :: {year -> YearData}
+fromJs = \A -> return dic.fromArr(arr.map(
+    A,
+    \Tp -> return [Tp[0], year.fromJs(Tp[1])];
+  ));;

@@ -49,7 +49,7 @@ mkIncrement = \tt, acc, rk -> return Q("table")
   ;;
 
 /// Constructor
-/// \<domo>, s -> ()
+/// \<domo>, [<profitsEntry>.], [<profitsEntry>.], s -> ()
 mk2 = \wg, allEs, invEs, mSel -> {
   Lops = [
     menu.toption("All", II("All"), \ -> mk2(wg, allEs, invEs, "All");)
@@ -89,7 +89,7 @@ mk2 = \wg, allEs, invEs, mSel -> {
   }
 
   e = arr.peek(Es);
-  now = time.fromStr(e.date);
+  now = time.fromStr(e.date)!;
   today = time.toStr(now);
   e1 = Es[arr.size(Es) - 2];
   summary = Q("table")
@@ -177,7 +177,7 @@ mk2 = \wg, allEs, invEs, mSel -> {
   Lb0s = [];
   Val0s = [[], [], []];
   for (E = E0s) {
-    arr.push(Lb0s, time.toIso(time.fromStr(E.date)));
+    arr.push(Lb0s, time.toIso(time.fromStr(E.date)!));
     arr.push(Val0s[0], [E.total]);
     arr.push(Val0s[1], [E.acc]);
     arr.push(Val0s[2], [E.risk]);
@@ -235,7 +235,7 @@ mk2 = \wg, allEs, invEs, mSel -> {
   Lb1s = [];
   Val1s = [[], [], []];
   for (E = E1s) {
-    arr.push(Lb1s, time.toIso(time.fromStr(E.date)));
+    arr.push(Lb1s, time.toIso(time.fromStr(E.date)!));
     arr.push(Val1s[0], [E.total]);
     arr.push(Val1s[1], [E.acc]);
     arr.push(Val1s[2], [E.risk]);
@@ -290,7 +290,7 @@ mk2 = \wg, allEs, invEs, mSel -> {
   Lb2s = [];
   Val2s = [[], [], []];
   for (E = E2s) {
-    arr.push(Lb2s, time.toIso(time.fromStr(E.date)));
+    arr.push(Lb2s, time.toIso(time.fromStr(E.date)!));
     arr.push(Val2s[0], [E.total]);
     arr.push(Val2s[1], [E.acc]);
     arr.push(Val2s[2], [E.risk]);
@@ -352,7 +352,7 @@ mk2 = \wg, allEs, invEs, mSel -> {
   Lb3s = [];
   Val3s = [[], [], []];
   for (E = E3s) {
-    arr.push(Lb3s, time.toIso(time.fromStr(E.date))[3:]);
+    arr.push(Lb3s, time.toIso(time.fromStr(E.date)!)[3:]);
     arr.push(Val3s[0], [E.total]);
     arr.push(Val3s[1], [E.acc]);
     arr.push(Val3s[2], [E.risk]);

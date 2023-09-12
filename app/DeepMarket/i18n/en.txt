@@ -23,10 +23,13 @@ Buys = Buys
 # jkut/pgs/charts/operationsPg.jkut: 179
 Cash = Cash
 
+# jkut/main.jkut: 81
+Change near start corner for every group? = Change near start corner for every group?
+
 # jkut/pgs/listPg.jkut: 69
 Change near start corner from\n[%0, %1]\nto\n[%2, %3]? = Change near start corner from\n[%0, %1]\nto\n[%2, %3]?
 
-# jkut/main.jkut: 119
+# jkut/main.jkut: 139
 Charts = Charts
 
 # jkut/pgs/msgPg.jkut: 21
@@ -46,7 +49,7 @@ Date = Date
 # jkut/pgs/listPg.jkut: 113
 Eval. = Eval.
 
-# jkut/main.jkut: 86
+# jkut/main.jkut: 103
 Far - Ranking = Far - Ranking
 
 # jkut/pgs/chartsPg.jkut: 95
@@ -59,7 +62,7 @@ KtWeb session is closed.\nAuthenticating from KtWeb:Main. = KtWeb session is clo
 # jkut/pgs/chartsPg.jkut: 50
 Malformed URL = Malformed URL
 
-# jkut/main.jkut: 84
+# jkut/main.jkut: 101
 Near - Ranking = Near - Ranking
 
 # jkut/pgs/chartsPg.jkut: 97
@@ -86,11 +89,14 @@ Sales = Sales
 # jkut/pgs/charts/operationsPg.jkut: 167
 Sells = Sells
 
-# jkut/main.jkut: 171
+# jkut/main.jkut: 191
 Session is expired. = Session is expired.
 
 # jkut/pgs/listPg.jkut: 116
 Sls. = Sls.
+
+# jkut/main.jkut: 89
+Soon the near star corner will be changed = Soon the near star corner will be changed
 
 # jkut/pgs/listPg.jkut: 83
 Soon the near star corner will be changed to\n[%0, %1] = Soon the near star corner will be changed to\n[%0, %1]
@@ -118,16 +124,16 @@ Without Data = Without Data
 # jkut/pgs/rankingsPg.jkut: 85
 Worst = Worst
 
-# jkut/main.jkut: 116
+# jkut/main.jkut: 136
 [Far - Hot Map] = [Far - Hot Map]
 
-# jkut/main.jkut: 114
+# jkut/main.jkut: 134
 [Far - List] = [Far - List]
 
-# jkut/main.jkut: 112
+# jkut/main.jkut: 132
 [Near - Hot Map] = [Near - Hot Map]
 
-# jkut/main.jkut: 110
+# jkut/main.jkut: 130
 [Near - List] = [Near - List]
 
 # jkut/pgs/msgPg.jkut: 18

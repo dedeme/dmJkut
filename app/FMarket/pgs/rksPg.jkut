@@ -125,7 +125,7 @@ mkRk = \Lst, Prv, Nxt, date, Rk -> {
       .add(Q("td")
         .att("colspan", npars == 1 ? 5 : 6)
         .klass("header")
-        .text(time.toIso(time.fromStr(date)))))
+        .text(time.toIso(time.fromStr(date)!))))
     .add(Q("tr")
       .add(Q("td")
         .klass("header"))

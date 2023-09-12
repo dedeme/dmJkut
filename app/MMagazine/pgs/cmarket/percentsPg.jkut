@@ -88,7 +88,7 @@ mk = async \wg -> {
     return Q("table")
       .klass("frame")
       .att("align", "center")
-      .adds(arr.fromIter(iter.map([0:invs], \i ->
+      .adds(iter.map([0:invs], \i ->
         return Q("tr")
           .add(Q("td")
             .style("width:30px")
@@ -96,7 +96,7 @@ mk = async \wg -> {
           .add(Q("td")
             .style("vertical-align: middle;text-align:left;")
             .text(II("Investor") + "-" + i))
-        ;)))
+        ;))
       .add(Q("tr")
         .add(Q("td")
           .att("colspan", 2)

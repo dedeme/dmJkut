@@ -1,0 +1,203 @@
+// Copyright 03-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Budget management page.
+
+import "libdm/menu";
+import "data/month";
+import "data/budget";
+import "data/cts";
+import "data/diary";
+import "management/budgetEdit";
+import "management/budgetView";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor:
+///   wg: Container.
+///   selectedYear: Year edited.
+///   isUntil: 'true' if values calculates are of every month until 'selectedMonth'.
+///   selectedMonth: Month edited (from 1 to 12).
+///   Plan: Budget plan.
+///   balance: Budget balance.
+///   Diary: Diary annotations.
+///   Budget: Current budget.
+///   PreviousBudget: Previous Budget.
+/// \<domo>, s, b, n, <plan>, n, <diary>, <budget>, <budget> -> ()
+mk = \wg, selectedYear, isUntil, selectedMonth,
+      Plan, balance, Diary, Budget, PreviousBudget -> {
+
+  monthName = month.name(selectedMonth);
+  isEditionV = [false];
+
+  finalBalanceWg = Q("div");
+  budgetWg = Q("div");
+
+  showOp = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \ -> ()
+  changeAccumulation = \ ->  window.location.assign(
+      "?budget&" + selectedYear + "&" + !isUntil + "&" + selectedMonth
+    );;
+
+  // \n -> ()
+  changeMonth = \m -> window.location.assign(
+      "?budget&" + selectedYear + "&" + isUntil + "&" + m
+    );;
+
+  // \ -> ()
+  changeEdition = \ -> {
+    isEditionV! = !isEditionV!;
+    showOp!();
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> <domo>
+  initialBalance = \ -> return Q("table")
+      .klass("summary")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("frameNm")
+          .style("background-color:#f9f9f9")
+          .text(math.toIso(isUntil ? balance : 0, 2))))
+    ;;
+
+  // \ -> ()
+  finalBalance = \ -> {
+    real = diary.totalAmount(
+      Diary, isUntil ? 0 : selectedMonth - 1, selectedMonth
+    );
+    budgeted = budget.totalAmount(
+      Budget, Plan, isUntil ? 0 : selectedMonth - 1, selectedMonth
+    );
+
+    finalBalanceWg
+      .removeAll()
+      .add(Q("table")
+        .klass("summary")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td"))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Budget (A)")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Real (B)")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Dif. (B - A))"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frameTx")
+            .style("background-color:#d9d9d9")
+            .text(II("Operations")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(budgeted, 2)))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(real, 2)))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text("")))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frameTx")
+            .style("background-color:#d9d9d9")
+            .text(II("Total (In - Ex)")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso((isUntil ? balance : 0) + budgeted, 2)))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso((isUntil ? balance : 0) + real, 2)))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(real - budgeted, 2)))))
+    ;
+
+  };
+
+  // \ -> ()
+  showOp! = \ -> {
+    Lopts = [
+      isUntil
+        ? menu.toption("", II("Monthly"), changeAccumulation)
+        : menu.toption("", II("Accumulated"), changeAccumulation),
+      menu.separator2()
+    ];
+    iV = [0];
+    for (m = str.split(II("months"), ",")) {
+      i = iV!;
+      iV! += 1;
+      if (i > 0) arr.push(Lopts, menu.separator());
+      arr.push(Lopts, menu.toption(
+        month.name(i + 1), month.name(i + 1), \ -> changeMonth(i + 1);
+      ));
+    }
+    Ropts = [
+      isEditionV!
+        ? menu.toption("", II("View"), changeEdition)
+        : menu.toption("", II("Edit"), changeEdition)
+    ];
+    menuWg = menu.mk(Lopts, Ropts, monthName, false);
+
+    finalBalance();
+
+    if (isEditionV!) {
+      budgetEdit.mk(
+        budgetWg, selectedYear, selectedMonth, Plan, Diary,
+        Budget, PreviousBudget,
+        finalBalance
+      );
+    } else {
+      budgetView.mk(
+        budgetWg, selectedYear, isUntil, selectedMonth, Plan, Diary, Budget
+      );
+    }
+
+    wg
+      .removeAll()
+      .add(menuWg)
+      .add(Q("div")
+        .klass("head")
+        .html(
+            (isUntil
+              ? II("Accumulated Budget")
+              : II("Monthly Budget")) +
+            "<br> [ " +
+            (isEditionV!
+              ? II("Edit")
+              : II("View")) +
+            " ]")
+          )
+      .add(Q("div")
+        .style("padding:5px;text-align:center")
+        .text(II("Initial Balance")))
+      .add(initialBalance())
+      .add(Q("div")
+        .style("padding:5px;text-align:center")
+        .text(II("Final Balance")))
+      .add(finalBalanceWg)
+      .add(budgetWg)
+    ;
+  };
+
+  showOp!();
+};

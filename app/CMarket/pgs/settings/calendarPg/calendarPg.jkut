@@ -168,8 +168,8 @@ mk = async \wg -> {
           .add(Q("td")
             .style("text-align:center")
             .text(i18n.getLang() == "es"
-                ? time.toIso(time.fromStr(d))
-                : time.toEn(time.fromStr(d))))
+                ? time.toIso(time.fromStr(d)!)
+                : time.toEn(time.fromStr(d)!)))
         ;)
       : [ Q("tr")
           .add(Q("td"))
@@ -194,8 +194,8 @@ mk = async \wg -> {
           dt = time.now();
           datePicker.setDate(dp, dt);
           dpInput.value(i18n.getLang() == "es"
-            ? time.toIso(time.fromStr(dt))
-            : time.toEn(time.fromStr(dt))
+            ? time.toIso(time.fromStr(dt)!)
+            : time.toEn(time.fromStr(dt)!)
           );
         }
     );
@@ -233,8 +233,8 @@ mk = async \wg -> {
           .add(Q("td")
             .style("text-align:center")
             .text(i18n.getLang() == "es"
-                ? time.toIso(time.fromStr(S.date))
-                : time.toEn(time.fromStr(S.date))))
+                ? time.toIso(time.fromStr(S.date)!)
+                : time.toEn(time.fromStr(S.date)!)))
           .add(Q("td")
             .style("text-align:center")
             .text(fns.format00(S.hopen) + ":" + fns.format00(S.mopen)))
@@ -267,8 +267,8 @@ mk = async \wg -> {
           dt = time.now();
           datePicker.setDate(dp, dt);
           dpInput.value(i18n.getLang() == "es"
-            ? time.toIso(time.fromStr(dt))
-            : time.toEn(time.fromStr(dt))
+            ? time.toIso(time.fromStr(dt)!)
+            : time.toEn(time.fromStr(dt)!)
           );
         }
     );

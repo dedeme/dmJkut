@@ -1,0 +1,181 @@
+// Copyright 30-Aug-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Diary, diary entry and diary annotation data.
+
+import "month";
+
+/// Constructor.
+/// \[<diaryEntry>.] -> d<diary>
+mk = \entries -> return {entries};;
+
+/// Remove one entry.
+/// \<diary>, ix -> ()
+del = \D, ix -> arr.remove(D.entries, ix);;
+
+/// Changes 'oldAcc' by 'newAcc'
+/// \<diary>, s, s -> ()
+changeAcc = \D, oldAcc, newAcc ->
+  for (E = D.entries) {
+    Anns = E.anns;
+    for (i = 0:arr.size(Anns)) {
+      a = Anns[i];
+      if (annId(a) == oldAcc) Anns[i] = mkAnnotation(newAcc, annAm(a));
+    }
+  }
+;
+
+/// Returns unsorted used accounts list.
+/// \<diary> -> [s.]
+accs = \D -> {
+  Dic = {}; // {n};
+  for (E = D.entries) for (a = E.anns) dic.put(Dic, a, 1);
+  return dic.keys(Dic);
+};
+
+/// Returns 5 previous entries of ix
+/// \<diary>, n -> [<diaryAnnotation>.]
+previous = \D, ix -> {
+  start0 = ix - 5;
+  start = start0 < 0 ? 0 : start0;
+  return D.entries[start:ix];
+};
+
+/// Returns 5 next entries of ix
+/// \<diary>, n -> [<diaryAnnotation>.]
+next = \D, ix -> {
+  end0 = ix + 6;
+  end = end0 > arr.size(D.entries) ? arr.size(D.entries) : end0;
+  return D.entries[ix + 1:end];
+};
+
+/// Returns an array with entry tuples, filtered and reversed. Each entry
+/// contains entry index and shallow entry copy.
+/// 'fromMonthIx' is inclusive and 'toMonthIx' exclusive. Both are base 0.
+/// \<diary>, n, n -> [[n,<diaryEntry>].]
+filterReverse = \D, fromMonthIx, toMonthIx -> {
+  from = month.format(fromMonthIx + 1);
+  to = month.format(toMonthIx + 1);
+  R = []; // [[n,<diaryEntry>].]
+  for (i = 0:arr.size(D.entries)) arr.push(R, [i, D.entries[i]]);
+  return arr.reverse(arr.filter(
+    R, \Tp -> return Tp[1].month >= from & Tp[1].month < to;
+  ));
+};
+
+/// Returns total amount of an account between months.
+/// 'fromMonthIx' is inclusive and 'toMonthIx' exclusive. Both are base 0.
+/// Note: The return is ever positive.
+/// \<diary>, s, n, n -> n
+accAmount = \D, accId, fromMonthIx, toMonthIx -> {
+  from = month.format(fromMonthIx + 1);
+  to = month.format(toMonthIx + 1);
+  sumV = [0];
+  for (E = D.entries)
+    if (E.month >= from & E.month < to)
+      for (a = E.anns)
+        if (annId(a) == accId) sumV! += annAm(a);
+
+  return sumV!;
+};
+
+/// Returns total amount of Plan between months.
+/// 'fromMonthIx' is inclusive and 'toMonthIx' exclusive. Both are base 0.
+/// Note: The return can be positive (more incomes that expenses) or negative.
+/// \<diary>, n, n -> n
+totalAmount = \D, fromMonthIx, toMonthIx -> {
+  from = month.format(fromMonthIx + 1);
+  to = month.format(toMonthIx + 1);
+
+  sumV = [0];
+  for (E = D.entries)
+    if (E.month >= from & E.month < to)
+      for (a = E.anns)
+        if (E.isIncome) sumV! += annAm(a);
+        else sumV! -= annAm(a);
+
+  return sumV!;
+};
+
+/// \<diary> -> JS
+toJs = \D -> return arr.map(D.entries, entryToJs);;
+
+/// \JS -> <diary>
+fromJs = \A -> return mk(arr.map(A, entryFromJs));;
+
+/// Constructor. It returns an entry {month, desc, isIncome, anns, am}, where
+/// fields are as parameters and 'am' is the sum of 'annAm(annsEntry)'.
+///   month: Entry month.
+///   desc : Entry description.
+///   isIncome: 'true' if entry is an income.
+///   anns    : Entry annotations.
+/// \s, s, b, [<diaryAnnotation>.] ->
+///   <diaryEntry> :: {s, s, b, [<diaryAnnotation>.], n}
+mkEntry = \month, desc, isIncome, anns -> return {
+    month, desc, isIncome, anns,
+    am: arr.reduce(anns, 0, \r, e -> return r + annAm(e);)
+  };;
+
+
+/// Returns a new entry with the field 'anns' changed.
+/// \<diaryEntry>, [<diaryAnnotation>.] -> <diaryEntry>
+setAnns = \Entry, Anns ->
+  return mkEntry(Entry.month, Entry.desc, Entry.isIncome, Anns);;
+
+/// \<diaryEntry> -> JS
+entryToJs = \E -> return [E.month, E.desc, E.isIncome, E.anns];;
+
+/// \JS -> <diaryEntry>
+entryFromJs = \A -> return mkEntry(A[0], A[1], A[2], A[3]);;
+
+/// Constructor.
+/// <diaryAnnotation> is directly JSONizable.
+///   id: Account identifier.
+///   am: Annotation amount.
+/// \s, n -> x<diaryAnnotation>
+mkAnnotation = \id, am -> return [id, am];;
+
+/// Returns annotation identifier.
+/// \<diaryAnnotation> -> s
+annId = \ann -> return ann[0];;
+
+/// Returns annotation amount.
+/// \<diaryAnnotation> -> n
+annAm = \ann -> return ann[1];;
+
+/// Returns a new array, copy of 'Anns', setting the 'id' value of annotation 'ix'.
+/// \[<diaryAnnotation>.], n, s -> [<diaryAnnotation>.]
+setAnnId = \Anns, ix, id -> {
+  R = arr.copy(Anns);
+  R[ix] = [id, R[ix][1]];
+  return R;
+};
+
+/// Returns a new array, copy of 'Anns', setting the 'amount' value of annotation
+/// 'ix'. After that the amount value of the last annotation is changed to keep
+/// the sum of amounts equals the the new and the old arrays.
+/// It is an error if the amount of the last annotation results NEGATIVE. In such
+/// case, an empty array is returned.
+/// \[<diaryAnnotation>.], n, n -> [<diaryAnnotation>.]
+setAnnAm = \Anns, ix, am -> {
+  R = arr.copy(Anns);
+  R[ix] = [R[ix][0], am];
+  oldSum = arr.reduce(Anns, 0, \r, e -> return r + e;);
+  newSum = arr.reduce(R, 0, \r, e -> return r + e;);
+  lastValue = arr.peek(R)[1] + oldSum - newSum;
+  if (lastValue < 0) return [];
+  arr.peek(R)[1] = lastValue;
+  return R;
+};
+
+/// Returns an new array, copy of Anns, adding a new empty annotation
+/// \[<diaryAnnotation>.] -> [<diaryAnnotation>.]
+addAnn = \Anns, A -> {
+  R = arr.copy(Anns);
+  arr.push(R, mkAnnotation("", 0));
+  return R;
+};
+
+/// Returns an new array, copy of Anns, removing annotations with 'amount == 0'.
+/// \[<diaryAnnotation>.] -> [<diaryAnnotation>.]
+clearAnns = \Anns -> return arr.filter(Anns, \A -> return A[1] != 0;);;

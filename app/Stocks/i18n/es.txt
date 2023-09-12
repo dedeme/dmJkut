@@ -1,0 +1,214 @@
+# jkut/pgs/annotationsPg.jkut: 106
+%0\nDelete annotation? = ¿Eliminar asiento?
+
+# jkut/data/year.jkut: 49
+%0\nNick %1 is unknown = %0\nNo se encuentra el nick %1
+
+# jkut/data/year.jkut: 154
+%0\nSale of not bougth company %1 = %0\nVenta de una compañía no comprada
+
+# jkut/data/year.jkut: 43
+# jkut/data/year.jkut: 93
+%0\nStock for sale (%1) > Stocks in portfolio (%2) = %0\nAcciones para vender (%1) > Acciones en cartera (%2)
+
+# jkut/pgs/annotationsPg.jkut: 89
+'Cash < Stocks * Price' in a buy = 'Caja < Acciones * Precio' en una compra
+
+# jkut/pgs/annotationsPg.jkut: 85
+'Cash > Stocks * Price' in a sell = 'Caja > Acciones * Precio' en una venta
+
+# jkut/pgs/annotationsPg.jkut: 94
+A new nick is to be added.\nContinue? = Un nuevo nick va a ser añadido.\n¿Continuar?
+
+# jkut/pgs/annotationsPg.jkut: 238
+Accept = Aceptar
+
+# jkut/pgs/annotationsPg.jkut: 402
+# jkut/pgs/formPg.jkut: 37
+# jkut/pgs/formPg.jkut: 48
+All = Todo
+
+# jkut/main.jkut: 38
+# jkut/pgs/annotationsPg.jkut: 474
+# jkut/pgs/treasuryPg.jkut: 59
+Annotations = Apuntes
+
+# jkut/data/ann.jkut: 44
+B = C
+
+# jkut/pgs/treasuryPg.jkut: 75
+Bought = Compra
+
+# jkut/pgs/annotationsPg.jkut: 270
+Buy = Comprar
+
+# jkut/pgs/annotationsPg.jkut: 232
+Cancel = Cancelar
+
+# jkut/pgs/annotationsPg.jkut: 296
+Cash = Caja
+
+# jkut/pgs/annotationsPg.jkut: 83
+Cash < 0 = Caja < 0
+
+# jkut/pgs/annotationsPg.jkut: 81
+Cash is not a valid number = Caja no es un número válido
+
+# jkut/pgs/msgPg.jkut: 21
+Click %0 to continue. = Hacer click %0 para continuar.
+
+# jkut/main.jkut: 44
+Close Year (Help) = Cierre del Ejercicio (Ayuda)
+
+# jkut/pgs/annotationsPg.jkut: 434
+Cost = Coste
+
+# jkut/pgs/annotationsPg.jkut: 156
+Data is ok = Lo datos son correctos
+
+# jkut/pgs/annotationsPg.jkut: 274
+# jkut/pgs/annotationsPg.jkut: 484
+# jkut/pgs/formPg.jkut: 121
+Date = Fecha
+
+# jkut/pgs/annotationsPg.jkut: 59
+Date is missing = Falta la fecha
+
+# jkut/pgs/annotationsPg.jkut: 61
+Date is not valid = La fecha no es válida
+
+# jkut/pgs/annotationsPg.jkut: 64
+Date year is not the selected year = El año se la fecha no es el año seleccionado
+
+# jkut/pgs/annotationsPg.jkut: 417
+Fail making report = Fallo haciendo el informe
+
+# jkut/pgs/annotationsPg.jkut: 448
+# jkut/pgs/annotationsPg.jkut: 502
+# jkut/pgs/formPg.jkut: 162
+Fees = Comisiones
+
+# jkut/pgs/formPg.jkut: 199
+Form = Ficha
+
+# jkut/main.jkut: 42
+Forms = Fichas
+
+# jkut/pgs/helpPg.jkut: 55
+Help = Ayuda
+
+# jkut/pgs/formPg.jkut: 156
+Income = Ingreso
+
+# jkut/pgs/annotationsPg.jkut: 276
+Inv. = Inv.
+
+# jkut/main.jkut: 22
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. = La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.
+
+# jkut/pgs/annotationsPg.jkut: 290
+# jkut/pgs/annotationsPg.jkut: 461
+# jkut/pgs/annotationsPg.jkut: 487
+# jkut/pgs/treasuryPg.jkut: 66
+Nick = Nick
+
+# jkut/pgs/annotationsPg.jkut: 69
+Nick is missing = Falta el nick
+
+# jkut/data/all.jkut: 231
+No previous buy in annotation:\n%0 = No hay una compra previa en la anotación:\n%0
+
+# jkut/pgs/annotationsPg.jkut: 294
+# jkut/pgs/annotationsPg.jkut: 467
+# jkut/pgs/annotationsPg.jkut: 493
+# jkut/pgs/formPg.jkut: 128
+# jkut/pgs/formPg.jkut: 138
+# jkut/pgs/formPg.jkut: 148
+Price = Precio
+
+# jkut/pgs/annotationsPg.jkut: 78
+Price < 0 = Precio < 0
+
+# jkut/pgs/annotationsPg.jkut: 76
+Price is not a valid number = El precio no es un número válido
+
+# jkut/pgs/annotationsPg.jkut: 441
+# jkut/pgs/annotationsPg.jkut: 499
+# jkut/pgs/formPg.jkut: 159
+# jkut/pgs/treasuryPg.jkut: 53
+# jkut/pgs/treasuryPg.jkut: 78
+Profits = Beneficios
+
+# jkut/data/ann.jkut: 43
+S = V
+
+# jkut/pgs/annotationsPg.jkut: 272
+Sell = Vender
+
+# jkut/data/all.jkut: 239
+Selling %0 stocks when there are %1\n%2 = Venta de %0 accines cuando hay %1\n%2
+
+# jkut/main.jkut: 73
+Session is expired. = La sesión ha expirado.
+
+# jkut/pgs/annotationsPg.jkut: 225
+Set initial stock = Anota las existencias iniciales
+
+# jkut/pgs/annotationsPg.jkut: 37
+Set values of the year beginning? = ¿Establecer los valores del inicio de ejercicio?
+
+# jkut/pgs/treasuryPg.jkut: 72
+Sold = Venta
+
+# jkut/pgs/annotationsPg.jkut: 292
+# jkut/pgs/annotationsPg.jkut: 454
+# jkut/pgs/annotationsPg.jkut: 464
+# jkut/pgs/annotationsPg.jkut: 490
+# jkut/pgs/formPg.jkut: 125
+# jkut/pgs/formPg.jkut: 135
+# jkut/pgs/formPg.jkut: 145
+# jkut/pgs/treasuryPg.jkut: 69
+Stocks = Acciones
+
+# jkut/pgs/annotationsPg.jkut: 72
+Stocks is not a valid integer = Acciones no es un númbero válido
+
+# jkut/pgs/formPg.jkut: 175
+Sum = Suma
+
+# jkut/pgs/treasuryPg.jkut: 46
+Summary = Resumen
+
+# jkut/data/all.jkut: 216
+There is no annotation of year %0 = No hay ninguna anotación en %0
+
+# jkut/pgs/annotationsPg.jkut: 470
+# jkut/pgs/annotationsPg.jkut: 496
+# jkut/pgs/formPg.jkut: 131
+# jkut/pgs/formPg.jkut: 141
+# jkut/pgs/formPg.jkut: 151
+Total = Total
+
+# jkut/main.jkut: 40
+Treasury = Hacienda
+
+# jkut/pgs/annotationsPg.jkut: 409
+# jkut/pgs/formPg.jkut: 55
+With Fees = Con comisiones
+
+# jkut/pgs/annotationsPg.jkut: 388
+Without Annotations = Sin apuntes
+
+# jkut/pgs/annotationsPg.jkut: 328
+# jkut/pgs/formPg.jkut: 190
+Without Data = Sin datos
+
+# jkut/pgs/formPg.jkut: 89
+Without data = Sin datos
+
+# jkut/pgs/treasuryPg.jkut: 34
+Year %0 not found = El año %0 no existe
+
+# jkut/pgs/msgPg.jkut: 18
+here = aquí
+

@@ -51,8 +51,8 @@ mk = async \wg -> {
 
     return Q("table")
       .klass("flat")
-      .adds(arr.fromIter(iter.map([0:rows], \row -> return Q("tr")
-          .adds(arr.fromIter(iter.map([0:cols], \col ->  {
+      .adds(iter.map([0:rows], \row -> return Q("tr")
+          .adds(iter.map([0:cols], \col ->  {
               i = row * cols + col;
               PsE = PsEvs[i];
               return Q("td")
@@ -68,8 +68,8 @@ mk = async \wg -> {
                     math.toIso(PsE[1], 0)
                   )
               ;
-            })))
-        ;)))
+            }))
+        ;))
     ;
   };
 
@@ -120,7 +120,7 @@ mk = async \wg -> {
         .add(Q("td")
           .klass("frame")
           .style("text-align:center")
-          .text(time.toIso(time.fromStr(date)))))
+          .text(time.toIso(time.fromStr(date)!))))
       .add(Q("tr")
         .add(Q("td")
           .add(arr.size(ParamsEvals[0][0]) == 1

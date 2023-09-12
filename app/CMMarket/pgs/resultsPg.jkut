@@ -38,10 +38,10 @@ mk2 = async \wg, modelId, historicOrder -> {
       .att("align", "center")
       .klass("flat")
       .add(Q("tr")
-        .adds(arr.fromIter(iter.map(
+        .adds(iter.map(
             [0:1+arr.size(Evals[0].params)],
             \i -> return Q("td");
-          )))
+          ))
         .add(Q("td")
           .klass("chead"))
         .add(Q("td")
@@ -99,10 +99,10 @@ mk2 = async \wg, modelId, historicOrder -> {
                 js.w(Ev.params)
               )
             .add(ui.img("see"))))
-        .adds(arr.fromIter(iter.map([0:arr.size(Ev.params)], \i -> return Q("td")
+        .adds(iter.map([0:arr.size(Ev.params)], \i -> return Q("td")
             .klass("rframe")
             .text(fns.paramFmt(Md.paramTypes[i], Ev.params[i]))
-          ;)))
+          ;))
         .add(Q("td").klass("rhead"))
         .add(Q("td")
           .klass("rframe")

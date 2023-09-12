@@ -14,6 +14,10 @@ import "fns";
 Q = ui.q;
 II = i18n.tlt;
 
+isAssetsx = 0;
+isWithdrawals = 1;
+isCompanies = 2;
+
 /// \<domo>, s -> ()
 mk = async \wg, modelId -> {
   // [[n...]] | []
@@ -47,25 +51,35 @@ mk = async \wg, modelId -> {
   MdEval = modelEval.fromJs(Rp["eval"]);
   Dates = Rp.dates; // [s...]
   Assets = Rp.assets; // [n...]
+  BuyCos = Rp.buyCos; // [n...]
+  QuarantineCos = Rp.quarantineCos; // [n...]
   Withdrawals = Rp.withdrawals; // [n...]
 
-  // \b -> <domo>
-  mkGr = \isAssets -> {
+  // \n -> <domo>
+  mkGr = \type -> {
     Labels = arr.map(Dates, \d -> return d[4:6];);
 
     Ch = lineChart.mkExample();
     Ch.ExArea.width = 600;
-    Ch.ExArea.height = isAssets ? 300 : 150;
+    Ch.ExArea.height = type == isAssetsx ? 300 : 150;
     Ch.InPadding.left = 100;
     Ch.ExArea.Atts.background = "#ffffff";
     Ch.InAtts.background = "#e9e9e9";
 
     Data = lineChart.mkData(
       Labels,
-      isAssets
+      type == isAssetsx
         ? [arr.map(Assets, \e->return [e];)]
-        : [arr.map(Withdrawals, \e->return [e];)],
-      [ lineChart.mkLine(1, "#000000", false)]
+        : type == isCompanies
+          ? [ arr.map(BuyCos, \e->return [e];),
+              arr.map(QuarantineCos, \e->return [e];)
+            ]
+          : [arr.map(Withdrawals, \e->return [e];)],
+      type == isCompanies
+        ? [ lineChart.mkLine(1, "#000080", false),
+            lineChart.mkLine(1, "#800000", false)
+          ]
+        : [ lineChart.mkLine(1, "#000000", false)]
     );
     Data.round = 0;
     PrevLabel = [Labels[0]];
@@ -111,12 +125,12 @@ mk = async \wg, modelId -> {
         .add(Q("td")
           .klass("cframe")
           .text(Model.name))
-        .adds(arr.fromIter(iter.map(
+        .adds(iter.map(
           [0:arr.size(MdEval.params)],
           \i -> return Q("td")
             .klass("rframe")
             .text(fns.paramFmt(Model.paramTypes[i], MdEval.params[i]))
-          ;)))))
+          ;))))
     .add(Q("div").klass("separator2"))
     .add(Q("table")
       .att("align", "center")
@@ -184,7 +198,32 @@ mk = async \wg, modelId -> {
       .att("align", "center")
       .add(Q("tr")
         .add(Q("td")
-          .add(mkGr(true)))))
+          .add(mkGr(isAssetsx)))))
+    .add(Q("div")
+      .klass("head")
+      .text(II("Companies")))
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width: 8px")
+          .add(ui.led("#000080", 6)))
+        .add(Q("td")
+          .style("width: 8px;text-align:left;white-space:nowrap;")
+          .text(II("In portfolio")))
+        .add(Q("td")
+          .style("width: 8px")
+          .text(" | "))
+        .add(Q("td")
+          .style("width: 8px")
+          .add(ui.led("#800000", 6)))
+        .add(Q("td")
+          .style("text-align:left")
+          .text(II("In quarantine"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 5)
+          .add(mkGr(isCompanies)))))
     .add(Q("div")
       .klass("head")
       .text(II("Withdrawals")))
@@ -192,6 +231,6 @@ mk = async \wg, modelId -> {
       .att("align", "center")
       .add(Q("tr")
         .add(Q("td")
-          .add(mkGr(false)))))
+          .add(mkGr(isWithdrawals)))))
   ;
 };

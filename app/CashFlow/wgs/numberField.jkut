@@ -1,0 +1,44 @@
+// Copyright 03-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Widget to enter currency amounts.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   id: Identifer used in 'fn' and as identifier of 'wg'.
+///   targetId: Component id to pass focus.
+///   value: Initial value.
+///   fn: Function (id, value) that will be called when "onchange" happens.
+/// \s, s, n, (\s, n -> ())) -> <domo>:
+mk = \id, targetId, value, fn -> {
+  wg = ui.changePoint(ui.field(targetId)
+    .att("id", id)
+    .style("width:80px")
+    .value(str.replace(math.toFix(value, 2), ".", ","))
+  );
+
+  // \<event> -> ()
+  onchange = \ev -> {
+    wgValue = str.trim(wg.getValue());
+    newValueOp = math.fromStr(str.replace(
+      str.replace(wgValue, ".", ""), ",", "."
+    ));
+    if (newValueOp) {
+      fn(id, newValueOp!);
+    } else {
+      ui.alert(i18n.fmt(II("'%0' is not a valid number"), [wgValue]));
+      wg.value(str.replace(math.toStr(value, 2), ".", ","));
+      wg.e.focus();
+    }
+  };
+
+  wg.on("change", onchange);
+  wg.on("focus", wg.e.select);
+
+  return wg;
+};
+

@@ -37,7 +37,7 @@ checkFloat = \field, value ->
 ;
 
 // \s -> s
-dt2s = \d -> return time.toStr(time.fromIso(d, "/"));;
+dt2s = \d -> return time.toStr(time.fromIso(d, "/")!);;
 
 /// \<domo>, i, s -> ()
 mk2 = async \wg, inv, year0 -> {

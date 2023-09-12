@@ -270,8 +270,8 @@ mkLogRow = \isError, tm, msg -> return {isError, tm, msg};;
 // Returns <logRow> date.
 // \<logRow> -> n
 logRowDate = \LgR -> return LgR.tm[2] == "-"
-    ? time.fromEn(str.trim(LgR.tm[:str.index(LgR.tm, "(")]), "-")
-    : time.fromIso(str.trim(LgR.tm[:str.index(LgR.tm, "(")]), "/")
+    ? time.fromEn(str.trim(LgR.tm[:str.index(LgR.tm, "(")]), "-")!
+    : time.fromIso(str.trim(LgR.tm[:str.index(LgR.tm, "(")]), "/")!
   ;;
 
 // \s, n, n -> s

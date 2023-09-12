@@ -234,12 +234,12 @@ mk = async \wg, modelId -> {
         .add(Q("td")
           .klass("cframe")
           .text(Model.name))
-        .adds(arr.fromIter(iter.map(
+        .adds(iter.map(
           [0:arr.size(MdEval.params)],
           \i -> return Q("td")
             .klass("rframe")
             .text(fns.paramFmt(Model.paramTypes[i], MdEval.params[i]))
-          ;)))))
+          ;))))
     .add(Q("div").klass("separator2"))
     .add(Q("table")
       .att("align", "center")

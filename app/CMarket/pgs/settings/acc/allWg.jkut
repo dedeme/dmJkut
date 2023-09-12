@@ -38,7 +38,7 @@ mk2 = async \wg, year0, date -> {
   changeYear = \y -> mk2(wg, y, "");;
 
   // \s -> ()
-  changeLastDate = \d -> mk2(wg, year, time.toStr(time.fromIso(d, "/")));;
+  changeLastDate = \d -> mk2(wg, year, time.toStr(time.fromIso(d, "/")!));;
 
   // View ----------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ mk2 = async \wg, year0, date -> {
   if (year == Years[0] & Anns) {
     dp = datePicker.mk(
       i18n.getLang() == "es",
-      time.fromStr(Anns[0].date),
+      time.fromStr(Anns[0].date)!,
       \s -> {}
     );
     input = Q("input")

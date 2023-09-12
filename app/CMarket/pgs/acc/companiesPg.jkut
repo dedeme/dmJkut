@@ -59,7 +59,7 @@ mk = async \wg -> {
     return Q("table")
       .style("border-collapse : collapse;")
       .add(Q("tr")
-        .adds(arr.fromIter(iter.map([0:invsN], \inv ->
+        .adds(iter.map([0:invsN], \inv ->
           return Q("td")
             .add(Q("div")
               .style("padding:5px;" +
@@ -70,7 +70,7 @@ mk = async \wg -> {
                   ? cts.toBuyColors[inv]
                   : "#e9e9e9"
                 ) +
-               ";"));))))
+               ";"));)))
   ;;
 
   // \<domo>, s, s -> ()
@@ -156,7 +156,7 @@ mk = async \wg -> {
       for (i = 0:arr.size(Dates2)) {
         cl = Closes2[i];
         rf = Refs2[i];
-        arr.push(Lbs, time.toIso(time.fromStr(Dates2[i])));
+        arr.push(Lbs, time.toIso(time.fromStr(Dates2[i])!));
         arr.push(Vals[0], [cl]);
         arr.push(Vals[1], cl > rf ? [rf] : []);
         arr.push(Vals[2], cl < rf ? [rf] : []);
@@ -218,7 +218,7 @@ mk = async \wg -> {
         for (i = 0:arr.size(Dates2)) {
           cl = Closes2[i];
           rf = Refs2[i];
-          arr.push(Lbs, time.toIso(time.fromStr(Dates2[i])));
+          arr.push(Lbs, time.toIso(time.fromStr(Dates2[i])!));
           arr.push(Vals[0], [cl]);
           arr.push(Vals[1], cl > rf ? [rf] : []);
           arr.push(Vals[2], cl < rf ? [rf] : []);

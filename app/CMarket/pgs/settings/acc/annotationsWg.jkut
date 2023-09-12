@@ -36,7 +36,7 @@ mk = \wg, Anns, DelFn -> {
 
   // \<ann> -> [<domo>...]
   addAnn = \Ann -> {
-    date = tdDate(time.toIso(time.fromStr(Ann.date)));
+    date = tdDate(time.toIso(time.fromStr(Ann.date)!));
     op = Ann.op;
 
     switch (opr.type(op)){

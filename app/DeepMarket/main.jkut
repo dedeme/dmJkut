@@ -74,6 +74,23 @@ mk = async \wg -> {
 
   sel1 = daysWinOp & daysWinOp![1:] == "ranking" ? daysWinOp! : daysWin;
 
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  center = \ -> {
+    if (!ui.confirm(II("Change near start corner for every group?"))) return;
+
+    client.send({
+      prg: "DeepMarket",
+      source: "Main",
+      rq: "center"
+    });
+
+    ui.alert(II("Soon the near star corner will be changed"));
+  };
+
+  // View ----------------------------------------------------------------------
+
   Lopts1 = []; // [<domo>...]
   for (d = cts.DaysWin) {
     arr.push(Lopts1, menu.tlink(d + "&" + daysLoss + "&" + sel3, d, []));
@@ -104,7 +121,10 @@ mk = async \wg -> {
     arr.push(Lopts2, menu.separator());
   }
   arr.pop(Lopts2);
-  menuWg2 = menu.mk(Lopts2, [], daysWin + "&" + daysLoss + "&" + sel3, false);
+
+  Ropts2 = [menu.ioption("---", "center", center)];
+
+  menuWg2 = menu.mk(Lopts2, Ropts2, daysWin + "&" + daysLoss + "&" + sel3, false);
 
   Lopts3 = [
     menu.tlink(daysWin + "&" + daysLoss + "&nlst", II("[Near - List]"), []),

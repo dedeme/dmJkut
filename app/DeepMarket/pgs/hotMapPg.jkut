@@ -46,21 +46,21 @@ mk = \wg, ParStart, ParStep, Results -> {
         .add(Q("td")
           .klass("rhead")
           .text(II("Start")))
-        .adds(arr.fromIter(iter.map([0:ncols], \i -> return Q("td");))))
+        .adds(iter.map([0:ncols], \i -> return Q("td");)))
       .add(Q("tr")
         .add(Q("td")
           .klass("rhead")
           .text(II("Approximation")))
         .add(Q("td"))
-        .adds(arr.fromIter(iter.map([1:ncols], \i -> {
+        .adds(iter.map([1:ncols], \i -> {
             r = Q("td")
               .klass("rframe")
               .style("font-size:small")
               .text(math.toIso(aV! * 100, 2));
             aV! += aInc;
             return r;
-          }))))
-      .adds(arr.fromIter(iter.map([1: arr.size(Results)], \i -> {
+          })))
+      .adds(iter.map([1: arr.size(Results)], \i -> {
           a2V = [ParStart[1]];
           r = Q("tr")
             .add(Q("td"))
@@ -68,7 +68,7 @@ mk = \wg, ParStart, ParStep, Results -> {
               .klass("rframe")
               .style("font-size:small")
               .text(math.toIso(sV! * 100, 2)))
-            .adds(arr.fromIter(iter.map([1:ncols], \j -> {
+            .adds(iter.map([1:ncols], \j -> {
                 s = sV!;
                 a2 =a2V!;
                 r = Q("td")
@@ -87,10 +87,10 @@ mk = \wg, ParStart, ParStep, Results -> {
                     ););
                 a2V! += aInc;
                 return r;
-              })));
+              }));
           sV! += sInc;
           return r;
-        }))))
+        })))
     ;
 };
 

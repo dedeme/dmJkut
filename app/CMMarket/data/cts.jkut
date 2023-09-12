@@ -28,7 +28,7 @@ foot = Q("table")
 initialCapital = 250000;
 
 /// Assets ratio for evaluation.
-assetsRatio = 0.7;
+assetsRatio = 0.6;
 
 /// Maximum ratio for profits evaluation. (1€ generates 3€)
 maxProfitsAvgRatio = 3;
@@ -40,10 +40,10 @@ maxAssets = initialCapital * maxProfitsAvgRatio;
 profitsAvgRatio = 1 - assetsRatio;
 
 /// Quarantine days after win
-daysWin = 35; // 5 weeks
+daysWin = 0; // 5 weeks
 
 /// Quarantine days after loss
-daysLoss = 126; // 18 weeks
+daysLoss = 45; // 18 weeks
 
 /// 'sell >= buy * noLossMultiplitor' is ok.
 noLossMultiplicator = 1.02;

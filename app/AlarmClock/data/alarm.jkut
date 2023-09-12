@@ -10,7 +10,7 @@ II = fns.tlt;
 /// Constructor
 ///   id: Identifier.
 ///   tm: Time (milliseconds) with minute precision.
-/// \s, f -> a<alarm>
+/// \s, n -> a<alarm>
 mk = \id, tm -> return [id, tm];;
 
 /// \<alarm> -> s
@@ -22,7 +22,7 @@ timeToStr = \A -> {
 };
 
 /// Returns 1, 0 or +1 depending on whether 'A1[1]' is >, == or < than 'A2[1]'.
-/// \<alarm>, <alarm> -> i
+/// \<alarm>, <alarm> -> n
 compare = \A1, A2 -> {
   fmt = "%Y%M%D%t";
   d1 = time.fmt(fmt, fns.ftoi(A1[1]))[:-3];

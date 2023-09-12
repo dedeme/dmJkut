@@ -64,8 +64,7 @@ mkDay = \date, summary -> {
   WRows = []; // Worts rows. [[s, n, n, n]...] :: [[model, assets, profits, points]...]
   ARows = []; // Average rows. [[s, n, n, n]...] :: [[model, assets, profits, points]...]
 
-  for (mdId = dic.keys(summary)) {
-    S = summary[mdId];
+  for (mdId, S = summary) {
     B = S[0];
     arr.unshift(B, mdId);
     arr.push(BRows, B);
@@ -84,7 +83,7 @@ mkDay = \date, summary -> {
         .att("colspan", 4)
         .klass("borderWhite")
         .style("text-align:center")
-        .text(time.toIso(time.fromStr(date)))))
+        .text(time.toIso(time.fromStr(date)!))))
     .add(Q("tr")
       .add(Q("td")
         .att("colspan", 4)

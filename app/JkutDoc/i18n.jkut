@@ -6,6 +6,7 @@ esDic = {
   "Click %0 to continue.": "Hacer click %0 para continuar.",
   "Delete %0?": "¿Eliminar %0?",
   "File": "Archivo",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
   "Libraries": "Librerías",
   "Library path not found o not valid.": "La ruta de la librería no existe o no es válida.",
   "Name": "Nombre",
@@ -21,6 +22,7 @@ esDic = {
   "Session is expired.": "La sesión ha expirado.",
   "There are no libraries": "No hay librerías",
   "This source can not be selected, because it does not exist": "Esta librería no puede seleccionarse por que no existe",
+  "[%0] Jkut file not found.": "[%0] El archivo Jkut no existe.",
   "here": "aquí"
 };
 /// \-> ()
@@ -30,6 +32,7 @@ enDic = {
   "Click %0 to continue.": "Click %0 to continue.",
   "Delete %0?": "Delete %0?",
   "File": "File",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
   "Libraries": "Libraries",
   "Library path not found o not valid.": "Library path not found o not valid.",
   "Name": "Name",
@@ -45,6 +48,7 @@ enDic = {
   "Session is expired.": "Session is expired.",
   "There are no libraries": "There are no libraries",
   "This source can not be selected, because it does not exist": "This source can not be selected, because it does not exist",
+  "[%0] Jkut file not found.": "[%0] Kut file not found.",
   "here": "here"
 };
 /// \-> ()

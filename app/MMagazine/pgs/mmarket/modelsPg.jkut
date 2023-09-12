@@ -49,7 +49,7 @@ mk = async \wg -> {
           .klass("frame")
           .att("colspan", 2)
           .style("text-align:center")
-          .text(time.toIso(time.fromStr(date)))))
+          .text(time.toIso(time.fromStr(date)!))))
       .add(Q("tr")
         .add(Q("td")
           .klass("lhead")

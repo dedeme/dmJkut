@@ -1,11 +1,11 @@
 # jkut/pgs/charts/cosPg.jkut: 42
-# jkut/pgs/charts/historicPg.jkut: 41
+# jkut/pgs/charts/historicPg.jkut: 45
 # jkut/pgs/charts/operationsPg.jkut: 43
 %0%1 not found. = %0%1 not found.
 
 # jkut/pgs/charts/cosPg.jkut: 250
-# jkut/pgs/charts/historicPg.jkut: 127
-# jkut/pgs/charts/historicPg.jkut: 182
+# jkut/pgs/charts/historicPg.jkut: 141
+# jkut/pgs/charts/historicPg.jkut: 196
 # jkut/pgs/charts/operationsPg.jkut: 194
 # jkut/pgs/charts/operationsPg.jkut: 249
 # jkut/pgs/resultsPg.jkut: 68
@@ -35,6 +35,7 @@ Click %0 to continue. = Click %0 to continue.
 Close = Close
 
 # jkut/pgs/charts/cosPg.jkut: 220
+# jkut/pgs/charts/historicPg.jkut: 204
 # jkut/pgs/chartsPg.jkut: 34
 Companies = Companies
 
@@ -54,8 +55,8 @@ Environment Increment = Environment Increment
 
 # jkut/pgs/charts/cosPg.jkut: 256
 # jkut/pgs/charts/cosPg.jkut: 286
-# jkut/pgs/charts/historicPg.jkut: 133
-# jkut/pgs/charts/historicPg.jkut: 163
+# jkut/pgs/charts/historicPg.jkut: 147
+# jkut/pgs/charts/historicPg.jkut: 177
 # jkut/pgs/charts/operationsPg.jkut: 200
 # jkut/pgs/charts/operationsPg.jkut: 230
 # jkut/pgs/resultsPg.jkut: 74
@@ -63,16 +64,16 @@ Environment Increment = Environment Increment
 Eval. = Eval.
 
 # jkut/pgs/charts/cosPg.jkut: 280
-# jkut/pgs/charts/historicPg.jkut: 157
+# jkut/pgs/charts/historicPg.jkut: 171
 # jkut/pgs/charts/operationsPg.jkut: 224
 H. Eval. = H. Eval.
 
 # jkut/pgs/charts/cosPg.jkut: 283
-# jkut/pgs/charts/historicPg.jkut: 160
+# jkut/pgs/charts/historicPg.jkut: 174
 # jkut/pgs/charts/operationsPg.jkut: 227
 H. Sales = H. Sales
 
-# jkut/pgs/charts/historicPg.jkut: 97
+# jkut/pgs/charts/historicPg.jkut: 111
 # jkut/pgs/charts/operationsPg.jkut: 164
 # jkut/pgs/chartsPg.jkut: 36
 # jkut/pgs/hotPg.jkut: 152
@@ -86,12 +87,18 @@ Hot Map = Hot Map
 # jkut/pgs/descriptionPg.jkut: 35
 Id = Id
 
+# jkut/pgs/charts/historicPg.jkut: 213
+In portfolio = In portfolio
+
+# jkut/pgs/charts/historicPg.jkut: 222
+In quarantine = In quarantine
+
 # jkut/data/main.jkut: 18
 # jkut/main.jkut: 23
 KtWeb session is closed.\nAuthenticating from KtWeb:Main. = KtWeb session is closed.\nAuthenticating from KtWeb:Main.
 
 # jkut/pgs/charts/cosPg.jkut: 228
-# jkut/pgs/charts/historicPg.jkut: 105
+# jkut/pgs/charts/historicPg.jkut: 119
 # jkut/pgs/charts/operationsPg.jkut: 172
 Model = Model
 
@@ -116,7 +123,7 @@ Portfolio = Portfolio
 Prfs. = Prfs.
 
 # jkut/pgs/charts/cosPg.jkut: 253
-# jkut/pgs/charts/historicPg.jkut: 130
+# jkut/pgs/charts/historicPg.jkut: 144
 # jkut/pgs/charts/operationsPg.jkut: 197
 Profits (%) = Profits (%)
 
@@ -129,8 +136,8 @@ Results = Results
 
 # jkut/pgs/charts/cosPg.jkut: 259
 # jkut/pgs/charts/cosPg.jkut: 289
-# jkut/pgs/charts/historicPg.jkut: 136
-# jkut/pgs/charts/historicPg.jkut: 166
+# jkut/pgs/charts/historicPg.jkut: 150
+# jkut/pgs/charts/historicPg.jkut: 180
 # jkut/pgs/charts/operationsPg.jkut: 203
 # jkut/pgs/charts/operationsPg.jkut: 233
 Sales = Sales
@@ -146,7 +153,7 @@ Session is expired. = Session is expired.
 # jkut/pgs/resultsPg.jkut: 90
 Sls. = Sls.
 
-# jkut/pgs/charts/historicPg.jkut: 190
+# jkut/pgs/charts/historicPg.jkut: 229
 Withdrawals = Withdrawals
 
 # jkut/pgs/charts/operationsPg.jkut: 156

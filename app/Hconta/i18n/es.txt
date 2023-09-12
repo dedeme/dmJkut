@@ -1,0 +1,174 @@
+# jkut/pgs/cashPg.jkut: 74
+# jkut/pgs/diaryPg.jkut: 189
+# jkut/pgs/diaryPg.jkut: 212
+# jkut/pgs/diaryPg.jkut: 314
+'%0' is not a number = '%0' no es un número
+
+# jkut/pgs/cashPg.jkut: 197
+# jkut/pgs/diaryPg.jkut: 440
+Accept = Aceptar
+
+# jkut/pgs/diaryPg.jkut: 183
+# jkut/pgs/diaryPg.jkut: 206
+Account %0 is repeated = La cuenta '%0' está repetida
+
+# jkut/data/acc.jkut: 180
+# jkut/data/acc.jkut: 218
+Account '%0' is duplicated = La cuenta '%0' está repetida.
+
+# jkut/pgs/diaryPg.jkut: 196
+# jkut/pgs/diaryPg.jkut: 219
+Account for ammount %0 is missing = Cuenta para la cantidad %0 no existe
+
+# jkut/pgs/cashPg.jkut: 62
+Account is missing = No se ha indicado la cuenta
+
+# jkut/pgs/planPg.jkut: 215
+# jkut/pgs/summaryPg.jkut: 62
+Accounts = Cuentas
+
+# jkut/main.jkut: 53
+# jkut/pgs/accsPg.jkut: 265
+Accs = Ctas
+
+# jkut/pgs/accsPg.jkut: 257
+All = Todo
+
+# jkut/pgs/cashPg.jkut: 79
+Ammount is 0 = La cantidad es 0
+
+# jkut/pgs/summaryPg.jkut: 54
+# jkut/pgs/summaryPg.jkut: 468
+Balance = Balance
+
+# jkut/pgs/diaryPg.jkut: 434
+Cancel = Cancelar
+
+# jkut/main.jkut: 51
+# jkut/pgs/cashPg.jkut: 330
+Cash = Caixabank
+
+# jkut/pgs/yearPg.jkut: 105
+Change = Cambiar
+
+# jkut/pgs/msgPg.jkut: 20
+Click %0 to continue. = Hacer click %0 para continuar.
+
+# jkut/pgs/yearPg.jkut: 112
+Close = Cerrar
+
+# jkut/pgs/yearPg.jkut: 84
+Close year = Cerrar ejercicio
+
+# jkut/pgs/cashPg.jkut: 55
+# jkut/pgs/diaryPg.jkut: 165
+Date is missing = Falta la fecha
+
+# jkut/pgs/diaryPg.jkut: 229
+Debits sum is different from Credits sum = La suma del Debe es distinta de la del Haber
+
+# jkut/pgs/planPg.jkut: 112
+Delete '%0'? = ¿Eliminar '%0'?
+
+# jkut/pgs/diaryPg.jkut: 139
+Delete annotation %0:\n%1? = ¿Eliminar la anotación %0:\n%1?
+
+# jkut/pgs/planPg.jkut: 297
+Description = Descripción
+
+# jkut/pgs/cashPg.jkut: 68
+# jkut/pgs/diaryPg.jkut: 172
+# jkut/pgs/planPg.jkut: 45
+Description is missing = Falta indicar la descripción
+
+# jkut/main.jkut: 49
+# jkut/pgs/diaryPg.jkut: 551
+Diary = Diario
+
+# jkut/pgs/diaryPg.jkut: 320
+Difference is 0 = La diferencia es 0
+
+# jkut/pgs/yearPg.jkut: 33
+Fail trying to change current year. = Fallo intentanto cambiar el año actual.
+
+# jkut/pgs/planPg.jkut: 300
+Group = Grupo
+
+# jkut/pgs/planPg.jkut: 50
+Group is missing = Falta indicar el grupo
+
+# jkut/pgs/planPg.jkut: 217
+Groups = Grupos
+
+# jkut/data/acc.jkut: 252
+It is used in %0 annotations. = En uso en %0 anotaciones.
+
+# jkut/main.jkut: 26
+KtWeb session is closed.\nAuthenticating from KtWeb:Main. = La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.
+
+# jkut/wgs/accountSelector.jkut: 95
+Most used accounts = Cuentas más usadas
+
+# jkut/pgs/diaryPg.jkut: 560
+# jkut/pgs/diaryPg.jkut: 561
+New = Nuevo
+
+# jkut/pgs/planPg.jkut: 295
+Nº = Nº
+
+# jkut/pgs/summaryPg.jkut: 52
+# jkut/pgs/summaryPg.jkut: 467
+P & L = P & G
+
+# jkut/main.jkut: 57
+# jkut/wgs/accountSelector.jkut: 107
+Plan = Plan
+
+# jkut/main.jkut: 118
+Session is expired. = La sesión ha expirado.
+
+# jkut/pgs/summaryPg.jkut: 50
+# jkut/pgs/summaryPg.jkut: 374
+Statements = Rúbricas
+
+# jkut/data/acc.jkut: 251
+Subaccount '%0' can not be removed.\n = La subcuenta '%0' no puede ser eliminada.\n
+
+# jkut/data/acc.jkut: 239
+# jkut/data/acc.jkut: 272
+Subaccount '%0' is duplicated = La subcuenta '%0' está repetida.
+
+# jkut/pgs/planPg.jkut: 216
+# jkut/pgs/summaryPg.jkut: 64
+Subaccounts = Subcuentas
+
+# jkut/data/acc.jkut: 122
+# jkut/data/acc.jkut: 158
+Subgroup '%0' is duplicated = El subgrupo '%0' está repetido.
+
+# jkut/pgs/planPg.jkut: 214
+Subgroups = Subgrupos
+
+# jkut/main.jkut: 55
+# jkut/pgs/summaryPg.jkut: 515
+Summaries = Resúmenes
+
+# jkut/pgs/summaryPg.jkut: 60
+# jkut/pgs/summaryPg.jkut: 469
+Summary = Resumen
+
+# jkut/pgs/diaryPg.jkut: 234
+Sums of Debits and Credits are zero = La suma del Debe y el Haber es 0
+
+# jkut/pgs/yearPg.jkut: 87
+This operation only can be manually undone.\nContinue? = Esta operación solo puede ser revertida manualmente.\n¿Continuar?
+
+# jkut/pgs/yearPg.jkut: 101
+Year = Ejercicio
+
+# jkut/pgs/yearPg.jkut: 37
+Year %0 not found = No encontrado el año %0
+
+# jkut/pgs/msgPg.jkut: 17
+here = aquí
+

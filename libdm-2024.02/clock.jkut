@@ -1,0 +1,184 @@
+// Copyright 02-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Clock widget.
+
+Q = ui.q;
+
+/// Constructor.
+///   isChron: 'true' if clock is a chronometer.
+///   start  : In mode chronometer, set the time to start.
+///   width  : Widget with.
+///   height : Widget with.
+///   bg     : Background color. (HTML format. e.g. "#f0f0f0")
+///   number : Numbers color. (HTML format. e.g. "#f0f0f0")
+///   axis   : Central axis color. (HTML format. e.g. "#f0f0f0")
+///   hhand  : Hour hand color. (HTML format. e.g. "#f0f0f0")
+///   mhand  : Minute hand color. (HTML format. e.g. "#f0f0f0")
+///   shand  : Second hand color. (HTML format. e.g. "#f0f0f0")
+///   fn     : Function '\tm -> ()' to call every second. This function receive
+///            the current time.
+/// \b,i,i,i,s,s,s,s,s,s,(\i->()) -> <clock>
+mk0 : isChron, start, width, height, bg, number, axis, hhand, mhand, shand, fn;
+
+/// Equals to
+/// mk0(false, time.now(), 120, 120,
+///    "#ffffff", "#000033", "#446688", "#446688", "#446688", "#000033",
+///    \tm -> {})
+/// \ -> <clock>
+mk = \ -> return mk0(
+    false, time.now(), 120, 120,
+    "#ffffff", "#000033", "#446688", "#446688", "#446688", "#000033",
+      \tm -> {}
+  );;
+
+/// \<clock>, b -> ()
+setChron = \O, v -> O[isChron] = v;;
+
+/// \<clock>, i -> ()
+setStart = \O, v -> O[start] = v;;
+
+/// \<clock>, i -> ()
+setWidth = \O, v -> O[width] = v;;
+
+/// \<clock>, i -> ()
+setHeight = \O, v -> O[height] = v;;
+
+/// \<clock>, s -> ()
+setBg = \O, v -> O[bg] = v;;
+
+/// \<clock>, s -> ()
+setNumber = \O, v -> O[number] = v;;
+
+/// \<clock>, s -> ()
+setAxis = \O, v -> O[axis] = v;;
+
+/// \<clock>, s -> ()
+setHhand = \O, v -> O[hhand] = v;;
+
+/// \<clock>, s -> ()
+setMhand = \O, v -> O[mhand] = v;;
+
+/// \<clock>, s -> ()
+setShand = \O, v -> O[shand] = v;;
+
+/// \<clock>, (\i->()) -> ()
+setFn = \O, v -> O[fn] = v;;
+
+/// Returns a new clock widget.
+/// \<clock> -> <domo>
+mkWg = \c -> {
+  cv = Q("canvas")
+    .att("width", c[width])
+    .att("height", c[height])
+  ;
+  el = cv.e;
+  ctx = el.getContext("2d");
+  radius0 = el.height / 2;
+  ctx.translate(radius0, radius0);
+  radius = radius0 * 0.90;
+
+  // \ -> ()
+  drawBack = \ -> {
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = c[bg];
+    ctx.fill();
+    grad = ctx.createRadialGradient(
+      0, 0, radius * 0.95, 0, 0, radius * 1.05
+    );
+    grad.addColorStop(0, "#333");
+    grad.addColorStop(0.5, "white");
+    grad.addColorStop(1, "#333");
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = radius * 0.1;
+    ctx.stroke();
+  };
+
+  // \ -> ()
+  drawBorder = \ -> {
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.93, 0, 2 * Math.PI);
+    ctx.fillStyle = c[bg];
+    ctx.fill();
+  };
+
+  // \ -> ()
+  drawNumbers = \ -> {
+    ctx.fillStyle = c[number];
+    ctx.font = radius * 0.16 + "px sans-serif";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    for (num = 1:13) {
+      ang = num * Math.PI / 6;
+      ctx.rotate(ang);
+      ctx.translate(0, -radius * 0.82);
+      ctx.rotate(-ang);
+      ctx.fillText(math.toStr(num), 0, 0);
+      ctx.rotate(ang);
+      ctx.translate(0, radius * 0.82);
+      ctx.rotate(-ang);
+    }
+  };
+
+  // \f, f, f, s -> ()
+  drawHand = \pos, len, width, color -> {
+    ctx.beginPath();
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.moveTo(0, 0);
+    ctx.rotate(pos);
+    ctx.lineTo(0, -len);
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    ctx.rotate(-pos);
+  };
+
+  // \ -> ()
+  drawTime = \ -> {
+    now = c[isChron]
+      ? time.now() - c[start] - 3600000
+      : time.now()
+    ;
+
+    // Calls external function.
+    c[fn](now);
+
+    hour0 = time.hour(now) % 12;
+    minute0 = time.minute(now);
+    second0 = time.second(now);
+    //hour
+    hour = (hour0 * Math.PI / 6) +
+      (minute0 * Math.PI / (6 * 60)) +
+      (second0 * Math.PI / (360 * 60));
+    drawHand(hour, radius * 0.5, radius * 0.07, c[hhand]);
+    //minute
+    minute = (minute0 * Math.PI / 30) + (second0 * Math.PI / (30 * 60));
+    drawHand(minute, radius * 0.8, radius * 0.07, c[mhand]);
+    // second
+    second = second0 * Math.PI / 30;
+    drawHand(second, radius * 0.9, radius * 0.02, c[shand]);
+  };
+
+  // \ -> ()
+  drawAxis = \ -> {
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.1, 0, 2 * Math.PI);
+    ctx.fillStyle = c[axis];
+    ctx.fill();
+  };
+
+  // \ -> ()
+  paint = \ -> {
+    drawBorder();
+    drawNumbers();
+    drawTime();
+    drawAxis();
+  };
+
+  drawBack();
+  paint();
+  timer.run(timer.mk(1000), paint);
+
+  return cv;
+};

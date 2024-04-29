@@ -1,4 +1,4 @@
-// Copyright 07-May-2023 ºDeme
+// Copyright 08-Mar-2024 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Menu widget.
@@ -12,15 +12,15 @@ Q = ui.q;
 /// \[s]|[], <domo> -> <menuEntry>{[s]|[], <domo>}
 mkEntry = \Id, wg -> return {Id, wg};;
 
-/// Menu onstructor.
-///   Lopts        : Left options.
-///   Ropts        : Right options.
-///   selected     : Identifier of the initial selected option. It it does
-///                  not match any identifier, no one will be selected.
-///   withSeparator: If its value is 'true' a vertical bar separates 'lopts'
-///                  and 'ropts'.
-/// \[<menuEntry>...], [<menuEntry...], s, b -> <domo>
-mk = \Lopts, Ropts, selected, withSeparator -> {
+// Menu constructor.
+//   Lopts        : Left options.
+//   Ropts        : Right options.
+//   selected     : Identifier of the initial selected option. It it does
+//                  not match any identifier, no one will be selected.
+//   withSeparator: If its value is 'true' a vertical bar separates 'lopts'
+//                  and 'ropts'.
+// \[<menuEntry>...], [<menuEntry...], s, b -> <domo>
+mk0 = \Lopts, Ropts, selected, withSeparator -> {
   setId = \o -> {
     if (!!o.Id)
       o.wg.style(o.Id! == selected
@@ -56,11 +56,29 @@ mk = \Lopts, Ropts, selected, withSeparator -> {
   ;
 };
 
-/// Separator ·
+/// Menu constructor.
+///   Lopts        : Left options.
+///   Ropts        : Right options.
+///   selected     : Identifier of the initial selected option. It it does
+///                  not match any identifier, no one will be selected.
+/// \[<menuEntry>...], [<menuEntry...], s -> <domo>
+mk = \Lopts, Ropts, selected -> return mk0(Lopts, Ropts, selected, false);;
+
+/// Menu constructor with a vertical bar which separates 'Lopts' and 'Ropts'.
+///   Lopts        : Left options.
+///   Ropts        : Right options.
+///   selected     : Identifier of the initial selected option. It it does
+///                  not match any identifier, no one will be selected.
+/// \[<menuEntry>...], [<menuEntry...], s -> <domo>
+mkWithSeparator =
+  \Lopts, Ropts, selected -> return mk0(Lopts, Ropts, selected, true);;
+
+
+/// Separator '·'
 /// \-> <menuEntry>
 separator = \-> return mkEntry([], Q("span").text(" · "));;
 
-/// Separator |
+/// Separator '|'
 /// \-> <menuEntry>
 separator2 = \-> return mkEntry([], Q("span").text(" | "));;
 
@@ -86,37 +104,29 @@ ioption = \id, img, fn -> return mkEntry(
   );;
 
 /// Option type link.
-/// Link is formed
-///   '"?" + module + "&" + id'
-/// or
-///   '"?" + id' (if module is []).
+/// Link is formed with the current URL plus '?' and 'id'.
 /// Parameters:
 ///   id: Identifier.
 ///   tx: Html text to show.
-///   Module : [moduleName] or [].
-/// \s, s, [s]|[] -> <menuEntry>
-tlink = \id, tx, Module -> return mkEntry(
+/// \s, s -> <menuEntry>
+tlink = \id, tx -> return mkEntry(
     [id],
     Q("a")
-      .att("href", "?" + (!Module ? "" : Module! + "&") + id)
+      .att("href", "?" + id)
       .html(tx)
   );;
 
 /// Option type link.
-/// Link is formed
-///   '"?" + module + "&" + id'
-/// or
-///   '"?" + id' (if module is []).
+/// Link is formed with the current URL plus '?' and 'id'.
 /// Parameters:
 ///   id: Identifier.
 ///   img: Image to show. It must be placed in a directory named 'img'.
 ///        If it has not extension, '.png' will be used.
-///   Module : [moduleName] or [].
-/// \s, s, [s]|[] -> <menuEntry>
-ilink = \id, img, Module -> return mkEntry(
+/// \s, s -> <menuEntry>
+ilink = \id, img -> return mkEntry(
     [id],
     Q("a")
-      .att("href", "?" + (!Module ? "" : Module! + "&") + id)
+      .att("href", "?" + id)
       .add(ui.img(img)
         .style("vertical-align:top"))
   );;

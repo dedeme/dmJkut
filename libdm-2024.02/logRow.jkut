@@ -1,0 +1,57 @@
+// Copyright 25-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Log row.
+
+/// Constructor.
+///   isError:
+///   tm     :
+///   msg    :
+/// \b,s,s -> <logRow>
+mk : isError, tm, msg;
+
+/// Returns <logRow> date.
+/// \<logRow> -> n
+date = \LgR -> return LgR[tm][2] == "-"
+    ? time.fromEn(str.trim(LgR[tm][:str.index(LgR[tm], "(")]), "-")!
+    : time.fromIso(str.trim(LgR[tm][:str.index(LgR[tm], "(")]), "/")!
+  ;;
+
+// \s, n, n -> s
+format2 = \msg, indent, len -> {
+  if (str.trim(msg) == "") return msg;
+
+  R = [];
+  for (l = str.split(msg, "\n")) {
+    Subr = [];
+
+    L = [l];
+    while (str.len(L!) > len) {
+      Line = [L![:len]];
+      L! = L![len:];
+      ix = str.lastIndex(Line!, " ");
+      if (ix != -1 & str.trim(Line![:ix]) != "") {
+        L! = Line![ix + 1:] + L!;
+        Line! = Line![:ix];
+      }
+      Subr.push(Line!);
+    }
+
+    if (str.trim(L!) != "") Subr.push(L!);
+    for (subl = Subr) R.push(subl);
+  }
+
+  Ind = [""];
+  for (i = 0:indent) Ind! += " ";
+  return R.join("\n" + Ind!);
+};
+
+/// Returns a formatted entry.
+///   lineWidth: Width of line.
+/// \<logRow>, n -> s
+format = \LgR, lineWidth -> {
+  indent = str.len(LgR[tm]) + 3;
+  len = lineWidth - indent;
+  sep = LgR[isError] ? " = " : " - ";
+  return LgR[tm] + sep + format2(LgR[msg], indent, len);
+};

@@ -11,21 +11,21 @@ Q = ui.q;
 ///   wg   : Widget to be shown when option is not selected.
 ///   selWg: Widget to be shown when option is selected.
 /// \[s]|[], <domo>, domo -> d<menuEntry>
-mkEntry = \Id, wg, selWg -> return {Id, wg, selWg};;
+mkEntry : id, wg, selWg;
 
 /// Menu onstructor.
 ///   Opts    : Options.
 ///   selected: Identifier of the selected option.
-/// \[<menuEntry>...], s -> <domo>
-mk = \Opts, selected -> {
+/// \[<menuEntry>.], s -> <domo>
+mk = \:arr Opts, selected -> {
   td = \ -> return Q("td").style("white-space:nowrap");;
 
   return Q("div")
     .add(Q("table")
       .klass("frame")
-      .adds(arr.map(Opts, \e ->
+      .adds(Opts.map(\e ->
           return Q("tr").add(td().add(
-            e.Id != "" & e.Id! == selected ? e.selWg : e.wg
+            !!e[id] & e[id]! == selected ? e[selWg] : e[wg]
           ));
         )))
   ;

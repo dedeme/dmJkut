@@ -32,7 +32,7 @@ mk = \value, wgRatio, borderOp, backOp -> {
 
   // \n, n -> d<pt>
   mkPt = \x, y -> {
-    R = {x, y};
+    :: R = {x, y};
     dic.put(R, "rotate", \angle -> {
       cos = Math.cos(angle);
       sin = Math.sin(angle);

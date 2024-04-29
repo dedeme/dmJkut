@@ -31,25 +31,21 @@
 /// // \s -> s
 /// tlt = \tx -> return switch (tx) {
 ///   "All log entries will be deleted.\nContinue?":
-///     I("All log entries will be deleted.\nContinue?");
-///   "2 Days": I("2 Days");
-///   "All": I("All");
-///   "Reload": I("Reload");
-///   "Delete": I("Delete");
-///   "Errors": I("Errors");
-///   "Log": I("Log");
+///     II("All log entries will be deleted.\nContinue?");
+///   "2 Days": II("2 Days");
+///   "All": II("All");
+///   "Reload": II("Reload");
+///   "Delete": II("Delete");
+///   "Errors": II("Errors");
+///   "Log": II("Log");
 ///   default: tx;
 /// };;
 ///
-/// wgx
-///   .removeAll()
-///   .add(logDiv)
-/// ;
 /// log.mk(logDiv, load, reset, tlt, true, 100, 25);
 ///
 /// Example of SERVER (in main.kut): --------------------------------
 ///
-/// log.init(cts.logPath);
+/// log.setPath(cts.logPath);
 ///
 /// Example of SERVER (in homePg.kut): -------------------------------------
 ///
@@ -58,16 +54,18 @@
 ///   switch (Rq.rq) {
 ///     ...
 ///     "getLog":
-///       sys.print(rp.mkJs({
+///       return rp.mkJs({
 ///         log: log.readJs()
-///       }));
+///       });
 ///     "resetLog": {
 ///       log.reset();
-///       sys.print(rp.mkEmpty());
+///       return rp.mkEmpty();
 ///     }
 ///     ...
 ///   }
 /// };
+
+import "logRow";
 
 Q = ui.q;
 
@@ -84,7 +82,7 @@ Q = ui.q;
 ///   b, n, n -> ()
 mk = async \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
   Rows = [];
-  await load(\Rs -> arr.each(Rs, \LgRow -> arr.push(Rows, LgRow);););
+  await load(\:arr Rs -> Rs.each(\LgRow -> Rows.push(LgRow);););
 
   Minified = [minified];
   Is2Days = [false];
@@ -116,8 +114,8 @@ mk = async \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
 
   // \ ->()
   onReload = \ -> load(\Rs -> {
-      arr.clear(Rows);
-      for (E = Rs) arr.push(Rows, E);
+      Rows.clear();
+      for (E = Rs) Rows.push(E);
       Show!();
     });;
 
@@ -142,8 +140,8 @@ mk = async \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
 
   // \ -> <domo>
   led = \ -> {
-    warns = arr.size(Rows) != 0;
-    errs = arr.any(Rows, \E -> return E.isError;);
+    warns = Rows.size() != 0;
+    errs = Rows.any(\:logRow E -> return E.isError;);
     return Q("td")
       .style("text-align:center;width:20%")
       .add(Q("span")
@@ -208,18 +206,18 @@ mk = async \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
         .add(mkOption(!IsErrors!, tlt("All"), \ -> onAll();)))
     ;
     today = time.now();
-    Log = arr.reverse(Rows);
+    Log = Rows.reverse();
     area.value(
       arr.join(
         arr.map(
           arr.filter(
             Log,
-            \E -> return
-              (Is2Days! ? time.dfDays(today, logRowDate(E)) < 3 : true) &
+            \:logRow E -> return
+              (Is2Days! ? time.dfDays(today, E.date()) < 3 : true) &
               (IsErrors! ? E.isError : true)
             ;
           ),
-          \E -> return logRowFormat(E, lineWidth);
+          \:logRow E -> return E.format(lineWidth);
         ), "\n"
       )
     );
@@ -256,62 +254,3 @@ mk = async \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
 
   Show!();
 };
-
-// <logRow> ====================================================================
-
-/// Log row constuctor.
-///   isError: If 'msg' is an error message.
-///   tm     : Time of message in format 'DD/MM/YYYY(HH:MM:SS)' or
-///            "MM-DD-YYYY(HH:MM:SS)'.
-///   msg    : Message
-/// \b, s, s -> <logRow>
-mkLogRow = \isError, tm, msg -> return {isError, tm, msg};;
-
-// Returns <logRow> date.
-// \<logRow> -> n
-logRowDate = \LgR -> return LgR.tm[2] == "-"
-    ? time.fromEn(str.trim(LgR.tm[:str.index(LgR.tm, "(")]), "-")!
-    : time.fromIso(str.trim(LgR.tm[:str.index(LgR.tm, "(")]), "/")!
-  ;;
-
-// \s, n, n -> s
-format2 = \msg, indent, len -> {
-  if (str.trim(msg) == "") return msg;
-
-  R = [];
-  for (l = str.split(msg, "\n")) {
-    Subr = [];
-
-    L = [l];
-    while (str.len(L!) > len) {
-      Line = [L![:len]];
-      L! = L![len:];
-      ix = str.lastIndex(Line!, " ");
-      if (ix != -1 & str.trim(Line![:ix]) != "") {
-        L! = Line![ix + 1:] + L!;
-        Line! = Line![:ix];
-      }
-      arr.push(Subr, Line!);
-    }
-
-    if (str.trim(L!) != "") arr.push(Subr, L!);
-    for (subl = Subr) arr.push(R, subl);
-  }
-
-  Ind = [""];
-  for (i = 0:indent) Ind! += " ";
-  return arr.join(R, "\n" + Ind!);
-};
-
-// Returns a formatted entry.
-//   lineWidth: Width of line.
-// \<logRow<, n -> s
-logRowFormat = \LgR, lineWidth -> {
-  indent = str.len(LgR.tm) + 3;
-  len = lineWidth - indent;
-  sep = LgR.isError ? " = " : " - ";
-  return LgR.tm + sep + format2(LgR.msg, indent, len);
-};
-
-/// \[*(JS)...] -> <logRow>
-logRowFromJs = \A -> return mkLogRow(A[0], A[1], A[2]);;

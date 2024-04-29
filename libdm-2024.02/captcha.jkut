@@ -1,18 +1,40 @@
-// Copyright 19-Jun-2020 ºDeme
+// Copyright 18-Mar-2024 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Captcha widget.
 
 Q = ui.q;
 
-/// Constructor. Returns the following fields:
-///   wg - <domo>: Component widget.
-///   check - \->b: Function which returns 'true' if checks cells are ok.
-///   increment - \->(): Function witch increment the try counter.
-///   isUpLimit -> \->b: Function which return 'true' if the try counter
-///                      is '>= counterLimit'.
-///   reset -> \->(): Function which remove captcha data from memory.
-/// Parameters:
+// Constructor
+//   wg0        : Component widget.
+//   checkFn    : Function which returns 'true' if checks cells are ok.
+//   incrementFn: Function witch increments the try counter.
+//   isUpLimitFn: Function which returns 'true' if counter is '>= counterLimit'.
+//   resetFn    : Function which removes captcha data from memory.
+// \<domo>, \->b, \->(), \->b, \->() -> <captcha>
+mk0 : wg0, checkFn, incrementFn, isUpLimitFn, resetFn;
+
+/// Return captcha widget.
+/// \<captcha> -> <domo>
+mkWg = \c -> return c[wg0];;
+
+/// Returns 'true' if checks cells are ok.
+/// \<captcha> -> b
+check = \c -> return c[checkFn]();;
+
+/// Increments the try counter.
+/// \<captcha> -> ()
+increment = \c -> return c[incrementFn]();;
+
+/// Returns 'true' if counter is '>= counterLimit'.
+/// \<captcha> -> b
+isUpLimit = \c -> return c[isUpLimitFn]();;
+
+/// Removes captcha data from memory.
+/// \<captcha> -> ()
+reset = \c -> return c[resetFn]();;
+
+/// Constructor.
 ///   storeId     : Captcha identifier.
 ///   counterLimit: Limit of try before show check cells.
 ///   zeroColor   : Color of 0 value in check cells (e.g. "#f0f0f0")
@@ -21,16 +43,16 @@ Q = ui.q;
 mk = \storeId, counterLimit, zeroColor, oneColor -> {
   wg = Q("div");
   now = time.now();
-  Counter = [getCounter(storeId)];
+  counterV = [getCounter(storeId)];
   if (now - getTime(storeId) > 900000) {
-    Counter! = 0;
+    counterV! = 0;
     setCounter(storeId, 0);
     setTime(storeId, time.now());
   }
-  ch0 = arr.fromIter(
+  Ch0 = arr.fromIter(
     iter.map([0:4], \i -> return Q("input").att("type", "checkbox");)
   );
-  ch1 = arr.fromIter(
+  Ch1 = arr.fromIter(
     iter.map([0:4], \i -> return Q("input").att("type", "checkbox");)
   );
 
@@ -38,21 +60,21 @@ mk = \storeId, counterLimit, zeroColor, oneColor -> {
 
   // Checks cells.
   // \-> b
-  check = \ -> return arr.all(ch0, \ch -> return !ch.isChecked();) &
-      arr.all(ch1, \ch -> return ch.isChecked();)
+  check = \ -> return Ch0.all(\ch -> return !ch.isChecked();) &
+      Ch1.all(\ch -> return ch.isChecked();)
     ;;
 
 
   // Increments counter.
   // \-> ()
   increment = \ -> {
-    setCounter(storeId, Counter! + 1);
+    setCounter(storeId, counterV! + 1);
     setTime(storeId, time.now());
   };
 
   // Returns true if tries counter is greater or equals to its limit.
   // \-> b
-  isUpLimit = \ -> return Counter! >= counterLimit;;
+  isUpLimit = \ -> return counterV! >= counterLimit;;
 
   // Resets counter.
   // \-> ()
@@ -64,20 +86,20 @@ mk = \storeId, counterLimit, zeroColor, oneColor -> {
 
   // View ----------------------------------------------------------------------
 
-  tds = arr.concat([
-    arr.map(ch0, \ch -> return Q("td")
+  Tds = arr.concat([
+    Ch0.map(\ch -> return Q("td")
       .att("style", "border: 1px solid;background-color: " + zeroColor)
       .add(ch)
     ;),
-    arr.map(ch1, \ch -> return Q("td")
+    Ch1.map(\ch -> return Q("td")
       .att("style", "border: 1px solid;background-color: " + oneColor)
       .add(ch)
     ;)
   ]);
 
-  arr.shuffle(tds);
-  tds1 = arr.take(tds, 4);
-  tds2 = arr.drop(tds, 4);
+  Tds.shuffle();
+  Tds1 = arr.take(Tds, 4);
+  Tds2 = arr.drop(Tds, 4);
 
   wg
     .removeAll()
@@ -85,12 +107,12 @@ mk = \storeId, counterLimit, zeroColor, oneColor -> {
       .att("border", 0)
       .style("border: 1px solid;background-color: #fffff0")
       .add(Q("tr")
-        .adds(tds1))
+        .adds(Tds1))
       .add(Q("tr")
-        .adds(tds2)))
+        .adds(Tds2)))
   ;
 
-  return {wg, check, increment, isUpLimit, reset};
+  return mk0(wg, check, increment, isUpLimit, reset);
 };
 
 // \s -> n

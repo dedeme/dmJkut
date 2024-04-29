@@ -3,51 +3,51 @@
 
 /// Line chart.
 /// LineChart atributes:
-///   - exArea
-///     -atts
+///   - ExArea
+///     -Atts
 ///       - background: s
-///       - border
+///       - Border
 ///         - color:  s
 ///         - dotted: b
 ///         - width: n
 ///     - height: n
 ///     - width: n
-///   - inPadding
+///   - InPadding
 ///     - top: n
 ///     - right: n
 ///     - bottom: n
 ///     - left: n
-///   - inAtts
+///   - InAtts
 ///     - background: s
-///     - border
+///     - Border
 ///       - color:  s
 ///       - dotted: b
 ///       - width: n
-///   - chartPadding
+///   - ChartPadding
 ///     - top: n
 ///     - right: n
 ///     - bottom: n
 ///     - left: n
-///   - labels
+///   - Labels
 ///     - show: b
 ///     - onPopup: b
-///   - xAxis
+///   - XAxis
 ///     - fontColor: s
 ///     - fontSize: n
 ///     - isMonospace: b
 ///     - isItalic: b
 ///     - isBold: b
-///     - grid
+///     - Grid
 ///       - color:  s
 ///       - dotted: b
 ///       - width: n
-///   - yAxis
+///   - YAxis
 ///     - fontColor: s
 ///     - fontSize: n
 ///     - isMonospace: b
 ///     - isItalic: b
 ///     - isBold: b
-///     - grid
+///     - Grid
 ///       - color:  s
 ///       - dotted: b
 ///       - width: n
@@ -57,7 +57,7 @@
 /// <data> attributes:
 ///   - Labels: [s...]
 ///   - UnarySets: [<unarySet>...]
-///     · line
+///     · Line
 ///       - color:  s
 ///       - dotted: b
 ///       - width: n
@@ -118,13 +118,13 @@ mkLineExample = \ -> return mkLine(1, "#002040", false);;
 
 /// Attributtes of a chart area (extern or intern). Mutable.
 /// \<line>, s -> d<areaAtts>
-mkAreaAtts = \border, background -> return {border, background};;
+mkAreaAtts = \Border, background -> return {Border, background};;
 
 /// \<areaAtts> -> <areaAtts>
-areaAttsCopy = \A -> return mkAreaAtts(lineCopy(A.border), A.background);;
+areaAttsCopy = \A -> return mkAreaAtts(lineCopy(A.Border), A.background);;
 
 /// \<areaAtts> -> [*(JS)...]
-areaAttsToJs = \A -> return [lineToJs(A.border), A.background];;
+areaAttsToJs = \A -> return [lineToJs(A.Border), A.background];;
 
 /// \[*(JS)...] -> <areaAtts>
 areaAttsFromJs = \A -> return mkAreaAtts(lineFromJs(A[0]), A[1]);;
@@ -136,13 +136,13 @@ mkAreaAttsExample = \ -> return mkAreaAtts(mkLineExample(), "#e9eaec");;
 
 /// External area attibutes. Mutable.
 /// \n, n, <areaAtts> -> m<area>
-mkArea = \width, height, atts -> return {width, height, atts};;
+mkArea = \width, height, Atts -> return {width, height, Atts};;
 
 /// \<area> -> <area>
-areaCopy = \A -> return mkArea(A.width, A.height, areaAttsCopy(A.atts));;
+areaCopy = \A -> return mkArea(A.width, A.height, areaAttsCopy(A.Atts));;
 
 /// \<area> -> [*(JS)...]
-areaToJs = \A -> return [A.width, A.height, areaAttsToJs(A.atts)];;
+areaToJs = \A -> return [A.width, A.height, areaAttsToJs(A.Atts)];;
 
 /// \[*(JS)...] -> <area>
 areaFromJs = \A -> return mkArea(A[0], A[1], areaAttsFromJs(A[2]));;
@@ -153,8 +153,8 @@ mkAreaExample = \ -> return mkArea(400, 200, mkAreaAttsExample());;
 // UNARY-SET
 
 /// Fixed data set with only one value. (No serializable). Mutable.
-/// \s, n , <line> -> <unarySet>
-mkUnarySet = \label, value, line -> return {label, value, line};;
+/// \n , <line> -> <unarySet>
+mkUnarySet = \label, value, Line -> return {label, value, Line};;
 
 /// \ -> <unarySet>
 mkUnarySetExample = \ -> return mkUnarySet("Line", 0, mkLineExample());;
@@ -209,12 +209,12 @@ mkUnarySetExample = \ -> return mkUnarySet("Line", 0, mkLineExample());;
 /// \[s...], [[[n]|[]...]...], [<line>...] -> <data>
 mkData = \Labels, SetValues, SetAtts -> {
     if (!Labels) throw("'Labels' does not have values");
-    if (!SetValues) throw("'SetValues' does not have values");
-    if (!SetValues[0]) throw("'SetValues[0]' does not have values");
+    if (!SetValues) throw("'SetValuess' does not have values");
+    if (!SetValues[0]) throw("'SetValuess[0]' does not have values");
     if (arr.size(SetValues) != arr.size(SetAtts))
       throw (
-        "Number of values sets (" + arr.size(SetValues) +
-        ") does not match number of attributes set (" + arr.size(SetAtts) + ")"
+        "Number of sets (" + arr.size(SetValues) +
+        ") does not match number of sets Attributes (" + arr.size(SetAtts) + ")"
       );
 
     UnarySets = [];
@@ -233,15 +233,15 @@ mkData = \Labels, SetValues, SetAtts -> {
 /// \ -> <data>
 mkDataExample = \ -> {
   Labels = ["Mon", "Tue", "Wen", "Thu", "Fri", "Sat", "Sun"];
-  setValues = [
+  SetValues = [
     arr.map([1, 2, 9.54, 10.2, 6.2, -7, 7], \e -> return [e];),
     arr.map([2, -4, -2.15, -5.2, 7, 3, 4], \e -> return [e];)
   ];
-  setAtts = [mkLineExample(),mkLineExample()];
-  setAtts[0].color = "#000080";
-  setAtts[1].color = "#800000";
+  SetAtts = [mkLineExample(),mkLineExample()];
+  SetAtts[0].color = "#000080";
+  SetAtts[1].color = "#800000";
 
-  return mkData(Labels, setValues, setAtts);
+  return mkData(Labels, SetValues, SetAtts);
 };
 
 // LABELS
@@ -261,7 +261,7 @@ labelsToJs = \L -> return [L.show, L.onPopup];;
 /// \[*(JS)...] -> <labels>
 labelsFromJs = \A -> return mkLine(A[0], A[1]);;
 
-/// \ -> <labels>
+/// \ -> return <labels>
 mkLabelsExample = \ -> return mkLabels(true, false);;
 
 // X
@@ -272,20 +272,20 @@ mkLabelsExample = \ -> return mkLabels(true, false);;
 ///   isItalic: 'true' if font is italic.
 ///   isBold: 'true' if font is bold.
 ///   fontColor: Font color.
-///   grid: Attributes of grid lines.
+///   Grid: Attributes of grid lines.
 /// \n, b, b, b, s, <line> -> <x>
-mkX = \fontSize, isMonospace, isItalic, isBold, fontColor, grid -> return {
-    fontSize, isMonospace, isItalic, isBold, fontColor, grid
+mkX = \fontSize, isMonospace, isItalic, isBold, fontColor, Grid -> return {
+    fontSize, isMonospace, isItalic, isBold, fontColor, Grid
   };;
 
 /// \<x> -> <x>
 xCopy = \X -> return mkX(
-    X.fontSize, X.isMonospace, X.isItalic, X.isBold, X.fontColor, X.grid
+    X.fontSize, X.isMonospace, X.isItalic, X.isBold, X.fontColor, X.Grid
   );;
 
 /// \<x> -> [*(JS)...]
 xToJs = \X -> return [
-    X.fontSize, X.isMonospace, X.isItalic, X.isBold, X.fontColor, lineToJs(X.grid)
+    X.fontSize, X.isMonospace, X.isItalic, X.isBold, X.fontColor, lineToJs(X.Grid)
   ];;
 
 /// \[*(JS)...] -> <x>
@@ -306,22 +306,22 @@ mkXExample = \ -> return mkX(
 ///   isItalic: 'true' if font is italic.
 ///   isBold: 'true' if font is bold.
 ///   fontColor: Font color.
-///   grid: Attributes of grid lines.
+///   Grid: Attributes of grid lines.
 ///   parts: Parts to divide the chart horizontally (minimum 1).
 /// \n, b, b, b, s, <line>, n -> <y>
-mkY = \fontSize, isMonospace, isItalic, isBold, fontColor, grid, parts -> return {
-    fontSize, isMonospace, isItalic, isBold, fontColor, grid, parts
+mkY = \fontSize, isMonospace, isItalic, isBold, fontColor, Grid, parts -> return {
+    fontSize, isMonospace, isItalic, isBold, fontColor, Grid, parts
   };;
 
 /// \<y> -> <y>
 yCopy = \Y -> return mkY(
-    Y.fontSize, Y.isMonospace, Y.isItalic, Y.isBold, Y.fontColor, Y.grid, Y.parts
+    Y.fontSize, Y.isMonospace, Y.isItalic, Y.isBold, Y.fontColor, Y.Grid, Y.parts
   );;
 
 /// \<y> -> [*(JS)...]
 yToJs = \Y -> return [
     Y.fontSize, Y.isMonospace, Y.isItalic, Y.isBold, Y.fontColor,
-    lineToJs(Y.grid), Y.parts
+    lineToJs(Y.Grid), Y.parts
   ];;
 
 /// \[*(JS)...] -> <y>
@@ -337,31 +337,31 @@ mkYExample = \ -> return mkY(
 // LINE-CHART ------------------------------------------------------------------
 
 /// Constructor
-///   exArea: External area.
-///   inPadding: Padding between the beginning of external area and the beginning of internal area.
-///   inAtts: Attrubutes of internal area.
-///   chartPadding: Padding between the beginning of internal area and chart plotting.
-///   labels: Interior labels attributes (if they are shown or 'in popup'.
-///   xAxis: X axis attributes.
-///   yAxis: Y axis attributes.
+///   ExArea: External area.
+///   InPadding: Padding between the beginning of external area and the beginning of internal area.
+///   InAtts: Attrubutes of internal area.
+///   ChartPadding: Padding between the beginning of internal area and chart plotting.
+///   Labels: Interior labels attributes (if they are shown or 'in popup'.
+///   XAxis: X axis attributes.
+///   YAxis: Y axis attributes.
 ///   lang: Valid values are "es" and "en".
 /// \<area>, <padding>, <areaAtts>, <padding>, <labels>, <xAxis>, <yAxis>, s -> <lineChart>
-mk = \exArea, inPadding, inAtts, chartPadding, labels, xAxis, yAxis, lang -> return {
-    exArea, inPadding, inAtts, chartPadding, labels, xAxis, yAxis, lang
+mk = \ExArea, InPadding, InAtts, ChartPadding, Labels, XAxis, YAxis, lang -> return {
+    ExArea, InPadding, InAtts, ChartPadding, Labels, XAxis, YAxis, lang
   };;
 
 /// \<lineChart> -> <lineChart>
 copy = \lC -> return mk(
-    areaCopy(lC.exArea), paddingCopy(lC.inPadding), areaAttsCopy(lC.inAtts),
-    paddingCopy(lC.chartPadding), labelsCopy(lC.labels), xCopy(lC.xAxis),
-    yCopy(lC.yAxis), lC.lang
+    areaCopy(lC.ExArea), paddingCopy(lC.InPadding), areaAttsCopy(lC.InAtts),
+    paddingCopy(lC.ChartPadding), labelsCopy(lC.Labels), xCopy(lC.XAxis),
+    yCopy(lC.YAxis), lC.lang
   );;
 
 /// \<lineChart> -> [*(JS)...]
 toJs = \lC -> return [
-    areaToJs(lC.exArea), paddingToJs(lC.inPadding), areaAttsToJs(lC.inAtts),
-    paddingToJs(lC.chartPadding), labelsToJs(lC.labels), xToJs(lC.xAxis),
-    yToJs(lC.yAxis), lC.lang
+    areaToJs(lC.ExArea), paddingToJs(lC.InPadding), areaAttsToJs(lC.InAtts),
+    paddingToJs(lC.ChartPadding), labelsToJs(lC.Labels), xToJs(lC.XAxis),
+    yToJs(lC.YAxis), lC.lang
   ];;
 
 /// \[*(JS)...] -> <lineChart>
@@ -372,12 +372,12 @@ fromJs = \A -> return mk(
 
 /// \ -> <lineChart>
 mkExample = \ -> {
-  inAtts = mkAreaAttsExample();
-  inAtts.background = "#fbfdff";
+  InAtts = mkAreaAttsExample();
+  InAtts.background = "#fbfdff";
   return mk(
     mkAreaExample(),
     mkPaddingExample(),
-    inAtts,
+    InAtts,
     mkPadding(2, 4, 2, 4),
     mkLabelsExample(),
     mkXExample(),
@@ -390,15 +390,15 @@ mkExample = \ -> {
 ///   lineChart: Model.
 ///   data: Chart datasets.
 /// \<lineChart>, <data> -> <domo>
-mkWg = \lC, data -> {
+mkWg = \lC, Data -> {
   // Value correction to plot.
   // \n -> n
   corr = \x -> return Math.floor(x) + 0.5;;
 
   // \n -> s
   decFmt = \n -> return lC.lang == "es"
-      ? math.toIso(n, data.round)
-      : math.toEn(n, data.round)
+      ? math.toIso(n, Data.round)
+      : math.toEn(n, Data.round)
     ;;
 
   // [n...]
@@ -415,7 +415,7 @@ mkWg = \lC, data -> {
 
   // Set max, min and gap
 
-  for (S = data.SetValues) for (Val = S) {
+  for (S = Data.SetValues) for (Val = S) {
     if (!!Val) {
       if (!!Max!) {
         Max!! = Val! > Max!! ? Val! : Max!!;
@@ -426,7 +426,7 @@ mkWg = \lC, data -> {
       }
     }
   }
-  for (S = data.UnarySets) {
+  for (S = Data.UnarySets) {
     if (!!Max!) {
       Max!! = S.value > Max!! ? S.value : Max!!;
       Min! = S.value < Min! ? S.value : Min!;
@@ -436,7 +436,7 @@ mkWg = \lC, data -> {
     }
   }
   if (!!Max!) {
-    round = Math.pow(10, data.maxMinRound(Max!!, Min!));
+    round = Math.pow(10, Data.maxMinRound(Max!!, Min!));
     Max!! = (Math.round(Max!! / round) + 1) * round;
     Min! = (Math.round(Min! / round) - 1) * round;
     Gap! = Max!! - Min!;
@@ -444,17 +444,17 @@ mkWg = \lC, data -> {
 
   // Set chart dimensions
 
-  w = lC.exArea.width -
-    lC.inPadding.left - lC.inPadding.right -
-    lC.chartPadding.left - lC.chartPadding.right
+  w = lC.ExArea.width -
+    lC.InPadding.left - lC.InPadding.right -
+    lC.ChartPadding.left - lC.ChartPadding.right
   ;
-  h = lC.exArea.height -
-    lC.inPadding.top - lC.inPadding.bottom -
-    lC.chartPadding.top - lC.chartPadding.bottom
+  h = lC.ExArea.height -
+    lC.InPadding.top - lC.InPadding.bottom -
+    lC.ChartPadding.top - lC.ChartPadding.bottom
   ;
-  x0 = lC.inPadding.left + lC.chartPadding.left;
+  x0 = lC.InPadding.left + lC.ChartPadding.left;
   xEnd = x0 + w;
-  y0 = lC.exArea.height - lC.inPadding.bottom - lC.chartPadding.bottom;
+  y0 = lC.ExArea.height - lC.InPadding.bottom - lC.ChartPadding.bottom;
   yEnd = y0 - h;
 
   // Start plot
@@ -462,16 +462,16 @@ mkWg = \lC, data -> {
   wg = Q("div");
 
   cv = Q("canvas")
-    .att("width", lC.exArea.width)
-    .att("height", lC.exArea.height)
-    .style("background:" + lC.exArea.atts.background)
+    .att("width", lC.ExArea.width)
+    .att("height", lC.ExArea.height)
+    .style("background:" + lC.ExArea.Atts.background)
   ;
   cv2 = Q("canvas")
     .att("width", 0)
     .att("height", 0)
     .style(
         "border: 1px solid black;" +
-        "background:" + lC.inAtts.background + ";" +
+        "background:" + lC.InAtts.background + ";" +
         "position: absolute;" +
         "visibility: hidden;"
       )
@@ -486,80 +486,80 @@ mkWg = \lC, data -> {
 
   // External area.
 
-  if (lC.exArea.atts.border.width > 0) {
-    ctx.setLineDash(lC.exArea.atts.border.dotted ? [4, 2] : []);
-    ctx.lineWidth = lC.exArea.atts.border.width;
-    ctx.strokeStyle = lC.exArea.atts.border.color;
+  if (lC.ExArea.Atts.Border.width > 0) {
+    ctx.setLineDash(lC.ExArea.Atts.Border.dotted ? [4, 2] : []);
+    ctx.lineWidth = lC.ExArea.Atts.Border.width;
+    ctx.strokeStyle = lC.ExArea.Atts.Border.color;
     ctx.beginPath();
     ctx.rect(
       corr(0),
       corr(0),
-      Math.round(lC.exArea.width - 1),
-      Math.round(lC.exArea.height - 1)
+      Math.round(lC.ExArea.width - 1),
+      Math.round(lC.ExArea.height - 1)
     );
     ctx.stroke();
   }
 
   // Internal area.
 
-  ilf = lC.inPadding.left;
-  itop = lC.inPadding.top;
-  iw = lC.exArea.width - lC.inPadding.left - lC.inPadding.right - 1;
-  ih = lC.exArea.height - lC.inPadding.top - lC.inPadding.bottom - 1;
+  ilf = lC.InPadding.left;
+  itop = lC.InPadding.top;
+  iw = lC.ExArea.width - lC.InPadding.left - lC.InPadding.right - 1;
+  ih = lC.ExArea.height - lC.InPadding.top - lC.InPadding.bottom - 1;
 
-  ctx.fillStyle = lC.inAtts.background;
+  ctx.fillStyle = lC.InAtts.background;
   ctx.beginPath();
   ctx.rect(ilf, itop, iw, ih);
   ctx.fill();
 
   // Draw x
 
-  ctx.fillStyle = lC.xAxis.fontColor;
-  ctx.font = "" + lC.xAxis.fontSize + "px " +
-    (lC.xAxis.isMonospace ? "monospace" : "sans") +
-    (lC.xAxis.isItalic ? " italic" : "") +
-    (lC.xAxis.isBold ? " bold" : "")
+  ctx.fillStyle = lC.XAxis.fontColor;
+  ctx.font = "" + lC.XAxis.fontSize + "px " +
+    (lC.XAxis.isMonospace ? "monospace" : "sans") +
+    (lC.XAxis.isItalic ? " italic" : "") +
+    (lC.XAxis.isBold ? " bold" : "")
   ;
-  for (i = 0:arr.size(data.Labels)) {
-    l0 = data.Labels[i];
+  for (i = 0:arr.size(Data.Labels)) {
+    l0 = Data.Labels[i];
 
-    if (!data.drawLabel(l0, i)) continue;
-    l = data.mapLabel(l0, i);
+    if (!Data.drawLabel(l0, i)) continue;
+    l = Data.mapLabel(l0, i);
 
     lw = ctx.measureText(l).width;
     ctx.fillText(l,
-      x0  + i * w / (data.Labels.length - 1) - lw / 2,
-      y0 + lC.chartPadding.bottom + lC.xAxis.fontSize
+      x0  + i * w / (Data.Labels.length - 1) - lw / 2,
+      y0 + lC.ChartPadding.bottom + lC.XAxis.fontSize
     );
   }
 
-  for (i = 0:arr.size(data.Labels)) {
-    l = data.Labels[i];
-    cx = corr(x0 + i * w / (arr.size(data.Labels) - 1));
+  for (i = 0:arr.size(Data.Labels)) {
+    l = Data.Labels[i];
+    cx = corr(x0 + i * w / (arr.size(Data.Labels) - 1));
 
     arr.push(HotLabels, cx);
 
-    if (i == 0 | i >= arr.size(data.Labels) | !data.drawGrid(l, i)) continue;
+    if (i == 0 | i >= arr.size(Data.Labels) | !Data.drawGrid(l, i)) continue;
 
-    ctx.setLineDash(lC.xAxis.grid.dotted ? [4, 2] : []);
-    ctx.lineWidth = lC.xAxis.grid.width;
-    ctx.strokeStyle = lC.xAxis.grid.color;
+    ctx.setLineDash(lC.XAxis.Grid.dotted ? [4, 2] : []);
+    ctx.lineWidth = lC.XAxis.Grid.width;
+    ctx.strokeStyle = lC.XAxis.Grid.color;
     ctx.beginPath();
-    ctx.moveTo(cx, corr(y0 + lC.chartPadding.bottom));
-    ctx.lineTo(cx, corr(yEnd - lC.chartPadding.top));
+    ctx.moveTo(cx, corr(y0 + lC.ChartPadding.bottom));
+    ctx.lineTo(cx, corr(yEnd - lC.ChartPadding.top));
     ctx.stroke();
   }
 
   // Draw y
 
-  ctx.fillStyle = lC.yAxis.fontColor;
-  ctx.font = "" + lC.yAxis.fontSize + "px " +
-    (lC.yAxis.isMonospace ? "monospace" : "sans") +
-    (lC.yAxis.isItalic ? " italic" : "") +
-    (lC.yAxis.isBold ? " bold" : "")
+  ctx.fillStyle = lC.YAxis.fontColor;
+  ctx.font = "" + lC.YAxis.fontSize + "px " +
+    (lC.YAxis.isMonospace ? "monospace" : "sans") +
+    (lC.YAxis.isItalic ? " italic" : "") +
+    (lC.YAxis.isBold ? " bold" : "")
   ;
 
-  parts = lC.yAxis.parts < 1 ? 1 : lC.yAxis.parts;
+  parts = lC.YAxis.parts < 1 ? 1 : lC.YAxis.parts;
   for (i = 0:parts+1) {
     yVal = Min! + i * Gap! / parts;
     y = y0 - (yVal - Min!) * h / Gap!;
@@ -568,29 +568,29 @@ mkWg = \lC, data -> {
     ms = ctx.measureText(n).width;
     ctx.fillText(
       n,
-      lC.inPadding.left - 4 - ms,
-      y + lC.yAxis.fontSize / 2.5
+      lC.InPadding.left - 4 - ms,
+      y + lC.YAxis.fontSize / 2.5
     );
 
     if (i == 0 | i == parts) continue;
 
-    ctx.setLineDash(lC.yAxis.grid.dotted ? [4, 2] : []);
-    ctx.lineWidth = lC.yAxis.grid.width;
-    ctx.strokeStyle = lC.yAxis.grid.color;
+    ctx.setLineDash(lC.YAxis.Grid.dotted ? [4, 2] : []);
+    ctx.lineWidth = lC.YAxis.Grid.width;
+    ctx.strokeStyle = lC.YAxis.Grid.color;
     ctx.beginPath();
-    ctx.moveTo(x0 - lC.chartPadding.left, corr(y));
-    ctx.lineTo(xEnd + lC.chartPadding.right, corr(y));
+    ctx.moveTo(x0 - lC.ChartPadding.left, corr(y));
+    ctx.lineTo(xEnd + lC.ChartPadding.right, corr(y));
     ctx.stroke();
   }
 
   // Draw unary lines data sets.
-  for (Ul = data.UnarySets) {
+  for (Ul = Data.UnarySets) {
     cy = y0 - (Ul.value - Min!) * h / Gap!;
     arr.push(HotUnarySets, corr(cy));
 
-    ctx.setLineDash(Ul.line.dotted ? [4, 2] : []);
-    ctx.lineWidth = Ul.line.width;
-    ctx.strokeStyle = Ul.line.color;
+    ctx.setLineDash(Ul.Line.dotted ? [4, 2] : []);
+    ctx.lineWidth = Ul.Line.width;
+    ctx.strokeStyle = Ul.Line.color;
     ctx.beginPath();
     ctx.moveTo(corr(x0), corr(cy));
     ctx.lineTo(corr(xEnd), corr(cy));
@@ -600,8 +600,8 @@ mkWg = \lC, data -> {
   // Draw data sets
 
   if (!!Max!) {
-    for (i = 0:arr.size(data.SetValues)) {
-      S = data.SetValues[i];
+    for (i = 0:arr.size(Data.SetValues)) {
+      S = Data.SetValues[i];
       sSize = arr.size(S);
       // [[n]|[]..]
       HotSetRow = [];
@@ -620,9 +620,9 @@ mkWg = \lC, data -> {
         break;
       }
 
-      ctx.setLineDash(data.SetAtts[i].dotted ? [4, 2] : []);
-      ctx.lineWidth = data.SetAtts[i].width;
-      ctx.strokeStyle = data.SetAtts[i].color;
+      ctx.setLineDash(Data.SetAtts[i].dotted ? [4, 2] : []);
+      ctx.lineWidth = Data.SetAtts[i].width;
+      ctx.strokeStyle = Data.SetAtts[i].color;
       ctx.beginPath();
       ctx.moveTo(corr(x0 + (IxStart! - 1) * w / (sSize - 1)), Cy0!);
       if (IxStart! >= sSize | !S[IxStart!]) {
@@ -671,10 +671,10 @@ mkWg = \lC, data -> {
 
   // Draw internal frame
 
-  if (lC.inAtts.border.width > 0) {
-    ctx.setLineDash(lC.inAtts.border.dotted ? [4, 2] : []);
-    ctx.lineWidth = lC.inAtts.border.width;
-    ctx.strokeStyle = lC.inAtts.border.color;
+  if (lC.InAtts.Border.width > 0) {
+    ctx.setLineDash(lC.InAtts.Border.dotted ? [4, 2] : []);
+    ctx.lineWidth = lC.InAtts.Border.width;
+    ctx.strokeStyle = lC.InAtts.Border.color;
     ctx.beginPath();
     ctx.rect(corr(ilf), corr(itop), Math.round(iw), Math.round(ih));
     ctx.stroke();
@@ -703,10 +703,10 @@ mkWg = \lC, data -> {
     SetIx = [-1];
     SetValIx = [-1];
     SetDif = [0];
-    for (i = 0:arr.size(data.SetValues)) {
+    for (i = 0:arr.size(Data.SetValues)) {
       if (i < 0 | i > arr.size(HotSetValues)) continue;
       HotSetValuesRow = HotSetValues[i];
-      Vs = data.SetValues[i];
+      Vs = Data.SetValues[i];
       for (j = 0:arr.size(Vs)) {
         if (j < 0 | j > arr.size(HotSetValuesRow)) continue;
         HotSet = HotSetValuesRow[j];
@@ -725,7 +725,7 @@ mkWg = \lC, data -> {
     }
 
     if (UnarySetIx! != -1 | SetIx! != -1) {
-      yfirst = lC.yAxis.fontSize;
+      yfirst = lC.YAxis.fontSize;
       ysecond = yfirst * 2 + yfirst / 4;
       ysize = yfirst * 2.75;
 
@@ -734,20 +734,20 @@ mkWg = \lC, data -> {
       Color = [""];
 
       if (SetIx! != -1) {
-        Tx1! = data.Labels[SetValIx!];
-        Tx2! = decFmt(data.SetValues[SetIx!][SetValIx!]!);
-        Color! = data.SetAtts[SetIx!].color;
+        Tx1! = Data.Labels[SetValIx!];
+        Tx2! = decFmt(Data.SetValues[SetIx!][SetValIx!]!);
+        Color! = Data.SetAtts[SetIx!].color;
       } else {
-        Tx1! = data.UnarySets[UnarySetIx!].label;
-        Tx2! = decFmt(data.UnarySets[UnarySetIx!].value);
-        Color! = data.UnarySets[UnarySetIx!].line.color;
+        Tx1! = Data.UnarySets[UnarySetIx!].label;
+        Tx2! = decFmt(Data.UnarySets[UnarySetIx!].value);
+        Color! = Data.UnarySets[UnarySetIx!].Line.color;
       }
 
       ctx2 = cv2.e.getContext("2d");
-      ctx2.font = "" + lC.yAxis.fontSize + "px " +
-        (lC.yAxis.isMonospace ? "monospace" : "sans") +
-        (lC.yAxis.isItalic ? " italic" : "") +
-        (lC.yAxis.isBold ? " bold" : "")
+      ctx2.font = "" + lC.YAxis.fontSize + "px " +
+        (lC.YAxis.isMonospace ? "monospace" : "sans") +
+        (lC.YAxis.isItalic ? " italic" : "") +
+        (lC.YAxis.isBold ? " bold" : "")
       ;
       ms1 = ctx2.measureText(Tx1!).width;
       ms2 = ctx2.measureText(Tx2!).width;
@@ -761,9 +761,9 @@ mkWg = \lC, data -> {
         Ms! = ms2 + Margin2! * 2;
       }
 
-      if (lC.labels.show) {
-        posY = lC.labels.onPopup ? ev.clientY : ui.mouseY(ev);
-        posX = lC.labels.onPopup ? ev.clientX : ui.mouseX(ev);
+      if (lC.Labels.show) {
+        posY = lC.Labels.onPopup ? ev.clientY : ui.mouseY(ev);
+        posX = lC.Labels.onPopup ? ev.clientX : ui.mouseX(ev);
         cv2
           .att("height", ysize)
           .att("width", Ms!)
@@ -774,10 +774,10 @@ mkWg = \lC, data -> {
 
         ctx3 = cv2.e.getContext("2d");
         ctx3.fillStyle = Color!;
-        ctx3.font = "" + lC.yAxis.fontSize + "px " +
-          (lC.yAxis.isMonospace ? "monospace" : "sans") +
-          (lC.yAxis.isItalic ? " italic" : "") +
-          (lC.yAxis.isBold ? " bold" : "")
+        ctx3.font = "" + lC.YAxis.fontSize + "px " +
+          (lC.YAxis.isMonospace ? "monospace" : "sans") +
+          (lC.YAxis.isItalic ? " italic" : "") +
+          (lC.YAxis.isBold ? " bold" : "")
         ;
         ctx3.fillText(Tx1!, Margin1!, yfirst);
         ctx3.fillText(Tx2!, Margin2!, ysecond);

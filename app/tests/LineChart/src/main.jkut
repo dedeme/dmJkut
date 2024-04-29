@@ -7,14 +7,14 @@ import "libdm/lineChart" : lC;
 
 Q = ui.q;
 
-Ch1 = lC.mkExample();
-Ch1.ExArea.width = 600;
-Ch1.XAxis.fontSize = 10;
-Ch1.YAxis.fontSize = 10;
-Ch1.lang = "en";
+ch1 = lC.mkExample();
+ch1.exArea.width = 600;
+ch1.xAxis.fontSize = 10;
+ch1.yAxis.fontSize = 10;
+ch1.lang = "en";
 
-Data = lC.mkDataExample();
-arr.push(Data.UnarySets, lC.mkUnarySet(0, lC.mkLineExample()));
+data = lC.mkDataExample();
+arr.push(data.UnarySets, lC.mkUnarySet("cero", 0, lC.mkLineExample()));
 
 Q("@body")
   .style("background-color:#f0f1f2")
@@ -39,6 +39,6 @@ Q("@body")
   .add(Q("table").att("align", "center")
     .add(Q("tr")
       .add(Q("td")
-        .add(lC.mkWg(Ch1, Data)))))
+        .add(lC.mkWg(ch1, data)))))
 ;
 

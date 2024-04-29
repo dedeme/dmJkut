@@ -1,0 +1,176 @@
+// Copyright 05-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Activity report page.
+
+import "libdm/modalBox";
+import "cts";
+import "data/fromServer";
+import "data/fromClient";
+import "wgs/progressBar";
+import "i18n";
+
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+/// \<domo>, <modalBox> -> ()
+mk = async \wg, box -> {
+  , :fromClient cl : await client.send({
+    prg: cts.appName,
+    source: "Report",
+    rq: "idata"
+  });
+
+  tm = timer.mk(1000);
+  stopBtDiv = Q("div");
+  reportDiv = Q("div");
+  warea = Q("textarea")
+    .att("readonly", true)
+    .att("spellcheck", false)
+    .att("cols", 50)
+    .att("rows", 5)
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \ -> ()
+  update = async \ -> {
+    , :fromServer sv : await client.send({
+      prg: cts.appName,
+      source: "Report",
+      rq: "update"
+    });
+
+    progressDiv = Q("div");
+    progressBar.mk(progressDiv, sv.currentCount, sv.totalCount);
+    warea.text(arr.join(sv.Warnings, "\n"));
+
+    switch(sv.state) {
+      fromServer.end: {
+        tm.stop();
+        modalBox.show(box, false);
+      }
+      fromServer.error: reportDiv
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .klass("frame4")
+              .text(sv.errorMsg))))
+        ;
+      fromServer.readingSource: reportDiv
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .klass("frame")
+              .html(II("Reading source data") + "<br>" + sv.currentCount))))
+        ;
+      fromServer.readingTarget: reportDiv
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .klass("frame")
+              .html(II("Reading target data") + "<br>" + sv.currentCount))))
+        ;
+      fromServer.selecting: reportDiv
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .klass("frame")
+              .html(II("Selecting files to copy"))))
+          .add(Q("tr")
+            .add(Q("td")
+              .add(progressDiv))))
+        ;
+      fromServer.copying: reportDiv
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .klass("frame")
+              .html(II("Copying data"))))
+          .add(Q("tr")
+            .add(Q("td")
+              .add(progressDiv))))
+        ;
+      fromServer.deleting: reportDiv
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .klass("frame")
+              .html(II("Deleting data")))))
+        ;
+      default: throw ("State " + sv.state + " unknown");
+    }
+  };
+
+  // \ -> ()
+  stop = async \ -> {
+    await client.send({
+      prg: cts.appName,
+      source: "Report",
+      rq: "stop"
+    });
+    stopBtDiv
+      .removeAll()
+      .add(ui.img("wait.gif"))
+    ;
+    update();
+  };
+
+  // View ----------------------------------------------------------------------
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 2)
+          .klass("head")
+          .text(II("Backup"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:5px;text-align:right;padding-right:5px")
+          .text(II("From") + ":"))
+        .add(Q("td")
+          .style("text-align:left")
+          .text(cl.source)))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:5px;text-align:right;padding-right:5px")
+          .text(II("to") + ":"))
+        .add(Q("td")
+          .style("text-align:left")
+          .text(cl.target)))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 2)
+          .add(stopBtDiv
+            .add(Q("button")
+              .style("with:100px")
+              .on("click", \ev -> stop();)
+              .text(II("stop")))))))
+    .add(ui.hrule(II("State"), 50))
+    .add(reportDiv)
+    .add(ui.hrule(II("Warnings"), 50))
+    .add(warea)
+  ;
+
+  update();
+
+  tm.run(update);
+};

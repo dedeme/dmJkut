@@ -1,0 +1,32 @@
+// Copyright 13-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Annotation data.
+
+import "opr";
+
+/// Constructor. Use 'mk'.
+///   id  : Identifier. Must be set to -1. Its value will be set when
+///         the annotation is added to its <annsTb>.
+///   date: Annotation date.
+///   op  : Operation annotated.
+/// \n,s,<opr> -> <ann>
+mk0 : id, date, op;
+
+/// Constructor equals to 'mk0(-1, date, op)'
+/// \n,s,<opr> -> <ann>
+mk = \date, op -> return mk0(-1, date, op);;
+
+/// Constructor changing the identifier value.
+/// \<ann>, n -> <ann>
+setId = \a, id -> return mk0(id, a[date], a[op]);;
+
+/// \<ann> -> JS
+toJs = \An -> {
+  R = [An[id], An[date]];
+  arr.cat(R, opr.toJs(An[op]));
+  return R;
+};
+
+/// \JS -> <ann>
+fromJs = \A -> return mk0(math.toInt(A[0]), A[1], opr.fromJs(A[2:]));;

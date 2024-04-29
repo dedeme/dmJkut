@@ -1,0 +1,115 @@
+// Copyright 08-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "cts";
+import "data/month";
+import "pgs/msgPg";
+import "pgs/budgetPg";
+import "pgs/planPg";
+import "pgs/yearPg";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("KtWeb session is closed.\nAuthenticating from KtWeb:Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+    return;
+  }
+
+  // Sessions control is in "Main" !!!
+  , lang : await client.send({
+    prg: "Main", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (lang == "en") i18n.en();
+
+  :arr Url = ui.url();
+
+  now = time.now();
+  page = arr.size(Url) > 0 ? Url[0] : "budget";
+
+  currentYear = now.format("%Y");
+  selectedYear = Url[1]
+    ? fns.validateYear(Url[1])
+    : currentYear
+  ;
+
+  isUntil = Url[2]
+    ? Url["2"] == "true"
+    : false
+  ;
+
+  currentMonth = now.month();
+  selectedMonth = Url[3]
+    ? month.toIx(Url[3])
+    : currentMonth
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // View ----------------------------------------------------------------------
+
+
+  selLink = page + "&" + selectedYear;
+  :: myear = menu.tlink("year&" + selectedYear, selectedYear);
+  if (selectedYear != currentYear) myear.wg.setStyle("color", "#800000");
+  Lopts = [
+    myear,
+    menu.separator(),
+    menu.tlink("budget&" + selectedYear, II("Budget")),
+    menu.separator(),
+    menu.tlink("plan&" + selectedYear, II("Plan"))
+  ];
+  menuWg = menu.mk(Lopts, [], selLink);
+
+  body = Q("div");
+  switch (page) {
+    "year": yearPg.mk(body, selectedYear);
+    "plan": planPg.mk(body, selectedYear);
+    default: budgetPg.mk(
+        body, selectedYear, isUntil, selectedMonth
+      );
+  }
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)  ;
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KtWeb", \isExpired -> {
+  msg = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
+  msgWg = Q("div");
+  msgPg.mk(msgWg, msg, true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+;
+
+mk(wg);

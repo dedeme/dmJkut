@@ -1,0 +1,126 @@
+// Copyright 31-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Description page.
+
+import "libdm/vmenu";
+import "data/model";
+import "fns";
+import "global";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+/// \<domo> -> ()
+mk = \wg -> {
+  :arr Url = ui.url();
+  mdV = [
+    Url.size() > 1 & fns.existsModel(Url[1])
+      ? fns.getModel(Url[1])
+      : fns.getModel(cts.mainModel)
+  ];
+
+  showV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  changeModel = \mdId -> window.location.assign("?description&" + mdId);;
+
+  // View ----------------------------------------------------------------------
+
+  showV! = \ -> {
+    :model md = mdV!;
+
+    Ops = [
+      vmenu.title(II("Models")),
+      vmenu.separator()
+    ];
+    for (:model md = global.Models)
+      Ops.push(vmenu.option(md.id, md.id, \ -> changeModel(md.id);));
+    vmenuWg = vmenu.mk(Ops, md.id);
+
+    wg
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("vertical-align:top; width:5px")
+            .add(vmenuWg))
+          .add(Q("td")
+            .style("vertical-align:top")
+            .add(Q("div")
+              .klass("head")
+              .text(md.name))
+            .add(Q("div").klass("separator"))
+            .add(Q("table")
+              .att("align", "center")
+              .klass("flat")
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Id") + ":"))
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(md.id)))
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Name") + ":"))
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(md.name))))
+            .add(Q("div").klass("separator"))
+            .add(Q("table")
+              .att("align", "center")
+              .klass("flat")
+              .add(Q("tr")
+                .add(Q("td"))
+                .adds(arr.map(md.ParamNames, \n -> return Q("td")
+                    .klass("rhead")
+                    .text(n)
+                  ;)))
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Base") + ":"))
+                .adds(iter.map(
+                  [0:arr.size(md.ParamNames)],
+                  \i -> return Q("td")
+                    .klass("rframe")
+                    .text(fns.pfmt1(md.ParamTypes[i], global.ParamBases[md.id][i]))
+                  ;)))
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Base Increment") + ":"))
+                .adds(iter.map(
+                  [0:arr.size(md.ParamNames)],
+                  \i -> return Q("td")
+                    .klass("rframe")
+                    .text(fns.pfmt1(md.ParamTypes[i], global.ParamBaseIncs[md.id][i]))
+                  ;)))
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Environment Increment") + ":"))
+                .adds(iter.map(
+                  [0:arr.size(md.ParamNames)],
+                  \i -> return Q("td")
+                    .klass("rframe")
+                    .text(fns.pfmt1(md.ParamTypes[i], global.ParamEnvIncs[md.id][i]))
+                  ;))))
+            .add(Q("div").klass("separator"))
+            .add(Q("div")
+              .klass("frame")
+              .html(md.doc)))))
+    ;
+  };
+
+  showV!();
+};

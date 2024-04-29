@@ -1,0 +1,12 @@
+// Copyright 11-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Path data.
+
+/// Constructor.
+///   id     : Path identifier.
+///   spath  : Source path.
+///   isShown: 'true' if the path should be shown.
+///   isValid: 'true' if the path is a valid one.
+/// \s, s, b, b -> <dpath>
+mk : id, spath, isShown, isValid;

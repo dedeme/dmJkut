@@ -1,0 +1,219 @@
+// Copyright 27-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// ManualPg timetable page
+
+import "data/ann";
+import "cts";
+import "global";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  // s, [<ann>.](JS)
+  dbKey, Anns : await client.send({
+    prg: cts.appName,
+    source: "ManualPg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+
+  //[<ann>.]
+  :arr As = arr.map(Anns, ann.fromJs);
+  idV = [-1];
+
+  showV = [[]];
+
+  // Control ---------------------------------------------------------------------
+
+  // \n, <domo> -> ()
+  update = async \id, txWg -> {
+    tx = txWg.getValue().trim();
+
+    err = tx == "" ? II("Command value is missing") : "";
+
+    if (err != "") {
+      ui.alert(err);
+      return;
+    }
+
+    await client.send({
+      prg: cts.appName,
+      source: "ManualPg",
+      rq: idV! == -1 ? "new" : "modify",
+      dbKey: global.dbKeyV!,
+      annotation: ann.toJs(ann.mk(idV!, ann.typeMANUAL, js.w(""), tx))
+    });
+    mk(wg);
+  };
+
+  // \n -> ()
+  edit = \id -> {
+    idV! = id;
+    showV!();
+  };
+
+  // \ -> ()
+  editCancel = \ -> {
+    idV! = -1;
+    showV!();
+  };
+
+  // \n -> ()
+  del = async \id -> {
+    if (!ui.confirm(II("Delete annotation?"))) return;
+
+    await client.send({
+      prg: cts.appName,
+      source: "ManualPg",
+      rq: "delete",
+      dbKey: global.dbKeyV!,
+      id
+    });
+    mk(wg);
+  };
+
+  // \<domo>, n -> ()
+  run = async \runSpan, id -> {
+    runSpan
+      .removeAll()
+      .add(ui.img("wait.gif"))
+    ;
+
+    // s
+    , error : await client.send({
+      prg: cts.appName,
+      source: "ManualPg",
+      rq: "run",
+      id
+    });
+
+    if (error != "") {
+      ui.alert(error);
+      mk(wg);
+    } else {
+      runSpan
+        .removeAll()
+        .add(ui.link(\ev -> run(runSpan, id);)
+          .add(ui.img("run")))
+      ;
+    }
+  };
+
+  // View ------------------------------------------------------------------------
+
+  // \-> <domo>
+  th = \ -> return Q("td").style("text-align:center");;
+
+  // \ -> [<domo>...]
+  trsNew = \ -> {
+    txWg = Q("textarea")
+      .att("spellcheck", false)
+      .att("cols", 60)
+      .att("rows", 3)
+      .disabled(idV! != -1)
+    ;
+
+    return [
+      Q("tr")
+        .add(Q("td")
+          .att("colspan", "2"))
+        .add(th()
+          .text(II("Command")))
+        .add(Q("td")),
+      Q("tr").add(Q("td").klass("line").att("colspan", "8")),
+      Q("tr")
+        .add(Q("td"))
+        .add(Q("td")
+          .add(idV! != -1
+            ? ui.lightImg("add")
+                .setStyle("vertical-align", "middle")
+            : ui.link(\ev -> update(-1, txWg);)
+              .add(ui.img("add")
+                .style("vertical-align:middle"))))
+        .add(Q("td")
+          .add(txWg))
+        .add(Q("td")),
+      Q("tr").add(Q("td").att("colspan", "4").add(Q("hr")))
+    ];
+  };
+
+  // \<ann> -> <domo>
+  mkTr = \:ann a -> {
+    isSel = a.id == idV!;
+    isNew = idV! == -1;
+    txWg = Q("textarea")
+      .att("spellcheck", false)
+      .att("cols", 60)
+      .att("rows", 3)
+      .disabled(!isSel)
+      .value(a.text)
+    ;
+    runSpan = Q("span");
+
+    return Q("tr")
+      .add(Q("td")
+        .add(isNew
+          ? ui.link(\ev -> edit(a.id);)
+            .add(ui.img("edit"))
+          : isSel
+            ? ui.link(\ev -> editCancel();)
+              .add(ui.img("cancel"))
+            : ui.lightImg("edit")))
+      .add(Q("td")
+        .add(isNew
+          ? ui.link(\ev -> del(a.id);)
+            .add(ui.img("delete"))
+          : isSel
+            ? ui.link(\ev -> update(a.id, txWg);)
+              .add(ui.img("enter"))
+            : ui.lightImg("delete")))
+      .add(Q("td")
+        .add(txWg))
+      .add(Q("td")
+        .add(runSpan
+          .removeAll()
+          .add(ui.link(\ev -> run(runSpan, a.id);)
+            .add(ui.img("run")))))
+    ;
+  };
+
+  // \ -> [<domo>...]
+  trs = \ -> {
+    if (arr.size(As) == 0) {
+      return [
+        Q("tr")
+          .add(th()
+          .att("colspan", "7")
+          .klass("frame")
+          .text(II("Without entries")))
+      ];
+    }
+
+    return arr.map(As, \a -> return mkTr(a););
+  };
+
+  // \ -> ()
+  showV! = \ -> {
+    tb = Q("table")
+      .att("align", "center")
+      .adds(trsNew())
+      .adds(trs())
+    ;
+
+    wg
+      .removeAll()
+      .add(Q("div")
+        .klass("head")
+        .text(II("Manual")))
+      .add(Q("div")
+        .klass("separator"))
+      .add(tb)
+    ;
+  };
+
+  showV!();
+};

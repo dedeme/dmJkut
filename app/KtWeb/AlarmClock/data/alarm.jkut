@@ -1,0 +1,22 @@
+// Copyright 01-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Alarm data.
+
+import "i18n";
+
+II = i18n.tlt;
+
+/// Constructor.
+///   id: Identifier.
+///   tm: Time (milliseconds) with minute precision.
+/// \s,n -> <alarm>
+mk : id, tm;
+
+/// \<alarm> -> s
+timeToStr = \a -> {
+  now = time.now();
+  return (now.day() == time.day(a[tm]) ? II("Today") : II("Tomorrow")) +
+    " " + II("at") + " " + time.format(a[tm], "%t")[:-3]
+  ;
+};

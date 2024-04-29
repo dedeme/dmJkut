@@ -1,0 +1,60 @@
+// Copyright 03-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Budget ([[<budgetEntry>.].]) data. Array of monthly entries.
+
+import "plan";
+import "budgetEntry";
+import "budgetMonth";
+
+/// Returns an empty budget.
+/// \[<planEntry>.] -> [[<budgetEntry>.].]
+mkEmpty = \Plan -> return arr.fromIter(iter.map(
+    [0:12], \i -> return budgetMonth.mkEmpty(Plan);
+  ));;
+
+/// Sets the amount of an annotation.
+/// If accId is not found, it does nothing.
+///   Budget : Budget.
+///   monthIx: From 0 to 11 both inclusive.
+///   accId  : Account identifier.
+///   am     : Amount.
+/// \[[<budgetEntry>.].], n, s, n -> ()
+setAmount = \Budget, monthIx, accId, am -> {
+  :arr Entries = Budget[monthIx];
+  for (i, :budgetEntry e = Entries) {
+    if (e.accId == accId) {
+      Entries[i] = budgetEntry.mk(accId, am);
+      break;
+    }
+  }
+};
+
+/// Remove accounts not used and add new empty accounts
+/// \[[<budgetEntry>.].], [<planEntry>.] -> ()
+cleanAndComplete = \Budget, Plan ->
+  for (i, e = Budget) Budget[i] = budgetMonth.cleanAndComplete(e, Plan);;
+
+/// Returns the value of an account between months. It is ever 0 or positive.
+/// fromMonthIx and toMonthIx are between 0 and 11, both inclusive.
+/// \[[<budgetEntry>.].], s, n, n -> n
+accAmount = \Budget, accId, fromMonthIx, toMonthIx -> {
+  sumV = [0];
+  for (i = fromMonthIx:toMonthIx)
+    for (:budgetEntry e = Budget[i]) if (e.accId == accId) sumV! += e.am;
+
+  return sumV!;
+};
+
+/// Returns the budget balance between months.
+/// fromMonthIx and toMonthIx are between 0 and 11, both inclusive.
+/// \[[<budgetEntry>.].], <plan>, n, n -> n
+totalAmount = \Budget, Plan, fromMonthIx, toMonthIx -> {
+  sumV = [0];
+  for (i = fromMonthIx:toMonthIx)
+    for (:budgetEntry e = Budget[i])
+      if (plan.isIncome(Plan, e.accId)) sumV! += e.am;
+      else sumV! -= e.am;
+
+  return sumV!;
+};

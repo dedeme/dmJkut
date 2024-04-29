@@ -1,0 +1,128 @@
+// Copyright 26-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Summary page.
+
+/// Stays page.
+
+import "data/accAnn";
+import "data/monthAnn";
+import "cts";
+import "fns";
+import "wgs/barWg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  :arr Years, :arr Bills, :arr Stays // [s.], [<monthAnn>.], [<accAnn>.]
+  : await client.send({
+    prg: cts.appName,
+    source: "SummaryPg",
+    rq: "idata"
+  });
+
+  // \ -> <domo>
+  table = \ -> {
+    // \n, n -> n
+    fmax = \n1, n2 -> return n1 > n2 ? n1 : n2;;
+    // [[s, n, n].]
+    :arr Rows = Years.map(\y -> return [
+        y,
+        arr.reduce(
+          Bills.filter(\:monthAnn a -> return str.starts(a.month, y);),
+          0,
+          \r, :monthAnn a -> return r + a.amount;
+        ),
+        arr.reduce(
+          Stays.filter(\:accAnn a -> return str.starts(a.date, y);),
+          0,
+          \r, :accAnn a -> return r + a.amount;
+        )
+      ];);
+    max = Rows.reduce(0, \r, Row -> return fmax(Row[1] + Row[2], r););
+    sumBills = Rows.reduce(0, \r, Row -> return r + Row[1];);
+    sumStays = Rows.reduce(0, \r, Row -> return r + Row[2];);
+    bWg = \Row -> return barWg.mkWg(
+        barWg.mk(300, 2, (Row[1] + Row[2]) / max, "#c0c080", "#ffffff")
+      );;
+
+    return
+      Q("table")
+        .att("align", "center")
+        .klass("border")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("header")
+            .style("text-align: left")
+            .html(II("Year")))
+          .add(Q("td")
+            .klass("header")
+            .style("text-align: right")
+            .html(II("Bills")))
+          .add(Q("td")
+            .klass("header")
+            .style("text-align: right")
+            .html(II("Stays")))
+          .add(Q("td")
+            .klass("header")
+            .style("text-align: right")
+            .html(II("Total")))
+          .add(Q("td").klass("header")))
+        .adds(Rows.map(\R -> return Q("tr")
+            .add(Q("td")
+              .klass("border")
+              .style("text-align: left")
+               .text(R[0]))
+            .add(Q("td")
+              .klass("border")
+              .style("text-align: right")
+              .html(fns.cFmt(R[1])))
+            .add(Q("td")
+              .klass("border")
+              .style("text-align: right")
+              .html(fns.cFmt(R[2])))
+            .add(Q("td")
+              .klass("border")
+              .style("text-align: right")
+              .html(fns.cFmt(R[1] + R[2])))
+            .add(Q("td")
+              .add(bWg(R)));))
+        .add(Q("tr")
+          .add(Q("td").klass("border"))
+          .add(Q("td").klass("border"))
+          .add(Q("td").klass("border"))
+          .add(Q("td").klass("border"))
+          .add(Q("td").klass("border")))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("border")
+            .html(II("Sums") + "&nbsp;"))
+          .add(Q("td")
+            .klass("border")
+            .style("text-align: right")
+            .html(fns.cFmt(sumBills)))
+          .add(Q("td")
+            .klass("border")
+            .style("text-align: right")
+            .html(fns.cFmt(sumStays)))
+          .add(Q("td")
+            .klass("border")
+            .style("text-align: right")
+            .html(fns.cFmt(sumBills + sumStays)))
+          .add(Q("td").klass("border")))
+    ;
+  };
+
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(table()))))
+  ;
+};

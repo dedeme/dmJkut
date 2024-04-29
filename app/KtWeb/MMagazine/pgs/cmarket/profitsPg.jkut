@@ -1,0 +1,81 @@
+// Copyright 29-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Percentages page
+
+import "libdm/oldChart";
+import "data/cts";
+import "data/profitsEntry";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    module: "CMarket",
+    source: "ProfitsPg",
+    rq: "idata"
+  });
+  Profits = arr.map(Rp.profits, profitsEntry.fromJs);
+
+  if (!Profits) {
+    arr.push(Profits, profitsEntry.mk(
+      time.toStr(time.mkDate(1, 1, time.year(time.now()))), 0
+    ));
+  }
+
+  if (arr.size(Profits) == 1) arr.push(Profits, Profits[0]);
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> <domo>
+  caption = \ ->
+    return Q("table")
+      .klass("frame")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:30px")
+          .add(ui.led(cts.ToSellColors[0], 6)))
+        .add(Q("td")
+          .style("vertical-align: middle")
+          .text(II("Investor"))))
+    ;;
+
+  // [s...]
+  Labels = [];
+  // [[[n]|[]...]...]
+  Sets = [[]];
+  for (E = Profits) {
+    arr.push(Labels, E.date[6:] + "/" + E.date[4:6]);
+    arr.push(Sets[0], [E.profits]);
+  }
+  SetAtts = [oldChart.mkLineExample()];
+  SetAtts[0].color = cts.ToSellColors[0];
+  Chart = oldChart.mkExample();
+  Chart.ExArea.width = 600;
+  Chart.ExArea.height = 400;
+  Chart.InPadding = oldChart.mkPadding(25, 25, 30, 100);
+
+  Data = oldChart.mkData(Labels, Sets, SetAtts);
+  lenGroup = math.toInt(arr.size(Labels) / 10) + 1;
+  Data.drawLabel = \l, i -> return i > 0 & i % lenGroup == 0;;
+  Data.drawGrid = \l, i ->
+    return i > 0 & i % lenGroup == 0 & i < arr.size(Labels) - 1;;
+
+  wg
+    .removeAll()
+      .removeAll()
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(caption())))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(oldChart.mkWg(Chart, Data)))))
+  ;
+};

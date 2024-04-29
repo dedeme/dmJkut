@@ -1,0 +1,95 @@
+// Copyright 30-Aug-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// CashFlow Diary ([<diaryEntry>.]) functions.
+
+import "month";
+import "dann";
+import "danns";
+import "diaryEntry";
+
+/// Remove one entry.
+/// \[<diaryEntry>.], ix -> ()
+del = \:arr D, ix -> D.remove(ix);;
+
+/// Changes 'oldAcc' annotation account by 'newAcc'
+/// \[<diaryEntry>.], s, s -> ()
+changeAcc = \:arr D, oldAcc, newAcc ->
+  for (:diaryEntry e = D) for (i, :dann a = e.Anns)
+    if (a.id == oldAcc) e.Anns[i] = dann.mk(newAcc, a.am);
+;
+
+/// Returns unsorted used accounts list.
+/// \[<diaryEntry>.] -> [s.]
+accs = \D -> {
+  :dic Dic = {}; // {n};
+  for (:diaryEntry e = D) for (a = e.Anns) Dic.put(a.id, 1);
+  return Dic.keys();
+};
+
+/// Returns 5 previous entries of ix
+/// \[<diaryEntry>.], n -> [<diaryAnnotation>.]
+previous = \D, ix -> {
+  start0 = ix - 5;
+  start = start0 < 0 ? 0 : start0;
+  return D[start:ix];
+};
+
+/// Returns 5 next entries of ix
+/// \[<diaryEntry>.], n -> [<diaryAnnotation>.]
+next = \:arr D, ix -> {
+  end0 = ix + 6;
+  end = end0 > D.size() ? D.size() : end0;
+  return D[ix + 1:end];
+};
+
+/// Returns an array with entry tuples, filtered and reversed. Each entry
+/// contains entry index and shallow entry copy.
+/// 'fromMonthIx' is inclusive and 'toMonthIx' exclusive. Both are base 0.
+/// \[<diaryEntry>.], n, n -> [[n,<diaryEntry>].]
+filterReverse = \:arr D, fromMonthIx, toMonthIx -> {
+  from = month.format(fromMonthIx + 1);
+  to = month.format(toMonthIx + 1);
+  :arr R = []; // [[n,<diaryEntry>].]
+  for (i = 0:D.size()) R.push([i, D[i]]);
+  R.filterIn(\tp -> {
+    month = tp[1][diaryEntry.month];
+    return month >= from & month < to;
+  });
+  return R.reverse();
+};
+
+/// Returns total amount of an account between months.
+/// 'fromMonthIx' is inclusive and 'toMonthIx' exclusive. Both are base 0.
+/// Note: The return is ever positive.
+/// \[<diaryEntry>.], s, n, n -> n
+accAmount = \D, accId, fromMonthIx, toMonthIx -> {
+  from = month.format(fromMonthIx + 1);
+  to = month.format(toMonthIx + 1);
+  sumV = [0];
+  for (:diaryEntry e = D)
+    if (e.month >= from & e.month < to)
+      for (:dann a = e.Anns)
+        if (a.id == accId) sumV! += a.am;
+
+  return sumV!;
+};
+
+/// Returns total amount of Plan between months.
+/// 'fromMonthIx' is inclusive and 'toMonthIx' exclusive. Both are base 0.
+/// Note: The return can be positive (more incomes that expenses) or negative.
+/// \[<diaryEntry>.], n, n -> n
+totalAmount = \D, fromMonthIx, toMonthIx -> {
+  from = month.format(fromMonthIx + 1);
+  to = month.format(toMonthIx + 1);
+
+  sumV = [0];
+  for (:diaryEntry e = D)
+    if (e.month >= from & e.month < to)
+      for (:dann a = e.Anns)
+        if (e.isIncome) sumV! += a.am;
+        else sumV! -= a.am;
+
+  return sumV!;
+};
+

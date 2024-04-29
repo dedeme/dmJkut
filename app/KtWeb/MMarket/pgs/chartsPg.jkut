@@ -1,0 +1,213 @@
+// Copyright 04-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Charts page.
+
+import "libdm/menu";
+import "libdm/vmenu";
+import "data/model";
+import "data/stRs";
+import "data/modelEval";
+import "data/order";
+import "charts/historicPg";
+import "charts/cosPg";
+import "charts/operationsPg";
+import "fns";
+import "global";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+/// \<domo> -> ()
+mk = async \wg -> {
+  :arr Url = ui.url();
+  :model md = Url.size() > 1 & fns.existsModel(Url[1])
+    ? fns.getModel(Url[1])
+    : fns.getModel(cts.mainModel)
+  ;
+  invIx0 = Url.size() > 2 & math.isDigits(Url[2]) ? math.fromStr(Url[2])! : -1;
+  steps = global.evalStepsV!;
+  invIx =
+    (arr.size(md.ParamNames) == 1 & invIx0 >= steps) | invIx0 >= steps * steps
+      ? -1
+      : invIx0
+  ;
+
+  :stRs rs, :modelEval mdEv, invIxFinal, pond,
+  :arr Closes, :arr Dates, :arr Cos, // [[n.].], [s.], [s.]
+  :arr BuyCos, :arr QuarantineCos : await client.send({ // [n.], [n.]
+    prg: cts.appName,
+    source: "ChartsPg",
+    rq: "idata",
+    mdId: md.id,
+    invIx
+  });
+  :arr Params = fns.ixToParams(md, invIxFinal);
+
+  chartV = ["historic"];
+  showV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  go = \chart -> {
+    chartV! = chart;
+    showV!();
+  };
+
+  // \s -> ()
+  changeModel = \mdId -> window.location.assign("?charts&" + mdId);;
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> ()
+  showV! = \ -> {
+    Ops = [
+      vmenu.title(II("Models")),
+      vmenu.separator()
+    ];
+    for (:model md = global.Models)
+      Ops.push(vmenu.option(md.id, md.id, \ -> changeModel(md.id);));
+    vmenuWg = vmenu.mk(Ops, md.id);
+
+    optTx = switch(chartV!) {
+      "historic": II("Historic");
+      "cos": II("Companies");
+      default: II("Operations");
+    };
+    Lopts = [
+      menu.toption("historic", II("Historic"), \ -> go("historic");),
+      menu.separator(),
+      menu.toption("cos", II("Companies"), \ -> go("cos");),
+      menu.separator(),
+      menu.toption("operations", II("Operations"), \ -> go("operations");)
+    ];
+    menuWg = menu.mk(Lopts, [], chartV!);
+
+    body = Q("div");
+    switch (chartV!) {
+      "historic": historicPg.mk(body, Dates, rs, BuyCos, QuarantineCos);
+      "operations": operationsPg.mk(body, Cos, Closes, rs);
+      default: cosPg.mk(body, Dates, Cos, Closes, rs);
+    }
+
+    wg
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("vertical-align:top; width:5px")
+            .add(vmenuWg))
+          .add(Q("td")
+            .style("vertical-align:top")
+            .add(menuWg)
+            .add(Q("div")
+              .klass("head")
+              .text(optTx))
+            .add(Q("div").klass("separator"))
+            .add(Q("table")
+              .att("align", "center")
+              .klass("flat")
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("chead")
+                  .text(II("Model")))
+                .adds(arr.map(md.ParamNames, \n -> return Q("td")
+                    .klass("rhead")
+                    .text(n)
+                  ;)))
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("cframe")
+                  .text(md.name))
+                .adds(iter.map(
+                  [0:Params.size()],
+                  \i -> return Q("td")
+                    .klass("rframe")
+                    .text(fns.pfmt1(md.ParamTypes[i], Params[i]))
+                  ;))))
+            .add(Q("div").klass("separator2"))
+            .add(Q("table")
+              .att("align", "center")
+              .klass("flat")
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Real")))
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Acc.")))
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Refs.")))
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Profits (%)")))
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Eval.")))
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Sales"))))
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(fns.nfmt(arr.peek(rs.Hreals), 2)))
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(fns.nfmt(arr.peek(rs.Haccs), 2)))
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(fns.nfmt(arr.peek(rs.Hrefs), 2)))
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(fns.nfmt(
+                      arr.reduce(rs.Profits, 0, \r, e -> return r + e;)
+                      / arr.size(rs.Profits) * 100, 2)))
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(fns.nfmt(pond * 1000, 0)))
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(fns.nfmt(order.sales(rs.Orders), 0)))))
+            .add(Q("div").klass("separator2"))
+            .add(Q("table")
+              .att("align", "center")
+              .klass("flat")
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("H. Eval.")))
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("H. Sales")))
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Eval.")))
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Sales"))))
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(fns.nfmt(mdEv.heval * 1000,0)))
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(fns.nfmt(mdEv.hsales, 0)))
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(fns.nfmt(mdEv.lastEval * 1000,0)))
+                .add(Q("td")
+                  .klass("rframe")
+                  .text(fns.nfmt(mdEv.lastSales, 0)))))
+            .add(body))))
+    ;
+  };
+
+  showV!();
+};

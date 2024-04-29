@@ -1,0 +1,12 @@
+// Copyright 09-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// <server> data.
+
+/// Constructor.
+///   id          : Server identifier.
+///   name        : Server name.
+///   withDaily   : 'true' if server can read daily quotes.
+///   withHistoric: 'true' if server can read historic quotes.
+/// \s,s,b,b -> <server>
+mk : id, name, withDaily, withHistoric;

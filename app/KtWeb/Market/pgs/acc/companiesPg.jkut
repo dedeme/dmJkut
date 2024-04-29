@@ -1,0 +1,364 @@
+// Copyright 16-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Comp page.
+
+import "libdm/menu";
+import "libdm/lineChart";
+import "cts";
+import "data/chart/profitsEntry";
+import "wgs/msg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor
+/// \<domo> -> ()
+mk = async \wg -> {
+  , :arr Lst : await client.send({
+    prg: cts.appName,
+    module: "Acc",
+    source: "CompaniesPg",
+    rq: "idata"
+  });
+  List = Lst.map(\E -> return {nick: E[0], bought: E[1], url: E[2]};);
+
+  showAllV = [false];
+  showV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  changeShowAll = \ -> {
+    showAllV! = !showAllV!;
+    showV!();
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> <domo>
+  separator = \ -> return Q("tr")
+    .add(Q("td")
+      .att("colspan", 3)
+      .html("<hr>"))
+  ;;
+
+  // \n, [n.], n -> s
+  backColor = \prevQ, :arr Refs, nextQ ->
+    return Refs.any(\ref -> return prevQ < ref & ref < nextQ;)
+      ? "#fff0f0"
+      : Refs.any(\ref -> return prevQ > ref & ref > nextQ;)
+        ? "#f0f0ff"
+        : "#c9c9c9"
+    ;;
+
+  // \<domo>, s, s -> ()
+  mkChart = async \wg, nick, url -> {
+    wg
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align:center")
+            .add(Q("img")
+              .att("src", "img/wait2.gif")
+              .klass("frame")))))
+    ;
+
+    error, // s
+    price, // n. Price if nick is in portfolio, otherwise -1.
+    profits, // n. Profits if nick is in portfolio, otherwise 0.
+    :arr Dates, :arr Closes, :arr Refs // [s.], [n.], [n.]
+    : await client.send({
+      prg: cts.appName,
+      module: "Acc",
+      source: "CompaniesPg",
+      rq: "nickData",
+      nick
+    });
+
+    // Result of error ("" -> no error).
+    if (error != "") {
+      wg.removeAll()
+        .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frame")
+            .style("width:300px")
+            .text(error))))
+      ;
+      return;
+    }
+
+    back = backColor(
+      Closes[-2:][0],
+      arr.map(Refs, \Rs -> return Rs[-2:][0];),
+      arr.peek(Closes)
+    );
+
+    // \ -> <domo>
+    mkSmallGr = \ -> {
+      :: Ch = lineChart.mkExample();
+      Ch.exArea.width = 300;
+      Ch.exArea.height = 150;
+      Ch.exArea.atts.background = back;
+      Ch.exArea.atts.border.width = 0;
+      Ch.inPadding.top = 5;
+      Ch.inPadding.right = 4;
+      Ch.inPadding.bottom = 4;
+      Ch.inPadding.left = 50;
+      Ch.chartPadding.top = 2;
+      Ch.chartPadding.right = 2;
+      Ch.chartPadding.bottom = 2;
+      Ch.chartPadding.left = 2;
+      Ch.labels.show = false;
+
+      Lbs = [];
+      Vals = [[], [], []];
+      :arr Dates2 = Dates[-250:];
+      :arr Closes2 = Closes[-250:];
+      :arr Refs2 = Refs[0][-250:];
+      for (i = 0:Dates2.size()) {
+        cl = Closes2[i];
+        rf = Refs2[i];
+        Lbs.push(time.toIso(time.fromStr(Dates2[i])!));
+        arr.push(Vals[0], [cl]);
+        arr.push(Vals[1], cl > rf ? [rf] : []);
+        arr.push(Vals[2], cl < rf ? [rf] : []);
+      }
+      Atts = [
+        lineChart.mkLine(1.2, "#414141", false),
+        lineChart.mkLine(1.2, "#aa4100", false),
+        lineChart.mkLine(1.2, "#0041aa", false)
+      ];
+      :: Data = lineChart.mkData(Lbs, Vals, Atts);
+      Data.Labels = Lbs;
+      Data.SetValues = [Vals[0], Vals[1], Vals[2]];
+      if (price >= 0)
+        Data.UnarySets = [lineChart.mkUnarySet(
+            II("Price"),
+            price,
+            lineChart.mkLine(1.2, "#c9c9c9", false)
+          )];
+      Data.SetAtts = Atts;
+      Data.maxMinRound = \mx, mn -> {
+        if (mn > 10) {
+          Data.round = 1;
+          return -2;
+        } else if (mn > 1) {
+          Data.round = 2;
+          return -3;
+        } else {
+          Data.round = 3;
+          return -4;
+        }
+      };
+      Data.drawGrid = \lb, i -> return false;;
+      Data.drawLabel = Data.drawGrid;
+
+      return Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frame0")
+            .style("background-color:" + back)
+            .add(lineChart.mkWg(Ch, Data))))
+      ;
+    };
+
+    // \ -> <domo>
+    mkBigGr = \ -> {
+      :: Ch = lineChart.mkExample();
+      Ch.exArea.width = 600;
+      Ch.exArea.height = 300;
+      Ch.exArea.atts.background = back;
+      Ch.exArea.atts.border.width = 0;
+      Ch.exArea.atts.background = back;
+      Ch.inPadding.top = 10;
+      Ch.inPadding.right = 5;
+      Ch.inPadding.bottom = 20;
+      Ch.inPadding.left = 80;
+      Ch.chartPadding.top = 2;
+      Ch.chartPadding.right = 4;
+      Ch.chartPadding.bottom = 2;
+      Ch.chartPadding.left = 2;
+      Ch.labels.onPopup = true;
+
+      mk0 = \chartDiv, zoomDiv, zoom -> {
+        Lbs = [];
+        Vals = [[], [], []]; // Removed investors 1 and 2.
+        :arr Dates2 = zoom ? Dates[-30:] : Dates;
+        :arr Closes2 = zoom ? Closes[-30:] : Closes;
+        :arr Refs2 = zoom ? Refs[0][-30:] : Refs[0];
+
+        for (i = 0:Dates2.size()) {
+          cl = Closes2[i];
+          rf = Refs2[i];
+          Lbs.push(time.toIso(time.fromStr(Dates2[i])!));
+          arr.push(Vals[0], [cl]);
+          arr.push(Vals[1], cl > rf ? [rf] : []);
+          arr.push(Vals[2], cl < rf ? [rf] : []);
+        }
+        wln = zoom ? 1.8 : 1;
+        Atts = [
+          lineChart.mkLine(wln, "#414141", false),
+          lineChart.mkLine(wln, "#aa4100", false),
+          lineChart.mkLine(wln, "#0041aa", false)
+        ];
+        :: Data = lineChart.mkData(Lbs, Vals, Atts);
+        Data.Labels = Lbs;
+        Data.SetValues = [Vals[0], Vals[1], Vals[2]];
+        if (price >= 0 & !zoom)
+          Data.UnarySets = [lineChart.mkUnarySet(
+              II("Price"),
+              price,
+              lineChart.mkLine(1.2, "#c9c9c9", false)
+            )];
+        Data.SetAtts = Atts;
+        Data.maxMinRound = \mx, mn -> {
+          if (mn > 10) {
+            Data.round = 1;
+            return -2;
+          } else if (mn > 1) {
+            Data.round = 2;
+            return -3;
+          } else {
+            Data.round = 3;
+            return -4;
+          }
+        };
+        Data.drawGrid = \lb, i -> {
+          if (i == 0) return false;
+          return zoom
+            ? i % 2 == 0
+            : Lbs[i - 1][3:5] != lb[3:5] &
+              switch (lb[3:5]) {"03", "06", "09", "12": true; default: false;}
+          ;
+        };
+        Data.drawLabel = Data.drawGrid;
+        Data.mapLabel = \lb, i -> return zoom ? lb[:2] : lb[3:5];;
+
+        chartDiv
+          .removeAll()
+          .add(lineChart.mkWg(Ch, Data))
+        ;
+
+        zoomDiv
+          .removeAll()
+          .add(ui.link(\e -> mk0(chartDiv, zoomDiv, !zoom);)
+              .klass("frame")
+              .add(ui.img(zoom ? "rk-new" : "minus2")
+                  .style("vertical-align:top")))
+        ;
+      };
+
+      chartDiv = Q("div");
+      zoomDiv = Q("div");
+      mk0(chartDiv, zoomDiv, true);
+      return Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align:center")
+            .text(nick))
+          .add(Q("td")))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frame0")
+            .style("background-color:" + back)
+            .add(chartDiv))
+          .add(Q("td")
+            .style("width:80px;vertical-align:middle;")
+            .add(zoomDiv)))
+      ;
+    };
+
+    wg
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align:left;width:40%")
+            .add(Q("a")
+              .klass("link")
+              .att("href", url)
+              .text(nick)))
+          .add(Q("td")
+            .style("text-align:right;width:40%")
+            .add(Q("span")
+              .html(math.toIso(profits, 2) + "&nbsp;&nbsp;"))
+            .add(ui.img(
+              profits > 0 ? "profits" : profits < 0 ? "losses" : "noresult"
+            )
+              .style("vertical-align:middle"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", 2)
+            .add(mkSmallGr()
+              .setStyle("cursor", "pointer")
+              .on("click", \e -> msg.showWg(mkBigGr(), \->{});)))))
+    ;
+  };
+
+  // \ ->()
+  showV! = \ -> {
+    :arr Ls = showAllV!
+      ? List
+      : List.filter(\E -> return E.bought;)
+    ;
+    Ls.sort(\E1, E2 -> return E1.nick < E2.nick;);
+
+    chs = Q("table")
+      .att("align", "center")
+      .klass("frame")
+    ;
+    TrV = [Q("tr")];
+    chs.add(TrV!);
+    n1 = Ls.size() - 1;
+    Ls.eachSync (
+      async \i, e -> {
+        chart = Q("div");
+        await mkChart(chart, Ls[i].nick, Ls[i].url);
+        switch (i % 3) {
+          0: {
+            TrV!.add(Q("td").add(chart));
+          }
+          2: {
+            TrV!.add(Q("td").add(chart));
+            chs.add(separator());
+            if (i < n1) {
+              TrV! = Q("tr");
+              chs.add(TrV!);
+            }
+          }
+          default:
+            TrV!.add(Q("td").add(chart));
+        }
+      },
+      \ -> {
+        switch (Ls.size() % 3) {
+          0: chs.add(TrV!.add(Q("td")).add(Q("td")));
+          1: chs.add(TrV!.add(Q("td")));
+        }
+        chs.add(separator());
+      }
+    );
+
+
+    wg
+      .removeAll()
+      .add(Q("div")
+        .style("text-align:center")
+        .add(ui.link(\e -> changeShowAll();)
+          .klass("link")
+          .html(showAllV!
+              ? II("Portfolio")
+              : II("All Companies")
+            )))
+      .add(chs)
+    ;
+  };
+
+  showV!();
+};

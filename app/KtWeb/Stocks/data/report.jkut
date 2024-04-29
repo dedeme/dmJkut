@@ -1,0 +1,13 @@
+// Copyright 26-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Global report.
+
+/// Constructor.
+///   cost   : Total stocks cost.
+///   profits: Current profits.
+///   feesOp : Current fees payd. Only has value if report is 'report.withFees'.
+///   Summary: Stocks summary.
+///   Anns   : Diary annotations.
+/// \n,n,[n]|[],[<rsumm>.],[<rann>.] -> <rann>
+mk : cost, profits, feesOp, Summary, Anns;

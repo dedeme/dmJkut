@@ -1,0 +1,773 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Daily charts, main page.
+
+import "libdm/menu";
+import "libdm/clock";
+import "data/cts";
+import "data/fns";
+import "data/chart/dailyChart";
+import "wgs/dmenu";
+import "i18n";
+import "cosSummaryChart";
+import "ixsSummaryChart";
+import "coChart";
+import "refBigChart";
+import "refSmallChart";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \n -> s
+color = \v ->
+  return "color:" + (v > 0 ? "#00AAFF" : v < 0 ? "#FF8100" : "#404040");;
+
+/// Contents maker.
+///   wg       : Container.
+///   dbmenu   : Double menu.
+///   mSel     : Submenu selection.
+///   order    : Order to show companies.
+///   isReverse: If order is reverse.
+/// \<domo>, <dmenu>, s, i, b -> ()
+mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    module: "DailyPg",
+    source: "Daily",
+    rq: "idata"
+  });
+  CosData = arr.map(Rp.CosData, dailyChart.fromJs);
+  IxsData = arr.map(Rp.IxsData, dailyChart.fromJs);
+  CosSel = Rp.CosSel; // [s...]
+  Rebuys = Rp.Rebuys; // [s...]
+  serverName = Rp.serverName;
+  activity = Rp.activity;
+  maxCos = Rp.maxCos; // Maximun companies that can be bought. (Used in REFERENCES)
+  Order = [order];
+  IsReverse = [isReverse];
+  refDifV = [true];
+
+  Profitss = arr.reduce(
+    CosData,
+    [0, 0],
+    \R, D -> {
+      cl = D.close;
+      q = arr.peek(D.quotes);
+      iDt = D.invData;
+      return [
+        R[0] + iDt.stocks * (q - (iDt.isNew ? iDt.price : cl)),
+        R[1] + iDt.stocks * (q - iDt.price)
+      ];
+    }
+  );
+  dayProfits = Profitss[0];
+  totalProfits = Profitss[1];
+
+  serverWg = Q("span").text(serverName);
+  activityWg = Q("span")
+    .text(activity == cts.active ? "· · · ·" : "")
+  ;
+  Show = [[]];
+
+  // Control -------------------------------------------------------------------
+
+    // \ -> ()
+    reactivate = async \ -> {
+      if (!ui.confirm(II("Reactivate daily charts?"))) return;
+
+      serverWg
+        .removeAll()
+        .add(ui.img("wait.gif")
+          .style("vertical-align:middle"))
+      ;
+      await client.send({
+        prg: cts.appName,
+        module: "DailyPg",
+        source: "Daily",
+        rq: "reactivate"
+      });
+      mk2(wg, dbmenu, mSel, Order!, IsReverse!);
+    };
+
+    // \ -> ()
+    newServer = \ -> ui.alert(II("Currently this functions is deactivated"));;
+
+    // \i -> ()
+    updateActivityWg = \tic -> {
+      activityWg
+        .removeAll()
+        .text(tic < 0
+            ? ""
+            : iter.reduce([0:tic], "", \r, i -> return  r + " ·";)
+          )
+      ;
+    };
+
+    // \s, b -> ()
+    setSelected = async \nick, isSel -> {
+      await client.send({
+        prg: cts.appName,
+        module: "DailyPg",
+        source: "Daily",
+        rq: "setSelected",
+        nick,
+        isSel
+      });
+
+      mk2(wg, dbmenu, mSel, Order!, IsReverse!);
+    };
+
+    // \ -> ()
+    changeRefType = \-> {
+      refDifV! = !refDifV!;
+      Show!();
+    };
+
+  // View ----------------------------------------------------------------------
+
+  mkCoHead = \D -> {
+    // \ -> <domo>
+    separator = \ -> return Q("span").html("&nbsp;&nbsp;");;
+
+    // \n -> s
+    color = \v ->
+      return "color:" + (v > 0 ? "#00aaff" : v < 0 ? "#ff8100" : "#a9a9a9")
+    ;;
+
+    nick = D.nick;
+    close = D.close;
+    quote = arr.peek(D.quotes);
+    iDt = D.invData;
+    ref = iDt.ref;
+    stocks = iDt.stocks;
+    dailyProfits = iDt.stocks * (quote - (iDt.isNew ? iDt.price : close));
+    totalProfits = iDt.stocks * (quote - iDt.price);
+    isSel = arr.any(CosSel, \c -> return c == nick;);
+    isRebuy = arr.any(Rebuys, \r -> return r == nick;);
+    dif = (quote - close) / close;
+    rdif = close > ref ? ref / quote : quote / ref;
+
+
+    return Q("tr")
+        .add(Q("td")
+          .klass("chartLeft")
+          .add(Q("span")
+            .text(nick))
+          .add(separator())
+          .add(isSel
+            ? ui.link(\e -> setSelected(nick, false);)
+              .add(ui.img("unlink"))
+            : ui.link(\e -> setSelected(nick, true);)
+              .add(ui.img("link")))
+          .add(separator())
+          .add(Q("span")
+            .style("font-size:small")
+            .text(math.toIso(
+                quote,
+                quote >= 10
+                  ? 2
+                  : quote >= 1
+                    ? 3
+                    : 4
+              )))
+          .add(separator())
+          .add(dif > 0
+            ? ui.img("money_plus")
+            : dif < 0
+              ? ui.img("money_minus")
+              : ui.img("money"))
+          .add(separator())
+          .add(Q("span")
+            .style("font-size:small;" + color(dif))
+            .text(math.toIso(dif * 100, 2) + "%"))
+          .add(Q("br"))
+          .add(Q("span")
+            .style("font-size:small;" + color(close > ref
+                ? -1
+                : isRebuy ? 0 : 1
+              ))
+            .text(math.toIso(rdif * 100, 2) + "%")
+          ))
+        .add(stocks > 0
+          ? Q("td")
+            .klass("chartRight")
+            .add(Q("span")
+              .style(color(dailyProfits))
+              .text(math.toIso(dailyProfits, 2)))
+            .add(Q("br"))
+            .add(Q("span")
+              .style(color(totalProfits))
+              .text(math.toIso(totalProfits, 2)))
+          : Q("td").klass("chartRight"))
+    ;
+  };
+
+  // SUMMARY
+
+  // \ -> ()
+  mkSummary = \ -> {
+    YesterdayValue = [0.0];
+    TodayValue = [0,0];
+    Labels = CosData[0].hours;
+    size = arr.size(Labels);
+    Values = arr.mk(size, 0);
+    for (CD = CosData) {
+      cl = CD.close;
+      Quotes = CD.quotes;
+      quote = arr.peek(Quotes);
+      iDt = CD.invData;
+      stocks = iDt.stocks;
+      YesterdayValue! += iDt.stocks * (iDt.isNew ? iDt.price : cl);
+      ttPrice = iDt.stocks * iDt.price;
+      for (i = 0:size) Values[i] += stocks * Quotes[i] - ttPrice;
+      TodayValue! += stocks * quote;
+    }
+    yesterdayValue = YesterdayValue!;
+    dailyProfits = TodayValue! - yesterdayValue;
+    ratio = (dailyProfits) / yesterdayValue;
+    CosChartValues = [arr.map(Values, \v -> return [v];)];
+
+    MeData = IxsData[0];
+    meYesterday = MeData.close;
+    MeRatios = arr.map(
+      MeData.quotes,
+      \q -> return (q - meYesterday) / meYesterday;
+    );
+    IxsChartValues = arr.fromIter(iter.map(
+      [1:arr.size(IxsData)],
+      \i -> {
+        Data = IxsData[i];
+        yesterDay = Data.close;
+        Quotes = Data.quotes;
+        Values = arr.mk(size, [0]);
+        usaZeroesV = [true];
+        for (j = 0:size) {
+          if (i == 3 & usaZeroesV!) {
+            if (Quotes[j] == Quotes[0]) {
+              Values[j] = [];
+              continue;
+            }
+            usaZeroesV! = false;
+          }
+          Values[j] = j < 3
+            ? [0]
+            :[(MeRatios[j] - (Quotes[j] - yesterDay) / yesterDay)*100]
+          ;
+        }
+        return Values;
+      }
+    ));
+
+    // \s -> <domo>
+    ixsText = \index -> {
+      text = index == cts.meNick
+        ? "DEMEX"
+        : index == cts.ibexNick
+          ? "IBEX"
+          : "EUROSTOXX"
+      ;
+      txColor = index == cts.meNick
+        ? "#000000"
+        : index == cts.ibexNick
+          ? "#000080"
+          : "#008000"
+      ;
+
+      Data = arr.find(IxsData, \D -> return D.nick == index;)!;
+      v0 = Data.close;
+      vf = arr.peek(Data.quotes);
+      nmColor = vf > v0 ? "#00AAFF" : vf < v0 ? "#FF8100" : "#000000";
+      return Q("span")
+        .add(Q("span")
+          .style("color:" + txColor)
+          .html(text + ":&nbsp;"))
+        .add(Q("span")
+          .style("color:" + nmColor)
+          .text(math.toIso(vf, 2) + "[" + math.toIso((vf-v0)*100/v0, 2) + "%]"))
+      ;
+    };
+
+
+
+    wg
+      .removeAll()
+      .add(Q("div").style("text-align:center;")
+        .add(Q("div")
+          .klass("head")
+          .style("padding-bottom:8px")
+          .html(II("Summary")))
+        .add(Q("div")
+          .add(Q("span")
+            .klass("frame")
+            .style(
+              'font-size:x-large;color:' +
+              (ratio > 0 ? "#00AAFF" : ratio < 0 ? "#FF8100" : "#000000")
+            )
+            .html(
+              " " + math.toIso(ratio * 100, 2) + "% | " +
+              math.toIso(dailyProfits, 2) + "€ "
+            )))
+        .add(cosSummaryChart.mk(Labels, CosChartValues))
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .style("text-align:left")
+              .add(ixsText(cts.meNick)))
+            .add(Q("td")
+              .style("text-align:right")
+              .add(ixsText(cts.euroNick))))
+          .add(Q("tr")
+            .add(Q("td")
+              .style("text-align:left")
+              .add(ixsText(cts.ibexNick)))
+            .add(Q("td")))
+          .add(Q("tr")
+            .add(Q("td")
+              .att("colspan", 2)
+              .add(ixsSummaryChart.mk(Labels, IxsChartValues)))))
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .style("vertical-align:bottom")
+              .add(clock.wg(clock.mk())
+                .klass("frame")
+                .style(
+                  "background:radial-gradient(#000333,#e6f6f6);" +
+                  "margin-top: 8px;"
+                )))
+            .add(Q("td")
+              .style("vertical-align:bottom")
+              .add(Q("iframe")
+                .klass("frame")
+                .att("width", "450px")
+                .att("height", "133px")
+                .att(
+                  "src",
+                  "http://www.aemet.es/es/eltiempo/prediccion/" +
+                  "municipios/mostrarwidget/rivas-vaciamadrid-id28123?" +
+                  "w=g4p01110001ohmffffffw450z133x4f86d9t95b6e9r0s4n1"
+                ))))))
+    ;
+  };
+
+  // COMPANIES
+
+  // \ -> ()
+  mkCos = \ -> {
+    CosData2 =
+      mSel == "portfolio"
+        ? arr.filter(
+            CosData,
+            \D -> return D.invData.stocks > 0;
+          )
+        : mSel == "free"
+          ? arr.filter(
+              CosData,
+              \D -> return D.invData.ref > D.close;
+            )
+          : mSel == "sel"
+            ? arr.filter(
+                CosData,
+                \D -> return arr.any(CosSel, \c -> return c == D.nick;);
+              )
+            : CosData
+    ;
+    switch (Order!) {
+      cts.chartOrderSignal:
+        arr.sort(
+          CosData2,
+          \D1, D2 -> {
+            fn = \D -> {
+              cl = D.close;
+              q = arr.peek(D.quotes);
+              iDt = D.invData;
+              return cl > iDt.ref ? iDt.ref / q : q / iDt.ref;
+            };
+            return fn(D1) > fn(D2);
+          });
+      cts.chartOrderDay:
+        arr.sort(
+          CosData2,
+          \D1, D2 -> return (arr.peek(D1.quotes) - D1.close) / D1.close >
+            (arr.peek(D2.quotes) - D2.close) / D2.close;
+        );
+      cts.chartOrderNick:
+        arr.sort(CosData2, \D1, D2 -> return D1.nick < D2.nick;);
+    }
+    if (IsReverse!) arr.reverseIn(CosData2);
+
+    menu = Q("table")
+      .att("align", "center")
+      .style("padding-bottom:6px")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("span")
+            .html(II("Order by") + ":&nbsp;&nbsp;&nbsp;"))
+          .add(ui.link(\e -> { Order! = cts.chartOrderNick; Show!(); })
+            .klass(Order! == cts.chartOrderNick ? "link frame" : "link")
+            .text(II("Nick")))
+          .add(Q("span")
+            .html("&nbsp;&nbsp;&nbsp;"))
+          .add(ui.link(\e -> { Order! = cts.chartOrderDay; Show!(); })
+            .klass(Order! == cts.chartOrderDay ? "link frame" : "link")
+            .text(II("Day")))
+          .add(Q("span")
+            .html("&nbsp;&nbsp;&nbsp;"))
+          .add(ui.link(\e -> { Order! = cts.chartOrderSignal; Show!(); })
+            .klass(Order! == cts.chartOrderSignal ? "link frame" : "link")
+            .text(II("Signal")))
+          .add(Q("span")
+            .html("&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;"))
+          .add(ui.link(\e -> { IsReverse! = !IsReverse!; Show!();})
+            .klass(IsReverse! ? "link frame" : "link")
+            .text(II("Reverse")))))
+    ;
+
+    size = arr.size(CosData2);
+    table = Q("table")
+      .att("align", "center")
+
+      .adds(size == 0
+        ? [Q("tr")
+          .add(Q("td")
+            .text(II("No selected company")))
+        ]
+        : arr.fromIter(iter.map(
+          [0:math.toInt((size - 1) / 3) + 1],
+          \row ->
+            return Q("tr")
+              .adds(iter.map(
+                [0:3],
+                \col -> {
+                  ix = row * 3 + col;
+                  if (ix >= size) return Q("td");
+                  D = CosData2[ix];
+                  Labels = D.hours;
+                  Values = [arr.map(D.quotes, \q -> return [q];)];
+                  isRebuy = arr.any(Rebuys, \c -> return c == D.nick;);
+                  ref = D.invData.ref;
+                  isToSell = D.close > ref;
+                  limRef = isToSell ? ref * 1.01 : ref * 0.99;
+                  withRef0 = isToSell
+                    ? arr.any(D.quotes, \q -> return q < limRef;)
+                    : arr.any(D.quotes, \q -> return q > limRef;)
+                  ;
+                  withRef = withRef0
+                    ? isToSell ? -1 : 1
+                    : 0
+                  ;
+                  return Q("td")
+                    .add(Q("table")
+                      .klass("main")
+                      .add(mkCoHead(D))
+                      .add(Q("tr")
+                        .add(Q("td")
+                          .att("colspan", 2)
+                          .add(Q("span")
+                            .add(coChart.mk(
+                                Labels, Values, isRebuy, withRef, ref
+                              ))))))
+                  ;
+                }
+              ));
+        )))
+    ;
+    wg
+      .removeAll()
+      .add(menu)
+      .add(table)
+    ;
+  };
+
+  // REFERENCES
+
+  // \ -> ()
+  mkRefs = \ -> {
+    Labels = CosData[0].hours;
+    size = arr.size(Labels);
+    InPfValues = arr.mk(size, 0);
+    FreeValues = arr.mk(size, 0);
+    SumValues = arr.mk(size, 0);
+
+    InPortfolio = []; // [<dailyChart>.];
+    Frees = []; // [<dailyChart>.];
+    for (coD = CosData) {
+      nick = coD.nick;
+      inv = coD.invData;
+      modelId = inv.modelId;
+      stocks = inv.stocks;
+      params = inv.params;
+      ref = inv.ref;
+
+      Refs = arr.mk(size, 0);
+      for (i, q = coD.quotes) {
+        prfs = fns.refProfits(modelId, params, stocks, q, ref);
+        Refs[i] = prfs;
+        if (stocks > 0) {
+          SumValues[i] += prfs;
+          InPfValues[i] += prfs;
+        }
+      }
+      newCoD = dailyChart.mk(nick, coD.close, coD.hours, Refs, coD.invs);
+      if (stocks > 0)
+        arr.push(InPortfolio, newCoD);
+      else if (
+        ref > coD.close &
+        !arr.any(Rebuys, \nk -> return nk == nick;)
+      )
+        arr.push(Frees, newCoD);
+    }
+
+    arr.sort(InPortfolio, \coD1, coD2 -> {
+      v1 = arr.peek(coD1.quotes);
+      v2 = arr.peek(coD2.quotes);
+        return v1 < 0
+          ? v1 < v2
+          : v2 < 0
+            ? false
+            : v2 < v1
+        ;
+      });
+    arr.sort(Frees, \coD1, coD2 -> {
+        v1 = arr.peek(coD1.quotes);
+        v2 = arr.peek(coD2.quotes);
+        return v1 < v2;
+      });
+    Frees2 = arr.take(Frees, maxCos);
+    arr.sort(Frees2, \coD1, coD2 -> {
+      v1 = arr.peek(coD1.quotes);
+      v2 = arr.peek(coD2.quotes);
+        return v1 < 0
+          ? v1 < v2
+          : v2 < 0
+            ? false
+            : v2 < v1
+        ;
+      });
+
+    for (coD = Frees2) {
+      for (i, q = coD.quotes) {
+        SumValues[i] += q;
+        FreeValues[i] += q;
+      }
+    }
+
+    // \i, b -> <domo>
+    mkSmallTd = \i, inPortfolio -> {
+      if (
+        inPortfolio & i >= arr.size(InPortfolio) |
+        !inPortfolio & i >= arr.size(Frees2)
+      ) return Q("td");
+      coD = inPortfolio ? InPortfolio[i] : Frees2[i];
+      nick = coD.nick;
+      isSel = arr.any(CosSel, \c -> return c == nick;);
+      val = math.toIso(arr.peek(coD.quotes), 2);
+      Values = [arr.map(coD.quotes, \q -> return [q];)];
+      chart = refSmallChart.mk(Labels, Values, inPortfolio);
+      return Q("td")
+        .att("width", "16.7%")
+        .add(Q("table")
+          .klass("main")
+          .add(Q("tr")
+            .add(Q("td")
+              .klass("chartLeft")
+              .add(Q("span")
+                .text(nick))
+              .add(Q("span")
+                .html("&nbsp;&nbsp;"))
+              .add(isSel
+                ? ui.link(\e -> setSelected(nick, false);)
+                  .add(ui.img("unlink"))
+                : ui.link(\e -> setSelected(nick, true);)
+                  .add(ui.img("link"))))
+            .add(Q("td")
+              .klass("chartRight")
+              .text(val)))
+          .add(Q("tr")
+            .add(Q("td")
+              .att("colspan", 2)
+              .add(chart))))
+      ;
+    };
+
+    // \-> <domo>
+    mkBigTd = \ -> {
+      inPf0 = InPfValues[0];
+      sum0 = SumValues[0];
+      free0 = FreeValues[0];
+      Values = refDifV!
+        ? [
+            arr.map(InPfValues, \q -> return [q - inPf0];),
+            arr.map(SumValues, \q -> return [q - sum0];),
+            arr.map(FreeValues, \q -> return [q - free0];)
+          ]
+        : [
+            arr.map(InPfValues, \q -> return [q];),
+            arr.map(SumValues, \q -> return [q];),
+            arr.map(FreeValues, \q -> return [q];)
+          ]
+      ;
+      chart = refBigChart.mk(Labels, Values);
+      return Q("td")
+        .att("colspan", 3)
+        .att("rowspan", 2)
+        .style("vertical-align:top")
+        .add(Q("table")
+          .klass("main")
+          .add(Q("tr")
+            .add(Q("td")
+              .klass("chartLeft")
+              .style("color:#dd7100;width:30%")
+              .text(math.toIso(arr.peek(Values[0]), 0)))
+            .add(Q("td")
+              .klass("chartLeft")
+              .style("text-align:center;width:40%")
+              .text(math.toIso(arr.peek(Values[1]), 0)))
+            .add(Q("td")
+              .klass("chartRight")
+              .style("color:#0099dd;width:30%")
+              .text(math.toIso(arr.peek(Values[2]), 0))))
+          .add(Q("tr")
+            .add(Q("td")
+              .att("colspan", 3)
+              .add(chart)))
+          .add(Q("tr")
+            .add(Q("td")
+              .att("colspan", 3)
+              .att("title", refDifV!
+                  ? II("Show values")
+                  : II("Show differences")
+                )
+              .style("text-align:center")
+              .add(ui.link(\ev -> changeRefType();)
+                .add(ui.img("deme"))))))
+      ;
+    };
+
+    wg
+      .removeAll()
+      .add(Q("table")
+        .att("align", "center")
+        .klass("frame")
+        .add(Q("tr")
+          .add(mkSmallTd(0, true))
+          .add(mkSmallTd(1, true))
+          .add(mkBigTd())
+          .add(mkSmallTd(0, false))
+          .add(mkSmallTd(1, false)))
+        .add(Q("tr")
+          .add(mkSmallTd(2, true))
+          .add(mkSmallTd(3, true))
+          .add(mkSmallTd(2, false))
+          .add(mkSmallTd(3, false)))
+        .adds(\-> {
+            Trs = []; //[<domo>.]
+            iV = [4];
+            while(iV! < arr.size(InPortfolio) | iV! < arr.size(Frees2)) {
+              arr.push(Trs, Q("tr")
+                .add(mkSmallTd(iV!, true))
+                .add(mkSmallTd(iV! + 1, true))
+                .add(mkSmallTd(iV! + 2, true))
+                .add(Q("td")
+                  .klass("separator")
+                  .att("width", "1px"))
+                .add(mkSmallTd(iV!, false))
+                .add(mkSmallTd(iV! + 1, false))
+                .add(mkSmallTd(iV! + 2, false))
+              );
+              iV! += 3;
+            }
+            return Trs;
+          }())
+      )
+    ;
+  };
+
+  // \ -> ()
+  Show! = \ -> {
+    Lopts = [
+      dmenu.mkHiddenButton(dbmenu),
+      menu.separator2(),
+      menu.tlink("summary", II("Summary"), ["daily"]),
+      menu.separator2(),
+      menu.tlink("portfolio", II("Portfolio"), ["daily"]),
+      menu.separator(),
+      menu.tlink("free", II("Free"), ["daily"]),
+      menu.separator(),
+      menu.tlink("all", II("All CO's"), ["daily"]),
+      menu.separator(),
+      menu.tlink("sel", II("Selection"), ["daily"]),
+      menu.separator2(),
+      menu.tlink("refs", II("References"), ["daily"])
+    ];
+
+    Ropts = [
+      menu.mkEntry([], activityWg),
+      activity == cts.active | time.hour(time.now()) > 12
+        ? activity == cts.active
+          ? menu.toption(activity, "[·]", reactivate)
+          : menu.toption(activity, II("Sleeping"), reactivate)
+        : menu.mkEntry([], activityWg),
+      menu.separator2(),
+      menu.mkEntry(
+        [],
+        Q("span")
+          .style(color(dayProfits))
+          .text(math.toIso(dayProfits, 2))
+      ),
+      menu.separator(),
+      menu.mkEntry(
+        [],
+        Q("span")
+          .style(color(totalProfits))
+          .text(math.toIso(totalProfits, 2))
+      ),
+      menu.separator2(),
+      menu.mkEntry([], serverWg),
+      menu.separator(),
+      menu.toption(">>", ">>", newServer)
+    ];
+    dmenu.setDownMenu(dbmenu, menu.mk(Lopts, Ropts, mSel, false));
+
+    switch (mSel) {
+      "portfolio", "free", "all", "sel": mkCos();
+      "refs": mkRefs();
+      default: mkSummary();
+    }
+  };
+
+  Show!();
+
+  Tic = [0];
+  tm = timer.mk(15000);
+  timer.run(tm, \ -> {
+    tic = Tic!;
+
+    if (tic == 3) {
+      timer.stop(tm);
+      mk2(wg, dbmenu, mSel, Order!, IsReverse!);
+      return 0;
+    }
+
+    Tic! += 1;
+    if (activity == cts.active) {
+      updateActivityWg(3 - tic);
+    } else {
+      updateActivityWg(-1);
+    }
+
+    return 1;
+  });
+};
+
+/// Contents maker.
+///   wg    : Container.
+///   dbmenu: Double menu.
+///   lcPath: Location path.
+/// \<domo>, <dmenu>, [s...] -> ()
+mk = async \wg, dbmenu, LcPath ->
+  mk2(wg, dbmenu, !LcPath ? "summary" : LcPath[0], cts.chartOrderSignal, false);;
+

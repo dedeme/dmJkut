@@ -1,0 +1,93 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Data base main page designer.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    // Copyright {DATE} ºDeme
+    // GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+    /// Data base management.
+
+    import "cts";
+
+    klen = 20;
+    dbStateKeyTb = path.cat([cts.dataPath, "dbStateKey.tb"]);
+
+    /// Initializes data base
+    /// \ -> ()
+    init = \ -> {
+      if (!file.exists(cts.dataPath)) {
+        file.mkdir(cts.dataPath);
+        file.write(path.cat([cts.dataPath, "version.tb"]), cts.dataVersion);
+        file.write(dbStateKeyTb, cryp.genK(klen));
+
+        return;
+      }
+      sys.throw("Data base already is initialized");
+    };
+
+    /// Returns the state identifier.
+    /// \ -> ();
+    readKey = \ -> return str.trim(file.read(dbStateKeyTb));;
+
+    /// Checks the state identifier 'key' and returns:
+    ///   - If 'key' is valid, a new identifier.
+    ///   - If 'key' is not valid, an empty string.
+    /// \s -> s
+    checkKey = \key -> {
+      if (str.trim(file.read(dbStateKeyTb)) == key) {
+        newKey = cryp.genK(klen);
+        file.write(dbStateKeyTb, newKey);
+        return newKey;
+      }
+      return "";
+    };
+  """;
+
+  now = time.now();
+  month = now.toDate().toLocaleString("en-US", { month: "short" });
+  dateF = ui.field("dateF")
+    .att("id", "dateF")
+    .value("")
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    if (str.trim(dateF.getValue()) == "")
+      dateF.value(now.format("%D-" + month + "-%Y"));
+
+    textArea.text(tx
+      .replace("{DATE}", str.trim(dateF.getValue()))
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+  dateF.on("change", \e -> update(););
+  dateF.on("focus", \ev -> ev.target.select(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(ui.hrule(II("Date") + ":", 25))
+    .add(dateF)
+    .add(Q("hr"))
+  ;
+
+  update();
+};

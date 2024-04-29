@@ -1,0 +1,20 @@
+// Copyright 09-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Interface for problem editors.
+
+/// Set active value.
+/// In 'annsEditor' and 'delEditor'.
+/// \<prEd>, b -> ()
+active = \ed, value -> ed.active(value);;
+
+/// Deactivate editor.
+/// In 'del', 'modify' and 'newEntry'.
+/// \<prEd> -> ()
+deactivate = \ed -> ed.deactivate();;
+
+/// Update account 'acc' with editor data.
+/// In 'annsEditor', 'modify' and 'newEntry'.
+/// \<prEd>, s -> ()
+updateAccount = \ed, acc -> ed.updateAccount(acc);;
+

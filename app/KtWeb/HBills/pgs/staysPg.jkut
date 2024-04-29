@@ -1,0 +1,85 @@
+// Copyright 26-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Stays page.
+
+import "cts";
+import "fns";
+import "data/accAnn";
+import "wgs/barWg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  // [<accAnn>.]
+  , :arr Stays : await client.send({
+    prg: cts.appName,
+    source: "StaysPg",
+    rq: "idata"
+  });
+
+  // \ -> <domo>
+  table = \ -> {
+    max = Stays.reduce(
+      0, \r, :accAnn an -> return an.amount > r ? an.amount : r;
+    );
+    tb = Q("table").att("align", "center").klass("border");
+    bWg = \:accAnn a -> return barWg.mkWg(
+        barWg.mk(300, 2, a.amount / max, "#c080c0", "#ffffff")
+      );;
+
+    return !Stays
+      ? tb
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align: center")
+            .html(II("Without Data"))))
+      : tb
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("header")
+            .style("text-align: left")
+            .html(II("Date")))
+          .add(Q("td")
+            .klass("header")
+            .style("text-align: left")
+            .html(II("Place")))
+          .add(Q("td")
+            .klass("header")
+            .style("text-align: right")
+            .html(II("Amount")))
+          .add(Q("td").klass("header")))
+        .adds(Stays.map(\:accAnn a -> return Q("tr")
+            .add(Q("td")
+              .klass("border")
+              .style("text-align: left")
+              .text(
+                  a.date[6:] + "/" +
+                  a.date[4:6] + "/" +
+                  a.date[:4])
+                )
+            .add(Q("td")
+              .klass("border")
+              .style("text-align: left")
+              .html(a.place + "&nbsp;"))
+            .add(Q("td")
+              .klass("border")
+              .style("text-align: right")
+              .html(fns.cFmt(a.amount)))
+            .add(Q("td")
+              .add(bWg(a)));))
+    ;
+  };
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(table()))))
+  ;
+};

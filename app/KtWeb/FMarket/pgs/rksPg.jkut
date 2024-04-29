@@ -1,0 +1,199 @@
+// Copyright 22-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "cts";
+import "data/flea";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  :arr Url = ui.url();
+  modelId = Url.size() > 1 ? Url[1] : "";
+
+  mdId, :arr Models, :arr RksJs // s, [s.], [[s,[<flea>.](JS)].]
+  : await client.send({
+    prg: cts.appName,
+    source: "RksPg",
+    rq: "idata",
+    modelId
+  });
+
+  Rks = dic.fromArr(
+    RksJs.map(\Kv -> return [Kv[0], arr.map(Kv[1], flea.fromJs)];)
+  );
+  :arr Dates = Rks.keys();
+  Dates.sort(\d1, d2 -> return d1 > d2;);
+  page = "rankings&" + mdId;
+
+  :arr Lopts = Models.reduce(
+    [],
+    \:arr R, mId -> {
+      R.push(menu.tlink("rankings&" + mId, mId));
+      R.push(menu.separator());
+      return R;
+    }
+  );
+  Lopts.pop();
+
+  menuWg = menu.mk(Lopts, [], page);
+
+  size = Dates.size();
+  iV = [0];
+  Trs = []; // [<domo>...]
+  while (true) {
+    if (iV! == size) break;
+    tr = Q("tr");
+    for (i = 0:3) {
+      if (iV! == size) {
+        for (j = i:3) tr.add(Q("td"));
+        break;
+      }
+      d = Dates[iV!];
+      Lst = Rks[Dates[0]];
+      Prv = iV! == size - 1 ? [] : Rks[Dates[iV!+1]];
+      Nxt = iV! == 0 ? [] : Rks[Dates[iV!-1]];
+      tr.add(Q("td").add(mkRk(Lst, Prv, Nxt, d, Rks[d])));
+      Trs.push(tr);
+      iV! += 1;
+    }
+  }
+
+  body = Q("table")
+    .att("align", "center")
+    .adds(Trs)
+  ;
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+  ;
+
+};
+
+// Make a ranking
+//  Lst : More current ranking.
+//  prv : Previous ranking.
+//  Nxt : Next ranking.
+//  date: Date of current ranking.
+//  rk  : Current ranking.
+// \[<flea>.], [<flea>.], [<flea>.], s, [<flea>.] -> <domo>
+mkRk = \:arr Lst, :arr Prv, :arr Nxt, date, :arr Rk -> {
+  :flea rk0 = Rk[0];
+  npars = arr.size(rk0.Params);
+  isDate = arr.any(
+    ["ME", "ME2", "MM", "MX_MN"],
+    \m -> return m == rk0.mdId;
+  );
+
+  Trs = []; // [<domo>...]
+  for (i = 0:arr.size(Rk)) {
+    :flea f = Rk[i];
+    Trs.push(
+      Q("tr")
+        .add(Q("td")
+          .klass("fnumber")
+          .add(mkSym(Prv, f.id, i)))
+        .add(fns.mkTdN(f.id, 0)
+            .style("" +
+              mkLineThrough(Nxt, f.id) +
+              mkBackground(Lst, f.id)
+            )
+          )
+        .add(fns.mkTdN(f.cycle, 0))
+        .adds(npars == 1
+            ? [fns.mkTdN(f.Params[0], 4)]
+            : [ fns.mkTdN(f.Params[0], isDate ? 0 : 4),
+                fns.mkTdN(f.Params[1], 4)
+              ]
+          )
+        .add(fns.mkTdN(f.points, 0))
+    );
+  }
+  return Q("table")
+    .klass("border")
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", npars == 1 ? 5 : 6)
+        .klass("header")
+        .text(time.toIso(time.fromStr(date)!))))
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("header"))
+      .add(Q("td")
+        .klass("header")
+        .text(II("Id.")))
+      .add(Q("td")
+        .klass("header")
+        .text(II("Cy.")))
+      .adds(npars == 1
+          ? [ Q("td")
+                .klass("header")
+                .text(II("P1"))
+            ]
+          : [ Q("td")
+                .klass("header")
+                .text(II("P1")),
+              Q("td")
+                .klass("header")
+                .text(II("P2"))
+            ]
+        )
+      .add(Q("td")
+        .klass("header")
+        .text(II("Points"))))
+    .adds(Trs)
+  ;
+
+};
+
+// Make an evaluation symbol
+// \[<flea>.], s, n -> <domo>
+mkSym = \:arr Prv, id, i -> {
+  ix = Prv.index(\:flea f -> return f.id == id;);
+  d = ix - i;
+  return ui.img(
+    ix == -1
+      ? "rk-new"
+      : d > 4
+        ? "rk-up2"
+        : d > 0
+          ? "rk-up"
+          : d == 0
+            ? "rk-eq"
+            : d >= -4
+              ? "rk-down"
+              : "rk-down2"
+  );
+};
+
+// Return css style for line-trough
+// \[<flea>.], s -> s
+mkLineThrough = \:arr Next, id -> {
+  return !Next
+    ? ""
+    : Next.any(\:flea f -> return f.id == id;)
+      ? ""
+      : "text-decoration: line-through;"
+  ;
+};
+
+// Return css style for background.
+// \[<flea>.], s  -> s
+mkBackground = \Last, id -> {
+  return id == Last[0][flea.id]
+    ? "background-color: #a89247;"
+    : id == Last[1][flea.id]
+      ? "background-color: #b8b8b8;"
+      : id == Last[2][flea.id]
+        ? "background-color: #b7805b;"
+        : ""
+  ;
+};

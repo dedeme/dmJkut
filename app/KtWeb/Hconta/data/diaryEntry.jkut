@@ -1,0 +1,28 @@
+// Copyright 25-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Diary entry data.
+
+/// Constructor
+///   date: Operation date.
+///   description:  Description of operation.
+///   debits: Dictionary {DebitsCounts: values (currency)}.
+///   credits: Dictionary {CreditsCounts: values (currency)}.
+/// \n,s,{f.},{f.} -> <diaryEntry>
+mk : date, description, debits, credits;
+
+/// \<myType> -> JS
+toJs = \o -> return [
+    time.toStr(o[date]),
+    o[description],
+    o[debits],
+    o[credits]
+  ];;
+
+/// \JS -> <myType>
+fromJs = \A -> return [
+    time.fromStr(A[date])!,
+    A[description],
+    A[debits],
+    A[credits]
+  ];;

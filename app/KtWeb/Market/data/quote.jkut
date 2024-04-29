@@ -1,0 +1,22 @@
+// Copyright 08-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// <quote> data definition.
+
+/// Constructor.
+///   date : Date in format YYYYMMDD.
+///   open : Open value.
+///   close: Close value.
+///   max  : Maximum value.
+///   min  : Minimum value.
+///   vol  : Volume value.
+///   error: 'true' if quote is manualy corrected.
+/// \s,n,n,n,n,n,b -> <quote>
+mk : date, open, close, max, min, vol, error;
+
+/// \<quote> -> s
+toStr = \qt -> return str.fmt(
+    "%v:%v:%v:%v:%v:%v:%v",
+    [qt[date], qt[open], qt[close], qt[max], qt[min], qt[vol], qt[error]]
+  );;
+

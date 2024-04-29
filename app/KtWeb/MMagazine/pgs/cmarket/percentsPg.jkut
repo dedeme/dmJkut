@@ -1,0 +1,215 @@
+// Copyright 26-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Percentages page
+
+import "libdm/oldChart";
+import "data/cts";
+import "data/profitsEntry";
+import "data/ibexSundays";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    module: "CMarket",
+    source: "PercentsPg",
+    rq: "idata"
+  });
+  initialAssets = Rp.initialAssets;
+  Profits = arr.map(Rp.profits, profitsEntry.fromJs);
+  ibex = ibexSundays.fromJs(Rp.ibex);
+
+  pfColor = "#000000";
+  ibexColor = "#800000";
+
+  if (!Profits) {
+    arr.push(Profits, profitsEntry.mk(
+      time.toStr(time.mkDate(1, 1, time.year(time.now()))), [0, 0, 0]
+    ));
+  }
+  if (arr.size(Profits) == 1) arr.push(Profits, Profits[0]);
+
+  Ibexdts = ibexSundays.dates(ibex);
+  Ibexrts = ibexSundays.ratios(ibex);
+  if (!Ibexdts) {
+    arr.push(Ibexdts, time.now());
+    arr.push(Ibexrts, 0);
+  }
+  if (arr.size(Ibexdts) == 1) {
+    Ibexdts.push(Ibexdts[0]);
+    Ibexrts.push(0);
+  }
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> ()
+  badData = \ ->
+    wg
+      .removeAll()
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", 2)
+            .klass("frame")
+            .text(II("Dates of profits and ibex does not match"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align: center;width:50%")
+            .klass("border")
+            .text(II("Profits")))
+          .add(Q("td")
+            .style("text-align: center")
+            .klass("border")
+            .text(II("Ibex"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align:center; vertical-align:top")
+            .html("<tt>" +
+                arr.join(arr.map(Profits, \P -> return P.date;), "<br>") +
+                "<tt>"
+              ))
+          .add(Q("td")
+            .style("text-align:center; vertical-align:top")
+            .html("<tt>" +
+                arr.join(arr.map(Ibexdts, \d -> return time.toStr(d);), "<br>") +
+                "<tt>"
+              ))))
+  ;;
+
+  // \ -> <domo>
+  caption = \ ->
+    return Q("table")
+      .klass("frame")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:30px")
+          .add(ui.led(ibexColor, 6)))
+        .add(Q("td")
+          .style("vertical-align: middle;text-align:left;")
+          .text("ibex")))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:30px")
+          .add(ui.led(pfColor, 6)))
+        .add(Q("td")
+          .style("vertical-align: middle;text-align:left;")
+          .text(II("Investor"))))
+  ;;
+
+  // \ -> <domo>
+  caption2 = \ ->
+    return Q("table")
+      .klass("frame")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:30px")
+          .add(ui.led(pfColor, 6)))
+        .add(Q("td")
+          .style("vertical-align: middle;text-align:left;")
+          .text(II("Investors - Ibex"))))
+  ;;
+
+  if (
+    arr.map(Profits, \p -> return p.date;) !=
+    arr.map(Ibexdts, \d -> return time.toStr(d);)
+  ) {
+    badData();
+    return;
+  }
+
+  // [[[n]|[]...]...]
+  Sets = [];
+  // [[n]|[].]
+  Difs = [];
+  // [s...]
+  Labels = [];
+  initialPfs = Profits[0].profits;
+  for (E = Profits) {
+    arr.push(Labels, E.date[6:] + "/" + E.date[4:6]);
+    pfs = E.profits;
+    dif = (pfs - initialPfs) * 100 / initialAssets;
+    arr.push(Difs, [dif]);
+  }
+  arr.push(Sets, arr.map(Ibexrts, \v -> return [v * 100];));
+  arr.push(Sets, Difs);
+
+  //[<line>...]
+  SetAtts = [];
+  IbexAtts = oldChart.mkLineExample();
+  IbexAtts.color = ibexColor;
+  IbexAtts.width = 3;
+  arr.push(SetAtts, IbexAtts);
+  PfAtts = oldChart.mkLineExample();
+  PfAtts.color = pfColor;
+  PfAtts.width = 3;
+  arr.push(SetAtts, PfAtts);
+
+  Data = oldChart.mkData(Labels, Sets, SetAtts);
+  lenGroup = math.toInt(arr.size(Labels) / 10) + 1;
+  Data.drawLabel = \l, i -> return i > 0 & i % lenGroup == 0;;
+  Data.drawGrid = \l, i ->
+    return i > 0 & i % lenGroup == 0 & i < arr.size(Labels) - 1;;
+
+  Chart = oldChart.mkExample();
+  Chart.ExArea.width = 600;
+  Chart.ExArea.height = 400;
+  Chart.InPadding = oldChart.mkPadding(25, 25, 30, 100);
+
+  Data2 = oldChart.mkData(
+    Labels,
+    [arr.fromIter(iter.map([0:arr.size(Difs)], \i -> {
+        difOp = Difs[i];
+        return !difOp ? [] : [difOp! - Ibexrts[i] * 100];
+      }))
+    ],
+    [PfAtts]
+  );
+  Data2.drawLabel = Data.drawLabel;
+  Data2.drawGrid = Data.drawGrid;
+
+  Chart2 = oldChart.mkExample();
+  Chart2.ExArea.width = 600;
+  Chart2.ExArea.height = 200;
+  Chart2.InPadding = oldChart.mkPadding(25, 25, 30, 100);
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td"))
+        .add(Q("td")
+          .add(caption())))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:5px;")
+          .text("%"))
+        .add(Q("td")
+          .add(oldChart.mkWg(Chart, Data))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", "2")
+          .style("height:15px")
+          .text(" ")))
+      .add(Q("tr")
+        .add(Q("td"))
+        .add(Q("td")
+          .add(caption2())))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:5px;")
+          .text("%"))
+        .add(Q("td")
+          .add(oldChart.mkWg(Chart2, Data2))))
+      )
+  ;
+
+};

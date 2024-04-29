@@ -1,0 +1,23 @@
+// Copyright 05-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Market <order> data.
+
+import "global";
+
+/// Constructor.
+///   date  : Order date.
+///   nick  : Company nick.
+///   type  : order.buy or order.sell.
+///   stocks: Stocks number.
+///   price : Price of each stock.
+/// \s,s,n,n,n -> <order>
+mk : date, nick, type, stocks, price;
+
+/// Returns the number of orders type global.orderSellV! of 'Os'.
+/// \[<order>.] -> n
+sales = \Os -> {
+  sumV = [0];
+  for (O = Os) if (O[type] == global.orderSellV!) sumV! += 1;
+  return sumV!;
+};

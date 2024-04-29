@@ -1,0 +1,101 @@
+// Copyright 15-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "cts";
+import "pgs/msgPg";
+import "pgs/authentication";
+import "pgs/settings";
+import "pgs/home";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+
+  if (!ok) {
+    authentication.mk(wg, cts.appName, \ -> mk(wg););
+    return;
+  }
+
+  , lang : await client.send({
+    prg: cts.appName,
+    source: "Main",
+    rq: "lang"
+  });
+  if (lang == "en") i18n.en();
+
+
+  // Control -------------------------------------------------------------------
+
+  close = async \ -> {
+    if (!ui.confirm(II("Application exit?"))) {
+      return;
+    }
+    await client.send({
+      prg: cts.appName,
+      source: "Main",
+      rq: "close",
+      sessionId: client.sessionId()
+    });
+    msgPg.mk(wg , i18n.fmt(II("Logout-message"), [cts.appName]), false);
+  };
+
+  // View ----------------------------------------------------------------------
+
+  Url = ui.url();
+  page = !Url ? "home": Url[0];
+  menuWg = menu.mk(
+    [ menu.tlink("home", II("Home"))
+    ],
+    [ menu.tlink("settings", II("Settings")),
+      menu.separator(),
+      menu.close(close)
+    ],
+    page
+  );
+
+  body = Q("div");
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+  ;
+
+  switch (page) {
+    "settings": settings.mk(body);
+    default: home.mk(body);
+  }
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+client.init(true, cts.appName, \isExpired -> {
+  msg = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
+  msgWg = Q("div");
+  msgPg.mk(msgWg, msg, true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+;
+
+mk(wg);

@@ -1,0 +1,49 @@
+// Copyright 25-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// <imodel> data definition.
+
+import "cts";
+
+/// Paramter types.
+dayParam, percParam =;
+
+/// Constructor.
+///   id    : Model identifier.
+///   name  : Model complete name.
+///   pnames: Paramter names.
+///   ptypes: Parameter types. One of dayParam or percParam
+///   pbases: Parameter bases.
+///   pincs : Parameter increments.
+/// \s,s,[s.],[i.],[f.],[i.] -> <imodel>
+mk : id, name, Pnames, Ptypes, Pbases, Pincs;
+
+/// \<imodel>, n -> s
+paramFmt = \md, ix -> {
+  return arr.size(md[Ptypes]) == 1
+    ? paramFmt1(md[Pbases][0], md[Pincs][0], ix)
+    : paramFmt2(md[Pbases][0], md[Pincs][0],
+                md[Pbases][1], md[Pincs][1], ix)
+  ;
+};
+
+// \b, n, n, n -> s
+paramFmt1 = \base, inc, ix -> return "[" +
+  trunc(base + inc * ix) +
+  "]"
+;;
+
+// \b, n, n, n, n, n -> s
+paramFmt2 = \base1, inc1, base2, inc2, ix ->
+  return "[" +
+    trunc(base1 + inc1 * math.toInt(ix / cts.simulationSteps)) +
+    ", " +
+    trunc(base2 + inc2 * (ix % cts.simulationSteps)) +
+    "]";;
+
+trunc = \n -> {
+  rV = [math.toEn(n, 4)];
+  while (str.ends(rV!, "0")) rV! = rV![:-1];
+  if (str.ends(rV!, ".")) rV! = rV![:-1];
+  return rV!;
+};

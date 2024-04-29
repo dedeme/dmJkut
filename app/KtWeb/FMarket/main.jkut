@@ -1,0 +1,97 @@
+// Copyright 24-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "cts";
+import "pgs/msgPg";
+import "pgs/logPg";
+import "pgs/fleasPg";
+import "pgs/rksPg";
+import "pgs/summaryPg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("Session is closed.\nAuthenticating from Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+    return;
+  }
+
+  // Sessions control is in "KtWeb:Main" !!!
+  , lang : await client.send({
+    prg: "Main", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (lang == "en") i18n.en();
+
+  Url = ui.url();
+  page = !Url ? "summary" : Url[0];
+  menuWg = menu.mk(
+    [ menu.tlink("summary", II("Summary")),
+      menu.separator(),
+      menu.tlink("fleas", II("Fleas")),
+      menu.separator(),
+      menu.tlink("rankings", II("Rankings")),
+      menu.separator(),
+      menu.tlink("log", II("Log"))
+    ],
+    [],
+    page
+  );
+
+  body = Q("div");
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+  ;
+
+  switch (page) {
+    "fleas": fleasPg.mk(body);
+    "rankings": rksPg.mk(body);
+    "log": logPg.mk(body);
+    default: summaryPg.mk(body);
+  }
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+/// Load main window
+load = \ -> {
+  mk(wg);
+};
+
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KtWeb", \isExpired -> {
+  message = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
+  msgWg = Q("div");
+  msgPg.mk(msgWg, message, true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+  .add(ui.upTop("up"))
+;
+
+load();

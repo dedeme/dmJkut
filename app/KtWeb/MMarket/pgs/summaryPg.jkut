@@ -1,0 +1,220 @@
+// Copyright 30-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Summary page.
+
+import "libdm/vmenu";
+import "data/smE";
+import "data/sm";
+import "data/smVal";
+import "global";
+import "fns";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// Sources
+sPond, sReal, sAcc, sProf :;
+
+// Order
+oCavg, oLast, oAvg, oDev =;
+
+/// Constructor.
+///   wg: Container.
+/// \<domo> -> ()
+mk = async \wg -> {
+  , :sm summary : await client.send({
+    prg: cts.appName,
+    source: "SummaryPg",
+    rq: "idata"
+  });
+
+  sourceV = [sPond];
+  orderV = [oCavg];
+
+  showV = [[]];
+  percentChk = Q("input")
+    .att("type", "checkbox")
+    .checked(false)
+    .on("change", \e -> showV!();)
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  changeSource = \source -> {
+    sourceV! = source;
+    showV!();
+  };
+
+  // \s -> ()
+  changeOrder = \order -> {
+    orderV! = order;
+    showV!();
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \s, html -> <domo>
+  mkTh = \id, html -> return Q("td")
+    .klass("rhead")
+    .add(orderV! == id
+      ? Q("div")
+          .klass("frame")
+          .html(html)
+      : ui.link(\e -> changeOrder(id);)
+          .klass("link")
+          .html(html))
+  ;;
+
+  showV! = \ -> {
+    isPercent = percentChk.isChecked();
+
+    vmenuWg = vmenu.mk(
+      [
+        vmenu.title(II("Source")),
+        vmenu.separator(),
+        vmenu.option(sPond, II("Points"), \ -> changeSource(sPond);),
+        vmenu.option(sReal, II("Real"), \ -> changeSource(sReal);),
+        vmenu.option(sAcc, II("Accounting"), \ -> changeSource(sAcc);),
+        vmenu.option(sProf, II("Profits"), \ -> changeSource(sProf);)
+      ],
+      sourceV!
+    );
+
+    titleTx = isPercent
+      ? II("Final amount from initial one of 100 €")
+      : switch (sourceV!) {
+          sPond: II("Final amount from initial one of 1,000 points");
+          sReal, sAcc: i18n.fmt(
+              II("Final amount from initial one of %0 €"),
+              [fns.nfmt(global.initialCapitalV!, 0)]
+            );
+          default: II("Final amount from initial one of 100 €");
+        };
+
+    :arr Data = switch(sourceV!) {
+      sPond: summary.Pon;
+      sReal: summary.Real;
+      sAcc: summary.Acc;
+      default: summary.Prof;
+    };
+
+    switch (orderV!) {
+      oCavg: Data.sort(
+              \:smE e1, :smE e2 -> return !smVal.less(e1.cavg, e2.cavg);
+             );
+      oLast: Data.sort(
+              \:smE e1, :smE e2 -> return !smVal.less(e1.last, e2.last);
+             );
+      oAvg: Data.sort(
+              \:smE e1, :smE e2 -> return !smVal.less(e1.avg, e2.avg);
+             );
+      default: Data.sort(
+              \:smE e1, :smE e2 -> return smVal.less(e1.dev, e2.dev);
+             );
+    }
+
+    Rows = [];
+    for (:smE r = Data) {
+      tr = Q("tr");
+      tr.add(Q("td")
+        .klass("lframe")
+        .add(Q("a")
+          .klass("plain")
+          .att("href", "?results&" + r.mdId)
+          .text(r.mdId))
+      );
+      {
+        :smVal v = r.cavg;
+        tr.add(Q("td")
+          .klass("rframe")
+          .style("width:100px")
+          .att("title", fns.pfmt(r.mdId, v.ix))
+          .add(Q("a")
+            .klass("plain")
+            .att("href", "?charts&" + r.mdId + "&" + v.ix)
+            .text(isPercent | sourceV! == sProf
+                ? fns.nfmt(v.val * 100, 2)
+                : sourceV! == sPond
+                  ? fns.nfmt(v.val * 1000, 0)
+                  : fns.nfmt(v.val * global.initialCapitalV!, 0)))
+        );
+      }{
+        :smVal v = r.last;
+        tr.add(Q("td")
+          .klass("rframe")
+          .style("width:100px")
+          .att("title", fns.pfmt(r.mdId, v.ix))
+          .add(Q("a")
+            .klass("plain")
+            .att("href", "?charts&" + r.mdId + "&" + v.ix)
+            .text(isPercent | sourceV! == sProf
+                ? fns.nfmt(v.val * 100, 2)
+                : sourceV! == sPond
+                  ? fns.nfmt(v.val * 1000, 0)
+                  : fns.nfmt(v.val * global.initialCapitalV!, 0)))
+        );
+      }{
+        :smVal v = r.avg;
+        tr.add(Q("td")
+          .klass("rframe")
+          .style("width:100px")
+          .att("title", fns.pfmt(r.mdId, v.ix))
+          .add(Q("a")
+            .klass("plain")
+            .att("href", "?charts&" + r.mdId + "&" + v.ix)
+            .text(isPercent | sourceV! == sProf
+                ? fns.nfmt(v.val * 100, 2)
+                : sourceV! == sPond
+                  ? fns.nfmt(v.val * 1000, 0)
+                  : fns.nfmt(v.val * global.initialCapitalV!, 0)))
+        );
+      }{
+        :smVal v = r.dev;
+        tr.add(Q("td")
+          .klass("rframe")
+          .style("width:100px")
+          .add(Q("span")
+            .text(fns.nfmt(v.val * 100, 2)))
+        );
+      }
+      Rows.push(tr);
+    }
+
+    wg
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px;vertical-align:top")
+            .add(vmenuWg))
+          .add(Q("td")
+            .add(Q("div")
+              .klass("head")
+              .text(titleTx))
+            .add(Q("div")
+              .klass("separator"))
+            .add(Q("table")
+              .att("align", "center")
+              .klass("flat")
+              .add(Q("tr")
+                .add(Q("td")
+                  .style("text-align:center")
+                  .add(percentChk)
+                  .add(Q("span")
+                    .html("&nbsp;%")))
+                .add(mkTh(oCavg, II("Corrected<br>Average")))
+                .add(mkTh(oLast, II("Last<br>Value")))
+                .add(mkTh(oAvg, "<br>" + II("Average")))
+                .add(mkTh(oDev, II("Deviation<br>%"))))
+              .adds(Rows))
+        )))
+    ;
+  };
+
+  showV!();
+};

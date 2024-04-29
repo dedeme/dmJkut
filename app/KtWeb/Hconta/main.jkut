@@ -1,0 +1,144 @@
+// Copyright 25-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "cts";
+import "data/all";
+import "data/acc";
+import "pgs/msgPg";
+import "pgs/yearPg";
+import "pgs/diaryPg";
+import "pgs/cashPg";
+import "pgs/accsPg";
+import "pgs/summaryPg";
+import "pgs/planPg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("Session is closed.\nAuthenticating from Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+    return;
+  }
+
+  // Sessions control is in "KtWeb:Main" !!!
+  , lang : await client.send({
+    prg: "Main", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (lang == "en") i18n.en();
+
+  await all.request();
+
+  :arr Url = ui.url();
+  page = !Url ? "cash" : Url[0];
+
+  year = all.currentYear();
+  :: myear = menu.tlink(year, year);
+
+  Lopts = [
+    myear,
+    menu.separator(),
+    menu.tlink("diary", II("Diary")),
+    menu.separator(),
+    menu.tlink("cash", II("Cash")),
+    menu.separator(),
+    menu.tlink("accs", II("Accs")),
+    menu.separator(),
+    menu.tlink("summaries", II("Summaries")),
+    menu.separator(),
+    menu.tlink("plan", II("Plan"))
+  ];
+  menuWg = menu.mk(Lopts, [], page);
+  if (!all.isLastYear()) myear.wg.setStyle("color", "#800000");
+
+  body = Q("div");
+
+  switch (page) {
+    "diary": {
+      ac = Url.size() > 1 ? Url[1] : "";
+      ix = Url.size() > 2 ? Url[2]: "-";
+      diaryPg.mk(body, ac, ix);
+    }
+    "cash":{
+      ac = Url.size() > 1 ? Url[1] : "";
+      ix = Url.size() > 2 ? Url[2]: "-";
+      cashPg.mk(body, ac, ix);
+    }
+    "accs": {
+      ac = Url.size() > 1 ? Url[1] : "57202";
+      ix = Url.size() > 2 ? Url[2]: "-";
+      accsPg.mk(body, ac, ix);
+    }
+    "summaries": {
+      type = Url.size() > 1 ? Url[1] : "";
+      deep = Url.size() > 2 ? Url[2]: "-";
+      summaryPg.mk(body, type, deep);
+    }
+    "plan": {
+      ac = Url.size() > 1 ? Url[1] : "57202";
+      planPg.mk(body, ac);
+    }
+    default: {
+      if (page == all.currentYear()) {
+        yearPg.mk(body);
+      } else {
+        ac = Url.size() > 1 ? Url[1] : "";
+        ix = Url.size() > 2 ? Url[2]: "-";
+        cashPg.mk(body, ac, ix);
+      }
+    }
+  }
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+  ;
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+/// Load main window
+load = \ -> {
+  mk(wg);
+};
+
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KtWeb", \isExpired -> {
+  message = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
+  msgWg = Q("div");
+  msgPg.mk(msgWg, message, true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+  .add(ui.upTop("up"))
+;
+
+load();
+
+try {
+  Q("#autofocus").e.focus();
+} catch (e) {}
+

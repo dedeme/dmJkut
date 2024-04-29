@@ -1,0 +1,399 @@
+// Copyright 14-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Comp page.
+
+import "libdm/menu";
+import "data/acc/ldg";
+import "wgs/msg";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// Order type
+nickOrder, valueOrder, profitsOrder, refOrder =;
+
+// \n, n -> n
+fjail = \price, close ->
+  return close == 0
+    ? 0
+    : (price - close) * 100 / close
+  ;;
+
+// \n, n -> n
+fref = \ref, close ->
+  return close == 0
+    ? 0
+    : (ref - close) * 100 / close
+  ;;
+
+// \n -> s
+fcolor = \value -> return value < 0 ? "aa2800" : "0041aa";;
+
+// Main ------------------------------------------------------------------------
+
+/// Constructor
+/// \<domo> -> ()
+mk = async \wg -> {
+  ok, :ldg ledger,
+  :dic Portfolio, // {[n, n].} :: {nick -> [stocks, price].}
+  :arr Jails, // [s.]
+  :dic Closes, // {f.} :: {nick -> close}
+  :dic Refs // {f.} :: {nick -> reference}
+  : await client.send({
+    prg: cts.appName,
+    module: "Acc",
+    source: "BalancePg",
+    rq: "idata"
+  });
+
+  if (!ok) {
+    msg.error(cts.failMsg, \->{});
+    return;
+  }
+
+  orderV = [refOrder];
+
+  showV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \i -> ()
+  setOrder = \order -> {
+    orderV! = order;
+    showV!();
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> ()
+  showV! = \ -> {
+    :: D = {
+      currentProfits: 0,
+      accountProfits: 0,
+      withdraw: 0,
+      currentStocks: 0,
+      profitsStocks: 0,
+
+      equity: 0,
+      sales: 0,
+      fees: 0,
+      profits: 0,
+      differences: 0,
+      cash: 0,
+      accountStocks: 0
+    };
+
+    Rows = {}; // {nick->Row} :: Row {stocks, price, close, value, profits, ref}
+    :ldg L = ledger;
+    :dic P = Portfolio;
+    :arr J = Jails;
+
+    D.equity -= L.equity;
+    D.sales -= L.sales;
+    D.fees -= L.fees;
+    D.profits -= L.profits;
+    D.differences -= L.differences;
+    D.accountStocks += L.stocks;
+    D.cash += L.cash;
+
+    for (nk, SP = P) {
+      stocks = SP[0];
+      price = SP[1];
+      refOp = Refs.get(nk);
+      ref = !refOp ? 0 : refOp!;
+
+      Close = Closes.get(nk);
+      close = !Close ? 0 : Close!;
+      TpRef = J.any(\n -> return n == nk;)
+        ? ["*", fjail(price, close)]
+        : ["", fref(ref, close)]
+      ;
+
+      RowOp = Rows.get(nk);
+      Row = !!RowOp
+        ? \ -> {
+            R = RowOp!;
+            stocks2 = R.stocks + stocks;
+            price2 = (R.stocks * R.price + stocks * price) / stocks2;
+            return {
+              stocks: stocks2,
+              price: price2,
+              close,
+              value: stocks2 * close,
+              profits: (close - price2) * stocks2,
+              tpRef: R.tpRef[0] == ""
+                ? TpRef[0] == ""
+                  ? TpRef[1] > R.tpRef[1] ? TpRef : R.tpRef
+                  : R.tpRef
+                : TpRef[0] == ""
+                  ? TpRef
+                  : TpRef[1] < R.tpRef[1] ? TpRef : R.tpRef
+            };
+          }()
+        : {
+            stocks,
+            price,
+            close,
+            value: stocks * close,
+            profits: (close - price) * stocks,
+            tpRef: TpRef
+          }
+      ;
+      Rows.put(nk, Row);
+    }
+
+    :arr Rs = dic.toArr(Rows);
+    Rs.sort(\R1, R2 -> {
+      P1 = R1[1];
+      P2 = R2[1];
+      return switch(orderV!) {
+        nickOrder: R1[0] < R2[0];
+        valueOrder: P1.value > P2.value;
+        profitsOrder: P1.profits > P2.profits;
+        default: P1.tpRef[0] == "*"
+          ? P2.tpRef[0] == "*"
+            ? P1.tpRef[1] < P2.tpRef[1]
+            : false
+          : P1.tpRef[0] == "*"
+            ? true
+            : P1.tpRef[1] < P2.tpRef[1]
+          ;
+      };
+    });
+
+    D.accountProfits = D.cash + D.accountStocks - D.equity;
+    D.currentStocks = Rs.reduce(0, \r, Tp -> return r + Tp[1].value;);
+    D.profitsStocks = Rs.reduce(0, \r, Tp -> return r + Tp[1].profits;);
+    D.currentProfits = D.accountProfits + D.profitsStocks;
+    D.withdraw = \ -> {
+        assets = D.equity + D.currentProfits;
+        if (assets > cts.initialCapital + cts.bet + cts.bet) {
+          dif = assets - cts.initialCapital - cts.bet;
+          if (D.cash > dif + 1000) return dif;
+          if (D.cash > cts.bet + 1000)
+            return math.toInt((D.cash - 1000) / cts.bet) * cts.bet;
+        }
+        return 0;
+      }();
+
+    wg
+      .removeAll()
+      .add(Q("div")
+        .klass("head")
+        .html(II("Profits")))
+
+      .add(Q("table")
+        .att("align", "center")
+        .klass("home")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("rlabel")
+            .add(Q("span")
+              .html(II("Current profits") + ":")))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(
+                "<font color='#" + fcolor(D.currentProfits) + "'>" +
+                math.toIso(D.currentProfits, 2) +
+                "</font>"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("rlabel")
+            .add(Q("span")
+              .html(II("Accounting profits") + ":")))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(
+                "<font color='#" + fcolor(D.accountProfits) + "'>" +
+                math.toIso(D.accountProfits, 2) +
+                "</font>"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("rlabel")
+            .add(Q("span")
+              .html(II("To withdraw") + ":")))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(D.withdraw == "- - -" ? "- - -" : math.toIso(D.withdraw, 2))))))
+
+      .add(Q("div")
+        .klass("head")
+        .html(II("Balance")))
+      .add(Q("table")
+        .att("align", "center")
+        .klass("home")
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", 2)
+            .klass("head")
+            .add(Q("span")
+              .html(II("Assets"))))
+          .add(Q("td").klass("separator"))
+          .add(Q("td")
+            .att("colspan", 2)
+            .klass("head")
+            .add(Q("span")
+              .html(II("Liabilities")))))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("rlabel")
+            .add(Q("span")
+              .html(II("Stocks") + ":")))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(math.toIso(D.accountStocks, 2))))
+          .add(Q("td").klass("separator"))
+          .add(Q("td")
+            .klass("rlabel")
+            .add(Q("span")
+              .html(II("Equity") + ":")))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(math.toIso(D.equity, 2)))))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("rlabel")
+            .add(Q("span")
+              .html(II("Cash") + ":")))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(math.toIso(D.cash, 2))))
+          .add(Q("td").klass("separator"))
+          .add(Q("td")
+            .klass("rlabel")
+            .add(Q("span")
+              .html(II("Sells") + ":")))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(math.toIso(D.sales, 2)))))
+        .add(Q("tr")
+          .add(Q("td"))
+          .add(Q("td"))
+          .add(Q("td").klass("separator"))
+          .add(Q("td")
+            .klass("rlabel")
+            .add(Q("span")
+              .html(II("Fees") + ":")))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(math.toIso(D.fees, 2)))))
+        .add(Q("tr")
+          .add(Q("td"))
+          .add(Q("td"))
+          .add(Q("td").klass("separator"))
+          .add(Q("td")
+            .klass("rlabel")
+            .add(Q("span")
+              .html(II("Profits") + ":")))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(math.toIso(D.profits, 2)))))
+        .add(Q("tr")
+          .add(Q("td"))
+          .add(Q("td"))
+          .add(Q("td").klass("separator"))
+          .add(Q("td")
+            .klass("rlabel")
+            .add(Q("span")
+              .html(II("Differences") + ":")))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(math.toIso(D.differences, 2))))))
+
+      .add(Q("div")
+        .klass("head")
+        .html(II("Stocks")))
+      .add(Q("table")
+        .att("align", "center")
+        .klass("home")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("head")
+            .add(ui.link(\e -> setOrder(nickOrder);)
+              .klass("linkBold")
+              .html(II("Co."))))
+          .add(Q("td").klass("head")
+            .add(Q("span").html("Nm.")))
+          .add(Q("td").klass("head")
+            .add(Q("span").html(II("Buy"))))
+          .add(Q("td").klass("head")
+            .add(Q("span").html(II("Sell"))))
+          .add(Q("td").klass("head")
+            .add(ui.link(\e -> setOrder(valueOrder);)
+              .klass("linkBold")
+              .html(II("Value"))))
+          .add(Q("td")
+            .klass("head")
+            .add(ui.link(\e -> setOrder(profitsOrder);)
+              .klass("linkBold")
+              .html(II("Profits"))))
+          .add(Q("td")
+            .klass("head")
+            .add(ui.link(\e -> setOrder(refOrder);)
+              .klass("linkBold")
+              .html(II("Rf. (%)")))))
+        .adds(arr.map(Rs, \R -> return Q("tr") // R is [Nick, {...}]
+          .add(Q("td")
+            .klass("nick")
+            .add(Q("span")
+              .html(R[0])))
+          .add(Q("td")
+            .klass("number2")
+            .add(Q("span")
+              .html(math.toIso(R[1].stocks, 0))))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(math.toIso(R[1].price, 4))))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(math.toIso(R[1].close, 4))))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(math.toIso(R[1].value, 2))))
+          .add(Q("td")
+            .klass("number")
+            .add(Q("span")
+              .html(math.toIso(R[1].profits, 2))))
+          .add(Q("td")
+            .klass("number")
+            .setStyle("color", R[1].tpRef[0] == "*" ? "#400000" : "")
+            .add(Q("span")
+              .html(math.toIso(R[1].tpRef[1], 2))))
+          ;))
+        .add(Q("tr")
+          .add(Q("td"))
+          .add(Q("td"))
+          .add(Q("td"))
+          .add(Q("td"))
+          .add(Q("td")
+            .klass("numberSum")
+            .add(Q("span")
+              .html(math.toIso(D.currentStocks, 2))))
+          .add(Q("td")
+            .klass("numberSum")
+            .add(Q("span")
+              .html(math.toIso(D.profitsStocks, 2))))
+          .add(Q("td"))
+        ))
+    ;
+  };
+
+  showV!();
+
+};

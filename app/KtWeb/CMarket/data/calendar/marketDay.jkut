@@ -1,0 +1,20 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Calendar market day.
+
+/// Constructor.
+///   date  : Day.
+///   hopen : Open hour.
+///   mopen : Open minute.
+///   hclose: Close hour.
+///   mclose: Close minute.
+/// \s, n, n, n, n -> d<marketDay>
+mk = \date, hopen, mopen, hclose, mclose ->
+  return {date, hopen, mopen, hclose, mclose};;
+
+/// \<marketDay> -> [*(JS)...]
+toJs = \M -> return [M.date, M.hopen, M.mopen, M.hclose, M.mclose];;
+
+/// \[*(JS)...] -> <marketDay>
+fromJs = \A -> return mk(A[0], A[1], A[2], A[3], A[4]);;

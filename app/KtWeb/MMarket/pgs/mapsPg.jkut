@@ -1,0 +1,295 @@
+// Copyright 02-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Overview
+
+import "libdm/vmenu";
+import "data/model";
+import "data/upRs";
+import "fns";
+import "global";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// Summary period types
+pCavg, pLast, pAvg =;
+
+/// Constructor.
+///   wg: Container.
+/// \<domo> -> ()
+mk = \wg -> {
+  :arr Url = ui.url();
+  mdV = [
+    Url.size() > 1 & fns.existsModel(Url[1])
+      ? fns.getModel(Url[1])
+      : fns.getModel(cts.mainModel)
+  ];
+  :model md = mdV!;
+
+  showV = [[]];
+  cavgRd = Q("input")
+    .att("type", "radio")
+    .att("name", "period")
+    .checked(true)
+    .on("change", \e -> showV!();)
+  ;
+  lastRd = Q("input")
+    .att("type", "radio")
+    .att("name", "period")
+    .checked(false)
+    .on("change", \e -> showV!();)
+  ;
+  avgRd = Q("input")
+    .att("type", "radio")
+    .att("name", "period")
+    .checked(false)
+    .on("change", \e -> showV!();)
+  ;
+  ptsRd = Q("input")
+    .att("type", "radio")
+    .att("name", "source")
+    .checked(true)
+    .on("change", \e -> showV!();)
+  ;
+  realRd = Q("input")
+    .att("type", "radio")
+    .att("name", "source")
+    .checked(false)
+    .on("change", \e -> showV!();)
+  ;
+  accRd = Q("input")
+    .att("type", "radio")
+    .att("name", "source")
+    .checked(false)
+    .on("change", \e -> showV!();)
+  ;
+  profRd = Q("input")
+    .att("type", "radio")
+    .att("name", "source")
+    .checked(false)
+    .on("change", \e -> showV!();)
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  changeModel = \mdId -> window.location.assign("?maps&" + mdId);;
+
+  // View ----------------------------------------------------------------------
+
+  // \<domo>, s -> <menuEntry>
+  mkOpt = \wg, html -> return Q("td")
+    .add(Q("table")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(wg))
+        .add(Q("td")
+          .html(html))))
+  ;;
+
+  // \ -> <domo>
+  mkMapTd = \ -> return Q("td")
+    .style("width:100px;height:100px")
+    .add(ui.img("wait.gif"))
+  ;;
+
+  // \[<domo>.] -> <domo>
+  mkMapTb = \:arr Tds -> return Q("table")
+    .add(Q("tr")
+      .adds(Tds[:Tds.size()/2]))
+    .add(Q("tr")
+      .adds(Tds[Tds.size()/2:]))
+  ;;
+
+  // \s,n,<domo>,n,n -> (async \i, <domo> -> ())
+  mkfMap = \period, type, vsource ->
+    return async \i, td -> {
+      // [n.]
+      date, :arr Vals : await client.send({
+        prg: cts.appName,
+        source: "MapsPg",
+        rq: "values",
+        mdId: md.id,
+        period,
+        i,
+        type,
+        vsource
+      });
+      if (!Vals) {
+        td.removeAll();
+        return;
+      }
+
+      steps = global.evalStepsV!;
+      max = Vals.reduce(Vals[0], \r, v -> return v > r ? v : r;);
+      min = Vals.reduce(max, \r, v -> return v < r & v > -1.0 ? v : r;);
+      df = max - min;
+
+      // \n -> s
+      color = \value -> {
+        if (value < 0) return "rgb(190,190,190)";
+        red = math.toInt((max - value) * 256 / df );
+        blue = math.toInt((value - min) * 256 / df );
+        return "rgb(" + red + ",80," + blue + ")";
+      };
+
+      Trs = [];
+      if (Vals.size() == steps) {
+        for (i = 0:steps)
+          Trs.push(Q("tr")
+            .add(Q("td")
+              .att(
+                  "title",
+                  fns.pfmt(md.id, i) + "\n" + fns.rsFmt(vsource, Vals[i])
+                )
+              .style(
+                  "background:" + color(Vals[i]) +
+                  ";width:100px;height:5px;" +
+                  "cursor:pointer"
+                )
+              .on("click", \ev ->
+                  window.location.assign("?charts&" + md.id + "&" + i);
+                ))
+          );
+      } else {
+        for (r = 0:steps) {
+          Tds = [];
+          for (c = 0:steps) {
+            i = r * steps + c;
+            Tds.push(Q("td")
+              .att(
+                  "title",
+                  fns.pfmt(md.id, i) + "\n" + fns.rsFmt(vsource, Vals[i])
+                )
+              .style(
+                  "background:" + color(Vals[i]) +
+                  ";width:5px;height:5px;" +
+                  "cursor:pointer"
+                )
+              .on("click", \ev ->
+                  window.location.assign("?charts&" + md.id + "&" + i);
+                )
+            );
+          }
+          Trs.push(Q("tr")
+            .adds(Tds)
+          );
+        }
+      }
+
+      td
+        .removeAll()
+        .style("width:100px;height:100px")
+        .add(Q("div")
+          .style("text-align:center")
+          .text(time.toIso(time.fromStr(date)!)))
+        .add(Q("table")
+          .klass("flat border")
+          .adds(Trs))
+      ;
+    }
+  ;;
+
+  // \ -> ()
+  showV! = \ -> {
+    type = cavgRd.isChecked()
+      ? pCavg
+      : lastRd.isChecked()
+        ? pLast
+        : pAvg
+    ;
+    source = ptsRd.isChecked()
+      ? upRs.pon
+      : realRd.isChecked()
+        ? upRs.real
+        : accRd.isChecked()
+          ? upRs.acc
+          : upRs.prof
+    ;
+    datesInPeriod = global.datesInPeriodV!;
+    Tds = [];
+    for (p = global.Periods) {
+      Itds = [];
+      for (i = 0:datesInPeriod)
+        Itds.push(mkMapTd());
+      Tds.push(Itds);
+    }
+
+    menuWg = Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("frame")
+          .style("align:left")
+          .add(Q("table")
+            .add(Q("tr")
+              .add(mkOpt(cavgRd, II("Corrected<br>Average")))
+              .add(mkOpt(lastRd, II("Last<br>Value")))
+              .add(mkOpt(avgRd, II("Average")))
+            )))
+         .add(Q("td"))
+         .add(Q("td")
+          .klass("frame")
+          .style("align:right")
+          .add(Q("table")
+            .add(Q("tr")
+              .add(mkOpt(ptsRd, II("Points")))
+              .add(mkOpt(realRd, II("Real")))
+              .add(mkOpt(accRd, II("Accounting")))
+              .add(mkOpt(profRd, II("Profits")))
+            ))))
+    ;
+
+    :model md = mdV!;
+
+    Ops = [
+      vmenu.title(II("Models")),
+      vmenu.separator()
+    ];
+    for (:model md = global.Models)
+      Ops.push(vmenu.option(md.id, md.id, \ -> changeModel(md.id);));
+    vmenuWg = vmenu.mk(Ops, md.id);
+
+    wg
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("vertical-align:top; width:5px")
+            .add(vmenuWg))
+          .add(Q("td")
+            .style("vertical-align:top")
+            .add(menuWg)
+            .add(Q("hr"))
+            .add(Q("div")
+              .klass("head")
+              .text(md.name))
+            .add(Q("div").klass("separator"))
+            .add(ui.hrule(II("Daily"), 50))
+            .add(mkMapTb(Tds[0]))
+            .add(ui.hrule(II("Weekly"), 50))
+            .add(mkMapTb(Tds[1]))
+            .add(ui.hrule(II("Monthly"), 50))
+            .add(mkMapTb(Tds[2]))
+        )))
+    ;
+
+    mkPeriodMaps = \i -> {
+      lastIx = arr.size(global.Periods) - 1;
+      period = global.Periods[i];
+      arr.eachSync(
+        Tds[i],
+        mkfMap(period, type, source),
+        \-> if (i < lastIx) mkPeriodMaps(i + 1);
+      );
+    };
+
+    mkPeriodMaps(0);
+  };
+
+  showV!();
+};

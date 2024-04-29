@@ -1,0 +1,195 @@
+// Copyright 13-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Authentication page.
+
+import "libdm/captcha";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+
+/// Constructor.
+///   wg  : Container widget
+///   app : Application name.
+///   fnOk: Action after a valid acceptation.
+/// \<domo>, s, \->() -> ()
+mk = \wg, app, fnOk -> {
+  // \ -> <captcha>
+  mkCaptcha = \ ->
+    return captcha.mk(app + "__captcha", 3, "#f0f0f0", "#c0c0c0");;
+
+  captchaV = [mkCaptcha()];
+  failedV = [false];
+
+  showV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  changeLanguage = \ev -> {
+    if (i18n.getLang() == "es") i18n.en();
+    else i18n.es();
+    showV!();
+  };
+
+  // \s, s, b ->
+  send = async \user, pass, withExpiration -> {
+    :captcha cpt = captchaV!;
+    if (user == "") {
+      ui.alert(II("User name is missing"));
+      return;
+    }
+    if (pass == "") {
+      ui.alert(II("Password is missing"));
+      return;
+    }
+
+    if (cpt.isUpLimit() & !cpt.check()) {
+      ui.alert(II("Grey squares checks are wrong"));
+      captchaV! = mkCaptcha();
+      showV!();
+      return;
+    }
+
+    ok = await client.authentication(user, pass, withExpiration);
+    if (ok) {
+      cpt.reset();
+      fnOk();
+    } else {
+      failedV! = true;
+      cpt.increment();
+      captchaV! = mkCaptcha();
+      showV!();
+    }
+  };
+
+  // View ----------------------------------------------------------------------
+
+  showV! = \ -> {
+    :captcha cpt = captchaV!;
+    pass = ui.pass("accept").att("id", "autofocus");
+    userIn = ui.field("autofocus").value("admin");
+    persistent = Q("input")
+      .att("type", "checkbox")
+      .style("vertical-align: middle")
+      .checked(true)
+    ;
+    accept = Q("button")
+      .att("id", "accept")
+      .on("click", \e ->
+        send(
+          str.trim(userIn.getValue()),
+          str.trim(pass.getValue()),
+          !persistent.isChecked()
+        );
+      )
+      .text(II("Accept"))
+    ;
+    rows = [
+      Q("tr")
+        .add(Q("td")
+          .style("padding: 10px 0px 0px 10px;text-align:right;")
+          .html(II("User")))
+        .add(Q("td")
+          .style("padding: 10px 10px 0px 10px;")
+          .add(userIn)),
+      Q("tr")
+        .add(Q("td")
+          .style("padding: 10px 0px 0px 10px;text-align:right;")
+          .html(II("Password")))
+        .add(Q("td")
+          .style("padding: 10px 10px 5px 10px;")
+          .add(pass)),
+      Q("tr")
+        .add(Q("td")
+          .att("colspan", 2)
+          .style("border-top:1px solid #c9c9c9;" +
+                 "padding: 5px 10px 10px;text-align:right;")
+          .add(Q("table")
+            .style(
+              "border-collapse : collapse;" +
+              "border : 0px;" +
+              "width : 100%;")
+            .add(Q("tr")
+              .add(Q("td")
+                .att("align", "center")
+                .att("colspan", 2)
+                .add(persistent)
+                .add(Q("span")
+                  .html("&nbsp;" + II("Keep connected")))))
+            .add(Q("tr")
+              .add(Q("td")
+                .add(ui.link(changeLanguage)
+                  .att("class", "link")
+                  .html(i18n.getLang == "en" ? "ES" : "EN")))
+              .add(Q("td").att("align", "right").add(accept)))))
+    ];
+
+    if (failedV!) {
+      rows.push(
+        Q("tr")
+          .add(Q("td")
+            .att("colspan", 2)
+            .style("border-top:1px solid #c9c9c9;" +
+                   "adding: 10px 10px 10px;text-align:right;")
+            .add(Q("table")
+              .att("align", "center")
+              .style(
+                "background-color: rgb(250, 250, 250);" +
+                "border: 1px solid rgb(110,130,150);" +
+                "font-family: sans;font-size: 14px;" +
+                "padding: 4px;border-radius: 4px;")
+              .add(Q("tr")
+                .add(Q("td")
+                  .html(II("Wrong password"))))))
+      );
+    }
+
+    if (cpt.isUpLimit()) {
+      rows.push(
+        Q("tr")
+          .add(Q("td")
+            .att("colspan", 2)
+            .att("align", "center")
+            .add(cpt.mkWg))
+      );
+      rows.push(
+        Q("tr")
+          .add(Q("td")
+            .att("colspan", 2)
+            .style("padding: 5px 0px 5px 10px;text-align:center;")
+            .html(II("Check gray squares")))
+      );
+    }
+
+    wg
+      .removeAll()
+      .add(Q("div")
+        .klass("head")
+        .html("&nbsp;<br>" + app + "<br>&nbsp;"))
+      .add(Q("table")
+        .att("align", "center")
+        .style(
+          "background-color: #f8f8f8;" +
+          "border-collapse: collapse;" +
+          "padding: 10px;" +
+          "border: 1px solid rgb(110,130,150);")
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", 2)
+            .style(
+              "background-color:#e8e8e8;" +
+              "border-bottom:1px solid #c9c9c9;" +
+              "padding: 10px;" +
+              "color:#505050;"
+            )
+            .html("<big><big><b>" + II("Login") + "</big></big></b>")))
+        .adds(rows));
+
+    pass.e.focus();
+  };
+
+  showV!();
+};

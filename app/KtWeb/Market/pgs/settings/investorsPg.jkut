@@ -1,0 +1,300 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Accounting information, main page.
+
+import "libdm/modalBox";
+import "libdm/menu";
+import "wgs/msg";
+import "data/model";
+import "data/investor/investor";
+import "data/investor/istrategy";
+import "global";
+import "cts";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Contents maker.
+///   wg         : Container.
+/// \<domo>, n -> ()
+mk = async \wg -> {
+  // s, [<model>.], <investor>
+  dbKey, :arr Models, :investor inv : await client.send({
+    prg: cts.appName,
+    module: "Settings",
+    source: "InvestorsPg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+
+  waitBox = modalBox.mk(ui.img("wait2.gif"), false);
+  editorDiv = Q("div");
+  paramsDiv = Q("div");
+
+  editorViewV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \ -> ()
+  update = async \ -> {
+    modalBox.show(waitBox, true);
+    dbKey, ok : await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "InvestorsPg",
+      rq: "updateAll",
+      dbKey: global.dbKeyV!
+    });
+    global.dbKeyV! = dbKey;
+
+    modalBox.show(waitBox, false);
+    if (ok) {
+      msg.error(cts.failMsg, \ -> {});
+      return;
+    }
+    mk(wg);
+  };
+
+  // \s -> ()
+  edit = \nick -> {
+    editorViewV!(nick);
+    window.scroll(0, 0);
+  };
+
+  // \ -> ()
+  cancel = \ -> editorDiv.removeAll();;
+
+  // \s, s, [f.] -> ()
+  accept = async \nickName, modelId, Params -> {
+    , dbKey : await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "InvestorsPg",
+      rq: "update",
+      nickName,
+      modelId,
+      Params,
+      dbKey: global.dbKeyV!
+    });
+    global.dbKeyV! = dbKey;
+
+    mk(wg);
+  };
+  // View ----------------------------------------------------------------------
+
+  // \s, s, [f.] -> ()
+  paramsView = \nick, modelId, Params -> {
+    :model md = Models.find(\md -> return md.id == modelId;)!;
+    sel = Q("select");
+    for (:model m = Models) {
+      op = Q("option").text(m.id);
+      if (m.id == md.id) op.att("selected", true);
+      sel.e.add(op.e);
+    }
+    sel.on(
+      "change",
+      \e -> {
+          :model md = Models[sel.e.selectedIndex];
+          paramsView(nick, md.id, arr.map(md.ParamTypes, \t ->
+            return t == model.dayParam ? 10 : 0.1;
+          ));
+        }
+    );
+
+    paramsWg = Q("table").klass("frame")
+      .add(Q("tr")
+        .adds(iter.map(
+          [0:arr.size(md.ParamNames)],
+          \i -> return Q("td")
+            .add(Q("div")
+              .add(Q("div")
+                .style("text-align:center")
+                .text(md.ParamNames[i]))
+              .add(\-> {
+                  inp = ui.field("Zord" + (i + 1))
+                    .att("id", "Zord" + i)
+                    .style("width:80px")
+                    .on("change", \e -> {
+                        V = math.fromIso(e.target.value);
+                        if (!V) {
+                          ui.alert(i18n.fmt(
+                            II("Bad number [%0]"), [e.target.value]
+                          ));
+                          paramsView(nick, modelId, Params);
+                          return;
+                        }
+                        v = V!;
+                        Params[i] = v;
+                      })
+                    .value(math.toIso(Params[i], 6))
+                  ;
+                  ui.changePoint(inp);
+                  return inp;
+                }()))
+          ;)))
+    ;
+
+    :istrategy base = inv.base;
+    paramsDiv
+      .removeAll()
+      .add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(sel))
+          .add(Q("td")
+            .style("text-align:right")
+            .add(ui.link(\e ->
+                paramsView(
+                  nick,
+                  base.modelId,
+                  base.Params
+                )
+              ;).klass("link")
+              .text(II("Default Model")))))
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", 2)
+            .att("align", "center")
+            .add(paramsWg)))
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", 2)
+            .style("text-align:center")
+            .add(Q("button")
+              .text(II("Cancel"))
+              .on("click", \e -> cancel();))
+            .add(Q("span").text(" "))
+            .add(Q("button")
+              .att("id", "Zord" + arr.size(md.ParamNames))
+              .text(II("Accept"))
+              .on("click", \e -> {
+                accept(nick, modelId, Params);
+              })))))
+    ;
+  };
+
+  // \s -> ()
+  editorViewV! = \nick -> {
+    :istrategy is = nick == "" ? inv.base : inv.Nicks[nick];
+    :model md = Models.find(\:model m -> return m.id == is.modelId;)!;
+    paramsView(nick, md.id, is.Params);
+
+    editorDiv
+      .removeAll()
+      .add(Q("div")
+        .klass("head")
+        .text(nick == ""
+          ? II("Default Model")
+          : i18n.fmt(II("%0 Model"), [nick])
+        ))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", 2)
+            .add(paramsDiv))))
+      .add(Q("hr"))
+    ;
+  };
+
+  Ropts = [menu.toption("update", II("Update"), update)];
+  menuWg = menu.mk([], Ropts, "");
+
+  :istrategy base = inv.base;
+  :model md = Models.find(\:model m -> return m.id == base.modelId;)!;
+  :arr NickStrs = dic.toArr(inv.Nicks);
+  NickStrs.sort(\N1, N2 -> return N1[0] < N2[0];);
+  maxNParams = NickStrs.reduce(0, \r, NS -> {
+    :istrategy is = NS[1];
+    return arr.size(is.Params) > r ? arr.size(is.Params) : r;
+  });
+  wg
+    .removeAll()
+    .add(waitBox.mkWg())
+    .add(menuWg)
+    .add(editorDiv)
+      .add(Q("div")
+        .klass("head")
+        .html(II("Default Model")))
+      .add(Q("table")
+        .klass("white")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("header")
+            .html(II("Model")))
+          .adds(arr.map(md.ParamNames, \n -> return Q("td")
+              .klass("header")
+              .html(n)
+            ;)))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("border")
+            .add(ui.link(\e -> edit("");)
+              .klass("link")
+              .html(md.id)))
+          .adds(iter.map(
+            [0:arr.size(base.Params)],
+            \ix -> return Q("td")
+              .klass("number")
+              .text(fns.paramFmt(
+                  md.ParamTypes[ix],
+                  base.Params[ix]
+                ))
+            ;))))
+      .add(Q("div")
+        .klass("head")
+        .html(II("Nick models")))
+      .add(Q("table")
+        .klass("white")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("header")
+            .html(II("Nick")))
+          .add(Q("td")
+            .klass("header")
+            .html(II("Model")))
+          .adds(iter.map(
+            [0:maxNParams],
+            \n -> return Q("td")
+              .klass("header")
+              .html("P. " + (n + 1))
+            ;))
+          .add(Q("td")
+            .klass("header")
+            .text("·")))
+        .adds(NickStrs.map(\NS -> {
+          nk = NS[0];
+          :istrategy is = NS[1];
+          :model md = Models.find(\:model m -> return m.id == is.modelId;)!;
+          return Q("tr")
+            .add(Q("td")
+              .klass("border")
+              .text(nk))
+            .add(Q("td")
+              .klass("border")
+              .add(ui.link(\e -> edit(nk);)
+                .klass("link")
+                .text(md.id)))
+            .adds(iter.map(
+              [0:maxNParams],
+              \ix -> return
+                ix >= arr.size(is.Params)
+                  ? Q("td")
+                    .klass("border")
+                  : Q("td")
+                    .klass("number")
+                    .text(fns.paramFmt(md.ParamTypes[ix], is.Params[ix]))
+              ;))
+            .add(Q("td")
+              .klass("border")
+              .add(ui.img(istrategy.eq(base, is) ? "blank" : "warning")))
+          ;
+        })))
+  ;
+};
+

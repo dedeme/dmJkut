@@ -1,0 +1,415 @@
+// Copyright 03-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Budget view page.
+
+import "libdm/modalBox";
+import "data/diary";
+import "data/dann";
+import "data/budget";
+import "data/plan";
+import "data/planEntry";
+import "data/month";
+import "global";
+import "cts";
+import "data/budgetWgEntry";
+import "data/diaryEntry";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor
+///   wg: Container.
+///   selectedYear: Year edited.
+///   isUntil: 'true' if values calculates are of every month until 'selectedMonth'.
+///   selectedMonth: Month edited (from 1 to 12).
+///   Plan: Budget plan.
+///   Diary: Diary annotations.
+///   Budget: Current budget.
+/// \<domo>, s, b, n, [<planEntry>.], [<diaryEntry>.], [[<budgetEntry>.].] -> ()
+mk = \wg, selectedYear, isUntil, selectedMonth,
+  :arr Plan, :arr Diary, :arr Budget -> {
+
+  start = isUntil ? 0 : selectedMonth -1;
+  :arr DiaryEntries = diary.filterReverse(Diary, start, selectedMonth);
+
+  :arr BudgetModel = []; // [<budgetWgEntry>.]
+  for (:planEntry pe = Plan) {
+    BudgetModel.push(budgetWgEntry.mk(
+      pe.isIncome, pe.id,
+      budget.accAmount(Budget, pe.id, start, selectedMonth),
+      diary.accAmount(Diary, pe.id, start, selectedMonth)
+    ));
+  }
+
+  accWg = Q("div");
+  accBox = modalBox.mk(accWg, false);
+
+  /// Control ------------------------------------------------------------------
+
+  // \ -> ()
+  updateDiary = async \ -> {
+    await client.send({
+      prg: cts.appName,
+      source: "BudgetView",
+      rq: "updateDiary",
+      dbKey: global.dbKeyV!,
+      year: selectedYear,
+      diary: Diary.map(diaryEntry.toJs)
+    });
+    window.location.reload();
+  };
+
+  // \[n, <diaryEntry>] -> ()
+  del = \ix, :diaryEntry e -> {
+    if (!ui.confirm(i18n.fmt(II("Delete '%0'?"), [e.desc]))) return;
+
+    diary.del(Diary, ix);
+    updateDiary();
+  };
+
+  /// View ---------------------------------------------------------------------
+
+  // \s -> ()
+  account = \id -> {
+    :arr BudgetMs = []; // [n.]
+    :arr BudgetSs = []; // [n.]
+    budgetSumV = [0];
+    :arr RealMs = []; // [n.]
+    :arr RealSs = []; // [n.]
+    realSumV = [0];
+    for (i = 0:12) {
+      b = budget.accAmount(Budget, id, i, i + 1);
+      budgetSumV! += b;
+      BudgetMs.push(b);
+      BudgetSs.push(budgetSumV!);
+      r = diary.accAmount(Diary, id, i, i + 1);
+      realSumV! += r;
+      RealMs.push(r);
+      RealSs.push(realSumV!);
+    }
+
+    accWg
+      .removeAll()
+      .add(Q("div")
+        .klass("head")
+        .text(id))
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td"))
+          .add(Q("td"))
+          .add(Q("td")
+            .att("colspan", "2")
+            .style("text-align:center")
+            .text(II("Budget (A)")))
+          .add(Q("td"))
+          .add(Q("td")
+            .att("colspan", "2")
+            .style("text-align:center")
+            .text(II("Real (B)")))
+          .add(Q("td"))
+          .add(Q("td")
+            .att("colspan", "2")
+            .style("text-align:center")
+            .text(II("Dif. (B - A))"))))
+        .add(Q("tr")
+          .add(Q("td"))
+          .add(Q("td"))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Month")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Sum")))
+          .add(Q("td"))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Month")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Sum")))
+          .add(Q("td"))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Month")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Sum"))))
+        .adds(iter.map([0:12], \i -> return Q("tr")
+            .add(Q("td")
+              .klass("frameTx")
+              .style("background-color:#d9d9d9")
+              .text(month.name(i + 1)))
+            .add(Q("td"))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(BudgetMs[i], 2)))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(BudgetSs[i], 2)))
+          .add(Q("td"))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(RealMs[i], 2)))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(RealSs[i], 2)))
+          .add(Q("td"))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(RealMs[i] - BudgetMs[i], 2)))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(RealSs[i] - BudgetSs[i], 2)));)))
+      .add(Q("div")
+        .klass("head")
+        .add(Q("button")
+          .text(II("Accept"))
+          .on("click", \ev -> accBox.show(false);)))
+    ;
+
+    accBox.show(true);
+  };
+
+
+  :arr Incomes0 = BudgetModel.filter(\:budgetWgEntry e -> return e.isIncome;);
+  Incomes0.sort(\:budgetWgEntry e1 , :budgetWgEntry e2 ->
+    return e1.accId < e2.accId;);
+  :arr Expenses0 = BudgetModel.filter(\:budgetWgEntry e -> return !e.isIncome;);
+  Expenses0.sort(\:budgetWgEntry e1 , :budgetWgEntry e2 ->
+    return e1.accId < e2.accId;);
+  isize = Incomes0.size();
+  esize = Expenses0.size();
+  sz = isize > esize ? isize : esize;
+
+  :budgetWgEntry Incomes = Incomes0;
+  :budgetWgEntry Expenses = Expenses0;
+  wg
+    .removeAll()
+    .add(Q("div")
+      .style("padding:5px;text-align:center")
+      .html("<hr><br>" + II("Budget")))
+      .add(Q("table")
+        .att("align", "center")
+        .klass("summary")
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", "4")
+            .style("text-align:center")
+            .text(II("Incomes")))
+          .add(Q("td")
+            .text(""))
+          .add(Q("td")
+            .att("colspan", "4")
+            .style("text-align:center")
+            .text(II("Expenses"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frameTx")
+            .style("background-color:#d9d9d9")
+            .text(II("Account")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Budget (A)")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Real (B)")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Dif. (B - A))")))
+          .add(Q("td")
+            .klass("frameTx")
+            .text(""))
+          .add(Q("td")
+            .klass("frameTx")
+            .style("background-color:#d9d9d9")
+            .text(II("Account")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Budget (A)")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Real (B)")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Dif. (B - A))"))))
+        .adds(iter.map([0:sz], \i -> {
+          :budgetWgEntry ie = i >= isize ? [] : Incomes[i];
+          :budgetWgEntry ee = i >= esize ? [] : Expenses[i];
+          return Q("tr")
+            .adds(i >= isize
+              ? iter.map([0:4], \j -> return Q("td")
+                  .klass("frameTx")
+                  .style("background-color:#f9f9f9")
+                ;)
+              : [
+                  Q("td")
+                    .klass("frameTx")
+                    .style("background-color:#d9d9d9")
+                    .add(ui.link(\ev -> account(ie.accId);)
+                      .klass("link")
+                      .att("title", plan.desc(Plan, ie.accId))
+                      .text(ie.accId)),
+                  Q("td")
+                    .klass("frameNm")
+                    .style("background-color:#f9f9f9")
+                    .text(math.toIso(ie.budget, 2)),
+                  Q("td")
+                    .klass("frameNm")
+                    .style("background-color:#f9f9f9")
+                    .text(math.toIso(ie.real, 2)),
+                  Q("td")
+                    .klass("frameNm")
+                    .style("background-color:#f9f9f9")
+                    .text(math.toIso(ie.dif, 2))
+                ])
+            .add(Q("td")
+              .klass("frameTx"))
+            .adds(i >= esize
+              ? iter.map([0:4], \j -> return Q("td")
+                  .klass("frameTx")
+                  .style("background-color:#f9f9f9")
+                ;)
+              : [
+                  Q("td")
+                    .klass("frameTx")
+                    .style("background-color:#d9d9d9")
+                    .add(ui.link(\ev -> account(ee.accId);)
+                      .klass("link")
+                      .att("title", plan.desc(Plan, ee.accId))
+                      .text(ee.accId)),
+                  Q("td")
+                    .klass("frameNm")
+                    .style("background-color:#f9f9f9")
+                    .text(math.toIso(ee.budget, 2)),
+                  Q("td")
+                    .klass("frameNm")
+                    .style("background-color:#f9f9f9")
+                    .text(math.toIso(ee.real, 2)),
+                  Q("td")
+                    .klass("frameNm")
+                    .style("background-color:#f9f9f9")
+                    .text(math.toIso(ee.dif, 2))
+                ])
+          ;}))
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colsapan", "9")))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frameTx")
+            .style("background-color:#d9d9d9")
+            .text(II("Total")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(Incomes.sumBudget(), 2)))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(Incomes.sumReal(), 2)))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(Incomes.sumDif(), 2)))
+          .add(Q("td")
+            .klass("frameTx"))
+          .add(Q("td")
+            .klass("frameTx")
+            .style("background-color:#d9d9d9")
+            .text(II("Total")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(Expenses.sumBudget(), 2)))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(Expenses.sumReal(), 2)))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#f9f9f9")
+            .text(math.toIso(Expenses.sumDif(), 2)))))
+
+    // DIARY
+
+    .add(Q("div")
+      .style("padding:5px;text-align:center")
+      .html("<hr><br>" + II("Diary")))
+      .add(Q("table")
+        .att("align", "center")
+        .klass("summary")
+        .add(Q("tr")
+          .add(Q("td"))
+          .add(Q("td")
+            .klass("frameTx")
+            .style("background-color:#d9d9d9")
+            .text(II("Month")))
+          .add(Q("td")
+            .klass("frameTx")
+            .style("background-color:#d9d9d9")
+            .text(II("Description")))
+          .add(Q("td")
+            .klass("frameNm")
+            .style("background-color:#d9d9d9")
+            .text(II("Amount"))))
+        .adds(DiaryEntries.map(\Tp -> {
+          ix, :diaryEntry e = Tp;
+          return Q("tr")
+            .add(Q("td")
+              .add(ui.link(\ev -> del(ix, e);)
+                .add(ui.img("delete"))))
+            .add(Q("td")
+              .klass("frameTx")
+              .style("background-color:#f9f9f9")
+              .text(e.month))
+            .add(Q("td")
+              .klass("frameTx")
+              .style("background-color:#f9f9f9")
+              .add(Q("table")
+                .add(Q("tr")
+                  .add(Q("td")
+                    .att("colspan", "2")
+                    .text(e.desc)))
+                .adds(arr.map(e.Anns, \:dann a -> return Q("tr")
+                    .add(Q("td")
+                      .klass("frameTx")
+                      .att("title", plan.desc(Plan, a.id))
+                      .text(a.id))
+                    .add(Q("td")
+                      .klass("frameNm")
+                      .text(math.toIso(a.am, 2)))
+                  ;))
+                ))
+            .add(Q("td")
+              .klass("frameNm")
+              .style("background-color:#f9f9f9")
+              .text(math.toIso(e.am, 2)))
+          ;})))
+
+    // ACCOUNT
+
+    .add(accBox.mkWg())
+  ;
+
+};

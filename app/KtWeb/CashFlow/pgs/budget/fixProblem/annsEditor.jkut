@@ -1,0 +1,216 @@
+// Copyright 09-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Budget annotation editor.
+
+import "data/diary";
+import "data/diaryEntry";
+import "data/dann";
+import "wgs/numberField";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   Entry: Diary entry.
+///   fnOk : Function to run when a valid entry is accepted.
+/// \<domo>, <diaryEntry>, (\->()) -> <annsEditor>
+///   {active: \b -> (), updateAccount: \s -> ()}
+mk = \wg, :diaryEntry entry, fnOk -> {
+  am = entry.am;
+  :arr Anns = entry.Anns;
+  :arr Sels = []; //[<domo>.]
+  for (i = 0:Anns.size())
+    Sels.push(Q("input")
+      .att("type", "radio")
+      .att("id", "in" + i)
+      .att("name", "selAnn")
+    );
+  Sels[0].checked(true);
+
+  activatedV = [false];
+
+  showV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \b -> ()
+  active = \value -> {
+    activatedV! = value;
+    showV!();
+  };
+
+  // \s -> ()
+  updateAccount = \acc -> {
+    ixV = [0];
+    for (i, :dann a = Anns)
+        if (Sels[i].isChecked()) {
+          Anns[i] = dann.mk(acc, a.am);
+          ixV! = i;
+        }
+
+    showV!();
+    Q("#nf" + ixV!).e.focus();
+  };
+
+  // \s, n -> ()
+  updateAmount = \fieldId, newValue -> {
+    i = math.fromStr(fieldId[2:])!;
+    :dann oldAnn = Anns[i];
+    Anns[i] = dann.mk(oldAnn.id, newValue);
+    sum = iter.reduce([0:Anns.size() - 1], 0, \r, i -> {
+      :dann a = Anns[i];
+      return r + a.am;
+    });
+
+    if (sum > am) {
+      ui.alert(i18n.fmt(
+        II("Sum of account values (%0) is greater than cash value (%1)"),
+        [math.toIso(sum, 2), math.toIso(am, 2)]
+      ));
+      Anns[i] = oldAnn;
+      showV!();
+      Q("#" + fieldId).e.focus();
+      return;
+    }
+
+    :dann lastAnn = Anns.peek();
+    Anns[Anns.size() - 1] = dann.mk(lastAnn.id, am - sum);
+    showV!();
+  };
+
+  // \<event> -> ()
+  addAcc = \ev -> {
+    i = Anns.size();
+    Sels.push(Q("input")
+      .att("type", "radio")
+      .att("id", "in" + i)
+      .att("name", "selAnn")
+      .checked(true)
+    );
+    Anns.push(dann.mk("", 0));
+    showV!();
+  };
+
+  // \<event> -> ()
+  delAcc = \ev -> {
+    Sels.pop();
+    Anns.pop();
+
+    Sels[0].checked(true);
+
+    sum = iter.reduce([0:Anns.size() - 1], 0, \r, i -> {
+      :dann a = Anns[i];
+      return r + a.am;
+    });
+    :dann lastAnn = Anns.peek();
+    Anns[Anns.size() - 1] = dann.mk(lastAnn.id, am - sum);
+    showV!();
+  };
+
+  // \<event> -> ()
+  ok = \ev -> {
+    sumV = [0];
+    ixV = [1];
+    for (:dann a = Anns) {
+      if (a.id == "") {
+        ui.alert(i18n.fmt(
+          II("Account of annotation '%0' is missing"), ["" +ixV!]
+        ));
+        return;
+      }
+      sumV! += a.am;
+      ixV! += 1;
+    }
+
+    if (!math.eq(sumV!, am, 0.0001)) {
+      ui.alert(i18n.fmt(
+        II("Sum of annotations (%0) does not match the cash value (%1)"),
+        [math.toIso(sumV!, 2), math.toIso(am, 2)]
+      ));
+      return;
+    }
+
+    fnOk();
+  };
+
+  // \s -> ()
+  fastOk = \acc -> {
+    if (arr.size(Anns) != 1) {
+      ui.alert(II("Fast ok only works with one entry"));
+      return;
+    }
+    :dann a0 = Anns[0];
+    Anns[0] = dann.mk(acc, a0.am);
+    ok([]);
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> ()
+  showV! = \ -> {
+    wg.removeAll();
+    if (!activatedV!) return;
+
+    wg
+      .add(Q("table")
+      .klass("main")
+      .adds(iter.map([0:Anns.size()], \i -> {
+        :dann a = Anns[i];
+        return Q("tr")
+          .add(Q("td")
+            .style("width: 5px")
+            .add(Sels[i]))
+          .add(Q("td")
+            .klass("frameTx")
+            .text(a.id == "" ? "---" : a.id))
+          .add(Q("td")
+            .add(numberField.mk(
+                "nf" + i,
+                "in" + (i == Anns.size() - 1 ? 0 : i + 1),
+                a.am,
+                updateAmount)))
+        ;}))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", "3")
+          .add(Q("hr"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align: left")
+          .add(ui.link(addAcc).add(ui.img("add"))))
+        .add(Q("td")
+          .style("text-align: left")
+          .add(Anns.size() > 1
+              ? ui.link(delAcc).add(ui.img("delete"))
+              : ui.lightImg("delete")
+            ))
+        .add(Q("td")
+          .style("text-align: right")
+          .add(ui.link(\ev -> fastOk("HOSTEL");)
+            .klass("link")
+            .setStyle("vertical-align", "top")
+            .text("H"))
+          .add(Q("span").html("&nbsp;"))
+          .add(ui.link(\ev -> fastOk("SUPERS");)
+            .klass("link")
+            .setStyle("vertical-align", "top")
+            .text("S"))
+          .add(Q("span").html("&nbsp;"))
+          .add(ui.link(\ev -> fastOk("VACAS");)
+            .klass("link")
+            .setStyle("vertical-align", "top")
+            .text("V"))
+          .add(Q("span").html("&nbsp;&nbsp;&nbsp;&nbsp;"))
+          .add(ui.link(ok).add(ui.img("ok")))
+
+          )))
+    ;
+  };
+
+  showV!();
+
+  return {active, updateAccount};
+};

@@ -1,0 +1,73 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "Add": "Añadir",
+  "Bad Format. Use": "Mal formato. Use:",
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Data base is out of date.": "La base de datos está obsoleta.",
+  "Duplicated alarm": "Alarma ya existente",
+  "Hour out of range": "La hora está fuera de rango",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "Minutes out of range": "Los minutos están fuera de rango.",
+  "New Alarm": "Nueva alarma",
+  "Programmed Alarms": "Alarmas programadas",
+  "Remove the alarm": "Eliminar la alarma",
+  "Separator is missing": "Falta el separador",
+  "Session is expired.": "Las sesión ha expirado.",
+  "Today": "Hoy",
+  "Without Alarms": "Sin alarmas",
+  "at": "a las",
+  "here": "aquí",
+  "or": "o"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "Add": "Add",
+  "Bad Format. Use": "Bad Format. Use",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Data base is out of date.": "Data base is out of date.",
+  "Duplicated alarm": "Duplicated alarm",
+  "Hour out of range": "Hour out of range",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
+  "Minutes out of range": "Minutes out of range",
+  "New Alarm": "New Alarm",
+  "Programmed Alarms": "Programmed Alarms",
+  "Remove the alarm": "Remove the alarm",
+  "Separator is missing": "Separator is missing",
+  "Session is expired.": "Session is expired.",
+  "Today": "Today",
+  "Without Alarms": "Without Alarms",
+  "at": "at",
+  "here": "here",
+  "or": "or"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return !T ? s : T!;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

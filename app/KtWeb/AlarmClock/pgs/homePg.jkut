@@ -1,0 +1,189 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Overview
+
+import "libdm/clock";
+import "cts";
+import "data/alarm";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+/// \<domo> -> ()
+mk = async \wg -> {
+  :arr Alarms, dbKey : await client.send({
+    prg: cts.appName,
+    source: "Home",
+    rq: "idata"
+  });
+  Alarms.sort(\:alarm a1, :alarm a2 -> return a1.tm < a2.tm;);
+
+  clk = clock.mk();
+  butonSpan = Q("span");
+  entry = ui.field("_accept")
+    .style("width:50px")
+  ;
+  accept = Q("button")
+    .att("id", "_accept")
+    .text(II("Add"))
+  ;
+  dclockDiv = Q("div")
+    .klass("frame")
+    .style("text-align:center")
+  ;
+  clk.setFn(\tm -> dclockDiv.text(time.format(tm, "%t")););
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  add = async \t -> {
+    // \ ->s
+    badFormat = \ -> {
+      or = II("or");
+      return II("Bad Format. Use") + ":\n"+
+        "  HH,MM " + or + " HH.MM " + or + " HH:MM"
+      ;
+    };
+
+    sep = t.includes(",")
+      ? ","
+      : t.includes(".")
+        ? "."
+        : t.includes(":")
+          ? ":"
+          : "";
+    if (sep == "") {
+      ui.alert(II("Separator is missing"));
+      return;
+    }
+
+    :arr Parts = t.split(sep);
+    if (Parts.size() != 2) {
+      ui.alert(badFormat());
+      return;
+    }
+    hOp = math.fromStr(Parts[0]);
+    ms = Parts[1].length == 1 ? "0" + Parts[1] : Parts[1];
+    mOp = math.fromStr(ms);
+    if (!hOp | !mOp) {
+      ui.alert(badFormat());
+      return;
+    }
+    h = hOp!;
+    m = mOp!;
+    if (h < 0 | h > 23) {
+      ui.alert(II("Hour out of range"));
+      return;
+    }
+    if (m < 0 | m > 59) {
+      ui.alert(II("Minutes out of range"));
+      return;
+    }
+
+    tm = time.now();
+    hnow = tm.hour();
+    mnow = tm.minute();
+
+    :time dayAlarm = h > hnow | (hnow == h & m > mnow)
+      ? tm
+      : tm.addDays(1)
+    ;
+
+    butonSpan.removeAll().add(ui.img("wait.gif"));
+    ,isDup : await client.send({
+      prg: cts.appName,
+      source: "Home",
+      rq: "add",
+      dbKey,
+      key: cryp.genK(6) + ":" + tm,
+      tm: time.mk(
+          dayAlarm.day(), dayAlarm.month(), dayAlarm.year(),
+          h, m, 0
+        )
+    });
+
+    if (isDup) ui.alert(II("Duplicated alarm"));
+    window.location.reload(true);
+  };
+
+  // \<alarm> -> ()
+  del = async \:alarm a -> {
+    if (ui.confirm(II("Remove the alarm") + " '" + a.timeToStr() + "'")) {
+      await client.send({
+        prg: cts.appName,
+        source: "Home",
+        rq: "del",
+        dbKey,
+        alarm: a
+      });
+      mk(wg);
+    }
+  };
+
+  // View ----------------------------------------------------------------------
+
+  accept.on("click", \e -> add(entry.getValue()););
+
+  trs = Alarms.map(\:alarm a -> return Q("tr")
+      .add(Q("td")
+        .att("colspan", 2)
+        .klass("frame")
+        .style("text-align: right")
+        .text(a.timeToStr()))
+      .add(Q("td")
+        .style("Text-align: left")
+        .add(ui.link(\e -> del(a);)
+          .add(ui.img("delete"))))
+    ;);
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 3)
+          .add(Q("div")
+            .klass("head")
+            .text(II("New Alarm")))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("rowspan", 2)
+          .add(clk.mkWg()))
+        .add(Q("td")
+          .add(entry))
+        .add(Q("td")
+          .add(butonSpan
+            .add(accept))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 2)
+          .add(dclockDiv)))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 3)
+          .add(Q("hr"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 3)
+          .add(Q("div")
+            .klass("head")
+            .text(II("Programmed Alarms")))))
+      .adds(!Alarms
+          ? [Q("tr")
+              .add(Q("td")
+                .klass("frame")
+                .att("colspan", 3)
+                .style("text-align:center")
+                .text(II("Without Alarms")))
+            ]
+          : trs
+        ))
+  ;
+
+  entry.e.focus();
+};

@@ -1,0 +1,98 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Mesage page designer.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   textArea: Viewer.
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    // Copyright {DATE} ºDeme
+    // GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+    /// Message page.
+
+    import "cts";
+    import "i18n";
+
+    Q = ui.q;
+    II = i18n.tlt;
+
+    /// Constructor.
+    ///   msg       : Message to show.
+    ///   withReload: If a reload message is shown.
+    /// \<domo>, s, b -> ()
+    mk = \wg, msg, withReload -> {
+      tx = "<a href=''>" + II("here") + "</a>";
+      reload =
+        "<p><b>" +
+        i18n.fmt(II("Click %0 to continue."), [tx]) +
+        "</b></p>";
+      wg
+        .removeAll()
+        .add(Q("div")
+          .klass("head")
+          .style("padding-bottom:20px;")
+          .text(cts.appName))
+        .add(Q("table")
+          .klass("main")
+          .add(Q("tr")
+            .add(Q("td")
+              .add(Q("table")
+                .klass("border")
+                .att("width", "100%")
+                .style("background-color: #f8f8f8; border-collapse: collapse")
+                .add(Q("tr")
+                  .add(Q("td")
+                    .style("padding:0px 10px 0px 10px;")
+                    .html(str.fmt("<p>%v<p>%v", [msg, withReload ? reload : ""]))
+                  ))))));
+    };
+  """;
+
+  now = time.now();
+  month = now.toDate().toLocaleString("en-US", { month: "short" });
+  dateF = ui.field("dateF")
+    .att("id", "dateF")
+    .value("")
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    if (str.trim(dateF.getValue()) == "")
+      dateF.value(now.format("%D-" + month + "-%Y"));
+
+    textArea.text(tx
+      .replace("{DATE}", str.trim(dateF.getValue()))
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+  dateF.on("change", \e -> update(););
+  dateF.on("focus", \ev -> ev.target.select(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(ui.hrule(II("Date") + ":", 25))
+    .add(dateF)
+    .add(Q("hr"))
+  ;
+
+  update();
+};

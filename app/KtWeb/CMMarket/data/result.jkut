@@ -1,0 +1,17 @@
+// Copyright 27-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Result of a model maket test
+
+import "cts";
+
+/// Test result.
+///   assets : Final assets.  (Money -- e.g. 104012.53)
+///   profits: Ratio -- e.g. 0.0321 (that is 3.21%)
+///   sales  : Sales number.
+/// \n, n, n -> d<result>
+mk = \assets, profits, sales ->
+  return {assets, profits, sales};;
+
+/// \[JS...] -> <result>
+fromJs = \A -> return mk(A[0], A[1], A[2]);;

@@ -1,0 +1,55 @@
+// Copyright 22-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Flea Data.
+
+import "cts";
+
+/// Constructor.
+///   id     : Identifier.
+///   cycle  : Creation cycle.
+///   model  : Trading model id.
+///   params : Model parameters.
+///   assets : Assets (money) after models evaluation.
+///            Mutable field using 'update'.
+///   profits: Profits (ratio) after models evaluation.
+///            Mutable field using 'update'.
+///   points : Result of flea.evaluate(assets, profits).
+///   sales  : Sales of period.
+/// \n,n,s,[n.],n,n,n,n -> <flea>
+mk : id, cycle, mdId, Params, assets, profits, points, sales;
+
+/// \JS -> <myType>
+fromJs = \A -> return [
+    A[id],
+    A[cycle],
+    A[mdId],
+    A[Params],
+    A[assets],
+    A[profits],
+    evaluate(A[assets], A[profits]),
+    A[sales - 1]
+  ];;
+
+/// Evaluate flea results in the same way that CMMarket.
+/// A result of '1000' indicates neither profits nor losses.
+///   assets : Assets (money).
+///   profits: Profits (ratio).
+/// \f, f -> f
+evaluate = \assets, profits -> return math.toInt(
+    ( assets * cts.assetsRatio / cts.maxAssets +
+        (1.0 + profits) * cts.profitsAvgRatio / cts.maxProfitsAvgRatio
+      ) * 3000.0
+  );;
+
+/// Default order.
+/// \<flea>, <flea> -> b
+greater = \f1, f2 -> return
+  f1[points] == f2[points]
+    ? f1[assets] == f2[assets]
+      ? f1[profits] > f2[profits]
+      : f1[assets] > f2[assets]
+    : f1[points] > f2[points]
+  ;;
+
+

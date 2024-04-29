@@ -1,0 +1,216 @@
+// Copyright 26-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "data/cts";
+import "pgs/msgPg";
+import "pgs/danceSelector";
+import "pgs/pictures";
+import "pgs/songs";
+import "pgs/radio";
+import "pgs/standBy";
+import "pgs/danceManagement";
+import "pgs/songsManagement";
+import "pgs/pictsManagement";
+import "pgs/times";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("KtWeb session is closed.\nAuthenticating from KtWeb:Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+    return;
+  }
+
+  rp = await client.send({
+    prg: "Main", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (rp.lang == "en") i18n.en();
+
+  client.send({
+    prg: cts.appName,
+    source: "Main",
+    rq: "update"
+  });
+
+  wallpapersBt = Q("button").text(II("Wallpapers"));
+  songsBt = Q("button").text(II("Wallpapers with Music"));
+  radioBt = Q("button").text(II("Wallpapers with Radio"));
+  shortDanceBt = Q("button").text(II("Short Dance"));
+  longDanceBt = Q("button").text(II("Long Dance"));
+  standByBt = Q("button").text(II("Stand By"));
+
+  allMenuV = [false];
+  showV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \ > ()
+  reload = \ -> window.location.assign("");;
+
+  // \<keyboardEvent>, ([<domo>]|[]), ([<domo>]|[]) -> ()
+  keyInButton = \ev, upOp, downOp -> {
+    if (ev.key == "ArrowUp" & !!upOp) {
+      upOp!.e.focus();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowDown" & !!downOp) {
+      downOp!.e.focus();
+      ev.preventDefault();
+      return;
+    }
+  };
+
+  // \ -> ()
+  showAllMenu = \ -> {
+    allMenuV! = true;
+    showV!();
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> [<domo>.]
+  moreRows = \ -> {
+    return allMenuV!
+      ? [
+          Q("tr")
+            .add(Q("td")
+              .add(Q("button")
+                .text(II("Pictures Management"))
+                .on("click", \e -> pictsManagement.mk(wg, reload);))),
+          Q("tr")
+            .add(Q("td")
+              .add(Q("button")
+                .text(II("Songs Management"))
+                .on("click", \e -> songsManagement.mk(wg, reload);))),
+          Q("tr")
+            .add(Q("td")
+              .add(Q("button")
+                .text(II("Dance Management"))
+                .on("click", \e -> danceManagement.mk(wg, reload);))),
+          Q("tr")
+            .add(Q("td")
+              .add(Q("button")
+                .text(II("Times Management"))
+                .on("click", \e -> times.mk(wg, reload);)))
+        ]
+      : [Q("tr")
+            .add(Q("td")
+              .add(Q("button")
+                .text(II("More") + "...")
+                .on("click", \e -> showAllMenu();)))
+        ]
+    ;
+  };
+
+  // \ -> ()
+  showV! = \ -> {
+    wallpapersBt
+      .on("keydown", \e -> keyInButton(e, [], [songsBt]);)
+      .on("click", \e -> pictures.mk(wg, reload);)
+    ;
+    songsBt
+      .on("keydown", \e -> keyInButton(e, [wallpapersBt], [radioBt]);)
+      .on("click", \e -> songs.mk(wg, reload);)
+    ;
+    radioBt
+      .on("keydown", \e -> keyInButton(e, [songsBt], [shortDanceBt]);)
+      .on("click", \e -> radio.mk(wg, reload);)
+    ;
+    shortDanceBt
+      .on("keydown", \e -> keyInButton(e, [songsBt], [longDanceBt]);)
+      .on("click", \e -> danceSelector.mk(wg, true, reload);)
+    ;
+    longDanceBt
+      .on("keydown", \e -> keyInButton(e, [shortDanceBt], [standByBt]);)
+      .on("click", \e -> danceSelector.mk(wg, false, reload);)
+    ;
+    standByBt
+      .on("keydown", \e -> keyInButton(e, [longDanceBt], []);)
+      .on("click", \e -> standBy.mk(wg, reload);)
+    ;
+
+    wg
+      .removeAll()
+      .klass("margin")
+      .add(Q("div")
+        .klass("head")
+        .text(II("Wallpapers")))
+      .add(Q("div")
+        .html("&nbsp;"))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(wallpapersBt)))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(songsBt)))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(radioBt)))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(shortDanceBt)))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(longDanceBt)))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(standByBt)))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("hr"))))
+        .adds(moreRows()))
+    ;
+
+    timer.delay(100, \ -> {
+      mainButtonOp = null(wallpapersBt);
+      if (!!mainButtonOp) {
+        EOp = null(mainButtonOp!.e);
+        if (!!EOp) EOp!.focus();
+      }
+    });
+  };
+
+  showV!();
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+/// Load main window
+load = \ -> {
+  mk(wg);
+};
+
+client.init(true, "KtWeb", \ -> {
+  msgWg = Q("div");
+  msgPg.mk(msgWg, II("Session is expired."), true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+  .add(ui.upTop("up"))
+;
+
+load();

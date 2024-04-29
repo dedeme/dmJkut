@@ -1,0 +1,105 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "???": "???",
+  "Back": "Atrás",
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Dance Management": "Gestión de música dance",
+  "Dance Song": "Música dance",
+  "Fast": "Rápido",
+  "Good": "Bueno",
+  "Group": "Grupo",
+  "Groups": "Grupos",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "Long Dance": "Dance (largo)",
+  "Long Dance Songs": "Dance (Temas largos)",
+  "More": "Más",
+  "Name": "Nombre",
+  "Ok": "Normal",
+  "Picture": "Imagen",
+  "Pictures Management": "Gestión de imágenes",
+  "Pictures Management [ %0 / %1 ]": "Gestión de imágenes [ %0 / %1 ]",
+  "Quality": "Calidad",
+  "Session is expired.": "Las sesión ha expirado.",
+  "Short Dance": "Dance (corto)",
+  "Short Dance Songs": "Dance (Temas cortos)",
+  "Sights": "Vistas",
+  "Slow": "Lento",
+  "Song": "Tema",
+  "Songs Management": "Gestión de música",
+  "Speed": "Velocidad",
+  "Stand By": "Espera",
+  "Time": "Tiempo",
+  "Times Management": "Gestión de tiempos",
+  "Wallpapers": "Fondos de Pantalla",
+  "Wallpapers with Music": "Fondos con música",
+  "Wallpapers with Radio": "Fondos con radio",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "???": "???",
+  "Back": "Back",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Dance Management": "Dance Management",
+  "Dance Song": "Dance Song",
+  "Fast": "Fast",
+  "Good": "Good",
+  "Group": "Group",
+  "Groups": "Groups",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
+  "Long Dance": "Long Dance",
+  "Long Dance Songs": "Long Dance Songs",
+  "More": "More",
+  "Name": "Name",
+  "Ok": "Ok",
+  "Picture": "Picture",
+  "Pictures Management": "Pictures Management",
+  "Pictures Management [ %0 / %1 ]": "Pictures Management [ %0 / %1 ]",
+  "Quality": "Quality",
+  "Session is expired.": "Session is expired.",
+  "Short Dance": "Short Dance",
+  "Short Dance Songs": "Short Dance Songs",
+  "Sights": "Sights",
+  "Slow": "Slow",
+  "Song": "Song",
+  "Songs Management": "Songs Management",
+  "Speed": "Speed",
+  "Stand By": "Stand By",
+  "Time": "Time",
+  "Times Management": "Times Management",
+  "Wallpapers": "Wallpapers",
+  "Wallpapers with Music": "Wallpapers with Music",
+  "Wallpapers with Radio": "Wallpapers with Radio",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return !T ? s : T!;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

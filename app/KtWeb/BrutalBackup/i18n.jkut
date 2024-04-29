@@ -1,0 +1,91 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "'From' is missing": "No hay valor para el campo 'Desde'",
+  "'From' is root": "'Desde' es raíz",
+  "'Id' is missing": "No hay valor para el campo 'Id'",
+  "'To' is missing": "No hay valor para el campo 'A'",
+  "'To' is root": "'A' es raíz",
+  "Already exists a backup with id '%0'\nOverwrite?": "Ya existe una copia de seguridad con id '%0'\n¿Sobreescribirla?",
+  "Backup": "Copia de seguridad",
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Copying data": "Copiando datos",
+  "Data base is out of date.": "La base de datos esta obsoleta.",
+  "Delete '%0'?": "¿Borrar '%0'?",
+  "Deleting data": "Borrando datos",
+  "From": "Desde",
+  "Id": "Id",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "Paths": "Rutas",
+  "Reading source data": "Leyendo datos del origen",
+  "Reading target data": "Leyendo datos del destino",
+  "Selecting files to copy": "Seleccionando archivos para copiar",
+  "Session is expired.": "Las sesión ha expirado.",
+  "State": "Estado",
+  "To": "A",
+  "Warnings": "Avisos",
+  "Without Backups": "Sin copias de seguridad",
+  "here": "aquí",
+  "stop": "Detener",
+  "to": "a"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "'From' is missing": "'From' is missing",
+  "'From' is root": "'From' is root",
+  "'Id' is missing": "'Id' is missing",
+  "'To' is missing": "'To' is missing",
+  "'To' is root": "'To' is root",
+  "Already exists a backup with id '%0'\nOverwrite?": "Already exists a backup with id '%0'\nOverwrite?",
+  "Backup": "Backup",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Copying data": "Copying data",
+  "Data base is out of date.": "Data base is out of date.",
+  "Delete '%0'?": "Delete '%0'?",
+  "Deleting data": "Deleting data",
+  "From": "From",
+  "Id": "Id",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
+  "Paths": "Paths",
+  "Reading source data": "Reading source data",
+  "Reading target data": "Reading target data",
+  "Selecting files to copy": "Selecting files to copy",
+  "Session is expired.": "Session is expired.",
+  "State": "State",
+  "To": "To",
+  "Warnings": "Warnings",
+  "Without Backups": "Without Backups",
+  "here": "here",
+  "stop": "stop",
+  "to": "to"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return !T ? s : T!;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

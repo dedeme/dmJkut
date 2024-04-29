@@ -1,0 +1,14 @@
+// Copyright 30-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Summary value.
+
+/// Constructor.
+///   ix : Index in results array.
+///   val: Value.
+/// \n,n -> <smVal>
+mk : ix, val;
+
+/// Returns 'true' if 'v1 < v2'.
+/// \<smVal>, <smVal> -> b
+less = \v1, v2 -> return v1[val] < v2[val];;

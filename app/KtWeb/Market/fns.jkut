@@ -1,0 +1,20 @@
+// Copyright 07-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Global functions.
+
+import "data/model";
+
+/// Format for integers < 100
+///   v: Value
+/// \n -> s
+format00 = \n -> return (n < 10) ? "0" + n : "" + n;;
+
+/// Returns a number ISO formatted using model parameter types.
+///   type  : One of model.dayParam or model.percParam.
+///   number: Number to format.
+paramFmt = \type, number -> return switch(type) {
+    model.percParam: math.toIso(number, 4)[2:];
+    default: math.toIso(number, 0);
+  };;
+

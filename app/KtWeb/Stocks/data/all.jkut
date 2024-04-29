@@ -1,0 +1,288 @@
+// Copyright 27-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// All the years data.
+
+import "year";
+import "formRow";
+import "report";
+import "cts";
+import "global";
+import "ann";
+import "i18n";
+
+II = i18n.tlt;
+
+/// Request data ({year -> YearData}) to server.
+/// \ -> <promise>{<year>.}
+request = async \ -> {
+  dbKey, Data : await client.send({
+    prg: cts.appName,
+    source: "MainPg",
+    rq: "read"
+  });
+  global.dbKeyV! = dbKey;
+
+  // {year.} :: {year: YearData}
+  :dic All = fromJs(Data);
+  y = lastYearId(All);
+  currentYear = "" + time.year(time.now());
+  if (y != currentYear) {
+    All.put(currentYear, year.mkEmpty());
+    return new Promise(\resolve, reject -> resolve(All););
+  }
+  return new Promise(\resolve, reject -> resolve(All););
+};
+
+/// Sends 'data' to server.
+///   Data: {year -> YearData}
+/// \{<year>.} -> <promise>[]
+send = async \Data -> {
+  , dbKey : await client.send({
+    prg: cts.appName,
+    source: "MainPg",
+    rq: "write",
+    dbKey: global.dbKeyV!,
+    Data: toJs(Data)
+  });
+  global.dbKeyV! = dbKey;
+};
+
+/// Returns last year identifier.
+///   Data: {year: YearData}
+/// \{<year>.} -> s
+lastYearId = \:dic Data -> return arr.reduce(
+  Data.keys(), "", \r, e -> return e > r ? e : r;
+);;
+
+/// Returns a sorted list of year identifiers (from before to after).
+///   Data: {year: YearData}
+/// \{<year>.} -> [s.]
+yearIds = \:dic Data -> {
+  R = arr.copy(Data.keys());
+  R.sort(\y1, y2 -> return y1 < y2;);
+  return R;
+};
+
+/// Returns 'true' if 'nick' is found in 'YearData's.
+///   Data: {year -> YearData}
+/// \{<year>.} -> b
+duplicateNick = \Data, nick -> {
+  for (:year y = Data) for (:ann a = y.anns()) if (a.nick == nick) return true;
+  return false;
+};
+
+/// Returns a sorted list of nicks from a year.
+///   Data: {year -> YearData}
+///   yOp : Year of report. If its value is [], report is of every year.
+/// \{<year>.}, n, [s] -> [s.]
+nicks = \:dic Data, yOp -> {
+  R = []; // [s.]
+  for (k, :year y = Data) {
+    if (!!yOp & yOp! != k) continue;
+    for (:ann a = y.anns()) {
+      if (!R.any(\n -> return n == a.nick;))
+        R.push(a.nick);
+    }
+  }
+  R.sort(\n1, n2 -> return n1 < n2;);
+  return R;
+};
+
+/// Returns form of a nick.
+///   Data: {year -> YearData}
+///   type: 'cts.withFees' or 'cts.withoutFees'.
+///   nick: Nick to show.
+///   Year: Year of report. If its value is [], report is of every year.
+/// \{<year>.}, n, s, [s] -> [<formRow>.]
+form = \:dic Data, type, nick, yOp -> {
+  R = []; // [<formRow>.]
+
+  for (k, :year y = Data) {
+    if (!!yOp & yOp! != k) continue;
+
+    for (:ann a = y.anns()) {
+      if (a.nick != nick) continue;
+      if (!R) { // First row
+        stocks = a.stocks;
+        priceV = [a.price];
+        totalV = [stocks * priceV!];
+        feesOp = [];
+        if (type == cts.withFees) {
+          arr.push(feesOp, Math.abs(totalV! - a.cash));
+          totalV! = a.cash;
+          priceV! = totalV! / stocks;
+        }
+
+        if (a.isSell) { // This would be an error
+          R.push(formRow.mk(
+            time.toIso(a.date),
+            0, 0, 0,
+            stocks, priceV!, totalV!,
+            0, 0, 0,
+            [], 0.0,
+            feesOp, !feesOp ? [] : [feesOp!]
+          ));
+        } else {
+          R.push(formRow.mk(
+            time.toIso(a.date),
+            stocks, priceV!, totalV!,
+            0, 0, 0,
+            stocks, priceV!, totalV!,
+            [], 0,
+            feesOp, !feesOp ? [] : [feesOp!]
+          ));
+        }
+      } else {
+        if (!yOp & time.day(a.date) == 1 & time.month(a.date) == 1) continue;
+
+        stocks = a.stocks;
+        priceV = [a.price];
+        totalV = [stocks * priceV!];
+        feesOp = [];
+        if (type == cts.withFees) {
+          arr.push(feesOp, Math.abs(totalV! - a.cash));
+          totalV! = a.cash;
+          priceV! = totalV! / stocks;
+        }
+
+        if (a.isSell) {
+          :formRow previousE = R.peek();
+          previousStocks = previousE.ts;
+          previousPrice = previousE.tp;
+          previousTotal = previousE.tt;
+          sellTotal = stocks * previousPrice;
+          finalStocks0 = previousStocks - stocks;
+          finalStocks = finalStocks0 < 0 ? 0 : finalStocks0;
+
+          finalTotal = previousTotal - sellTotal;
+          finalPrice = finalStocks > 0 ? finalTotal / finalStocks : 0;
+
+          profits = math.round(totalV! - sellTotal, 2);
+
+          R.push(formRow.mk(
+            time.toIso(a.date),
+            0, 0, 0,
+            stocks, previousPrice, sellTotal,
+            finalStocks, finalPrice, finalTotal,
+            [profits], previousE.ttProfits + profits,
+            feesOp, !feesOp ? [] : [previousE.ttFees! + feesOp!]
+          ));
+        } else {
+          :formRow previousE = R.peek();
+          previousStocks = previousE.ts;
+          previousTotal = previousE.tt;
+          finalStocks = previousStocks + stocks;
+          finalTotal = previousTotal + totalV!;
+          finalPrice = finalTotal / finalStocks;
+
+          R.push(formRow.mk(
+            time.toIso(a.date),
+            stocks, priceV!, totalV!,
+            0, 0, 0,
+            finalStocks, finalPrice, finalTotal,
+            [], previousE.ttProfits,
+            feesOp, !feesOp ? [] : [previousE.ttFees! + feesOp!]
+          ));
+        }
+      }
+    }
+  }
+
+  return R;
+};
+
+/// Make in Data annotation of the first of January and returns a promise.
+/// It all is correct the promise is an empty string, otherwise no annotation
+/// is made and returns an error message.
+///   Data: {year -> YearData}
+///   year: New year already created.
+/// \{<year>.}, s -> <promise>s
+set0101 = \:dic Data, selYear -> {
+  lastYear = lastYearId(Data);
+  if (lastYear > selYear) {
+    msg = selYear + " is not the last year";
+    return new Promise(\resolve, reject -> resolve(msg););
+  }
+
+  previousYear = "" + math.fromStr(lastYear)! - 1;
+  pYearOp = Data.get(previousYear);
+  if (!pYearOp) {
+    msg = i18n.fmt(II("There is no annotation of year %0"), [previousYear]);
+    return new Promise(\resolve, reject -> resolve(msg););
+  }
+  :year pYear = pYearOp!;
+
+  /// 'ucash' is price by stock, including fees.
+  /// {{n, n, n}.} :: {nick: {stocks, price, ucash}.}
+  Invs = {};
+
+  for (:ann a = pYear.anns()) {
+    DOp = Invs.get(a.nick);
+
+    if (a.isSell) {
+      if (!DOp) {
+        msg = i18n.fmt(
+          II("No previous buy in annotation:\n%0"),
+          [ann.toStr(a)]
+        );
+        return new Promise(\resolve, reject -> resolve(msg););
+      }
+      :: D = DOp!;
+      if (D.stocks < a.stocks) {
+        msg = i18n.fmt(
+          II("Selling %0 stocks when there are %1\n%2"),
+          [""+ a.stocks, "" + D.stocks, ann.toStr(a)]
+        );
+        return new Promise(\resolve, reject -> resolve(msg););
+      }
+      D.stocks -= a.stocks;
+      continue;
+    }
+
+    if (!DOp & a.stocks > 0) {
+      Invs.put(
+        a.nick,
+        {stocks: a.stocks, price: a.price, ucash: a.cash / a.stocks}
+      );
+    }
+    if (!!DOp) {
+      :: D = DOp!;
+      stocks = D.stocks + a.stocks;
+      D.price = (D.stocks * D.price + a.stocks * a.price) / stocks;
+      D.ucash = (D.stocks * D.ucash + a.cash) / stocks;
+      D.stocks = stocks;
+    }
+  }
+
+  :year cYear = Data[lastYear];
+  for (:ann a = arr.copy(cYear.anns()))
+    if (time.day(a.date) == 1 & time.month(a.date) == 1)
+      cYear.remove(a.id);
+
+  NkDs = arr.filter(Invs.toArr(), \NkD -> return NkD[1].stocks > 0;);
+  NkDs.sort(\NkD1, NkD2 -> return NkD1[0] < NkD2[0];);
+  for (NkD = NkDs) {
+    :: D = NkD[1];
+    cYear.add([], ann.mk(
+      -1, false, time.fromStr(lastYear + "0101")!, NkD[0],
+      D.stocks, D.price, D.ucash * D.stocks
+    ));
+  }
+
+  return new Promise(\resolve, reject -> resolve(""););
+};
+
+/// JSONizes 'Data'
+///   Data: {year: YearData}
+/// \{<year>.} -> JS
+toJs = \:dic Data -> return arr.map(
+    Data.toArr(),
+    \Tp -> return [Tp[0], year.toJs(Tp[1])];
+  );;
+
+/// Returns data JSONized with 'toJs'.
+/// \[*.](JS) -> {year.} :: {year: YearData}
+fromJs = \:arr A -> return dic.fromArr(A.map(
+    \Tp -> return [Tp[0], year.fromJs(Tp[1])];
+  ));;

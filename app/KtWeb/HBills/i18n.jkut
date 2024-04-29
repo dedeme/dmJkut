@@ -1,0 +1,85 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "2 Days": "2 Días",
+  "All": "Todo",
+  "All log entries will be deleted.\nContinue?": "Todas las entradas del registro será borradas.\n¿Continuar?",
+  "Amount": "Cantidad",
+  "Bills": "Gastos",
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Data base is out of date.": "La base de datos está obsoleta.",
+  "Date": "Fecha",
+  "Delete": "Eliminar",
+  "Errors": "Errores",
+  "Log": "Registro",
+  "Month": "Mes",
+  "Place": "Lugar",
+  "Reload": "Recargar",
+  "Session is closed.\nAuthenticating from Main.": "La sesión ha sido cerrada.\nHay que autenticarse en Main.",
+  "Session is expired.": "Las sesión ha expirado.",
+  "Set Place": "Poner lugar",
+  "Stays": "Estancias",
+  "Summary": "Resumen",
+  "Sums": "Sumas",
+  "Total": "Total",
+  "Without Data": "Sin datos",
+  "Year": "Año",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "2 Days": "2 Days",
+  "All": "All",
+  "All log entries will be deleted.\nContinue?": "All log entries will be deleted.\nContinue?",
+  "Amount": "Amount",
+  "Bills": "Bills",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Data base is out of date.": "Data base is out of date.",
+  "Date": "Date",
+  "Delete": "Delete",
+  "Errors": "Errors",
+  "Log": "Log",
+  "Month": "Month",
+  "Place": "Place",
+  "Reload": "Reload",
+  "Session is closed.\nAuthenticating from Main.": "Session is closed.\nAuthenticating from Main.",
+  "Session is expired.": "Session is expired.",
+  "Set Place": "Set Place",
+  "Stays": "Stays",
+  "Summary": "Summary",
+  "Sums": "Sums",
+  "Total": "Total",
+  "Without Data": "Without Data",
+  "Year": "Year",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return !T ? s : T!;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

@@ -1,0 +1,426 @@
+// Copyright 15-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Ibex page.
+
+import "libdm/menu";
+import "libdm/lineChart";
+import "libdm/modalBox";
+import "cts";
+import "data/ibex";
+import "data/quote";
+import "data/chart/profitsEntry";
+import "wgs/msg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+msgWait = Q("div");
+
+/// Constructor
+/// \<domo> -> ()
+mk = \wg -> {
+  mk2(wg, "charts");
+};
+
+// Constructor with option.
+//    wg: Container.
+//    Ibex: Ibex quotes.
+//    msel: Menu selection.
+//  \<domo>, [<quote>.],s -> ()
+mk2 = async \wg, msel -> {
+  , :ibex ibx : await client.send({
+    prg: cts.appName,
+    module: "Acc",
+    source: "IbexPg",
+    rq: "idata"
+  });
+
+  Lopts = [
+    menu.toption("charts", II("Charts"), \ -> mk2(wg, "charts");),
+    menu.separator(),
+    menu.toption("data", II("Data"), \ -> mk2(wg, "data");)
+  ];
+  Ropts = [menu.toption("update", II("Update"), \ -> update(wg, msel);)];
+  menuWg = menu.mk(Lopts, Ropts, msel);
+
+  body = Q("div");
+
+  if (msel == "data") data(body, ibx);
+  else charts(body, arr.reverse(ibx.Qs));
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+    .add(msgWait)
+  ;
+};
+
+// Control ---------------------------------------------------------------------
+
+// \ -> ()
+update = async \wg, msel -> {
+  box = modalBox.mk(
+    Q("div")
+      .add(Q("div")
+        .style("text-align:center")
+        .add(ui.img("wait2.gif").klass("frame"))),
+    false
+  );
+  msgWait
+    .removeAll()
+    .add(box.mkWg());
+  box.show(true);
+
+  withError, withWarnings : await client.send({
+    prg: cts.appName,
+    module: "Acc",
+    source: "IbexPg",
+    rq: "update"
+  });
+
+  modalBox.show(box,false);
+
+  if (withError) {
+    if (withWarnings)
+      msg.error(II("Errors and warnings found.<br>See log."), \ -> {});
+    else
+      msg.error(II("Errors found.<br>See log."), \ -> {});
+  } else if (withWarnings) {
+    msg.info(II("Warnings found.<br>See log."), \ -> {});
+  } else {
+    msg.ok(II("Download ok."), \->{});
+  }
+
+  mk2(wg, msel);
+};
+
+// View ------------------------------------------------------------------------
+
+// \<domo>, <ibex> -> ()
+data = \wg, :ibex ibx -> {
+  :arr Cos = ibx.Cos;
+  Cos.sort(\c1, c2 -> return c1 < c2;);
+  cosSz = Cos.size();
+  cosSz2 = cosSz % 2 == 0 ? cosSz / 2 : math.toInt(cosSz / 2) + 1;
+
+  tbCos = Q("table")
+    .klass("frame")
+    .adds(iter.map([0:cosSz2], \i -> return Q("tr")
+      .add(Q("td")
+        .style("align:left")
+        .text(Cos[i]))
+      .add(Q("td")
+        .html("&nbsp;&nbsp;"))
+      .add(Q("td")
+        .style("align:left")
+        .text(i + cosSz2 >= cosSz ? "" : Cos[i + cosSz2]));))
+  ;
+
+  viewer = Q("textarea")
+    .att("cols", 70)
+    .att("rows", 25)
+    .att("disabled", true)
+    .text(
+      "| " + fcenter(II("Date"), 8) +
+      " |" + fright(II("Open"), 10) +
+      " |" + fright(II("CloseN"), 10) +
+      " |" + fright(II("Max."), 10) +
+      " |" + fright(II("Min."), 10) +
+      " |" + fright(II("Vol."), 16) +
+      " |\n" +
+      "|-" + ffill("-", 8) +
+      "-|" + ffill("-", 10) +
+      "-|" + ffill("-", 10) +
+      "-|" + ffill("-", 10) +
+      "-|" + ffill("-", 10) +
+      "-|" + ffill("-", 16) +
+      "-|\n" +
+      arr.join(arr.map(ibx.Qs, \:quote q -> return
+        "| " + fcenter(q.date, 8) +
+        " |" + fright(math.toIso(q.open, 2), 10) +
+        " |" + fright(math.toIso(q.close, 2), 10) +
+        " |" + fright(math.toIso(q.max, 2), 10) +
+        " |" + fright(math.toIso(q.min, 2), 10) +
+        " |" + fright(math.toIso(q.vol, 0), 16) +
+        " |"
+        ;), "\n") +
+      "\n"
+    )
+  ;
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("head")
+          .text(II("Companies")))
+        .add(Q("td"))
+        .add(Q("td")
+          .klass("head")
+          .text(II("Quotes"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("vertical-align:top")
+          .add(tbCos))
+        .add(Q("td"))
+        .add(Q("td")
+          .add(viewer))))
+  ;
+};
+
+// \<domo>, [<quote>.] -> ()
+charts = \wg, :arr Qs -> {
+  :arr Es = Qs.map(
+    \:quote q -> return profitsEntry.mk(q.date, q.close, q.close, q.close);
+  );
+  now = time.now();
+  today = time.toStr(now);
+
+  :: Chart = lineChart.mkExample();
+  Chart.exArea.width = 600;
+  Chart.exArea.height = 200;
+  Chart.exArea.atts.border.width = 0;
+  Chart.inPadding.top = 10;
+  Chart.inPadding.right = 10;
+  Chart.inPadding.bottom = 20;
+  Chart.inPadding.left = 85;
+  Chart.chartPadding.top = 4;
+  Chart.chartPadding.right = 2;
+  Chart.chartPadding.bottom = 4;
+  Chart.chartPadding.left = 2;
+
+  // LAST MONTH
+
+  month = today[:6];
+  :arr E00s = Es.dropWhile(\:profitsEntry e -> return e.date[:6] <  month;);
+  :arr E0s = E00s.size() > 1 ? E00s : Es[-2:];
+  :profitsEntry ef0 = E0s[0];
+  :profitsEntry el0 = E0s.peek();
+  total0 = el0.total - ef0.total;
+
+  back0 = total0 > 0
+    ? "#e9e9f2"
+    : total0 < 0
+      ? "#f2e9e9"
+      : "#e9e9e9"
+    ;
+  Chart.exArea.atts.background = back0;
+
+  Lb0s = [];
+  Val0s = [[]];
+  for (:profitsEntry e = E0s) {
+    Lb0s.push(time.toIso(time.fromStr(e.date)!));
+    arr.push(Val0s[0], [e.total]);
+  }
+  Att0s = [
+    lineChart.mkLine(2, "#0041aa", false)
+  ];
+  :: Data0 = lineChart.mkData(Lb0s, Val0s, Att0s);
+  Data0.round = 0;
+  Data0.Labels = Lb0s;
+  Data0.SetValues = [Val0s[0]];
+  Data0.SetAtts = Att0s;
+  Data0.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    return i % 3 == 0;
+  };
+  Data0.drawLabel = Data0.drawGrid;
+  Data0.mapLabel = \lb, i -> return lb[:2];;
+
+
+  lastMonth = Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + back0)
+        .add(lineChart.mkWg(Chart, Data0))))
+  ;
+
+  // CURRENT YEAR
+
+  year = today[:4];
+  E10s = Es.dropWhile(\:profitsEntry e -> return e.date[:4] <  year;);
+  :arr E1s = E10s.size() > 1 ? E10s : Es[-2:];
+  :profitsEntry ef1 = E1s[0];
+  :profitsEntry el1 = E1s.peek();
+  total1 = el1.total - ef1.total;
+
+  Chart.chartPadding.top = 2;
+  Chart.chartPadding.bottom = 2;
+  back1 = total1 > 0
+    ? "#e9e9f2"
+    : total1< 0
+      ? "#f2e9e9"
+      : "#e9e9e9"
+    ;
+  Chart.exArea.atts.background = back1;
+
+  Lb1s = [];
+  Val1s = [[]];
+  for (:profitsEntry e = E1s) {
+    Lb1s.push(time.toIso(time.fromStr(e.date)!));
+    arr.push(Val1s[0], [e.total]);
+  }
+  Att1s = [
+    lineChart.mkLine(1.5, "#0041aa", false)
+  ];
+  :: Data1 = lineChart.mkData(Lb1s, Val1s, Att1s);
+  Data1.round = 0;
+  Data1.Labels = Lb1s;
+  Data1.SetValues = [Val1s[0]];
+  Data1.SetAtts = Att1s;
+  Data1.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    return Lb1s[i - 1][3:5] != lb[3:5] ? true : false;
+  };
+  Data1.drawLabel = Data1.drawGrid;
+  Data1.mapLabel = \lb, i -> return lb[3:5];;
+
+  currentYear = Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + back1)
+        .add(lineChart.mkWg(Chart, Data1))))
+  ;
+
+  // LAST YEAR
+
+  year2 = time.toStr(time.addDays(now, -365));
+  :arr E20s = Es.dropWhile(\:profitsEntry e -> return e.date < year2;);
+  :arr E2s = E20s.size() > 1 ? E20s : Es[-2:];
+  :profitsEntry ef2 = E2s[0];
+  :profitsEntry el2 = E2s.peek();
+  total2 = el2.total - ef2.total;
+
+  back2 = total2 > 0
+    ? "#e9e9f2"
+    : total2< 0
+      ? "#f2e9e9"
+      : "#e9e9e9"
+    ;
+  Chart.exArea.atts.background = back2;
+
+  Lb2s = [];
+  Val2s = [[]];
+  for (:profitsEntry e = E2s) {
+    Lb2s.push(time.toIso(time.fromStr(e.date)!));
+    arr.push(Val2s[0], [e.total]);
+  }
+  Att2s = [
+    lineChart.mkLine(1.5, "#0041aa", false)
+  ];
+  :: Data2 = lineChart.mkData(Lb2s, Val2s, Att2s);
+  Data2.round = 0;
+  Data2.Labels = Lb2s;
+  Data2.SetValues = [Val2s[0]];
+  Data2.SetAtts = Att2s;
+  Data2.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    return Lb2s[i - 1][3:5] != lb[3:5] ? true : false;
+  };
+  Data2.drawLabel = Data2.drawGrid;
+  Data2.mapLabel = \lb, i -> return lb[3:5];;
+
+  lastYear = Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + back2)
+        .add(lineChart.mkWg(Chart, Data2))))
+  ;
+
+  // ALL
+
+  :arr E3s = Es;
+  :profitsEntry ef3 = E3s[0];
+  :profitsEntry el3 = E3s.peek();
+  total3 = el3.total - ef3.total;
+
+  back3 = total3 > 0
+    ? "#e9e9f2"
+    : total3 < 0
+      ? "#f2e9e9"
+      : "#e9e9e9"
+    ;
+  Chart.exArea.atts.background = back3;
+
+  Lb3s = [];
+  Val3s = [[]];
+  for (:profitsEntry e = E3s) {
+    Lb3s.push(time.toIso(time.fromStr(e.date)!));
+    arr.push(Val3s[0], [e.total]);
+  }
+  Att3s = [
+    lineChart.mkLine(1.5, "#0041aa", false)
+  ];
+  :: Data3 = lineChart.mkData(Lb3s, Val3s, Att3s);
+  Data3.round = 0;
+  Data3.Labels = Lb3s;
+  Data3.SetValues = [Val3s[0]];
+  Data3.SetAtts = Att3s;
+  Data3.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    return Lb3s[i - 1][3:5] != lb[3:5] & str.index("01 04 07 10", lb[3:5]) != -1
+      ? true
+      : false;
+  };
+  Data3.drawLabel = Data3.drawGrid;
+  Data3.mapLabel = \lb, i -> return lb[3:5] == "01" ? lb[6:] : lb[3:5];;
+
+  all = Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + back3)
+        .add(lineChart.mkWg(Chart, Data3))))
+  ;
+
+
+  wg
+    .removeAll()
+    .add(Q("div").klass("head").html(II("Last Month")))
+    .add(lastMonth)
+    .add(lastMonth)
+    .add(Q("div").klass("head").html(II("Current Year")))
+    .add(currentYear)
+    .add(Q("div").klass("head").html(II("Last Year")))
+    .add(lastYear)
+    .add(Q("div").klass("head").html(II("All")))
+    .add(all)
+  ;
+};
+
+// \s, n -> s
+fcenter = \tx, n -> {
+  len = str.len(tx);
+  if (n < len) return tx[:n];
+  dif = n - len;
+  left = math.toInt(dif / 2);
+  right = dif - left;
+  return iter.reduce(
+      [0:right],
+      iter.reduce([0:left], tx, \r, i -> return " " + r;),
+      \r, i -> return r + " ";
+    );
+};
+
+// \s -> n -> s
+fright = \tx, n -> {
+  len = str.len(tx);
+  if (n < len) return tx[:n];
+  dif = n - len;
+  return iter.reduce([0:dif], tx, \r, i -> return " " + r;);
+};
+
+// \s, n -> s
+ffill = \ch, n -> return iter.reduce([0:n], "", \r, i -> return r + ch;);;

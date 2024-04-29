@@ -1,0 +1,233 @@
+// Copyright 26-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Pictures page.
+
+import "data/cts";
+import "data/pict";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// Pictures table rows.
+prows = 4;
+
+// Pictures table columns.
+pcols = 5;
+
+/// \<domo>, (\->()) -> ()
+mk = async \wg, reload -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    source: "PictsManagement",
+    rq: "idata"
+  });
+
+  groups = Rp.groups;
+  group = Rp.group;
+  Picts = arr.map(Rp.picts, pict.fromJs);
+  arr.sort(Picts, \P1, P2 -> return str.toUpper(P1.id) < str.toUpper(P2.id););
+  psize = arr.size(Picts);
+  page0 = Rp.page;
+  totalSights = Rp.totalSights;
+  shownSights = Rp.shownSights;
+
+  ptds = prows * pcols;
+  maxPage = math.toInt((arr.size(Picts) - 1) / ptds);
+  page = page0 > maxPage ? maxPage : page0;
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  setGroup = async \group -> {
+    await client.send({
+      prg: cts.appName,
+      source: "PictsManagement",
+      rq: "setGroup",
+      group
+    });
+    mk(wg, reload);
+  };
+
+  // \n -> ()
+  setPage = async \page -> {
+    await client.send({
+      prg: cts.appName,
+      source: "PictsManagement",
+      rq: "setPage",
+      page
+    });
+    mk(wg, reload);
+  };
+
+  // \s, n -> ()
+  setLevel = async \id, level -> {
+    await client.send({
+      prg: cts.appName,
+      source: "PictsManagement",
+      rq: "setLevel",
+      group,
+      id,
+      level
+    });
+    mk(wg, reload);
+  };
+
+
+  // View ----------------------------------------------------------------------
+
+  // \n -> ()
+  showPict = \id ->
+    wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(ui.img("fondosEscritorio/" + group + "/" + id)
+            .klass("frame")
+            .style("width:800px;text-align:center")
+            .on("click", \e -> mk(wg, reload);)))))
+    ;;
+
+  // \<pict> -> <domo>
+  tdPict = \P -> {
+    Sels = []; // [<domo.]
+    for (i = cts.minPictLevel:cts.maxPictLevel + 1) {
+      arr.push(Sels, Q("td")
+        .add(Q("table")
+          .klass("main")
+          .add(Q("tr")
+            .add(Q("td")
+              .add(Q("input")
+                .att("type", "radio")
+                .att("name", P.id)
+                .checked(i == P.level))
+                .on("click", \e -> setLevel(P.id, i);))
+            .add(Q("td")
+              .add(Q("span")
+                .text("" + i)))))
+      );
+    }
+    return Q("td")
+      .style("text-align:center")
+      .add(ui.img("fondosEscritorio/" + group + "/" + P.id)
+        .klass("frame")
+        .style("width:175px")
+        .on("click", \e -> showPict(P.id);))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .adds(Sels)))
+    ;
+  };
+
+  // \ -> [<domo>.]
+  rows = \ -> {
+    R = []; // [<domo>.]
+    npV = [page * pcols * prows];
+    for (row = 0:prows) {
+      tr = Q("tr");
+      for (col = 0:pcols) {
+        if (npV! < psize) {
+          tr.add(tdPict(Picts[npV!]));
+        } else {
+          tr.add(Q("td"));
+        }
+        npV! += 1;
+      }
+      arr.push(R, tr);
+    }
+    return R;
+  };
+
+  // \ -> [<domo>.]
+  pagesWg = \ -> {
+    Trs = []; // [<domo>.]
+    Tds = []; // [[<domo>.].]
+    max = maxPage * ptds < psize ? maxPage + 1 : maxPage;
+    for (i = 0:max) {
+      first = i * ptds;
+      last0 = first + ptds - 1;
+      last = last0 >= psize ? psize - 1 : last0;
+      for (i = 0:3) arr.push(Tds, []);
+      arr.push(Tds[0], Q("td")
+        .style("text-align:center;color:#c9c9c9")
+        .text(str.toUpper(Picts[first].id[:2])));
+      arr.push(Tds[1], Q("td")
+        .klass(i == page ? "frame3": "frame")
+        .style("cursor:pointer")
+        .text(fns.formatInt(i + 1, 2))
+        .on("click", \e -> setPage(i);)
+      );
+      arr.push(Tds[2], Q("td")
+        .style("text-align:center;color:#c9c9c9")
+        .text(str.toUpper(Picts[last].id[:2])));
+    }
+
+    for (i = 0:3) arr.push(Trs, Q("tr").adds(Tds[i]));
+    return Trs;
+  };
+
+  wg
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .text(i18n.fmt(
+          II("Pictures Management [ %0 / %1 ]"),
+          [shownSights, totalSights]
+        )))
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(ui.link(\e -> reload();)
+            .klass("link")
+            .text("[ " + II("Back") + " ]")))))
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("table")
+            .att("align", "left")
+            .add(Q("tr")
+              .add(Q("td")
+                .att("colspan", groups)
+                .style("width:150px")
+                .add(ui.hrule(II("Groups"), 25)))
+              .add(Q("td")
+                .style("width:100px")
+                .add(ui.hrule(II("Sights"), 25))))
+            .add(Q("tr")
+              .adds(iter.map([0:groups], \i -> return Q("td")
+                  .klass("" + i == group ? "frame3": "frame")
+                  .style("cursor:pointer;text-align:center")
+                  .text("" + i)
+                  .on("click", \e -> setGroup("" + i);)
+                ;))
+              .add(Q("td")
+                .klass("frame3")
+                .style("text-align:center")
+                .text("" + (arr.reduce(
+                    Picts, 0, \sum, P -> return sum + P.level;
+                  )))))
+            .add(Q("tr")
+              .add(Q("td")
+                .att("colspan", groups)
+                .add(Q("hr")))
+              .add(Q("td")
+                .add(Q("hr"))))))
+        .add(Q("td")
+          .add(Q("table")
+            .att("align", "right")
+            .adds(pagesWg())))))
+    .add(Q("div")
+      .style("padding-top:10px;"))
+    .add(Q("table")
+      .klass("main")
+      .adds(rows()))
+  ;
+};
+

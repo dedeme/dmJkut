@@ -1,0 +1,11 @@
+// Copyright 26-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Functions.
+
+import "i18n";
+
+/// Format 'value' with 2 decimals.
+cFmt = \value -> return "&nbsp;" +
+    (i18n.getLang() == "es" ? math.toIso(value, 2) : math.toEn(value, 2))
+  ;;

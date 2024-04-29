@@ -1,0 +1,15 @@
+// Copyright 15-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Investor strategy.
+
+/// Constructor.
+///   modelId: Market model identifier.
+///   Params : Parameters for the model.
+/// \s,[n.] -> <istrategy>
+mk : modelId, Params;
+
+/// Returns true if 'is1 == is2'
+/// \<istrategy>,<istrategy> -> b
+eq = \is1, is2 ->
+  return is1[modelId] == is2[modelId] & is1[Params] == is2[Params];;

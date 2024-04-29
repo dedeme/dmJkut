@@ -1,0 +1,173 @@
+// Copyright 04-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Overview
+
+import "data/stRs";
+import "data/order";
+import "data/broker";
+import "global";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   Cos: Company nicks.
+///   Closes: Closes (dates x cos)
+///   rs: Simulation result.
+/// \<domo>, [s.], [[f.].], <stRs> -> ()
+mk = \wg, :arr Cos, :arr Closes, :stRs rs -> {
+  :arr Orders = rs.Orders;
+  :arr LastCloses = Closes.peek();
+
+  // \s, [s.], [s.], [s.], [s.], [s.], n -> <domo>
+  mkTr = \date, :arr Buys, :arr Sells, :arr Portfolio, :arr Quarantine, cash -> {
+    Portfolio.sort(str.less);
+    Quarantine.sort(str.less);
+
+    return Q("tr")
+      .add(Q("td")
+        .klass("lframe")
+        .text(time.toIso(time.fromStr(date)!)))
+      .add(Q("td")
+        .klass("lframe")
+        .style("width:100px")
+        .text(Buys.join(", ")))
+      .add(Q("td")
+        .klass("lframe")
+        .style("width:100px")
+        .text(Sells.join(", ")))
+      .add(Q("td")
+        .klass("lframe")
+        .style("width:300px")
+        .text(Portfolio.join(", ") + " [" + Portfolio.size() + "]"))
+      .add(Q("td")
+        .klass("lframe")
+        .style("width:200px")
+        .text(Quarantine.join(", ") + " [" + Quarantine.size() + "]"))
+      .add(Q("td")
+        .klass("rframe")
+        .text(math.toIso(cash, 2)))
+    ;
+  };
+
+  assetsV = [0];
+  Trs = []; // [<domo>.]
+  if (Orders.size() > 0) {
+    lastDateV = [""];
+    cashV = [global.initialCapitalV!];
+    Buys = []; // [s.]
+    Sells = []; // [s.]
+    Quarantine = {}; // {s.} :: {nick -> date}
+    Portfolio = {}; // {[n, n].} :: {nick -> [stock, price]}
+
+    for (:order o = Orders) {
+      date = o.date;
+
+      if (lastDateV! == "") {
+        lastDateV! = date;
+      } else if (date != lastDateV!) {
+        Trs.push(
+          mkTr(
+            lastDateV!, Buys, Sells,
+            Portfolio.keys(), Quarantine.keys(), cashV!
+          )
+        );
+        arr.clear(Buys);
+        arr.clear(Sells);
+        lastDateV! = date;
+      }
+
+      QRemoves = []; //[s.]
+      for (nk, d = Quarantine) if (d <= date) QRemoves.push(nk);
+
+      for (nk = QRemoves) Quarantine.remove(nk);
+
+      nk = o.nick;
+      switch (o.type) {
+        global.orderSellV!: {
+          arr.push(Sells, nk);
+          pr = Portfolio[nk][1];
+          Portfolio.remove(nk);
+          cashV! += broker.sell(o.stocks, o.price);
+          :time dt = time.fromStr(date)!;
+          if (o.price < pr * global.noLossMultiplicatorV!) // = out of quaretine.
+            Quarantine.put(nk, time.toStr(dt.addDays(global.daysLossV!)));
+        }
+        global.orderBuyV!: {
+          arr.push(Buys, nk);
+          Portfolio.put(nk, [o.stocks, o.price]);
+          cashV! -= broker.buy(o.stocks, o.price);
+        }
+      }
+    }
+    Trs.push(
+      mkTr(
+        lastDateV!, Buys, Sells,
+        Portfolio.keys(), Quarantine.keys(), cashV!
+      )
+    );
+    assetsV! = arr.reduce(
+      Portfolio.toArr(),
+      cashV!,
+      \r, Tp ->
+        return r + broker.sell(
+            Tp[1][0], LastCloses[Cos.index(\n -> return n == Tp[0];)]
+          );
+    );
+  } else {
+    Trs.push(Q("tr")
+      .add(Q("td")
+        .att("rowspan", "5")
+        .text(II("Without Data"))))
+    ;
+  }
+
+  wg
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .text(II("Assets")))
+    .add(Q("table")
+      .att("align", "center")
+      .klass("white")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(assetsV!, 2)))))
+    .add(Q("div")
+      .klass("head")
+      .text(II("Orders")))
+    .add(Q("table")
+      .att("align", "center")
+      .klass("flat")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("lhead")
+          .style("text-align:center")
+          .text(II("Date")))
+        .add(Q("td")
+          .klass("lhead")
+          .style("text-align:center")
+          .text(II("Buys")))
+        .add(Q("td")
+          .klass("lhead")
+          .style("text-align:center")
+          .text(II("Sells")))
+        .add(Q("td")
+          .klass("lhead")
+          .style("text-align:center")
+          .text(II("Portfolio")))
+        .add(Q("td")
+          .klass("lhead")
+          .style("text-align:center")
+          .text(II("Quarantine")))
+        .add(Q("td")
+          .klass("rhead")
+          .style("text-align:center")
+          .text(II("Cash"))))
+      .adds(Trs))
+  ;
+};

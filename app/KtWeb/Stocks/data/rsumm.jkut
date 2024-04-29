@@ -1,0 +1,12 @@
+// Copyright 26-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Summary remport entry.
+
+/// Constructor.
+///   nick  :  Company nick.
+///   stocks: Stocks.
+///   price : Price of each stock.
+///   total : Total value.
+/// \s,n,n,n -> <rsumm>
+mk : nick, stocks, price, total;

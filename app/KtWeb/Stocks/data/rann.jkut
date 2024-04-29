@@ -1,0 +1,16 @@
+// Copyright 26-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Annotation remport entry.
+
+/// Constructor.
+///   date     : Annotation date.
+///   nick     : Company nick.
+///   stocks   : Stocks.
+///   price    : Price of each stock.
+///   total    : Total value.
+///   profitsOp: Profits of a sell operation. If operation is a Buy, its value
+///               is '[]'.
+///   feesOp   : Fees of operation. Only has value if report is 'report.withFees'.
+/// \n,s,n,n,n,[n]|[],[n]|[] -> <rann>
+mk : date, nick, stocks, price, total, profitsOp, feesOp;

@@ -1,0 +1,166 @@
+// Copyright 27-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Songs page.
+
+import "data/cts";
+import "data/pict";
+import "data/song";
+import "wgs/clocks";
+import "wgs/info";
+import "wgs/pictTime";
+import "media";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, b, s, s, (\->()) -> ()
+mk = async \wg, isShort, songGroup, song, reload -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    source: "Dance",
+    rq: "idata",
+    isShort,
+    songGroup,
+    song
+  });
+
+  group = Rp.group;
+  groupV = [group];
+  Pict = pict.fromJs(Rp.pict);
+  PictV = [Pict];
+  duration = Rp.duration;
+
+  pictTm = timer.mk(media.picturesTime);
+
+  Visuals = media.visuals();
+
+  img = Visuals.img
+    .att("src", "img/fondosEscritorio/" + group + "/" + Pict.id)
+  ;
+
+  Clocks = clocks.mk(Visuals.tm);
+
+  audio = new Audio();
+  audio.src = "dance/" + songGroup + "/" + song;
+  audio.controls = true;
+  audio.volume = media.volume;
+  audioLoadedV = [false];
+
+  timer.delay (1000, \ -> {
+    tm1 = timer.mk(50);
+    timer.run(tm1, \ -> {
+      d = audio.duration - 0.1;
+      audio.currentTime = d;
+      if (d == audio.currentTime | audio.currentTime == 0) {
+        timer.stop(tm1);
+        tm2 = timer.mk(50);
+        duration2 = duration + media.fadeOutDanceTime;
+        t = (audio.duration - duration2 / 1000) * math.rnd();
+        timer.run(tm2, \ -> {
+          audio.currentTime = t;
+          if (t == audio.currentTime | audio.currentTime == 0) {
+            audio.play();
+            timer.delay(math.toInt(duration), \ -> {
+              Clocks.chronOutOfTime();
+              media.fadeOut(true, audio, media.fadeOutDanceTime);
+            });
+            timer.stop(tm2);
+            audioLoadedV! = true;
+          }
+        });
+      }
+    });
+  });
+
+  InfoPicture = info.mk(-485, info.pictureWg(group, Pict));
+  InfoDance = info.mk(
+    -480, info.danceWg(songGroup, song, math.toInt(duration / 60000), audio)
+  );
+  PictTime = pictTime.mk(-480);
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  goBack = \e -> {
+    timer.stop(pictTm);
+    reload();
+  };
+
+  // \<KeyboardEvent> -> ()
+  keyDown = \ev -> {
+    if (ev.key == "ArrowUp") {
+      goBack(ev);
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowDown") {
+      InfoPicture.changeOpacity();
+      InfoDance.changeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowLeft") {
+      Clocks.clockChangeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowRight") {
+      Clocks.chronChangeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key >= "1" & ev.key <= "6") {
+      PictTime.show(math.fromStr(ev.key)!);
+      ev.preventDefault();
+      return;
+    }
+  };
+
+  // View ----------------------------------------------------------------------
+
+  div = Visuals.div
+    .setStyle(
+      "background-image",
+      "url('img/fondosEscritorio/" + group + "/" + Pict.id + "')"
+    )
+    .add(InfoPicture.wg)
+    .add(InfoDance.wg)
+    .add(PictTime.wg)
+    .on("click", goBack)
+  ;
+
+  Q("@body")
+    .on("keydown", keyDown);
+
+  wg
+    .removeAll()
+    .add(div)
+  ;
+
+  div.e.requestFullscreen();
+  firstPictureV = [true];
+  timer.run (pictTm, async \ -> {
+    if (!firstPictureV! & !audioLoadedV!) return;
+    firstPictureV! = false;
+
+    Rp = await client.send({
+      prg: cts.appName,
+      source: "Pictures", // Recycling function.
+      rq: "idata"
+    });
+    newGroup = Rp.group;
+    NewPict = pict.fromJs(Rp.pict);
+    if (newGroup != groupV! | NewPict.id != PictV!.id) {
+      groupV! = newGroup;
+      PictV! = NewPict;
+      media.changePict(div, img, InfoPicture, newGroup, NewPict);
+    }
+  });
+};
+

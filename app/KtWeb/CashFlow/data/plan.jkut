@@ -1,0 +1,96 @@
+// Copyright 30-Aug-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Functions over <planEntry> arrays.
+
+import "diary";
+import "planEntry";
+import "i18n";
+
+II = i18n.tlt;
+
+/// Return "" or a message of error if 'add' fails.
+/// \[<planEntry>.], <planEntry> -> s
+add = \:arr Plan, :planEntry entry -> {
+  id = entry.id;
+
+  if (id == "") return II("Id is missing");
+  if (entry.desc == "") return II("Description is missing");
+
+  if (contains(Plan, id))
+    return i18n.fmt(II("The account '%0' already exists"), [id]);
+
+  Plan.push(entry);
+  return "";
+};
+
+/// Return "" or a message of error if 'del' fails.
+/// \[<planEntry>.], s, [s.] -> s
+del = \:arr Plan, idEntry, :arr DiaryAccs -> {
+  if (DiaryAccs.any(\a -> return a == idEntry;))
+    return i18n.fmt(
+      II("The account '%0' has annotations and can not be deleted"),
+      [idEntry]
+    );
+
+  ix = Plan.index(\:planEntry e -> return e.id == idEntry;);
+  if (ix != -1) Plan.remove(ix);
+  return "";
+};
+
+/// Modifies 'diary' if idEntry != entry.id.
+/// Return "" or a message of error if 'modify' fails.
+/// \[<planEntry>.], s, <planEntry>, [<diaryEntry>.] -> s
+modify = \:arr Plan, idEntry, :planEntry entry, :diary Diary -> {
+  newId = entry.id;
+
+  if (newId == "") return II("Id is missing");
+  if (entry.desc == "") return II("Description is missing");
+
+  if (idEntry == newId) {
+    for (i, :planEntry e = Plan) {
+      if (e.id == idEntry) {
+        Plan[i] = entry;
+        break;
+      }
+    }
+    return "";
+  }
+
+  if (contains(Plan, newId))
+    return i18n.fmt(II("The account '%0' already exists"), [newId]);
+
+  for (i, :planEntry e = Plan) {
+    if (e.id == idEntry) {
+      Plan[i] = entry;
+      break;
+    }
+  }
+
+  Diary.changeAcc(idEntry, newId);
+
+  return "";
+};
+
+/// Returns 'true' if Plan contains one entry with identifier 'id'.
+/// \[<planEntry>.], s -> b
+contains = \:arr Plan, id ->
+  return Plan.index(\:planEntry e -> return e.id == id;) != -1;;
+
+/// Returns 'true' if id is an income.
+/// \[<planEntry>.], s -> b
+isIncome = \:arr Plan, id -> {
+  eOp = Plan.find(\:planEntry e -> return e.id == id;);
+  if (!eOp) throw("Count " + id + " not found");
+  :planEntry e = eOp!;
+  return e.isIncome;
+};
+
+/// Returns desciption of the entry with identifier 'id'.
+/// \[<planEntry>.], s -> s
+desc = \:arr Plan, id -> {
+  eOp = Plan.find(\:planEntry e -> return e.id == id;);
+  if (!eOp) throw("Count " + id + " not found");
+  :planEntry e = eOp!;
+  return e.desc;
+};

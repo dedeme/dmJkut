@@ -1,0 +1,66 @@
+// Copyright 12-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Small references chart.
+
+import "libdm/lineChart";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Creates company chart.
+///   Labels: Chart labels.
+///   Values: Chart values.
+///   inPortfolio: 'true' if company is in portfolio.
+/// \[s.], [[[f].].], b -> <domo>
+mk = \Labels, Values, inPortfolio -> {
+  q = arr.peek(Values[0])!;
+  back = q < 0
+    ? inPortfolio
+      ? "#f0f0ff"
+      : "#fff0f0"
+    : "#f5f5f5"
+  ;
+  line = inPortfolio ? "#ff8100" : "#00aaff";
+
+  :: Chart = lineChart.mkExample();
+  Chart.exArea.width = 140;
+  Chart.exArea.height = 70;
+  Chart.exArea.atts.border.width = 0;
+  Chart.inPadding.left = 32;
+  Chart.inPadding.right = 5;
+  Chart.inPadding.bottom = 5;
+  Chart.labels.show = false;
+  Chart.xAxis.fontSize = 0;
+  Chart.yAxis.fontSize = 10;
+  Chart.yAxis.parts = 1;
+
+  Chart.exArea.atts.background = back;
+
+  Atts = [
+    lineChart.mkLine(1.2, line, false)
+  ];
+  :: Data = lineChart.mkData(Labels, Values, Atts);
+  Data.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    if (i == 1) return true;
+    return Labels[i - 1] != lb;
+  };
+  Data.drawLabel = \lb, i -> return false;;
+  Data.maxMinRound = \mx, mn -> {
+    Data.round = 0;
+    return 0;
+  };
+
+  return Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + back)
+        .add(lineChart.mkWg(Chart, Data))))
+  ;
+
+};
+

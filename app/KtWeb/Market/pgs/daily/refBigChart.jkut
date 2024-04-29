@@ -1,0 +1,51 @@
+// Copyright 12-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Big references chart.
+
+import "libdm/lineChart";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Creates company chart.
+///   Labels: Chart labels.
+///   Values: Chart values.
+/// \[s.], [[[f].].], b -> <domo>
+mk = \Labels, Values -> {
+  :: Chart = lineChart.mkExample();
+  Chart.exArea.width = 305;
+  Chart.exArea.height = 160;
+  Chart.exArea.atts.border.width = 0;
+  Chart.inPadding.left = 45;
+  Chart.xAxis.fontSize = 10;
+  Chart.yAxis.fontSize = 10;
+
+  Chart.exArea.atts.background = "#f5f5f5";
+
+  Atts = [
+    lineChart.mkLine(1.2, "#ff8100", false),
+    lineChart.mkLine(1.2, "#404040", false),
+    lineChart.mkLine(1.2, "#00aaff", false)
+  ];
+  :: Data = lineChart.mkData(Labels, Values, Atts);
+  Data.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    return Labels[i - 1] != lb;
+  };
+  Data.drawLabel = Data.drawGrid;
+  Data.maxMinRound = \mx, mn -> {
+    Data.round = 0;
+    return 0;
+  };
+
+  return Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + "#f5f5f5")
+        .add(lineChart.mkWg(Chart, Data))))
+  ;
+};

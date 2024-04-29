@@ -1,0 +1,10 @@
+// Copyright 08-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Diary annotation data definition.
+
+/// Constructor.
+///   id: Account identifier.
+///   am: Annotation amount.
+/// \s,n -> <dann>
+mk : id, am;

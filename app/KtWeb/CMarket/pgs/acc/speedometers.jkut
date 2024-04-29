@@ -1,0 +1,219 @@
+// Copyright 21-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Speedometers page.
+
+import "libdm/menu";
+import "libdm/speedometer";
+import "data/cts";
+import "data/chart/profitsEntry";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// Calculates a value for speedometer of value - price
+// \n, n -> n
+acumulatorAvg = \value, price -> {
+  profits = value - price;
+  rV = [0.5 - profits / (2 * profits + 4 * price)];
+  if (rV! > 0.5) {
+    rV! = 0.5 + (rV! - 0.5) * 4;
+    if (rV! > 1) rV! = 1;
+  } else if (rV! < 0.5) {
+    rV! = 0.5 - (0.5 - rV!) * 4;
+    if (rV! < 0) rV! = 0;
+  }
+  return rV!;
+};
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    module: "Acc",
+    source: "Speedometers",
+    rq: "idata"
+  });
+
+  Cos = dic.toArr(Rp.cos); // [[s, [n, n, n]]...] :: [[nick, [price, value, ref]]...]
+  cash = Rp.cash;
+  equity = -Rp.equity;
+
+  Stocks = arr.reduce(
+    Cos,
+    [0, 0, 0],
+    \R, C -> {
+      Vs = C[1];
+      return [R[0] + Vs[0], R[1] + Vs[1], R[2] + Vs[2]];
+    }
+  );
+  prices = Stocks[0];
+  values = Stocks[1];
+  refs = Stocks[2];
+
+  assets = values + cash;
+  rassets = refs + cash;
+
+  orderV = ["+nick"];
+
+  Show = [[]];
+
+  // \ -> ()
+  Show! = \ -> {
+    arr.sort(
+      Cos,
+      \C1, C2 -> {
+        nk1 = C1[0];
+        vs1 = C1[1];
+        nk2 = C2[0];
+        vs2 = C2[1];
+        return switch (orderV!) {
+          "+profits":
+            acumulatorAvg(vs1[1], vs1[0]) < acumulatorAvg(vs2[1], vs2[0]);
+          "-profits":
+            acumulatorAvg(vs1[1], vs1[0]) > acumulatorAvg(vs2[1], vs2[0]);
+          "+ref":
+            acumulatorAvg(vs1[2], vs1[0]) < acumulatorAvg(vs2[2], vs2[0]);
+          "-ref":
+            acumulatorAvg(vs1[2], vs1[0]) > acumulatorAvg(vs2[2], vs2[0]);
+          "-nick":
+            nk1 > nk2;
+          default:
+            nk1 < nk2;
+        };
+      }
+    );
+
+    wg
+      .removeAll()
+      .add(Q("div")
+        .klass("head")
+        .text(II("Global")))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("header")
+            .text(II("Investment")))
+          .add(Q("td")
+            .klass("header")
+            .text(II("Profits")))
+          .add(Q("td")
+            .klass("header")
+            .text(II("Risk"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("number")
+            .text(math.toIso(equity, 2)))
+          .add(Q("td")
+            .klass("frame")
+            .add(speedometer.mk(
+                acumulatorAvg(assets, equity),
+                0.4,
+                [], []
+              )))
+          .add(Q("td")
+            .klass("frame")
+            .add(speedometer.mk(
+                acumulatorAvg(rassets, equity),
+                0.4,
+                [], []
+              )))))
+      .add(Q("div")
+        .klass("head")
+        .text(II("Stocks")))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("header")
+            .text(II("Investment")))
+          .add(Q("td")
+            .klass("header")
+            .text(II("Profits")))
+          .add(Q("td")
+            .klass("header")
+            .text(II("Risk"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("number")
+            .text(math.toIso(prices, 2)))
+          .add(Q("td")
+            .klass("frame")
+            .add(speedometer.mk(
+                acumulatorAvg(values, prices),
+                0.4,
+                [], []
+              )))
+          .add(Q("td")
+            .klass("frame")
+            .add(speedometer.mk(
+                acumulatorAvg(refs, prices),
+                0.4,
+                [], []
+              )))))
+      .add(Q("div")
+        .klass("head")
+        .text(II("Companies")))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("header")
+            .add(ui.link(\ev -> {
+                  orderV! = orderV! == "+nick" ? "-nick" : "+nick";
+                  Show!();
+                })
+              .klass("link")
+              .text("Nick")))
+          .add(Q("td")
+            .klass("header")
+            .text(II("Investment")))
+          .add(Q("td")
+            .klass("header")
+            .add(ui.link(\ev -> {
+                  orderV! = orderV! == "+profits" ? "-profits" : "+profits";
+                  Show!();
+                })
+              .klass("link")
+              .text(II("Profits"))))
+          .add(Q("td")
+            .klass("header")
+            .add(ui.link(\ev -> {
+                  orderV! = orderV! == "+ref" ? "-ref" : "+ref";
+                  Show!();
+                })
+              .klass("link")
+              .text(II("Risk")))))
+        .adds(arr.map(Cos, \C -> {
+            nick = C[0];
+            Vs = C[1];
+            return Q("tr")
+              .add(Q("td")
+                .klass("border")
+                .text(nick))
+              .add(Q("td")
+                .klass("number")
+                .text(math.toIso(Vs[0], 2)))
+              .add(Q("td")
+                .klass("frame")
+                .add(speedometer.mk(
+                    acumulatorAvg(Vs[1], Vs[0]),
+                    0.25,
+                    [], []
+                  )))
+              .add(Q("td")
+                .klass("frame")
+                .add(speedometer.mk(
+                    acumulatorAvg(Vs[2], Vs[0]),
+                    0.25,
+                    [], []
+                  )))
+            ;
+          })))
+    ;
+  };
+
+  Show!();
+};

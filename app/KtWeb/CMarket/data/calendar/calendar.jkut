@@ -1,0 +1,29 @@
+// Copyright 01-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Market calendar
+
+import "timetable";
+import "marketDay";
+
+/// Constructor.
+///   General : Default timetable of a market day.
+///   Holidays: Holiday dates.
+///   SpecialDays: Days with special timetable.
+/// \<timetable>, [s...], [<marketDay>...] -> d<calendar>
+mk = \General, Holidays, SpecialDays ->
+  return {General, Holidays, SpecialDays};;
+
+/// \<calendar> -> [*(JS)...]
+toJs = \C -> return [
+    timetable.toJs(C.General),
+    C.Holidays,
+    arr.map(C.SpecialDays, marketDay.toJs)
+  ];;
+
+/// \[*(JS)...] -> <calendar>
+fromJs = \A -> return mk(
+    timetable.fromJs(A[0]),
+    A[1],
+    arr.map(A[2], marketDay.fromJs)
+  );;

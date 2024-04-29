@@ -1,0 +1,32 @@
+// Copyright 12-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Quote data.
+
+/// Constructor.
+/// \s, n, n, n, n, n, b -> d<quote>
+mk = \date, open, close, max, min, vol, error ->
+  return {date, open, close, max, min, vol, error};;
+
+/// \<quote> -> s
+toStr = \Qt -> return str.fmt(
+    "%v:%v:%v:%v:%v:%v:%v",
+    [Qt.date, Qt.open, Qt.close, Qt.max, Qt.min, Qt.vol, Qt.error]
+  );;
+
+/// \s -> <quote>
+fromStr = \s -> {
+  ps = str.split(s, ":");
+  return mk(
+    ps[0],
+    math.fromStr(ps[1]),
+    math.fromStr(ps[2]),
+    math.fromStr(ps[3]),
+    math.fromStr(ps[4]),
+    math.fromStr(ps[5]),
+    ps[6] == "true"
+  );
+};
+
+/// \<JS> -> <quote>
+fromJs = \A -> return mk(A[0], A[1], A[2], A[3], A[4], A[5], A[6]);;

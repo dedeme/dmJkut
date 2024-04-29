@@ -1,0 +1,121 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "%0%1 not found.": "%0%1 no encontrado.",
+  "All": "Todo",
+  "Assets": "Activo",
+  "Base": "Base",
+  "Base Increment": "Incremento de la base",
+  "Buys": "Compras",
+  "Cash": "Caja",
+  "Charts": "Gráficos",
+  "Click %0 to continue.": "Hacer click %0 para continuar.",
+  "Close": "Cierre",
+  "Companies": "Compañías",
+  "Current": "Actual",
+  "Date": "Fecha",
+  "Description": "Descripción",
+  "Environment Increment": "Incremento del entorno",
+  "Eval.": "Eval.",
+  "H. Eval.": "H. Eval.",
+  "H. Sales": "H. Ventas",
+  "Historic": "Histórico",
+  "Hot Map": "Mapa de calor",
+  "Id": "Id",
+  "In portfolio": "En cartera",
+  "In quarantine": "En cuarentena",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "Last Year": "Último año",
+  "Model": "Modelo",
+  "Models": "Modelos",
+  "Name": "Nombre",
+  "Operations": "Operaciones",
+  "Orders": "Órdenes",
+  "Portfolio": "Cartera",
+  "Prfs.": "Bfs.",
+  "Profits (%)": "Beneficios (%)",
+  "Quarantine": "Cuarentena",
+  "Results": "Resultados",
+  "Sales": "Ventas",
+  "Sells": "Ventas",
+  "Session is expired.": "La sesión ha expirado.",
+  "Sls.": "Vts.",
+  "Withdrawals": "Retiradas",
+  "Without Data": "Sin datos",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "%0%1 not found.": "%0%1 not found.",
+  "All": "All",
+  "Assets": "Assets",
+  "Base": "Base",
+  "Base Increment": "Base Increment",
+  "Buys": "Buys",
+  "Cash": "Cash",
+  "Charts": "Charts",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Close": "Close",
+  "Companies": "Companies",
+  "Current": "Current",
+  "Date": "Date",
+  "Description": "Description",
+  "Environment Increment": "Environment Increment",
+  "Eval.": "Eval.",
+  "H. Eval.": "H. Eval.",
+  "H. Sales": "H. Sales",
+  "Historic": "Historic",
+  "Hot Map": "Hot Map",
+  "Id": "Id",
+  "In portfolio": "In portfolio",
+  "In quarantine": "In quarantine",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
+  "Last Year": "Last Year",
+  "Model": "Model",
+  "Models": "Models",
+  "Name": "Name",
+  "Operations": "Operations",
+  "Orders": "Orders",
+  "Portfolio": "Portfolio",
+  "Prfs.": "Prfs.",
+  "Profits (%)": "Profits (%)",
+  "Quarantine": "Quarantine",
+  "Results": "Results",
+  "Sales": "Sales",
+  "Sells": "Sells",
+  "Session is expired.": "Session is expired.",
+  "Sls.": "Sls.",
+  "Withdrawals": "Withdrawals",
+  "Without Data": "Without Data",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return !T ? s : T!;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

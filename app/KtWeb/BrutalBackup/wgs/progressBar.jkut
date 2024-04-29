@@ -1,0 +1,55 @@
+// Copyright 15-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Progress bar widget
+
+Q = ui.q;
+
+/// Constructor
+/// Parameters:
+///   wg  : Container
+///   currentValue: Current value.
+///   totalValue: Total value.
+/// \<domo>, n, n -> ()
+mk = \wg, currentValue, totalValue -> {
+  width = 400;
+
+  tds = [
+    Q("td")
+      .klass("border")
+      .style(
+          "height:5px;background:#000080;width:" +
+          math.toInt(currentValue * width / totalValue) + "px"
+        )
+  ];
+  if (currentValue <= totalValue) tds.push(Q("td"));
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:center")
+          .add(Q("span")
+            .text("" + math.toIso(currentValue, 0) + " / " +
+                math.toIso(totalValue, 0)))))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("table")
+            .att("align", "center")
+            .add(Q("tr")
+              .add(Q("td")
+                .klass("frame")
+                .add(Q("table")
+                  .style("border-collapse : collapse;width:" + width + "px")
+                  .add(Q("tr")
+                    .adds(tds))))))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:center")
+          .add(Q("span")
+            .text("" + math.toIso(currentValue * 100 / totalValue, 2) + "%")))))
+  ;
+};
+

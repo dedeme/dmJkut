@@ -1,0 +1,114 @@
+// Copyright 25-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Account selector page.
+
+import "data/acc";
+import "data/accValue";
+import "cts";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor
+///   account: Selected account.
+///   fn     : Function(subaccount, description) launched when a subaccount
+///            is selected.
+///   forCash: If it is 'true', only searh in accounts used with the main cash
+///            (Caixabank).
+/// \s, \s, b ->(), b -> {<domo>} :: {"wg" -> widget}
+mk = \ac, fn, forCash -> {
+  planDiv = Q("div");
+  acV = [ac];
+
+  planHelpfV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  changeTo = \a -> {
+    acV! = str.len(a) == 1
+      ? iter.next(dic.toIter(
+          acc.subOf(iter.next(dic.toIter(acc.subOf(a)))[0])
+        ))[0]
+      : str.len(a) == 2
+        ? iter.next(dic.toIter(acc.subOf(a)))[0]
+        : a
+    ;
+    planDiv
+      .removeAll()
+      .add(planHelpfV!())
+    ;
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> <domo>
+  planHelpfV! = \-> return Q("ul")
+    .style("list-style:none;padding-left:0px;")
+    .adds(iter.map([1:4], \lg -> return Q("li")
+        .html("<a href='#' onclick='return false;'>" +
+          fns.cutRight(acc.descriptionOf(acV![:lg]), cts.helpLen) +
+          "</a>")
+        .add(Q("ul")
+          .att("id", "hlist")
+          .style("list-style:none;padding-left:10px;")
+          .adds(\ -> {
+              :arr Subs = dic.toArr(acc.subOf(acV![:lg - 1]));
+              Subs.sort(\Kv1, Kv2 -> return Kv1[0] < Kv2[0];);
+              return Subs.map(\Kv ->
+                return Q("li")
+                  .add(ui.link(\e -> changeTo(Kv[0]);)
+                    .klass("link")
+                    .att("title", Kv[0])
+                    .html(fns.cutRight(Kv[1][accValue.description], cts.helpLen)))
+                ;
+              );
+            }()));))
+    .add(Q("li")
+      .add(Q("hr")))
+    .adds(\ -> {
+      Subs = arr.filter(
+        dic.toArr(acc.sub(acV!)),
+        \Kv -> return Kv[0] != cts.cash | !forCash;
+      );
+      Subs.sort(\Kv1, Kv2 -> return Kv1[0] < Kv2[0];);
+      return Subs.map(\Kv ->
+        return Q("li")
+          .add(ui.link(\e -> fn(Kv[0], Kv[1][accValue.description]);)
+            .klass("link")
+            .att("title", acc.accFormat(Kv[0]))
+            .html(fns.cutRight(Kv[1][accValue.description], cts.helpLen)))
+        ;
+      );
+    }())
+  ;;
+
+  // \ -> ()
+  getWg = \ -> {
+    changeTo(acV!);
+    return Q("td")
+      .klass("frame")
+      .style("width:250px;vertical-align:top;white-space:nowrap")
+      .add(Q("p")
+        .html("<b>" + II("Most used accounts") + "</b>"))
+      .add(Q("ul")
+        .style("list-style:none;padding-left:0px;")
+        .adds(arr.map(
+            acc.mostUsedSubaccounts(forCash),
+            \Kv -> return Q("li")
+              .add(ui.link(\e -> fn(Kv[0], Kv[1]);)
+                .klass("link")
+                .att("title", acc.accFormat(Kv[0]))
+                .text(fns.cutRight(Kv[1], cts.helpLen)));
+          )))
+      .add(Q("p")
+        .html("<b>" + II("Plan") + "</b>"))
+      .add(planDiv)
+    ;
+  };
+
+  return {wg: getWg()};
+};

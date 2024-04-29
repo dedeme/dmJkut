@@ -1,0 +1,64 @@
+// Copyright 26-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Diary annotation.
+
+import "i18n";
+
+II = i18n.tlt;
+
+/// Constructor
+///   id: Identifier.
+///   isSell: 'true' if annotation is a sale. Otherwise (existences or buy) is false.
+///   date: Date of annotation.
+///   nick: Company nick
+///   stocks: Annotation stocks. Its value must be > 0.
+///   price: Price of each stock. Its value must be >= 0.
+///   cash: Total value of operation. Its value must be >= 0 and include fees.
+/// \n,b,n,s,n,n,n -> <ann>
+mk : id, isSell, date, nick, stocks, price, cash;
+
+/// Sets annotation identifier.
+/// \<ann>,n -> ()
+setId = \a, annId -> a[id] = annId;;
+
+/// Set every value of Old with New.
+/// \<ann>,<ann> -> ()
+update = \oldA, newA -> for (i, v = newA) oldA[i] = v;;
+
+/// Returns a representation of 'A'.
+/// \<ann> -> s
+toStr = \a -> return
+  "| " +
+  (a[isSell]
+      ? II("S")
+      : II("B")
+    ) + " | " +
+  time.toIso(a[date]) + " | " +
+  a[nick] + " | " +
+  math.toIso(a[stocks], 0) + " | " +
+  math.toIso(a[price], 4) + " | " +
+  math.toIso(a[cash], 2) +  " |"
+;;
+
+/// \<ann> -> JS
+toJs = \a -> return [
+    a[id],
+    a[isSell],
+    time.toStr(a[date]),
+    a[nick],
+    a[stocks],
+    a[price],
+    a[cash]
+  ];;
+
+/// \[<JS>.] -> <ann>
+fromJs = \A -> return mk(
+    A[id],
+    A[isSell],
+    time.fromStr(A[date])!,
+    A[nick],
+    A[stocks],
+    A[price],
+    A[cash]
+  );;

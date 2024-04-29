@@ -1,0 +1,338 @@
+// Copyright 12-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Code page.
+
+import "i18n";
+import "cts";
+import "pgs/msgPg";
+
+Q = ui.q;
+II = i18n.tlt;
+
+reserved = "asm auto break bool case char const continue " +
+  "default do double else enum extern float for goto if inline int long " +
+  "register frestrict return short signed sizeof static struct switch " +
+  "typedef union unsigned void volatile while"
+;
+directive = "#include #define #undef #ifdef #ifndef #error " +
+  "#else #elif #pragma #endif #if"
+;
+
+// States.
+stCode = 0;
+stLong = stCode + 1; // Long comment
+stQ = stLong + 1; // Quote
+
+/// \<domo>, s, s, s -> ()
+mk = async \wg, module, path, anchor  -> {
+  isHeader = !str.starts(anchor, "hp::");
+
+  , codeOp : await client.send({
+    prg: "CDoc",
+    source: "CodePg",
+    rq: "code",
+    module,
+    path,
+    isHeader
+  });
+
+  if (!codeOp) {
+    msgPg.mk(wg, i18n.fmt(II("[%0] File not found."), [path]), true);
+    return;
+  }
+
+  code = codeOp!;
+
+  prefix = str.starts(anchor, "hp::") ? "hp::" : "hp:";
+  leftV = [""];
+  rightV = [""];
+  lineCounterV = [0];
+  charQuotesV = [""];
+  stateV = [stCode];
+
+  // \ -> ()
+  newLine = \ -> {
+    lineCounterV! += 1;
+    rightV! += "<br>";
+    leftV! += "<span style='font-family: monospace;font-size: 12px;" +
+      "background-color: rgb(215, 215, 215);color: #998866;'>" +
+      formatN(lineCounterV!) +
+      "</span><br>";
+  };
+
+  // \s -> ()
+  processCode = \l -> {
+    // \s -> s
+    makeLink = \code -> {
+      bfV = [""];
+      for (i = 0:str.len(code)) {
+        ch = code[i];
+        if (ch == "#") {
+          bfV! += "_";
+        } else if (ch > " ") {
+          bfV! += ch;
+        }
+      }
+
+      ixV = [str.index(bfV!, "=")];
+      ix2 = str.index(bfV!, "(");
+      if (ixV! == -1 | (ix2 != -1 & ix2 < ixV!)) {
+        ixV! = ix2;
+        if (ixV! != -1) {
+          if (str.starts(bfV![ixV!:], "(*")) {
+            ix2 = str.indexFrom(bfV!, "(", ixV! + 1);
+            if (ix2 != -1) {
+              ixV! = ix2;
+            }
+          }
+        }
+      }
+      if (ixV! == -1) ixV! = str.index(bfV!, ";");
+      if (ixV! == -1) ixV! = str.len(bfV!);
+
+      return bfV![:ixV!];
+    };
+
+    rV = [toHtml(l)];
+
+    for (w = str.split(reserved, " ")) {
+      ixV = [str.index(rV!, w)];
+      while (ixV! != -1) {
+        r = rV!;
+        ix2 = ixV! + str.len(w);
+        if ((ixV! == 0 | isNotId(r[ixV! - 1])) &
+            (ixV! == str.len(r) | isNotId(r[ix2]))
+        ) {
+          rV! = r[:ixV!] + "<span class='reserved'>" + w +
+            "</span>" + r[ixV! + arr.size(w):];
+          ixV! = str.indexFrom(rV!, w, ix2 + 30);
+        } else {
+          ixV! = str.indexFrom(r, w, ix2);
+        }
+      }
+    }
+
+    for (w = str.split(directive, " ")) {
+      ixV = [str.index(rV!, w)];
+      while (ixV! != -1) {
+        ix2 = ixV! + str.len(w);
+        rV! = rV![:ixV!] + "<span class='annotation'>" + w +
+          "</span>" + rV![ixV! + str.len(w):];
+        ixV! = str.indexFrom(rV!, w, ix2 + 32);
+      }
+    }
+
+    stV = [0];
+    rightV! += arr.reduce(str.split(rV!, ""), "", \seed, ch -> {
+      if (stV! == 0 | stV! == 3) { // ----------------------- start or not id
+        if (isNumber(ch)) {
+          stV! = 1;
+          return seed + "<span class='number'>" + ch;
+        }
+        if (isUpper(ch)) {
+          stV! = 2;
+          return seed + "<span class='className'>" + ch;
+        }
+        if (isNotId(ch)) {
+          stV! = 3;
+          return seed + ch;
+        }
+        stV! = 4;
+        return seed + ch;
+      }
+      if (stV! == 1) { // -------------------------------------------- Number
+        if (isNumber(ch))
+          return seed + ch;
+        stV! = 4;
+        if (isNotId(ch)) {
+          stV! = 3;
+        }
+        return seed + "</span>" + ch;
+      }
+      if (stV! == 2) { // ----------------------------------------- Class name
+        if (isNotId(ch)) {
+          stV! = 3;
+          return seed + "</span>" + ch;
+        }
+        return seed + ch;
+      } // ------------------------------------------------------------ Letter
+      if (isNotId(ch))
+        stV! = 3;
+      return seed + ch;
+    });
+    if (stV! == 1 | stV! == 2) {
+      rightV! += "</span>";
+    }
+
+    if (str.len(l) > 0) {
+      ch = l[0];
+      if (ch > " " &
+        ch != "(" &
+        ch != "}"
+      ) {
+        leftV! += "<span id='" + prefix +
+          makeLink(str.trim(l)) +
+          "'></span>";
+      }
+    }
+  };
+
+  // \s -> ()
+  processLine = \l -> {
+    if (stateV! == stLong) { // --------------------------------------- stLong
+      ix = str.index(l, "*/");
+      if (ix != -1) {
+        stateV! = stCode;
+        rightV! += toHtml(l[: ix + 2]) + "</span>";
+        processLine(l[ix + 2:]);
+      } else {
+        rightV! += toHtml(l);
+        newLine();
+      }
+    } else if (stateV! == stQ) { // -------------------------------------- stQ
+      qix = str.index(l, charQuotesV!);
+      if (qix == -1) {
+        rightV! += toHtml(l) + charQuotesV! + "</span>";
+        newLine();
+        stateV! = stCode;
+        return;
+      }
+      bix = str.index(l, "\\");
+      if (bix != -1 & bix < qix) {
+        rightV! += toHtml(l[:bix + 2]);
+        processLine(l[bix + 2:]);
+      } else {
+        stateV! = stCode;
+        rightV! += toHtml(l[:qix + 1]) + "</span>";
+        processLine(l[qix + 1:]);
+      }
+    } else { // ------------------------------------------------------- stCode
+      if (str.trim(l) == "") {
+        newLine();
+        return;
+      }
+      rV = [0];
+      posV = [2000];
+      ixV = [str.index(l, "/*")]; // 1
+      if (ixV! != -1) {
+        rV! = 1;
+        posV! = ixV!;
+      }
+      ixV! = str.index(l, "//"); // 2
+      if (ixV! != -1 & ixV! < posV!) {
+        rV! = 2;
+        posV! = ixV!;
+      }
+      ixV! = str.index(l, "\""); // 3
+      if (ixV! != -1 & ixV! < posV!) {
+        rV! = 3;
+        posV! = ixV!;
+      }
+      ixV! = str.index(l, "'"); // 4
+      if (ixV! != -1 & ixV! < posV!) {
+        rV! = 4;
+        posV! = ixV!;
+      }
+
+      if (rV! == 1) { // /*
+        processCode(l[:posV!]);
+        l2= l[posV! + 2:];
+        if (str.starts(l2, "*")) {
+          rightV! += "<span class='docComment'>/*";
+          stateV! = stLong;
+        } else {
+          rightV! += "<span class='comment'>/*";
+          stateV! = stLong;
+        }
+        processLine(l2);
+      } else if (rV! == 2) { // //
+        processCode(l[:posV!]);
+        l2 = l[posV! + 2:];
+        if (str.starts(l2, "/")) {
+          rightV! += "<span class='docComment'>//";
+        } else {
+          rightV! += "<span class='docComment'>//";
+        }
+        rightV! += toHtml(l2) + "</span>";
+        newLine();
+      } else if (rV! == 3) { // "
+        processCode(l[:posV!]);
+        stateV! = stQ;
+        charQuotesV! = "\"";
+        rightV! += "<span class='quote2'>\"";
+        processLine(l[posV! + 1:]);
+      } else if (rV! == 4) { // '
+        processCode(l[:posV!]);
+        stateV! = stQ;
+        charQuotesV! = "'";
+        rightV! += "<span class='quote1'>'";
+        processLine(l[posV! + 1:]);
+      } else {
+        processCode(l);
+        newLine();
+      }
+    }
+  };
+
+  // MAIN ----------------------------------------------------------------------
+
+  for (l = str.split(code, "\n")) processLine(l);
+
+  Q("@title").text(cts.appName + " - " + arr.peek(str.split(path, "/")) +
+    (prefix == "hp::" ? ".c" : ".h"));
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("id", prefix)
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("frame")
+          .add(Q("a")
+            .att("href", "?" + module + "@" + path)
+            .text(path)))))
+    .add(Q("table")
+      .style("boder:0;width:100%")
+      .att("cellspacing", "0")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("prel")
+          .style("width:10px")
+          .html(leftV!))
+        .add(Q("td")
+          .klass("prer")
+          .html(rightV!))))
+    .adds(iter.map([0:30], \i -> return Q("p").html("&nbsp;");))
+  ;
+
+  eOp = null(window.document.getElementById(anchor));
+  if (!!eOp) eOp!.scrollIntoView(true);
+};
+
+// \s -> b
+isNumber = \ch -> return ch >= "0" & ch <= "9";;
+
+// \s -> b
+isUpper = \ch -> return (ch >= "A" & ch <= "Z");;
+
+// \s -> b
+isLetter = \ch -> return (ch >= "a" & ch <= "z") | (ch >= "A" & ch <= "Z");;
+
+// \s -> b
+isNotId  = \ch -> return !isNumber(ch) & !isLetter(ch);;
+
+// \s -> s
+toHtml = \s -> return s
+  .split("&").join("&amp;")
+  .split(" ").join("&nbsp;")
+  .split("<").join("&lt;")
+;;
+
+// \n -> s
+formatN = \n -> {
+  r = "" + n;
+  return iter.reduce(
+    [0: 4 - str.len(r)], r, \seed, i -> return "&nbsp;" + seed;
+  );
+};

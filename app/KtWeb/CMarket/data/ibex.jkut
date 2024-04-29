@@ -1,0 +1,19 @@
+// Copyright 09-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Ibex data.
+
+import "quote";
+
+/// Constructor:
+///   cos: Current companies in index.
+///   qs : 'cts.historicQuotes' last index values (From after to before).
+/// \[s.], <qs> -> d<ibex>
+mk = \cos, qs -> return {cos, qs};;
+
+/// \JS -> <ibex>
+fromJs = \A -> return mk (
+    A[0],
+    arr.map(A[1], quote.fromJs)
+  );;
+

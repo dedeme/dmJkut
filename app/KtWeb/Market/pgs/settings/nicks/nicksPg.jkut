@@ -1,0 +1,322 @@
+// Copyright 07-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Nicks page.
+
+import "libdm/menu";
+import "libdm/modalBox";
+import "data/co";
+import "wgs/msg";
+import "nickEditorPg";
+import "global";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+/// \<domo> -> ()
+mk = async \wg -> {
+  msgWait = Q("div");
+
+  // s, s, [<co>.], [n.]
+  // If mainNick == "" -> there are no companies.
+  dbKey, mainNick, :arr Cos, :dic Volumes : await client.send({
+    prg: cts.appName,
+    module: "Settings",
+    source: "NicksPg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+
+  mainNickV = [mainNick];
+  optionV = ["*v"];
+  cosSize = Cos.size();
+
+  selectedsSize = Cos.reduce(0, \r, :co c -> return c.isSelected ? r + 1 : r;);
+  stats = Q("span")
+    .text(i18n.fmt(
+        II("Total: %0. Selected: %1."),
+        [cosSize, selectedsSize]))
+  ;
+  showWaitV = [[]];
+  showV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  showVolume = \ -> {
+    optionV! = "*v";
+    showV!();
+  };
+
+  showList = \ -> {
+    optionV! = "*l";
+    showV!();
+  };
+
+  setMainNick = async \nk -> {
+    , dbKey : await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "NicksPg",
+      rq: "setMain",
+      dbKey: global.dbKeyV!,
+      nick: nk
+    });
+    global.dbKeyV! = dbKey;
+    mainNickV! = nk;
+    showV!();
+  };
+
+  select = async \nk -> {
+    cV = Cos.find(\:co c -> return c.nick == nk;);
+    if (!!cV) {
+      :co c = cV!;
+
+      , dbKey : await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "NicksPg",
+        rq: "select",
+        dbKey: global.dbKeyV!,
+        nick: nk,
+        value: !c.isSelected
+      });
+      global.dbKeyV! = dbKey;
+
+      c.setSelected(!c.isSelected);
+      selectedsSize =
+        Cos.reduce(0, \r, :co c -> return c.isSelected ? r + 1 : r;);
+      stats
+        .removeAll()
+        .text(i18n.fmt(
+            II("Total: %0. Selected: %1."),
+            [cosSize, selectedsSize]))
+      ;
+      showV!();
+    }
+  };
+
+  edit = \nk -> {
+    optionV! = nk;
+    showV!();
+  };
+
+  download = \ -> {
+    withErrorsV = [false];
+    withWarningsV = [false];
+    download2 = async \:arr Nks -> {
+      if (!Nks) {
+        showWaitV!("");
+        if (withErrorsV! & withWarningsV!)
+          msg.error(II("Errors and warnings found.<br>See log."), \->{});
+        else if (withErrorsV!)
+          msg.error(II("Errors found.<br>See log."), \->{});
+        else if (withWarningsV!)
+          msg.error(II("Warnings found.<br>See log."), \->{});
+        else
+          msg.ok(II("Download ok."), \->{});
+        return;
+      }
+      nk = Nks.pop();
+      showWaitV!(nk);
+      , result : await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "NickEditorPg", // Reuse of server call
+        dbKey: global.dbKeyV!,
+        rq: "download",
+        mainNick: mainNickV!,
+        nick: nk
+      });
+      global.dbKeyV! = dbKey;
+      if (result == "error") withErrorsV! = true;
+      else if (result == "warnings") withWarningsV! = true;
+      download2(Nks);
+    };
+    Nicks = arr.filter(
+      Cos.map(\:co c -> return c.nick;),
+      \nk -> return nk != mainNick!;
+    );
+    Nicks.unshift(mainNick!);
+    download2(Nicks.reverse());
+  };
+
+  test = \ -> {
+    withErrorsV = [false];
+    withWarningsV = [false];
+    test2 = async \:arr Cs -> {
+      if (!Cs) {
+        showWaitV!("");
+        if (withErrorsV! & withWarningsV!)
+          msg.error(II("Errors and warnings found.<br>See log."), \->{});
+        else if (withErrorsV!)
+          msg.error(II("Errors found.<br>See log."), \->{});
+        else if (withWarningsV!)
+          msg.error(II("Warnings found.<br>See log."), \->{});
+        else
+          msg.ok(II("Test ok."), \->{});
+        return;
+      }
+
+      :co c =  Cs.pop();
+      showWaitV!(c.nick);
+      withErrors, withWarnings : await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "NicksPg",
+        rq: "test",
+        nick: c.nick
+      });
+      withErrorsV! |= withErrors;
+      withWarningsV! |= withWarnings;
+      test2(Cs);
+    };
+    test2(arr.reverse(Cos));
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \<co> -> <domo>
+  coTd = \:co c -> return Q("td")
+      .style(
+          "border-left: 1px solid rgb(110,130,150);" +
+          "border-right: 1px solid rgb(110,130,150);" +
+          "width:100px;white-space:nowrap;"
+        )
+      .add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .att("title", II("Main"))
+            .add(ui.link(\ev -> setMainNick(c.nick);)
+              .add(ui.img(mainNickV! == c.nick ? "star" : "star2"))))
+          .add(Q("td")
+            .att("title", II("Selection"))
+            .add(ui.link(\ev -> select(c.nick);)
+              .add(c.isSelected
+                  ? ui.img(Volumes[co.nick] < cts.trading ? "flag2" : "flag1")
+                  : ui.led("#d0ddde", 6).setStyle("padding", "5px")
+                )))
+          .add(Q("td")
+            .att(
+                "title",
+                i18n.getLang() == "es"
+                  ? math.toIso(Volumes[c.nick], 0)
+                  : math.toEn(Volumes[c.nick], 0)
+              )
+            .add(ui.link(\ev-> edit(c.nick);)
+              .klass("link")
+              .text(c.nick)))))
+    ;;
+
+  // \ -> [<domo>.]
+  list = \ -> {
+    if (optionV! == "*l") Cos.sort(\:co c1, :co c2 -> return c1.nick < c2.nick;);
+    else Cos.sort(\:co c1, :co c2 -> return Volumes[c1.nick] > Volumes[c2.nick];);
+
+    Rows = [];
+    ncols = 6;
+    nrows = math.toInt(Math.ceil(cosSize / ncols));
+    for (i = 0:nrows) {
+      Tds = [];
+      for (j = 0:ncols) {
+        ico = j * nrows + i;
+        Tds.push(
+          ico >= cosSize
+            ? Q("td")
+            : coTd(Cos[ico])
+        );
+      }
+      Rows.push(
+        Q("tr")
+          .adds(Tds)
+      );
+    }
+
+    return Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:right")
+          .add(ui.link(\ev -> download();)
+            .klass("link")
+            .text(II("Download")))
+          .add(Q("span").text(" · "))
+          .add(ui.link(\ev -> test();)
+            .klass("link")
+            .text(II("Test")))))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("hr"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("table")
+            .klass("white")
+            .att("align", "center")
+            .adds(Rows))))
+    ;
+  };
+
+  showV! = \ -> {
+    if (mainNickV! == "") {
+      wg
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .klass("frame")
+          .add(Q("tr")
+            .add(Q("td")
+              .text(II("Without companies")))))
+      ;
+      return;
+    }
+
+    if (!Cos.any(\:co c -> return c.nick == optionV!;) & optionV! != "*l")
+      optionV! = "*v";
+
+    menuWg = menu.mk(
+      [ menu.mkEntry([], stats)],
+      [ menu.toption("*v", II("Volume"), showVolume),
+        menu.separator(),
+        menu.toption("*l", II("List"), showList)
+      ],
+      optionV!
+    );
+
+    body = Q("div");
+
+    if (optionV![0] == "*") body.add(list());
+    else nickEditorPg.mk(
+        body, Cos.map(\:co c -> return c.nick;), mainNickV!, optionV!
+      );
+
+    wg
+      .removeAll()
+      .add(menuWg)
+      .add(body)
+      .add(msgWait)
+    ;
+  };
+
+  // s -> ()
+  showWaitV! = \nick -> {
+    msgWait.removeAll();
+
+    if (nick != "") {
+      box = modalBox.mk(
+        Q("div")
+          .add(Q("div")
+            .style("text-align:center")
+            .add(ui.img("wait2.gif").klass("frame")))
+          .add(Q("div").style("text-align:center").html(nick)),
+        false
+      );
+      msgWait.add(box.mkWg());
+      box.show(box);
+    }
+  };
+
+  showV!();
+};

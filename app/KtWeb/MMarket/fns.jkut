@@ -1,0 +1,81 @@
+// Copyright 31-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Global functions.
+
+import "data/model";
+import "data/upRs";
+import "global";
+import "i18n";
+
+/// Formats numbers in locale.
+///   n: Number.
+///   d: Scale.
+/// \n, n -> s
+nfmt = \n, d -> return i18n.getLang() == "es"
+    ? math.toIso(n, d)
+    : math.toEn(n, d)
+  ;;
+
+/// Formats restult by source.
+/// \n, n -> s
+rsFmt = \source, n -> return switch (source) {
+    upRs.pon: nfmt(n * 1000, 0);
+    upRs.real: nfmt(n * global.initialCapitalV!, 0);
+    upRs.acc: nfmt(n * global.initialCapitalV!, 0);
+   default: nfmt(100 * (n - 1), 2);
+  };;
+
+
+/// Returns a model from its identifier.
+getModel = \mdId ->
+  return arr.find(global.Models, \:model m -> return m.id == mdId;)!;;
+
+/// Returns a model from its identifier.
+existsModel = \mdId ->
+  return arr.any(global.Models, \:model m -> return m.id == mdId;);;
+
+/// Returns the parameter that matchs the result index 'ix'.
+///   mdId: Model.
+///   ix  : Result index.
+/// \<model>, n -> [n.]
+ixToParams = \:model md, ix -> {
+  :arr B = global.ParamBases[md.id];
+  Binc = global.ParamBaseIncs[md.id];
+  if (B.size() == 1) {
+    return [B[0] + Binc[0] * ix];
+  }
+  steps = global.evalStepsV!;
+  r = math.toInt(ix / steps);
+  c = ix - r * steps;
+  return [B[0] + Binc[0] * r, B[1] + Binc[1] * c];
+};
+
+/// Formats model parameters from index.
+/// \s, n -> s
+pfmt = \mdId, ix -> {
+  fmt = math.toEn;
+  :model md = getModel(mdId);
+  :arr Types = md.ParamTypes;
+  P = ixToParams(md, ix);
+
+  if (Types.size() == 1)
+    return "[" +
+      (Types[0] == model.dayParam ? fmt(P[0], 0) : fmt(P[0] * 100, 2)) +
+      "]"
+    ;
+
+  return "[" +
+      (Types[0] == model.dayParam ? fmt(P[0], 0) : fmt(P[0] * 100, 2)) +
+      ", " +
+      (Types[1] == model.dayParam ? fmt(P[1], 0) : fmt(P[1] * 100, 2)) +
+      "]"
+    ;
+};
+
+/// Formats one parameter model
+/// \n, n -> s
+pfmt1 = \type, value -> return type == model.dayParam
+    ? nfmt(value, 0)
+    : nfmt(value * 100, 2)
+  ;;

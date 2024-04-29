@@ -1,0 +1,397 @@
+// Copyright 14-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Comp page.
+
+import "libdm/oldChart";
+import "data/cts";
+import "data/chart/profitsEntry";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \ -> <domo>
+mkBigTd = \ -> return Q("td").style("font-size:large;text-align:right");;
+
+// \n -> s
+dfFmt = \n -> {
+  color = n < 0 ? "aa2800" : n > 0 ? "0041aa" : "000000";
+  return "<font color='" + color + "'>" + math.toIso(n, 2) + "</font>";
+};
+
+// \s, n -> <domo>
+mkTr = \color, val -> return Q("tr")
+    .add(Q("td")
+      .style("vertical-align:middle;width:5px")
+      .add(ui.led(color, 6)))
+    .add(Q("td")
+      .style(
+          "width: 80px;text-align:right;color:" +
+          ( val > 0
+              ? "rgba(0, 129, 255)"
+              : val < 0
+                ? "rgba(255, 40, 0)"
+                : "rgba(0, 0, 0)"
+          )
+        )
+      .text(math.toIso(val, 2)))
+  ;;
+
+// \ -> <domo>
+mkIncrement = \tt, acc, rk -> return Q("table")
+    .klass("frame")
+    .style("border-collapse : collapse;")
+    .add(mkTr("rgba(0, 129, 255)", tt))
+    .add(mkTr("rgba(0, 0, 0)", acc))
+    .add(mkTr("rgba(255, 40, 0)", rk))
+  ;;
+
+/// Constructor
+/// \<domo>, [<profitsEntry>.]
+mk2 = \wg, AllEs -> {
+  CEs = []; // [<profitsEntry>...] Corrected values.
+  Corrects = []; // [f...]
+  CorrectsSum = [0];
+  I = [0];
+  for (E = AllEs) {
+    i = I!;
+    I! += 1;
+    if (i == 0) {
+      arr.push(CEs, E);
+      continue;
+    }
+    E1 = AllEs[i - 1];
+    if (E.date[:4] != E1.date[:4]) {
+      CorrectsSum! += E1.acc;
+      arr.push(Corrects, E1.acc);
+    }
+    sum = CorrectsSum!;
+    arr.push(CEs, profitsEntry.mk(
+      E.date, E.total + sum, E.acc + sum, E.risk + sum
+    ));
+  }
+
+  e = arr.peek(AllEs);
+  now = time.fromStr(e.date)!;
+  today = time.toStr(now);
+  e1 = AllEs[arr.size(AllEs) - 2];
+  summary = Q("table")
+    .att("align", "center")
+    .klass("frame")
+    .add(Q("tr")
+      .add(Q("td")
+        .att("rowspan", 2)
+        .style("font-size:large;vertical-align:top")
+        .text(time.toIso(now) + " :"))
+      .add(mkBigTd()
+        .text(" [ "))
+      .add(mkBigTd()
+        .html("<font color='0041aa'>" + math.toIso(e.total, 2) + "</font>"))
+      .add(mkBigTd()
+        .text(" | "))
+      .add(mkBigTd()
+        .html("<font color='000000'>" + math.toIso(e.acc, 2) + "</font>"))
+      .add(mkBigTd()
+        .text(" | "))
+      .add(mkBigTd()
+        .html("<font color='aa2800'>" + math.toIso(e.risk, 2) + "</font>"))
+      .add(mkBigTd()
+        .text(" | "))
+      .add(mkBigTd()
+        .html(
+          "<font color='00aa41'>" +
+          math.toIso(e.total - e.risk, 2) +
+          "</font>"))
+      .add(mkBigTd()
+        .text(" ]")))
+    .add(Q("tr")
+      .add(mkBigTd()
+        .text(" [ "))
+      .add(mkBigTd()
+        .html(dfFmt(e.total - e1.total)))
+      .add(mkBigTd()
+        .text(" | "))
+      .add(mkBigTd()
+        .html(dfFmt(e.acc - e1.acc)))
+      .add(mkBigTd()
+        .text(" | "))
+      .add(mkBigTd()
+        .html(dfFmt(e.risk - e1.risk)))
+      .add(mkBigTd()
+        .text(" | "))
+      .add(mkBigTd()
+        .html(dfFmt(e.total + e1.risk - e1.total - e.risk)))
+      .add(mkBigTd()
+        .text(" ]")))
+    ;
+
+  Chart = oldChart.mkExample();
+  Chart.ExArea.width = 600;
+  Chart.ExArea.height = 200;
+  Chart.ExArea.Atts.Border.width = 0;
+  Chart.InPadding.top = 10;
+  Chart.InPadding.right = 10;
+  Chart.InPadding.bottom = 20;
+  Chart.InPadding.left = 85;
+  Chart.ChartPadding.top = 4;
+  Chart.ChartPadding.right = 2;
+  Chart.ChartPadding.bottom = 4;
+  Chart.ChartPadding.left = 2;
+
+  // LAST MONTH
+
+  month = today[:6];
+  E00s = arr.dropWhile(AllEs, \E -> return E.date[:6] <  month;);
+  E0s = arr.size(E00s) > 1 ? E00s : AllEs[-2:];
+  Ef0 = E0s[0];
+  El0 = arr.peek(E0s);
+  total0 = El0.total - Ef0.total;
+  acc0 = El0.acc - Ef0.acc;
+  risk0 = El0.risk - Ef0.risk;
+
+  back0 = total0 > 0
+    ? "#e9e9f2"
+    : total0 < 0
+      ? "#f2e9e9"
+      : "#e9e9e9"
+    ;
+  Chart.ExArea.Atts.background = back0;
+
+  Lb0s = [];
+  Val0s = [[], [], []];
+  for (E = E0s) {
+    arr.push(Lb0s, time.toIso(time.fromStr(E.date)!));
+    arr.push(Val0s[0], [E.total]);
+    arr.push(Val0s[1], [E.acc]);
+    arr.push(Val0s[2], [E.risk]);
+  }
+  Att0s = [
+    oldChart.mkLine(2, "#0041aa", false),
+    oldChart.mkLine(2, "#414141", false),
+    oldChart.mkLine(2, "#aa4100", false)
+  ];
+  Data0 = oldChart.mkData(Lb0s, Val0s, Att0s);
+  Data0.round = 0;
+  Data0.Labels = Lb0s;
+  Data0.SetValues = [Val0s[0], Val0s[1], Val0s[2]];
+  Data0.SetAtts = Att0s;
+  Data0.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    return i % 3 == 0;
+  };
+  Data0.drawLabel = Data0.drawGrid;
+  Data0.mapLabel = \lb, i -> return lb[:2];;
+
+
+  lastMonth = Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + back0)
+        .add(oldChart.mkWg(Chart, Data0)))
+      .add(Q("td")
+        .add(mkIncrement(total0, acc0, risk0))))
+  ;
+
+  // CURRENT YEAR
+
+  year = today[:4];
+  E10s = arr.dropWhile(AllEs, \E -> return E.date[:4] <  year;);
+  E1s = arr.size(E10s) > 1 ? E10s : AllEs[-2:];
+  Ef1 = E1s[0];
+  El1 = arr.peek(E1s);
+  total1 = El1.total - Ef1.total;
+  acc1 = El1.acc - Ef1.acc;
+  risk1 = El1.risk - Ef1.risk;
+
+  Chart.ChartPadding.top = 2;
+  Chart.ChartPadding.bottom = 2;
+  back1 = total1 > 0
+    ? "#e9e9f2"
+    : total1< 0
+      ? "#f2e9e9"
+      : "#e9e9e9"
+    ;
+  Chart.ExArea.Atts.background = back1;
+
+  Lb1s = [];
+  Val1s = [[], [], []];
+  for (E = E1s) {
+    arr.push(Lb1s, time.toIso(time.fromStr(E.date)!));
+    arr.push(Val1s[0], [E.total]);
+    arr.push(Val1s[1], [E.acc]);
+    arr.push(Val1s[2], [E.risk]);
+  }
+  Att1s = [
+    oldChart.mkLine(1.5, "#0041aa", false),
+    oldChart.mkLine(1.5, "#414141", false),
+    oldChart.mkLine(1.5, "#aa4100", false)
+  ];
+  Data1 = oldChart.mkData(Lb1s, Val1s, Att1s);
+  Data1.round = 0;
+  Data1.Labels = Lb1s;
+  Data1.SetValues = [Val1s[0], Val1s[1], Val1s[2]];
+  Data1.SetAtts = Att1s;
+  Data1.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    return Lb1s[i - 1][3:5] != lb[3:5] ? true : false;
+  };
+  Data1.drawLabel = Data1.drawGrid;
+  Data1.mapLabel = \lb, i -> return lb[3:5];;
+
+  currentYear = Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + back1)
+        .add(oldChart.mkWg(Chart, Data1)))
+      .add(Q("td")
+        .add(mkIncrement(total1, acc1, risk1))))
+  ;
+
+  // LAST YEAR
+
+  year2 = time.toStr(time.addDays(now, -365));
+  E20s = arr.dropWhile(CEs, \E -> return E.date < year2;);
+  E2s = arr.size(E20s) > 1 ? E20s : AllEs[-2:];
+  Ef2 = E2s[0];
+  El2 = arr.peek(E2s);
+  total2 = El2.total - Ef2.total;
+  acc2 = El2.acc - Ef2.acc;
+  risk2 = El2.risk - Ef2.risk;
+
+  back2 = total2 > 0
+    ? "#e9e9f2"
+    : total2 < 0
+      ? "#f2e9e9"
+      : "#e9e9e9"
+    ;
+  Chart.ExArea.Atts.background = back2;
+
+  Lb2s = [];
+  Val2s = [[], [], []];
+  for (E = E2s) {
+    arr.push(Lb2s, time.toIso(time.fromStr(E.date)!));
+    arr.push(Val2s[0], [E.total]);
+    arr.push(Val2s[1], [E.acc]);
+    arr.push(Val2s[2], [E.risk]);
+  }
+  Att2s = [
+    oldChart.mkLine(1.5, "#0041aa", false),
+    oldChart.mkLine(1.5, "#414141", false),
+    oldChart.mkLine(1.5, "#aa4100", false)
+  ];
+  Data2 = oldChart.mkData(Lb2s, Val2s, Att2s);
+  Data2.round = 0;
+  Data2.Labels = Lb2s;
+  Data2.SetValues = [Val2s[0], Val2s[1], Val2s[2]];
+  Data2.SetAtts = Att2s;
+  Data2.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    return Lb2s[i - 1][3:5] != lb[3:5] ? true : false;
+  };
+  Data2.drawLabel = Data2.drawGrid;
+  Data2.mapLabel = \lb, i -> return lb[3:5];;
+
+  lastYear = Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + back2)
+        .add(oldChart.mkWg(Chart, Data2)))
+      .add(Q("td")
+        .add(mkIncrement(total2, acc2, risk2))))
+  ;
+
+  // ALL
+
+  PrevE = [CEs[0]];
+  E30s = arr.filter(CEs, \E -> {
+    r = E.date[4:6] != PrevE!.date[4:6];
+    PrevE! = E;
+    return r;
+  });
+  arr.unshift(E30s, CEs[0]);
+  if (arr.peek(E30s).date != arr.peek(CEs).date)
+    arr.push(E30s, arr.peek(CEs));
+  E3s = arr.size(E30s) > 1 ? E30s : AllEs[-2:];
+  Ef3 = E3s[0];
+  El3 = arr.peek(E3s);
+  total3 = El3.total - Ef3.total;
+  acc3 = El3.acc - Ef3.acc;
+  risk3 = El3.risk - Ef3.risk;
+
+  back3 = total3 > 0
+    ? "#e9e9f2"
+    : total3 < 0
+      ? "#f2e9e9"
+      : "#e9e9e9"
+    ;
+  Chart.ExArea.Atts.background = back3;
+
+  Lb3s = [];
+  Val3s = [[], [], []];
+  for (E = E3s) {
+    arr.push(Lb3s, time.toIso(time.fromStr(E.date)!)[3:]);
+    arr.push(Val3s[0], [E.total]);
+    arr.push(Val3s[1], [E.acc]);
+    arr.push(Val3s[2], [E.risk]);
+  }
+  Att3s = [
+    oldChart.mkLine(1.5, "#0041aa", false),
+    oldChart.mkLine(1.5, "#414141", false),
+    oldChart.mkLine(1.5, "#aa4100", false)
+  ];
+  Data3 = oldChart.mkData(Lb3s, Val3s, Att3s);
+  Data3.round = 0;
+  Data3.Labels = Lb3s;
+  Data3.SetValues = [Val3s[0], Val3s[1], Val3s[2]];
+  Data3.SetAtts = Att3s;
+  Data3.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    return Lb3s[i - 1][-2:] != lb[-2:] ? true : false;
+  };
+  Data3.drawLabel = Data3.drawGrid;
+  Data3.mapLabel = \lb, i -> return lb[-2:];;
+
+  all = Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + back3)
+        .add(oldChart.mkWg(Chart, Data3)))
+      .add(Q("td")
+        .add(mkIncrement(total3, acc3, risk3))))
+  ;
+
+  wg
+    .removeAll()
+    .add(summary)
+    .add(Q("div").klass("head").html(II("Last Month")))
+    .add(lastMonth)
+    .add(Q("div").klass("head").html(II("Current Year")))
+    .add(currentYear)
+    .add(Q("div").klass("head").html(II("Last Year")))
+    .add(lastYear)
+    .add(Q("div").klass("head").html(II("All")))
+    .add(all)
+  ;
+};
+
+/// Constructor
+/// \<domo> -> ()
+mk = async \wg -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    module: "Acc",
+    source: "ProfitsPg",
+    rq: "idata"
+  });
+  allEntries = arr.map(Rp.allEntries, profitsEntry.fromJs);
+  mk2(wg, allEntries);
+};

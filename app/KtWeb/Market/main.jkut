@@ -1,0 +1,92 @@
+// Copyright 07-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "wgs/dmenu";
+import "wgs/msg";
+import "pgs/msgPg";
+import "pgs/home/homePg";
+import "pgs/settings/settingsPg";
+import "pgs/acc/accPg";
+import "pgs/daily/dailyPg";
+import "pgs/verification/verificationPg";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("Session is closed.\nAuthenticating from Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+    return;
+  }
+
+  // Sessions control is in "KtWeb:Main" !!!
+  , lang : await client.send({
+    prg: "Main", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (lang == "en") i18n.en();
+
+  :arr LcPath = ui.url();
+  if (!LcPath) LcPath.push("home");
+
+  target = switch (LcPath[0]) {
+      "daily", "acc", "verification", "settings": LcPath[0];
+      default: "home";
+    };
+  LcPath.shift();
+
+  menuDiv = Q("div");
+  bodyDiv = Q("div");
+  menuWg = dmenu.mk(menuDiv, target);
+
+  switch (target) {
+    "daily": dailyPg.mk(bodyDiv, menuWg, LcPath);
+    "acc": accPg.mk(bodyDiv, menuWg, LcPath);
+    "verification": verificationPg.mk(bodyDiv);
+    "settings": settingsPg.mk(bodyDiv, menuWg, LcPath);
+    default: homePg.mk(bodyDiv);
+  }
+
+  wg
+    .removeAll()
+    .add(menuDiv)
+    .add(bodyDiv)
+  ;
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KtWeb", \isExpired -> {
+  message = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
+  msgWg = Q("div");
+  msgPg.mk(msgWg, message, true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+  .add(ui.upTop("up"))
+  .add(msg.wg)
+;
+
+mk(wg);

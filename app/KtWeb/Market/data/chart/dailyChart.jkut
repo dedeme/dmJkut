@@ -1,0 +1,18 @@
+// Copyright 23-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// <dailyChart> data definition.
+
+/// Constructor.
+///   nick   : Company nick.
+///            There are next extra nicks:
+///              cts.meNick, cts.ibexNick and cts.euroNick.
+///   close  : Previous market day close.
+///            - For each investor, if inv.ref > close, its position is to buy.
+///   hours  : Hour of each daily quote. (Updated each 'tic').
+///   quotes : Daily quotes. (Updated each 'tic').
+///   invData: Investor data.
+///            Extra nicks have an empty <dailyInvestorData>, whose field
+///            modelId is an empty string.
+/// \s,n,[n.],[n.],<dailyInvestorData> -> <dailyChart>
+mk : nick, close, Hours, Quotes, invData;

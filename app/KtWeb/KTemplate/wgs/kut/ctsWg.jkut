@@ -1,0 +1,144 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Constans module designer.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   textArea: Viewer.
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    // Copyright {DATE} ºDeme
+    // GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+    /// Constants.
+
+    {IMPORT}/// Application name.
+    appName = "{NAME}";
+    /// Application version.
+    version = "{VERSION}";
+    {APP_PATH}/// Data version.
+    dataVersion = "{DVERSION}";
+    /// Data path.
+    dataPath = {DATA_PATH};
+  """;
+
+  now = time.now();
+  month = now.toDate().toLocaleString("en-US", { month: "short" });
+  dateF = ui.field("nameF")
+    .att("id", "dateF")
+    .value("")
+  ;
+
+  nameF = ui.field("versionF")
+    .att("id", "nameF")
+    .value("")
+  ;
+
+  versionF = ui.field("dversionF")
+    .att("id", "versionF")
+    .value("")
+  ;
+
+  dversionF = ui.field("dateF")
+    .att("id", "dversionF")
+    .value("")
+  ;
+
+  ktWebBt = Q("input")
+    .att("type", "radio")
+    .att("name", "unic")
+    .checked(true)
+  ;
+
+  kutPostBt = Q("input")
+    .att("type", "radio")
+    .att("name", "unic")
+    .checked(false)
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    if (str.trim(dateF.getValue()) == "")
+      dateF.value(now.format("%D-" + month + "-%Y"));
+    if (str.trim(nameF.getValue()) == "")
+      nameF.value("NAME");
+    if (str.trim(versionF.getValue()) == "")
+      versionF.value(now.format("%Y.%M"));
+    if (str.trim(dversionF.getValue()) == "")
+      dversionF.value(now.format("%Y.%M"));
+
+    importTx = ktWebBt.isChecked() ? 'import "KtWeb/global";\n\n': "";
+    appPathTx = ktWebBt.isChecked()
+      ? "/// Application path.\n" +
+        'appPath = path.cat([global.root, "prgs", appName, "kut"]);\n'
+      : ""
+    ;
+    dataPathTx = ktWebBt.isChecked()
+      ? 'path.cat([global.cgiRoot, appName])'
+      : 'path.cat([sys.home(), ".dmKutApp", "KutPost", appName])'
+    ;
+
+    textArea.text(tx
+      .replace("{IMPORT}", importTx)
+      .replace("{DATE}", str.trim(dateF.getValue()))
+      .replace("{NAME}", str.trim(nameF.getValue()))
+      .replace("{VERSION}", str.trim(versionF.getValue()))
+      .replace("{APP_PATH}", appPathTx)
+      .replace("{DVERSION}", str.trim(dversionF.getValue()))
+      .replace("{DATA_PATH}", dataPathTx)
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+
+  dateF.on("change", \e -> update(););
+  dateF.on("focus", \ev -> ev.target.select(););
+  nameF.on("change", \e -> update(););
+  nameF.on("focus", \ev -> ev.target.select(););
+  versionF.on("change", \e -> update(););
+  versionF.on("focus", \ev -> ev.target.select(););
+  dversionF.on("change", \e -> update(););
+  dversionF.on("focus", \ev -> ev.target.select(););
+  ktWebBt.on("change", \e -> update(););
+  kutPostBt.on("change", \e -> update(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(ui.hrule(II("Date") + ":", 25))
+    .add(dateF)
+    .add(ui.hrule(II("Application Name") + ":", 25))
+    .add(nameF)
+    .add(ui.hrule(II("Application version") + ":", 25))
+    .add(versionF)
+    .add(ui.hrule(II("Data base version") + ":", 25))
+    .add(dversionF)
+    .add(Q("hr"))
+    .add(Q("p")
+      .add(ktWebBt)
+      .add(Q("span")
+        .text("KtWeb")))
+    .add(Q("p")
+      .add(kutPostBt)
+      .add(Q("span")
+        .text("KutPost")))
+    .add(Q("hr"))
+  ;
+
+  update();
+};

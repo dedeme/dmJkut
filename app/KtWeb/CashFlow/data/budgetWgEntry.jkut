@@ -1,0 +1,45 @@
+// Copyright 08-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// <budgetWgEntry> data definition.
+/// To use with 'pgs/budget/management/budgetView' and
+/// 'pgs/budget/management/budgetEdit'.
+
+/// Private constructor. Use 'mk'
+///   isIncome: 'true' if entry is income.
+///   accId   : Account identifier.
+///   budget  : Budget amount.
+///   real    : Real amount.
+///   dif     : real - budget.
+/// \b,s,n,n,n -> <budgetWgEntry>
+mk0 : isIncome, accId, budget, real, dif;
+
+///   Constructor.
+///   isIncome: 'true' if entry is income.
+///   accId   : Account identifier.
+///   budget  : Budget amount.
+///   real    : Real amount.
+/// \b,s,n,n -> <budgetWgEntry>
+mk = \isIncome, accId, budget, real ->
+  return mk0(isIncome, accId, budget, real, real - budget);;
+
+/// \[<budgetWgEntry>.] -> n
+sumBudget = \:arr Entries -> {
+  sumV = [0];
+  for (:budgetWgEntry e = Entries) sumV! += e[budget];
+  return sumV!;
+};
+
+/// \[<budgetWgEntry>.] -> n
+sumReal = \:arr Entries -> {
+  sumV = [0];
+  for (:budgetWgEntry e = Entries) sumV! += e[real];
+  return sumV!;
+};
+
+/// \[<budgetWgEntry>.] -> n
+sumDif = \:arr Entries -> {
+  sumV = [0];
+  for (:budgetWgEntry e = Entries) sumV! += e[dif];
+  return sumV!;
+};

@@ -1,0 +1,99 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "2 Days": "2 días",
+  "Active": "Activo",
+  "All": "Todo",
+  "All log entries will be deleted.\nContinue?": "Todas las entradas serán borradas.\n¿Continuar?",
+  "Assets": "Patrimonio",
+  "Average": "Media",
+  "Best": "Mejor",
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Cy.": "Ci.",
+  "Cycle": "Ciclo",
+  "Data base is out of date.": "La base de datos está obsoleta.",
+  "Delete": "Borrar",
+  "Errors": "Errores",
+  "Fleas": "Pulgas",
+  "Id.": "Id.",
+  "Log": "Registro",
+  "P1": "P1",
+  "P2": "P2",
+  "Points": "Puntos",
+  "Profits": "Beneficios",
+  "Rankings": "Clasificaciones",
+  "Reload": "Recargar",
+  "Sales": "Ventas",
+  "Session is closed.\nAuthenticating from Main.": "La sesión ha sido cerrada.\nHay que autenticarse desde 'Main'.",
+  "Session is expired.": "Las sesión ha expirado.",
+  "Start": "Comenzar",
+  "Stop": "Detener",
+  "Stopped": "Detenido",
+  "Summary": "Resumen",
+  "Worst": "Peor",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "2 Days": "2 Days",
+  "Active": "Active",
+  "All": "All",
+  "All log entries will be deleted.\nContinue?": "All log entries will be deleted.\nContinue?",
+  "Assets": "Assets",
+  "Average": "Average",
+  "Best": "Best",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Cy.": "Cy.",
+  "Cycle": "Cycle",
+  "Data base is out of date.": "Data base is out of date.",
+  "Delete": "Delete",
+  "Errors": "Errors",
+  "Fleas": "Fleas",
+  "Id.": "Id.",
+  "Log": "Log",
+  "P1": "P1",
+  "P2": "P2",
+  "Points": "Points",
+  "Profits": "Profits",
+  "Rankings": "Rankings",
+  "Reload": "Reload",
+  "Sales": "Sales",
+  "Session is closed.\nAuthenticating from Main.": "Session is closed.\nAuthenticating from Main.",
+  "Session is expired.": "Session is expired.",
+  "Start": "Start",
+  "Stop": "Stop",
+  "Stopped": "Stopped",
+  "Summary": "Summary",
+  "Worst": "Worst",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return !T ? s : T!;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

@@ -1,0 +1,24 @@
+// Copyright 08-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Hconta annotation definition.
+
+import "diaryEntry";
+
+/// Constructor.
+///   month   : Entry month.
+///   desc    : Entry description.
+///   isIncome: 'true' if entry is an income.
+///   am      : amount of annotation (ever positive)
+/// \s,s,b,n -> <cashEntry>
+mk : month, desc, isIncome, am;
+
+/// Returns 'true' if CashEntry == DiaryEntry matching Hconta and CashFlow entries.
+/// \<cashEntry>, <diaryEntry> -> b
+eqDiaryEntry = \hcEntry, :diaryEntry cEntry -> {
+  return
+    cEntry.month == hcEntry[month] &
+    cEntry.desc == hcEntry[desc] &
+    cEntry.isIncome == hcEntry[isIncome] &
+    math.eq(cEntry.am, hcEntry[am], 0.0001)
+  ;};

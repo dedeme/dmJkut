@@ -1,0 +1,269 @@
+// Copyright 30-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Editor of adjustment operations.
+
+import "libdm/modalBox";
+import "data/cts";
+import "data/fns";
+import "data/image";
+import "data/imgAdjustment";
+import "imageViewer";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, <image>, (\<image> -> ()) -> ()
+mk = \ImgDiv, Image, onChange -> {
+  Adj = Image.Adjustment;
+  State = [!Adj ? "" : Adj!.type];
+
+  // \s, s, n -> <domo>
+  mkIn = \id, nextId, value -> return ui.changePoint(ui.field(nextId)
+      .att("id", id)
+      .style("width:80px")
+      .value(value)
+    );;
+
+  StartCut = mkIn(
+    "startCut", "startCut",
+    State! == "cut" ? Adj!.Params[0] : 0
+  );
+  RatioBlur = mkIn(
+    "ratioBlur", "ratioLight",
+    State! == "background" ? Adj!.Params[1] : 50
+  );
+  RatioLight = mkIn(
+    "ratioLight", "ratioBlur",
+    State! == "background" ? Adj!.Params[2] : 30
+  );
+  PixelsStretch = mkIn(
+    "pixelsStretch", "pixelsStretch",
+    State! == "stretch" ? Adj!.Params[0] : 10
+  );
+
+  Color = Q("input")
+    .att("type", "color")
+    .value(State! == "background"
+        ? "#" + fns.intToColor(Adj!.Params[0])
+        : "#ffffff"
+      )
+  ;
+
+  EditorDiv = Q("div");
+
+  MkEditor = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  setState = \v -> {
+    State! = v;
+    MkEditor!(EditorDiv);
+  };
+
+  // \<event> -> ()
+  restore = \ev -> {
+    Adj = Image.Adjustment;
+    State! = Adj ? Adj!.type : "";
+
+    StartCut.value(State! == "cut" ?Adj!.Params[0] : 0);
+    RatioBlur.value(State! == "background" ?Adj!.Params[1] : 50);
+    RatioLight.value(State! == "background" ?Adj!.Params[2] : 30);
+    PixelsStretch.value(State! == "stretch" ?Adj!.Params[0] : 10);
+    Color.value(
+      State! == "background" ? fns.intToColor(Adj!.Params[0]) : "#ffffff"
+    );
+
+    onChange(Image);
+    MkEditor!(EditorDiv);
+  };
+
+  // \<event> -> ()
+  update = \ev -> {
+    // \<domo>, n, n, n -> n
+    value = \I, min, max, def -> {
+      R = math.fromStr(I.getValue());
+      if (!R) {
+        arr.push(R, def);
+        I.value("" + R!);
+      } else if (R! > max) {
+        R! = max;
+        I.value("" + R!);
+      } else if (R! < min) {
+        R! = min;
+        I.value("" + R!);
+      }
+      return R!;
+    };
+    Adj = switch (State!) {
+      "cut": [imgAdjustment.mk(State!, [value(StartCut, 0, 10000, 0)])];
+      "background": [
+          imgAdjustment.mk(
+            State!,
+            [ fns.colorToInt(Color.getValue()[1:]),
+              value(RatioBlur, 0, 100, 50),
+              value(RatioLight, 0, 100, 30)
+            ]
+          )
+        ];
+      "stretch": [imgAdjustment.mk(State!, [value(PixelsStretch, 1, 100, 10)])];
+      default: [];
+    };
+
+    onChange(image.setAdjustment(Image, Adj));
+    MkEditor!(EditorDiv);
+  };
+
+  // \<event> -> ()
+  close = \ev -> modalBox.show(cts.Box, false);;
+
+  // View ----------------------------------------------------------------------
+
+  // \<domo> -> ()
+  MkEditor! = \Div -> {
+    DeactivateBt = Q("input")
+      .att("type", "radio")
+      .att("name", "type")
+      .checked(State! == "")
+      .on("click", \ev -> setState("");)
+    ;
+    CutBt = Q("input")
+      .att("type", "radio")
+      .att("name", "type")
+      .checked(State! == "cut")
+      .on("click", \ev -> setState("cut");)
+    ;
+    BackgroundBt = Q("input")
+      .att("type", "radio")
+      .att("name", "type")
+      .checked(State! == "background")
+      .on("click", \ev -> setState("background");)
+    ;
+    StretchBt = Q("input")
+      .att("type", "radio")
+      .att("name", "type")
+      .checked(State! == "stretch")
+      .on("click", \ev -> setState("stretch");)
+    ;
+    Left = Q("div")
+      .add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(DeactivateBt))
+          .add(Q("td")
+            .style("text-align:left")
+            .text(II("Deactivate"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(CutBt))
+          .add(Q("td")
+            .style("text-align:left")
+            .text(II("Cut"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(BackgroundBt))
+          .add(Q("td")
+            .style("text-align:left")
+            .text(II("Background"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(StretchBt))
+          .add(Q("td")
+            .style("text-align:left")
+            .text(II("Stretch"))))
+      )
+    ;
+    Right = Q("div");
+    if (State! == "cut") {
+      Right
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .text(II("Pixels from top / left"))))
+          .add(Q("tr")
+            .add(StartCut)))
+      ;
+    } else if (State! == "background") {
+      Right
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .text(II("Color")))
+            .add(Q("td")
+              .text(II("Blur (0 - 100)")))
+            .add(Q("td")
+              .text(II("Light (0 - 100)"))))
+          .add(Q("tr")
+            .add(Q("td")
+              .add(Color))
+            .add(Q("td")
+              .add(RatioBlur))
+            .add(Q("td")
+              .add(RatioLight))))
+      ;
+    } else if (State! == "stretch") {
+      Right
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .text(II("Pixels to sample"))))
+          .add(Q("tr")
+            .add(PixelsStretch)))
+      ;
+    } else {
+      Right.removeAll();
+    }
+
+    Div
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px;text-align:left")
+            .add(Left))
+          .add(Q("td")
+            .add(Right))))
+    ;
+  };
+
+
+  MkEditor!(EditorDiv);
+
+  cts.BoxContent
+    .removeAll()
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td"))
+        .add(Q("td")
+          .style("text-align:right")
+          .add(ui.link(close)
+            .klass("link")
+            .text(II("Close")))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:left")
+          .add(ui.link(update)
+            .klass("link")
+            .text(II("Update")))
+          .add(Q("span")
+            .html("&nbsp;&nbsp;"))
+          .add(ui.link(restore)
+            .klass("link")
+            .text(II("Restore"))))
+        .add(Q("td"))))
+    .add(Q("hr"))
+    .add(EditorDiv)
+    .add(Q("hr"))
+    .add(ImgDiv)
+  ;
+};

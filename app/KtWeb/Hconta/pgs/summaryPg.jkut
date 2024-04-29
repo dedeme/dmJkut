@@ -1,0 +1,516 @@
+// Copyright 25-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Summary page.
+
+import "libdm/menu";
+import "data/acc";
+import "data/accValue";
+import "data/all";
+import "cts";
+import "data/balance";
+import "data/profits";
+import "data/diaryEntry";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Widget.
+///   stype: Summary type: S, P, B (Statements, Profit & losses, Balance).
+///   sdeep: Summary deep: M, A, S (suMmary, Account, Subaccount).
+mk = \wg, stype, sdeep -> {
+  type = stype != "S" & stype != "P" & stype != "B" ? "P" : stype;
+  deep = sdeep != "M" & sdeep != "A" & sdeep != "S" ? "M" : sdeep;
+
+  // \s, n -> s
+  blanks = \tx, n -> {
+    bsV = [""];
+    for (i = 0:n) bsV! += "&nbsp;";
+    return bsV! + tx + bsV!;
+  };
+
+  // \n -> s
+  fnm = \n -> return math.toIso(n, 2);;
+
+  // \s -> s
+  normal = \tx -> return tx;;
+
+  // \s -> s
+  bold = \tx -> return "<b>" + tx + "</b>";;
+
+  // \s -> s
+  italic = \tx -> return "<i><b>" + tx + "</b></i>";;
+
+  // \s -> s
+  underline = \tx -> return "<u><i><b>" + tx + "</u></i></b>";;
+
+  Ropts1 = [
+    menu.toption("S", II("Statements"), \ -> mk(wg, "S", deep);),
+    menu.separator(),
+    menu.toption("P", blanks(II("P & L"), 6), \ -> mk(wg, "P", deep);),
+    menu.separator(),
+    menu.toption("B", II("Balance"), \ -> mk(wg, "B", deep);),
+    menu.separator2()
+  ];
+  menu1Wg = menu.mk([], Ropts1, type);
+  Lopts2 = [
+    menu.separator2(),
+    menu.toption("M", II("Summary"), \ -> mk(wg, type, "M");),
+    menu.separator(),
+    menu.toption("A", II("Accounts"), \ -> mk(wg, type, "A");),
+    menu.separator(),
+    menu.toption("S", II("Subaccounts"), \ -> mk(wg, type, "S");)
+  ];
+  menu2Wg = menu.mk(Lopts2, [], deep);
+
+  // Control -------------------------------------------------------------------
+
+  // Accs is [[{id, desc, am}, [{id, desc, am}.]].]
+  // \[[{s, s, f}, [{s, s, f}.]].], s, s, f -> b
+  calcSubStats = \Accs, ac, sac, am -> {
+    missingV = [true];
+    for (A = Accs) {
+      if (A[0].id == ac) {
+        missing3V = [true];
+        :arr Saccs = A[1];
+        for (Sa = Saccs) {
+          if (Sa.id == sac) {
+            Sa.am += am;
+            missing3V! = false;
+            break;
+          }
+        }
+        if (missing3V!)
+          Saccs.push({id: sac, desc: acc.descriptionOf(sac), am});
+        A[0].am += am;
+        missingV! = false;
+        break;
+      }
+    }
+    return missingV!;
+  };
+
+  // return [[{id, desc, am}, [[{id, desc, am}, [{id, desc, am}.]].]].]
+  // \ -> [[{s, s, f}, [[{s, s, f}, [{s, s, f}.]].]].]
+  calcStats = \ -> {
+    Diary = acc.diary();
+    Stats= []; // [[{s, s, f}, [[{s, s, f}, [{s, s, f}.]].]].]
+
+    for (:diaryEntry e = Diary) {
+      // \s, f -> ()
+      process = \sac, am -> {
+        gr = sac[0];
+        ac = sac[:3];
+        missingV = [true];
+        for (G = Stats) {
+          if (G[0].id == gr) {
+            missing2V = [calcSubStats(G[1], ac, sac, am)];
+            if (missing2V!) {
+              S3 = {id: sac, desc: acc.descriptionOf(sac), am};
+              arr.push(G[1], [
+                {id: ac, desc: acc.descriptionOf(ac), am},
+                [S3]
+              ]);
+            }
+            G[0].am += am;
+            missingV! = false;
+            break;
+          }
+        }
+        if (missingV!) {
+          S3 = {id: sac, desc: acc.descriptionOf(sac), am};
+          S2 = [
+            {id: ac, desc: acc.descriptionOf(ac), am},
+            [S3]
+          ];
+          Stats.push([
+            {id: gr, desc: acc.descriptionOf(gr), am},
+            [S2]
+          ]);
+        }
+      };
+
+      iter.each(dic.toIter(e.debits), \Kv -> process(Kv[0], Kv[1]););
+      iter.each(dic.toIter(e.credits), \Kv -> process(Kv[0], -Kv[1]););
+    }
+    for (G = Stats) {
+      for (A = G[1]) arr.sort(A[1], \E1, E2 -> return E1.id < E2.id;);
+      arr.sort(G[1], \E1, E2 -> return E1[0].id < E2[0].id;);
+    }
+    Stats.sort(\E1, E2 -> return E1[0].id < E2[0].id;);
+
+    return Stats;
+  };
+
+  // return [[{id, desc, am}, [[{id, desc, am}, [{id, desc, am}.]].]].]
+  // \ -> [[{s, s, f}, [[{s, s, f}, [{s, s, f}.]].]].]
+  calcPl = \ -> {
+    Pls = []; // [[{id, desc, am}, [[{id, desc, am}, [{id, desc, am}.]].]].]
+
+    Accs = acc.accounts();
+    // \s, s -> b
+    filter = \nm, smm -> return str.starts(smm, "P") & smm[1:] == nm;;
+    // \s -> [<diaryEntry>.]
+    diary = \nm ->
+      return arr.map(acc.diary(), \:diaryEntry e ->
+        return diaryEntry.mk(
+          e.date, e.description,
+          dic.fromArr(arr.filter(
+            dic.toArr(e.debits),
+            \Kv -> return filter(nm, Accs[Kv[0][:3]][accValue.summary]);
+          )),
+          dic.fromArr(arr.filter(
+            dic.toArr(e.credits),
+            \Kv -> return filter(nm, Accs[Kv[0][:3]][accValue.summary]);
+          ))
+        );
+      );;
+
+    sumTV = [0];
+    Letters = ["A", "B", "C"];
+    for (l = Letters) {
+      Es = arr.filter(
+        dic.toArr(profits.entries()),
+        \Kv -> return profits.groupOf(Kv[0]) == l;
+      );
+      Es.sort(\Kv1, Kv2 -> return Kv1[0] < Kv2[0];);
+      Stats = arr.map(
+        Es,
+        \Kv -> {
+          sumV = [0];
+          Accs = []; // [[{s, s, f}, [{s, s, f}.]].] ::
+                     // [[{id, desc, am}, [{id, desc, am}.]].]
+          for (:diaryEntry e = diary(Kv[0])) {
+            // \s, f -> f
+            process = \sac, am -> {
+              ac = sac[:3];
+              missing = calcSubStats(Accs, ac, sac, am);
+              if (missing) {
+                Accs.push([
+                  {id: ac, desc: acc.descriptionOf(ac), am},
+                  [{id: sac, desc: acc.descriptionOf(sac), am}]
+                ]);
+              }
+              sumV! += am;
+            };
+            iter.each(dic.toIter(e.debits), \Kv -> process(Kv[0], Kv[1]););
+            iter.each(dic.toIter(e.credits), \Kv -> process(Kv[0], -Kv[1]););
+          }
+
+          return [{id: Kv[0], desc: Kv[1], am: sumV!}, Accs];
+        }
+      );
+
+      for (G = Stats) {
+        for (A = G[1]) arr.sort(A[1], \E1, E2 -> return E1.id < E2.id;);
+        arr.sort(G[1], \E1, E2 -> return E1[0].id < E2[0].id;);
+      }
+      sum = Stats.reduce(0, \r, E -> return r + E[0].am;);
+      Pls.push([
+        { id: l,
+          desc: profits.groups()[l],
+          am: l == "C" ? sumTV! : sum
+        },
+        Stats
+      ]);
+      sumTV! += sum;
+    }
+    Pls.push([
+      {id: "D", desc: profits.groups()["D"], am: sumTV!},
+      []
+    ]);
+
+    return Pls;
+  };
+
+  // return [[{id, desc, am}, [[{id, desc, am}, [{id, desc, am}.]].]].]
+  // \ -> [[{s, s, f}, [[{s, s, f}, [{s, s, f}.]].]].]
+  calcBalance = \ -> {
+    Bal = []; // [[{id, desc, am}, [[{id, desc, am}, [{id, desc, am}.]].]].]
+
+    Accs = acc.accounts();
+    // \s, s -> b
+    filter = \nm, smm -> return str.starts(smm, "B") & smm[1:] == nm;;
+    // \s -> [<diaryEntry>.]
+    diary = \nm ->
+      return arr.map(acc.diary(), \:diaryEntry e ->
+        return diaryEntry.mk(
+          e.date, e.description,
+          dic.fromArr(arr.filter(
+            dic.toArr(e.debits),
+            \Kv -> return filter(nm, Accs[Kv[0][:3]][accValue.summary]);
+          )),
+          dic.fromArr(arr.filter(
+            dic.toArr(e.credits),
+            \Kv -> return filter(nm, Accs[Kv[0][:3]][accValue.summary]);
+          ))
+        );
+      );;
+
+
+    sumTV = [0];
+    Letters = ["AA", "AB", "PA", "PB", "PC"];
+    for (l = Letters) {
+      Es = arr.filter(
+        dic.toArr(balance.entries()),
+        \Kv -> return balance.groupOf(Kv[0]) == l;
+      );
+      Es.sort(\Kv1, Kv2 -> return Kv1[0] < Kv2[0];);
+      Stats = Es.map(
+        \Kv -> {
+          sumV = [0];
+          Accs = []; // [[{s, s, f}, [{s, s, f}.]].] ::
+                     // [[{id, desc, am}, [{id, desc, am}.]].]
+          for (:diaryEntry e = diary(Kv[0])) {
+            // \s, f -> f
+            process = \sac, am -> {
+              ac = sac[:3];
+              missing = calcSubStats(Accs, ac, sac, am);
+              if (missing) {
+                Accs.push([
+                  {id: ac, desc: acc.descriptionOf(ac), am},
+                  [{id: sac, desc: acc.descriptionOf(sac), am}]
+                ]);
+              }
+              sumV! += am;
+            };
+            iter.each(dic.toIter(e.debits), \Kv -> process(Kv[0], Kv[1]););
+            iter.each(dic.toIter(e.credits), \Kv -> process(Kv[0], -Kv[1]););
+          }
+
+          return [{id: Kv[0], desc: Kv[1], am: sumV!}, Accs];
+        }
+      );
+
+      for (G = Stats) {
+        for (A = G[1]) arr.sort(A[1], \E1, E2 -> return E1.id < E2.id;);
+        arr.sort(G[1], \E1, E2 -> return E1[0].id < E2[0].id;);
+      }
+      sum = Stats.reduce(0, \r, E -> return r + E[0].am;);
+      Bal.push([{id: l, desc: balance.groups()[l], am: sum}, Stats]);
+      sumTV! += sum;
+    }
+
+    return Bal;
+  };
+
+  // View --------------------------------------------------------------------
+
+  // \i -> <domo>
+  fS = \level -> {
+    Stats = calcStats();
+    table = Q("table")
+      .klass("summary")
+      .att("align", "center")
+    ;
+    for (G = Stats) {
+      V = G[0];
+      desc = V.desc;
+      am = V.am;
+      fmt = level == 0 ? normal : level == 1 ? bold : italic;
+      table.add(Q("tr")
+        .add(Q("td").klass("summary0cp")
+          .att("colspan", 3)
+          .add(ui.link(\e -> window.location.assign("?accs&" + V.id);)
+            .klass("link")
+            .html(fmt(V.id + ". " + desc))))
+        .add(Q("td").klass("summary0d")
+          .html(am > 0 ? fmt(fnm(am)) : ""))
+        .add(Q("td").klass("summary0c")
+          .html(am < 0 ? fmt(fnm(-am)) : "")));
+      if (level == 0) continue;
+
+      for (A = G[1]) {
+        V = A[0];
+        desc = V.desc;
+        am = V.am;
+        fmt = level == 1 ? normal : bold;
+        table.add(Q("tr")
+          .add(Q("td").style("width:40px"))
+          .add(Q("td").klass("summary0cp")
+            .att("colspan", 2)
+            .add(ui.link(\e -> window.location.assign("?accs&" + V.id);)
+              .klass("link")
+              .html(fmt(V.id + ". " + desc))))
+          .add(Q("td").klass("summary0d")
+            .html(am > 0 ? fmt(fnm(am)) : ""))
+          .add(Q("td").klass("summary0c")
+            .html(am < 0 ? fmt(fnm(-am)) : "")));
+
+        if (level == 1) continue;
+        for (V = A[1]) {
+          desc = V.desc;
+          am = V.am;
+          table.add(Q("tr")
+            .add(Q("td").style("width:40px"))
+            .add(Q("td").style("width:40px"))
+            .add(Q("td").klass("summary0cp")
+              .add(ui.link(\e -> window.location.assign("?accs&" + V.id);)
+                .klass("link")
+                .html(V.id + ". " + desc)))
+            .add(Q("td").klass("summary0d")
+              .html(am > 0 ? fnm(am) : ""))
+            .add(Q("td").klass("summary0c")
+              .html(am < 0 ? fnm(-am) : "")));
+        }
+      }
+    }
+    return Q("div")
+      .add(Q("div")
+        .klass("head")
+        .html(II("Statements") + "<br><i>" + II("Summary") + "</i>"))
+      .add(table)
+    ;
+  };
+
+  // \ -> <domo>
+  fSM = \ -> return fS(0);;
+
+  // \ -> <domo>
+  fSA = \ -> return fS(1);;
+
+  // \ -> <domo>
+  fSS = \ -> return fS(2);;
+
+  // \b, i -> <domo>
+  fPB = \isP, level -> {
+    Entries = isP ? calcPl() : calcBalance();
+    table = Q("table")
+      .klass("summary")
+      .att("align", "center")
+    ;
+    for (L = Entries) {
+      V = L[0];
+      desc = V.desc;
+      am = V.am;
+      fmt = level == 0 ? bold : level == 1 ? italic : underline;
+      table.add(Q("tr")
+        .add(Q("td").klass("summary0cp")
+          .att("colspan", 4)
+          .html(fmt(V.id + ". " + desc)))
+        .add(Q("td").klass("summary0d")
+          .html(am > 0 ? fmt(fnm(am)) : ""))
+        .add(Q("td").klass("summary0c")
+          .html(am < 0 ? fmt(fnm(-am)) : "")));
+
+      for (G = L[1]) {
+        V = G[0];
+        desc = V.desc;
+        am = V.am;
+        fmt = level == 0 ? normal : level == 1 ? bold : italic;
+        table.add(Q("tr")
+          .add(Q("td").style("width:40px"))
+          .add(Q("td").klass("summary0cp")
+            .att("colspan", 3)
+            .html(fmt(V.id + ". " + desc)))
+          .add(Q("td").klass("summary0d")
+            .html(am > 0 ? fmt(fnm(am)) : ""))
+          .add(Q("td").klass("summary0c")
+            .html(am < 0 ? fmt(fnm(-am)) : "")));
+        if (level == 0) continue;
+
+        for (A = G[1]) {
+          V = A[0];
+          desc = V.desc;
+          am = V.am;
+          fmt = level == 1 ? normal : bold;
+          table.add(Q("tr")
+            .add(Q("td").style("width:40px"))
+            .add(Q("td").style("width:40px"))
+            .add(Q("td").klass("summary0cp")
+              .att("colspan", 2)
+              .add(ui.link(\e -> window.location.assign("?accs&" + V.id);)
+                .klass("link")
+                .html(fmt(V.id + ". " + desc))))
+            .add(Q("td").klass("summary0d")
+              .html(am > 0 ? fmt(fnm(am)) : ""))
+            .add(Q("td").klass("summary0c")
+              .html(am < 0 ? fmt(fnm(-am)) : "")));
+
+          if (level == 1) continue;
+          for (V = A[1]) {
+            desc = V.desc;
+            am = V.am;
+            table.add(Q("tr")
+              .add(Q("td").style("width:40px"))
+              .add(Q("td").style("width:40px"))
+              .add(Q("td").style("width:40px"))
+              .add(Q("td").klass("summary0cp")
+                .add(ui.link(\e -> window.location.assign("?accs&" + V.id);)
+                  .klass("link")
+                  .html(V.id + ". " + desc)))
+              .add(Q("td").klass("summary0d")
+                .html(am > 0 ? fnm(am) : ""))
+              .add(Q("td").klass("summary0c")
+                .html(am < 0 ? fnm(-am) : "")));
+          }
+        }
+      }
+    }
+    return Q("div")
+      .add(Q("div")
+        .klass("head")
+        .html((isP
+            ? II("P & L")
+            : II("Balance")
+          ) + "<br><i>" + II("Summary") + "</i>"))
+      .add(table)
+    ;
+  };
+
+  // \ -> <domo>
+  fPM = \ -> return fPB(true, 0);;
+
+  // \ -> <domo>
+  fPA = \ -> return fPB(true, 1);;
+
+  // \ -> <domo>
+  fPS = \ -> return fPB(true, 2);;
+
+  // \ -> <domo>
+  fBM = \ -> return fPB(false, 0);;
+
+  // \ -> <domo>
+  fBA = \ -> return fPB(false, 1);;
+
+  // \ -> <domo>
+  fBS = \ -> return fPB(false, 2);;
+
+  // \ -> <domo>
+  summary = \ -> return switch (type) {
+      "S": switch (deep) {
+          "M": fSM();
+          "A": fSA();
+          default : fSS();
+        };
+      "P": switch (deep) {
+          "M": fPM();
+          "A": fPA();
+          default : fPS();
+        };
+      default : switch (deep) {
+          "M": fBM();
+          "A": fBA();
+          default : fBS();
+        };
+    };;
+
+  wg
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .text(II("Summaries")))
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(menu1Wg))
+        .add(Q("td")
+          .add(menu2Wg))))
+    .add(summary())
+  ;
+};
+

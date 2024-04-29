@@ -1,0 +1,120 @@
+// Copyright 26-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Bills page.
+
+import "libdm/modalBox";
+import "data/monthAnn";
+import "cts";
+import "fns";
+import "global";
+import "wgs/barWg";
+import "wgs/formWg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  dbKey, :arr Bills // s, [<monthAnn>.]
+  : await client.send({
+    prg: cts.appName,
+    source: "BillsPg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+
+  boxWg = Q("div");
+  box = modalBox.mk(boxWg, false);
+
+  // Control -------------------------------------------------------------------
+
+  // \<monthAnn> -> ()
+  setPlace = \:monthAnn a -> {
+    box.mkWg()
+      .removeAll()
+      .add(formWg.mk(
+          a,
+          \ -> box.show(false);,
+          async \:monthAnn a2 -> {
+            await client.send({
+              prg: cts.appName,
+              source: "BillsPg",
+              rq: "setPlace",
+              dbKey: global.dbKeyV!,
+              month: a2.month,
+              placeOp: a2.placeOp
+            });
+            mk(wg);
+          }
+        ))
+    ;
+    box.show(true);
+    Q("#formEntry").e.select();
+    Q("#formEntry").e.focus();
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> <domo>
+  table = \ -> {
+    max = Bills.reduce(
+      0, \r, :monthAnn an -> return an.amount > r ? an.amount : r;
+    );
+    tb = Q("table").att("align", "center").klass("border");
+    bWg = \:monthAnn a -> return barWg.mkWg(
+        barWg.mk(300, 2, a.amount / max, "#0080c0", "#ffffff")
+      );;
+
+    return !Bills
+      ? tb
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align: center")
+            .html(II("Without Data"))))
+     : tb
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("header")
+            .style("text-align: left")
+            .html(II("Month")))
+          .add(Q("td")
+            .klass("header")
+            .style("text-align: left")
+            .html(II("Place")))
+          .add(Q("td")
+            .klass("header")
+            .style("text-align: right")
+            .html(II("Amount")))
+          .add(Q("td").klass("header")))
+        .adds(Bills.map(\:monthAnn a -> return Q("tr")
+            .add(Q("td")
+              .klass("border")
+              .style("text-align: left")
+              .add(ui.link(\ev -> setPlace(a);)
+                .klass("link")
+                .text(a.month[4:] + "/" + a.month[:4])))
+            .add(Q("td")
+              .klass("border")
+              .style("text-align: left")
+              .html((!a.placeOp ? "" : a.placeOp!) + "&nbsp;"))
+            .add(Q("td")
+              .klass("border")
+              .style("text-align: right")
+              .html(fns.cFmt(a.amount)))
+            .add(Q("td")
+              .add(bWg(a)));))
+    ;
+  };
+
+  wg
+    .removeAll()
+    .add(box.mkWg())
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(table()))))
+  ;
+};

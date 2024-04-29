@@ -1,0 +1,76 @@
+// Copyright 23-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Widget to select week days
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor. <daySelector> has the following fields:
+///   wg - <domo>: Container.
+///   days - [n...]: Weekays selected (0 == Monday).
+///   editable - b: 'true' if <daySelector> is editable.
+///   show - \->(): showV <daySelector> in 'wg'.
+/// Parameters:
+///   wg: Container.
+///   Days: Weekays selected (0 == Monday)
+///   editable: 'true' if <daySelector> is editable.
+/// \<domo>, [n.], b -> <daySelector>
+mk = \wg, :arr Days, editable -> {
+  // [\ ->()] | [[]]
+  showV = [[]];
+
+  // \n -> ();
+  click = \n -> {
+    ix = Days.index(\d -> return d == n;);
+    if (ix != -1) Days.remove(ix);
+    else Days.push(n);
+    showV!();
+  };
+
+  showV! = \-> {
+    ds = II("MTWRFSU");
+    :arr Tds = editable
+      ? arr.fromIter(iter.map([0:7], \i -> {
+          selected = Days.any(\d -> return d == i;);
+          return Q("td")
+            .klass(selected ? "frame" : "GrFrame")
+            .style("font-family:monospace;cursor:pointer;" +
+              (selected ? "font-weight:bold;" : "color:#a9a9a9;"))
+            .on("click", \ev -> click(i);)
+            .text(ds[i])
+          ;
+        }))
+      : arr.fromIter(iter.map([0:7], \i -> {
+          selected = Days.any(\d -> return d == i;);
+          return Q("td")
+            .klass("GrFrame")
+            .style("font-family:monospace;"+
+              (selected ? "font-weight:bold;" : "color:#a9a9a9;"))
+            .text(ds[i])
+          ;
+        }))
+    ;
+
+    wg
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("table")
+              .add(Q("tr")
+                .adds(Tds.take(4))))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("table")
+              .att("align", "center")
+              .add(Q("tr")
+                .adds(Tds.drop(4)))))))
+    ;
+  };
+
+  return {Days, editable, show: showV!};
+};

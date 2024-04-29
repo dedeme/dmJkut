@@ -1,0 +1,171 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "%0\nDelete annotation?": "¿Eliminar asiento?",
+  "%0\nNick %1 is unknown": "%0\nNo se encuentra el nick %1",
+  "%0\nSale of not bougth company %1": "%0\nVenta de una compañía no comprada",
+  "%0\nStock for sale (%1) > Stocks in portfolio (%2)": "%0\nAcciones para vender (%1) > Acciones en cartera (%2)",
+  "'Cash < Stocks * Price' in a buy": "'Caja < Acciones * Precio' en una compra",
+  "'Cash > Stocks * Price' in a sell": "'Caja > Acciones * Precio' en una venta",
+  "2 Days": "2 Días",
+  "A new nick is to be added.\nContinue?": "Un nuevo nick va a ser añadido.\n¿Continuar?",
+  "Accept": "Aceptar",
+  "All": "Todo",
+  "All log entries will be deleted.\nContinue?": "Todas las entradas del registro será borradas.\n¿Continuar?",
+  "Annotations": "Apuntes",
+  "B": "C",
+  "Bought": "Compra",
+  "Buy": "Comprar",
+  "Cancel": "Cancelar",
+  "Cash": "Caja",
+  "Cash < 0": "Caja < 0",
+  "Cash is not a valid number": "Caja no es un número válido",
+  "Click %0 to continue.": "Hacer click %0 para continuar.",
+  "Close Year (Help)": "Cierre del Ejercicio (Ayuda)",
+  "Cost": "Coste",
+  "Data base is out of date.": "La base de datos está obsoleta.",
+  "Data is ok": "Lo datos son correctos",
+  "Date": "Fecha",
+  "Date is missing": "Falta la fecha",
+  "Date is not valid": "La fecha no es válida",
+  "Date year is not the selected year": "El año se la fecha no es el año seleccionado",
+  "Delete": "Eliminar",
+  "Errors": "Errores",
+  "Fail making report": "Fallo haciendo el informe",
+  "Fees": "Comisiones",
+  "Form": "Ficha",
+  "Forms": "Fichas",
+  "Help": "Ayuda",
+  "Income": "Ingreso",
+  "Log": "Registro",
+  "Nick": "Nick",
+  "Nick is missing": "Falta el nick",
+  "No previous buy in annotation:\n%0": "No hay una compra previa en la anotación:\n%0",
+  "Price": "Precio",
+  "Price < 0": "Precio < 0",
+  "Price is not a valid number": "El precio no es un número válido",
+  "Profits": "Beneficios",
+  "Reload": "Recargar",
+  "S": "V",
+  "Sell": "Vender",
+  "Selling %0 stocks when there are %1\n%2": "Venta de %0 accines cuando hay %1\n%2",
+  "Session is closed.\nAuthenticating from Main.": "La sesión ha sido cerrada.\nHay que autenticarse en Main.",
+  "Session is expired.": "La sesión ha expirado.",
+  "Set initial stock": "Anota las existencias iniciales",
+  "Set values of the year beginning?": "¿Establecer los valores del inicio de ejercicio?",
+  "Sold": "Venta",
+  "Stocks": "Acciones",
+  "Stocks is not a valid integer": "Acciones no es un númbero válido",
+  "Sum": "Suma",
+  "Summary": "Resumen",
+  "There is no annotation of year %0": "No hay ninguna anotación en %0",
+  "Total": "Total",
+  "Treasury": "Hacienda",
+  "With Fees": "Con comisiones",
+  "Without Annotations": "Sin apuntes",
+  "Without Data": "Sin datos",
+  "Without Fees": "Sin comisiones",
+  "Without data": "Sin datos",
+  "Year %0 not found": "El año %0 no existe",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "%0\nDelete annotation?": "%0\nDelete annotation?",
+  "%0\nNick %1 is unknown": "%0\nNick %1 is unknown",
+  "%0\nSale of not bougth company %1": "%0\nSale of not bougth company %1",
+  "%0\nStock for sale (%1) > Stocks in portfolio (%2)": "%0\nStock for sale (%1) > Stocks in portfolio (%2)",
+  "'Cash < Stocks * Price' in a buy": "'Cash < Stocks * Price' in a buy",
+  "'Cash > Stocks * Price' in a sell": "'Cash > Stocks * Price' in a sell",
+  "2 Days": "2 Days",
+  "A new nick is to be added.\nContinue?": "A new nick is to be added.\nContinue?",
+  "Accept": "Accept",
+  "All": "All",
+  "All log entries will be deleted.\nContinue?": "All log entries will be deleted.\nContinue?",
+  "Annotations": "Annotations",
+  "B": "B",
+  "Bought": "Bought",
+  "Buy": "Buy",
+  "Cancel": "Cancel",
+  "Cash": "Cash",
+  "Cash < 0": "Cash < 0",
+  "Cash is not a valid number": "Cash is not a valid number",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Close Year (Help)": "Close Year (Help)",
+  "Cost": "Cost",
+  "Data base is out of date.": "Data base is out of date.",
+  "Data is ok": "Data is ok",
+  "Date": "Date",
+  "Date is missing": "Date is missing",
+  "Date is not valid": "Date is not valid",
+  "Date year is not the selected year": "Date year is not the selected year",
+  "Delete": "Delete",
+  "Errors": "Errors",
+  "Fail making report": "Fail making report",
+  "Fees": "Fees",
+  "Form": "Form",
+  "Forms": "Forms",
+  "Help": "Help",
+  "Income": "Income",
+  "Log": "Log",
+  "Nick": "Nick",
+  "Nick is missing": "Nick is missing",
+  "No previous buy in annotation:\n%0": "No previous buy in annotation:\n%0",
+  "Price": "Price",
+  "Price < 0": "Price < 0",
+  "Price is not a valid number": "Price is not a valid number",
+  "Profits": "Profits",
+  "Reload": "Reload",
+  "S": "S",
+  "Sell": "Sell",
+  "Selling %0 stocks when there are %1\n%2": "Selling %0 stocks when there are %1\n%2",
+  "Session is closed.\nAuthenticating from Main.": "Session is closed.\nAuthenticating from Main.",
+  "Session is expired.": "Session is expired.",
+  "Set initial stock": "Set initial stock",
+  "Set values of the year beginning?": "Set values of the year beginning?",
+  "Sold": "Sold",
+  "Stocks": "Stocks",
+  "Stocks is not a valid integer": "Stocks is not a valid integer",
+  "Sum": "Sum",
+  "Summary": "Summary",
+  "There is no annotation of year %0": "There is no annotation of year %0",
+  "Total": "Total",
+  "Treasury": "Treasury",
+  "With Fees": "With Fees",
+  "Without Annotations": "Without Annotations",
+  "Without Data": "Without Data",
+  "Without Fees": "Without Fees",
+  "Without data": "Without data",
+  "Year %0 not found": "Year %0 not found",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return !T ? s : T!;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

@@ -1,0 +1,58 @@
+// Copyright 26-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Form entry.
+
+import "data/monthAnn";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor
+/// \<montAnn>, \->(), \<montAnn> -> () -> <domo>
+mk = \:monthAnn ann, fclose, faccept -> {
+  place = !ann.placeOp ? "" : ann.placeOp!;
+  entry = Q("input")
+    .att("type", "text")
+    .att("id", "formEntry")
+    .style("width:100px")
+    .value(place)
+  ;
+  entry.on("keydown", \ev -> {
+    if (
+      ev.code.toLowerCase() == "numpadenter" |
+      ev.code.toLowerCase() == "enter"
+    ) {
+      pVal = entry.getValue();
+      if (pVal == place) {
+        fclose();
+      } else {
+        placeOp = pVal == "" ? [] : [pVal];
+        a2 = monthAnn.mk(
+          ann.month,
+          placeOp,
+          ann.amount
+        );
+        faccept(a2);
+      }
+    } else if (ev.code.toLowerCase() == "escape") {
+      fclose();
+    }
+  });
+
+  return Q("table")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("head")
+        .text(II("Set Place"))))
+    .add(Q("tr")
+      .add(Q("td")
+        .text(" ")))
+    .add(Q("tr")
+      .add(Q("td")
+        .add(Q("span")
+          .html(ann.month[4:] + "/" + ann.month[:4] + ":&nbsp;"))
+        .add(entry)))
+  ;
+};

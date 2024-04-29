@@ -1,0 +1,161 @@
+// Copyright 04-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Overview
+
+import "libdm/lineChart";
+import "data/model";
+import "data/stRs";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Chart type
+isAssets, isWithdrawals, isCompanies =;
+
+/// Constructor.
+///   wg           : Container.
+///   Dates        : Simulation dates.
+///   rs           : Simulation results.
+///   BuyCos       : Number of bought companies each day.
+///   QuarantineCos: Number of companies in quarantine each day.
+/// \<domo>, [s.], <stRs>, [n.], [n.] -> ()
+mk = async \wg, :arr Dates, :stRs rs, :arr BuyCos, :arr QuarantineCos -> {
+
+  // \n -> <domo>
+  mkGr = \type -> {
+    Labels = arr.map(Dates, \d -> return d[6:] + "/" + d[4:6];);
+
+    :: Ch = lineChart.mkExample();
+    Ch.exArea.width = 600;
+    Ch.exArea.height = type == isAssets ? 300 : 150;
+    Ch.inPadding.left = 100;
+    Ch.exArea.atts.background = "#ffffff";
+    Ch.inAtts.background = "#e9e9e9";
+
+    :: Data = lineChart.mkData(
+      Labels,
+      switch (type) {
+        isAssets: [
+            arr.map(rs.Hrefs, \e -> return [e];),
+            arr.map(rs.Haccs, \e -> return [e];),
+            arr.map(rs.Hreals, \e -> return [e];)
+          ];
+        isCompanies: [
+            arr.map(BuyCos, \e -> return [e];),
+            arr.map(QuarantineCos, \e -> return [e];)
+          ];
+        default : [arr.map(rs.Hwithdrawals, \e -> return [e];)];
+      },
+      switch (type) {
+        isAssets: [
+            lineChart.mkLine(1, "#800000", false),
+            lineChart.mkLine(1, "#000000", false),
+            lineChart.mkLine(1.5, "#000080", false)
+          ];
+        isCompanies: [
+            lineChart.mkLine(1, "#000080", false),
+            lineChart.mkLine(1, "#800000", false)
+          ];
+        default : [lineChart.mkLine(1, "#000000", false)];
+      }
+    );
+    Data.round = 0;
+    prevLabelV = [Labels[0][-2:]];
+    Data.drawLabel = \lb, i -> {
+      l = lb[-2:];
+      if (i == 0) return false;
+      if (l != prevLabelV! & (l == "01" | l == "04" | l == "07"| l == "10")) {
+        prevLabelV! = l;
+        return true;
+      }
+      return false;
+    };
+    prevLabel2V = [Labels[0][-2:]];
+    Data.drawGrid = \lb, i -> {
+      l = lb[-2:];
+      if (i == 0) return false;
+      if (l != prevLabel2V! & (l == "01" | l == "04" | l == "07"| l == "10")) {
+        prevLabel2V! = l;
+        return true;
+      }
+      return false;
+    };
+    Data.mapLabel = \l, i -> return l[-2:];;
+
+    return lineChart.mkWg(Ch, Data);
+  };
+
+  wg
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .text(II("Assets")))
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width: 8px")
+          .add(ui.led("#000080", 6)))
+        .add(Q("td")
+          .style("width: 8px;text-align:left;white-space:nowrap;")
+          .text(II("Real")))
+        .add(Q("td")
+          .style("width: 8px")
+          .text(" | "))
+        .add(Q("td")
+          .style("width: 8px")
+          .add(ui.led("#000000", 6)))
+        .add(Q("td")
+          .style("width: 8px;text-align:left;white-space:nowrap;")
+          .text(II("Acc.")))
+        .add(Q("td")
+          .style("width: 8px")
+          .text(" | "))
+        .add(Q("td")
+          .style("width: 8px")
+          .add(ui.led("#800000", 6)))
+        .add(Q("td")
+          .style("text-align:left")
+          .text(II("Refs."))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 8)
+          .add(mkGr(isAssets)))))
+    .add(Q("div")
+      .klass("head")
+      .text(II("Companies")))
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width: 8px")
+          .add(ui.led("#000080", 6)))
+        .add(Q("td")
+          .style("width: 8px;text-align:left;white-space:nowrap;")
+          .text(II("In portfolio")))
+        .add(Q("td")
+          .style("width: 8px")
+          .text(" | "))
+        .add(Q("td")
+          .style("width: 8px")
+          .add(ui.led("#800000", 6)))
+        .add(Q("td")
+          .style("text-align:left")
+          .text(II("In quarantine"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 5)
+          .add(mkGr(isCompanies)))))
+    .add(Q("div")
+      .klass("head")
+      .text(II("Withdrawals")))
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(mkGr(isWithdrawals)))))
+  ;
+};

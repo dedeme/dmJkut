@@ -1,0 +1,17 @@
+// Copyright 05-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Server to client channel.
+
+/// States enumeration.
+end, error, readingSource, readingTarget, selecting, copying, deleting :;
+
+/// Constructor.
+///   state       : One of "end, error, readingSource, readingTarget, copying".
+///   errorMsg    : Short message if 'state' is "error". The complete message
+///               : is on top of warnings.
+///   Warnings    : Warn messages.
+///   totalCount  : When "copying", number of files in source plus target.
+///   currentCount: When "copying", number of files (source + target) processed.
+/// \s,s,[s.],n,n -> <fromServer>
+mk : state, errorMsg, Warnings, totalCount, currentCount;

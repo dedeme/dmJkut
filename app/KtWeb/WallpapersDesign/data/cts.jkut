@@ -1,0 +1,44 @@
+// Copyright 30-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Constants.
+
+import "libdm/modalBox";
+import "data/dim";
+
+Q = ui.q;
+
+/// Application name.
+appName = "WallpapersDesign";
+/// Application version.
+version = "202205";
+/// Page foot.
+foot = Q("table")
+  .klass("main")
+  .add(Q("tr")
+    .add(Q("td")
+      .add(Q("hr"))))
+  .add(Q("tr")
+    .add(Q("td")
+      .style("text-align: right;color:#808080;font-size:x-small;")
+      .html(str.fmt("- © ºDeme. %v (%v) -", [appName, version]))))
+;
+
+/// Content of box to show adjustment widgets
+BoxContent = Q("div");
+
+/// Box to show adjustment widgets.
+Box = modalBox.mk(BoxContent, false);
+
+/// Pixels for default cut operation.
+pixelsCut = 0;
+
+/// Ratio for default blur operation.
+ratioBlur = 85;
+
+/// Available dimensions for target images.
+Dims = {
+  "1280 x 1024": dim.mk(1280, 1024),
+  "1080 x 2310": dim.mk(1080, 2310),
+  "1920 x 1080": dim.mk(1920, 1080)
+};

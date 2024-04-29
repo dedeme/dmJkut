@@ -1,0 +1,460 @@
+// Copyright 14-Dic-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Model data page.
+
+import "libdm/vmenu";
+import "libdm/modalBox";
+import "libdm/lineChart";
+import "cts";
+import "data/lcMenu";
+import "data/imodel";
+import "data/mdRk";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+chartsWg = Q("div");
+chartsBox = modalBox.mk(chartsWg, true);
+
+/// \<domo>, <lcMenu> -> ()
+mk = async \wg, :lcMenu lcPath -> {
+  vmenus = Q("table");
+  dailyWg = Q("table").klass("border flat");
+  weeklyWg = Q("table").klass("border flat");
+  monthlyWg = Q("table").klass("border flat");
+
+  wg
+    .removeAll()
+    .add(chartsBox.mkWg())
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:5px;vertical-align:top")
+          .add(vmenus))
+        .add(Q("td")
+          .add(Q("table")
+            .klass("main")
+            .add(Q("tr")
+              .add(Q("td")
+                .style("text-align:left")
+                .text(II("Daily"))))
+            .add(Q("tr")
+              .add(Q("td")
+                .add(dailyWg)))
+            .add(Q("tr")
+              .add(Q("td")
+                .add(Q("hr"))))
+            .add(Q("tr")
+              .add(Q("td")
+                .style("text-align:left")
+                .text(II("Weekly"))))
+            .add(Q("tr")
+              .add(Q("td")
+                .add(weeklyWg)))
+            .add(Q("tr")
+              .add(Q("td")
+                .add(Q("hr"))))
+            .add(Q("tr")
+              .add(Q("td")
+                .style("text-align:left")
+                .text(II("Monthly"))))
+            .add(Q("tr")
+              .add(Q("td")
+                .add(monthlyWg)))))))
+  ;
+
+  , :arr Models : await client.send({
+    prg: cts.appName,
+    source: "ModelsPg",
+    rq: "idata",
+    valType: lcPath.valType,
+    stats: lcPath.mdStats
+  });
+  Models.sort(\:imodel m1, :imodel m2 -> return m1.id < m2.id;);
+
+  if (!Models.any(\:imodel m -> return m.id == lcPath.mdId;)) {
+    :imodel imd = Models[0];
+    lcPath.setMdId(imd.id);
+    window.location = lcPath.toUrl();
+  }
+  :imodel md = Models.find(\:imodel m -> return m.id == lcPath.mdId;)!;
+
+  mkVmenus(vmenus, lcPath, Models);
+
+  switch (lcPath.mdView) {
+    "maps": mkMaps(dailyWg, weeklyWg, monthlyWg, lcPath, md, true);
+    "allMaps": mkMaps(dailyWg, weeklyWg, monthlyWg, lcPath, md, false);
+    default: mkRanks(dailyWg, weeklyWg, monthlyWg, lcPath, md);
+  }
+};
+
+// \<domo>, <lcMenu>, [<imodel>.] -> ()
+mkVmenus = \tb, :lcMenu lcPath, :arr Models -> {
+  // \s, s, s, s -> <menuEntry>
+  mkOpt = \param, id, text, info -> {
+    :lcMenu lcp = lcPath.copy();
+    switch (param){
+      "mdView"  : lcp.setMdView(id);
+      "mdStats" : lcp.setMdStats(id);
+      default   : lcp.setMdId(id);
+    }
+    return vmenu.mkEntry(
+      [id],
+      Q("a")
+        .att("href", lcp.toUrl())
+        .att("title", info)
+        .text(text),
+      Q("span").style("font-style: italic;").att("title", info).text(text)
+    );
+  };
+
+  ViewOpts = [
+    mkOpt("mdView", "rank", II("Rank"),
+      II("Rank")),
+    mkOpt("mdView", "maps", II("Maps"),
+      II("Hot Maps")),
+    mkOpt("mdView", "allMaps", II("Maps-20"),
+      II("Hot Maps - 20"))
+  ];
+  :: viewMenu = vmenu.mk(ViewOpts, lcPath.mdView);
+  viewMenu.e.children[0].style.width = "100%";
+
+  StatOpts = [
+    mkOpt("mdStats", "price", II("Price"),
+      II("Price")),
+    mkOpt("mdStats", "average", II("Average"),
+      II("Average")),
+    mkOpt("mdStats", "crrAverage", II("Cr. Avg."),
+      II("Corrected average"))
+  ];
+  :: statMenu = vmenu.mk(StatOpts, lcPath.mdStats);
+  statMenu.e.children[0].style.width = "100%";
+
+  ModelOpts = Models.map(\:imodel m -> return mkOpt("modelId", m.id, m.id, m.id););
+  :: modelMenu = vmenu.mk(ModelOpts, lcPath.mdId);
+  modelMenu.e.children[0].style.width = "100%";
+
+  tb
+    .add(Q("tr")
+      .add(Q("td")
+        .add(viewMenu)))
+    .add(Q("tr")
+      .add(Q("td")
+        .add(statMenu)))
+    .add(Q("tr")
+      .add(Q("td")
+        .add(modelMenu)))
+  ;
+};
+
+// \<domo>, <domo>, <domo>, <lcMenu>, <imodel> -> ()
+mkRanks = async \dailyWg, weeklyWg, monthlyWg, :lcMenu lcPath, :imodel md -> {
+
+  // \<domo>, [n.], s, n -> ()
+  mkRank = async \td, Bests, p, ix -> {
+    , rankOp : await client.send({
+      prg: cts.appName,
+      source: "ModelsPg",
+      rq: "rank",
+      mdId: md.id,
+      ix,
+      valType: lcPath.valType,
+      stats: lcPath.mdStats,
+      period: p
+    });
+
+    if (!rankOp) {
+      td.removeAll();
+      return;
+    }
+    :mdRk rank = rankOp!;
+    Es = [];
+    for (i, e = rank.Entries) Es.push([i, e]);
+    Es.sort(\E1, E2 -> return E1[1] > E2[1];);
+    for (i, :arr E = Es) E.push(i);
+
+    td
+      .removeAll()
+      .add(Q("div")
+        .style("text-align:center")
+        .text(time.toIso(time.fromStr(rank.date)!)))
+      .add(Q("div")
+        .style("height:222px;overflow:scroll;")
+        .add(Q("table")
+          .klass("flat")
+          .adds(Es.map(\E -> {
+            ix = E[0];
+            style = "white-space:nowrap;" +
+              (ix == Bests[0]
+                ? "background-color: #a89247;"
+                : ix == Bests[1]
+                  ? "background-color: #b8b8b8;"
+                  : ix == Bests[2]
+                    ? "background-color: #b7805b;"
+                    : ""
+              )
+            ;
+            return Q("tr")
+              .add(Q("td")
+                .klass("rframe")
+                .style(style)
+                .text(E[2] + 1))
+              .add(Q("td")
+                .klass("lframe")
+                .style(style)
+                .add(ui.link(\e -> mkCharts(
+                    md, ix, lcPath.valType, lcPath.mdStats, p
+                  );)
+                  .klass("link")
+                  .text(md.paramFmt( ix))))
+              .add(Q("td")
+                .klass("rframe")
+                .style(style)
+                .text(math.toIso(E[1], 0)))
+              .add(Q("td")
+                .html("&nbsp"))
+            ;}))))
+    ;
+  };
+
+  PTds = [];
+  for (p = cts.Periods) {
+    tb = p == "daily"
+      ? dailyWg
+      : p == "weekly"
+        ? weeklyWg
+        : monthlyWg
+    ;
+    Tds = [];
+    for (i = 0:5) Tds.push(Q("td").add(ui.img("wait.gif")));
+    tb
+      .add(Q("tr")
+        .adds(Tds))
+    ;
+    PTds.push(Tds);
+  }
+
+  plast = arr.size(cts.Periods) - 1;
+  upPeriod = \ip -> {
+    p = cts.Periods[ip];
+    arr.eachSync(
+      PTds[ip],
+      async \i, td -> {
+          , Bests : await client.send({
+              prg: cts.appName,
+              source: "ModelsPg",
+              rq: "bests",
+              mdId: md.id,
+              valType: lcPath.valType,
+              stats: lcPath.mdStats,
+              period: p
+          });
+          mkRank(td, Bests, p, i);
+        },
+      \ -> if (ip < plast) upPeriod(ip + 1);
+    );
+  };
+  upPeriod(0);
+};
+
+// \<domo>, <domo>, <domo>, <lcMenu>, <imodel>, b -> ()
+mkMaps = \dailyWg, weeklyWg, monthlyWg, :lcMenu lcPath, :imodel md, isFive -> {
+  dim1 = isFive ? "width: 200px; height: 10px;" : "width: 100px; height: 5px;";
+  dim2 = isFive ? "width: 10px; height: 10px;" : "width: 5px; height: 5px;";
+
+  // \n, n -> (\n->s)
+  mkFnColor = \max, min -> {
+    df = max - min;
+    return \value -> {
+      if (value < 0) return "rgb(190,190,190)";
+      red = math.toInt((max - value) * 256 / df );
+      blue = math.toInt((value - min) * 256 / df );
+      return "rgb(" + red + ",80," + blue + ")";
+    };
+  };
+
+  // \<domo>, s, n -> ()
+  mkMap = async \td, p, ix -> {
+    , rankOp : await client.send({
+      prg: cts.appName,
+      source: "ModelsPg",
+      rq: "rank",
+      mdId: md.id,
+      ix,
+      valType: lcPath.valType,
+      stats: lcPath.mdStats,
+      period: p
+    });
+    if (!rankOp) {
+      td.removeAll();
+      return;
+    }
+
+    :mdRk rank = rankOp!;
+    :arr Es = rank.Entries;
+    max = Es.reduce(0, \r, e -> return e > r ? e : r;);
+    min = Es.reduce(10000000, \r, e -> return e > 0 & e < r ? e : r;);
+    // \n -> s
+    color = mkFnColor(max, min);
+
+    iV = [-1];
+    td
+      .removeAll()
+      .add(Q("div")
+        .style("text-align:center")
+        .text(time.toIso(time.fromStr(rank.date)!)))
+      .add(arr.size(md.Pnames) == 1
+        ? Q("table")
+          .klass("border flat")
+          .adds(Es.map(\v -> {
+              iV! += 1;
+              i = iV!;
+              return Q("tr")
+                .add(Q("td")
+                  .style("padding:0px;" + dim1 + "background: " + color(v))
+                  .att(
+                      "title",
+                      md.paramFmt(i) + "\n" +
+                      math.toIso(v, 0)
+                  )
+                  .on("click", \e -> mkCharts(
+                      md, i, lcPath.valType, lcPath.mdStats, p
+                    );))
+              ;
+            }))
+        : Q("table")
+          .klass("border flat")
+          .adds(iter.map([0:cts.simulationSteps], \row -> return Q("tr")
+              .adds(iter.map([0:cts.simulationSteps], \col ->  {
+                  i = row * cts.simulationSteps + col;
+                  v = Es[i];
+                  return Q("td")
+                    .style("padding:0px;" + dim2  + "background: " + color(v))
+                    .att(
+                        "title",
+                        md.paramFmt(i) + "\n" +
+                        math.toIso(v, 0)
+                      )
+                    .on("click", \e -> mkCharts(
+                        md, i, lcPath.valType, lcPath.mdStats, p
+                      );)
+                  ;
+                }))
+            ;))
+        )
+    ;
+  };
+
+  PTds = [];
+  for (p = cts.Periods) {
+    Tds = [];
+    tb = p == "daily"
+      ? dailyWg
+      : p == "weekly"
+        ? weeklyWg
+        : monthlyWg
+    ;
+    if (isFive) {
+      for (i = 0:5) Tds.push(Q("td").add(ui.img("wait.gif")));
+      tb
+        .add(Q("tr")
+          .adds(Tds))
+      ;
+    } else {
+      for (i = 0:20) Tds.push(Q("td").add(ui.img("wait.gif")));
+      tb
+        .add(Q("tr")
+          .adds(Tds[:10]))
+        .add(Q("tr")
+          .adds(Tds[10:]))
+      ;
+    }
+    PTds.push(Tds);
+  }
+
+  plast = arr.size(cts.Periods) - 1;
+  upPeriod = \ip -> {
+    p = cts.Periods[ip];
+    arr.eachSync(
+      PTds[ip],
+      \i, td -> mkMap(td, p, i);,
+      \ -> if (ip < plast) upPeriod(ip + 1);
+    );
+  };
+  upPeriod(0);
+};
+
+// \<imodel>, n, s, s, n -> ()
+mkCharts = async \:imodel md, ix, valType, stats, period -> {
+  :arr Positions, :arr Profits : await client.send({
+    prg: cts.appName,
+    source: "ModelsPg",
+    rq: "history",
+    mdId: md.id,
+    ix,
+    valType,
+    stats,
+    period
+  });
+  if (Positions.size() < 2 | Positions.size() < 2) return;
+
+  :: ch1 = lineChart.mkExample();
+  ch1.chartPadding = lineChart.mkPadding(4, 4, 4, 4);
+  ch1.yAxis.parts = 1;
+  ch2 = lineChart.copy(ch1);
+
+  :: dt1 = lineChart.mkData(
+    Positions.map(\p -> return "";),
+    [Positions.map(\p -> return [-p];)],
+    [lineChart.mkLine(2, "#000000", false)]
+  );
+  dt1.round = 0;
+  dt1.drawGrid = \l, n -> return false;;
+  dt1.drawLabel = \l, n -> return false;;
+
+  :: dt2 = lineChart.mkData(
+    Profits.map(\p -> return "";),
+    [Profits.map(\p -> return [p];)],
+    [lineChart.mkLine(2, "#000000", false)]
+  );
+  dt2.round = 0;
+  dt2.drawGrid = \l, n -> return false;;
+  dt2.drawLabel = \l, n -> return false;;
+
+  chartsWg
+    .removeAll()
+    .add(Q("table")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:center")
+          .html("<big>" + md.paramFmt(ix) + "</big>")))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("hr"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:center")
+          .html(II("Positions"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(lineChart.mkWg(ch1, dt1))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:center")
+          .html(II("Profits"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(lineChart.mkWg(ch2, dt2))))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("button")
+            .text(II("Close"))
+            .on("click", \e -> modalBox.show(chartsBox, false);))))
+    )
+  ;
+
+  modalBox.show(chartsBox, true);
+};

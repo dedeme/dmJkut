@@ -1,0 +1,79 @@
+// Copyright 15-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Log snippets.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   textArea: Viewer.
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    "getLog": return {FN}({
+        Log: log.readJs()
+      });
+    "resetLog": {
+        log.reset();
+        return {FEMPTY};
+      }
+  """;
+
+  ktWebBt = Q("input")
+    .att("type", "radio")
+    .att("name", "unic")
+    .checked(true)
+  ;
+
+  kutPostBt = Q("input")
+    .att("type", "radio")
+    .att("name", "unic")
+    .checked(false)
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    fn, fempty = ktWebBt.isChecked()
+      ? ["rp.mkJs", "rp.mkEmpty()"]
+      : ["js.wo", '"{}"']
+    ;
+
+    textArea.text(tx
+      .replace("{FN}", fn)
+      .replace("{FEMPTY}", fempty)
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+
+  ktWebBt.on("change", \e -> update(););
+  kutPostBt.on("change", \e -> update(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(Q("p")
+      .add(ktWebBt)
+      .add(Q("span")
+        .text("KtWeb")))
+    .add(Q("p")
+      .add(kutPostBt)
+      .add(Q("span")
+        .text("KutPost")))
+    .add(Q("hr"))
+  ;
+
+  update();
+};

@@ -1,0 +1,125 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Empty page designer.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   textArea: Viewer.
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    // Copyright {DATE} ºDeme
+    // GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+    /// {OVERVIEW}
+
+    {I18N}{Q}{II}/// Constructor.
+    ///   wg: Container.
+    /// \<domo> -> ()
+    mk = \wg -> {
+
+      // Control -------------------------------------------------------------------
+
+      // View ----------------------------------------------------------------------
+
+      wg
+        .removeAll()
+      ;
+    };
+  """;
+
+  now = time.now();
+  month = now.toDate().toLocaleString("en-US", { month: "short" });
+  dateF = ui.field("overviewTA")
+    .value("")
+  ;
+
+  overviewTA = Q("textarea")
+    .att("id", "overviewTA")
+    .att("cols", 40)
+    .att("rows", 5)
+    .att("spellcheck", false)
+    .text("")
+  ;
+
+  i18nCh = Q("input")
+    .att("type", "checkbox")
+    .checked(true)
+  ;
+
+  qCh = Q("input")
+    .att("type", "checkbox")
+    .checked(true)
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    if (str.trim(dateF.getValue()) == "")
+      dateF.value(now.format("%D-" + month + "-%Y"));
+    if (str.trim(overviewTA.getValue()) == "")
+      overviewTA.value("Overview");
+
+    importTx = i18nCh.isChecked()
+      ? 'import "i18n";\n\n'
+      : ""
+    ;
+    qTx = qCh.isChecked()
+      ? "Q = ui.q;\n" + (i18nCh.isChecked() ? "" : "\n")
+      : ""
+    ;
+    iiTx = i18nCh.isChecked()
+      ? "II = i18n.tlt;\n\n"
+      : ""
+    ;
+    textArea.text(tx
+      .replace("{DATE}", str.trim(dateF.getValue()))
+      .replace("{OVERVIEW}", str.trim(overviewTA.getValue()))
+      .replace("{I18N}", importTx)
+      .replace("{Q}", qTx)
+      .replace("{II}", iiTx)
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+  dateF.on("change", \e -> update(););
+  dateF.on("focus", \ev -> ev.target.select(););
+  overviewTA.on("change", \e -> update(););
+  overviewTA.on("focus", \ev -> ev.target.select(););
+  i18nCh.on("change", \e -> update(););
+  qCh.on("change", \e -> update(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(ui.hrule(II("Date") + ":", 25))
+    .add(dateF)
+    .add(ui.hrule(II("Overview") + ":", 25))
+    .add(overviewTA)
+    .add(Q("hr"))
+    .add(Q("p")
+      .add(i18nCh)
+      .add(Q("span")
+        .text(II("Import i18n"))))
+    .add(Q("p")
+      .add(qCh)
+      .add(Q("span")
+        .text(II("Q definition"))))
+    .add(Q("hr"))
+  ;
+
+  update();
+};

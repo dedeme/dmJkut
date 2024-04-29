@@ -1,0 +1,62 @@
+// Copyright 07-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Main settings page
+
+import "libdm/menu";
+import "wgs/dmenu";
+import "nicks/nicksPg";
+import "acc/annsPg";
+import "calendar/calendarPg";
+import "serversPg";
+import "investorsPg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Contents maker.
+///   wg    : Container.
+///   dbmenu: Double menu.
+///   lcPath: Location path.
+/// \<domo>, <dmenu>, [s.] -> ()
+mk = \wg, :dmenu dbmenu, :arr LcPath -> {
+  if (!LcPath) LcPath.push("nicks");
+  target = "settings&" + switch (LcPath[0]) {
+      "settings", "calendar", "servers", "annotations", "investors":
+        LcPath[0];
+      default:
+        "nicks";
+    };
+
+  Lopts = [
+    dbmenu.mkHiddenButton(),
+    menu.separator2(),
+    menu.tlink("settings&nicks", II("Nicks")),
+    menu.separator(),
+    menu.tlink("settings&servers", II("Servers")),
+    menu.separator2(),
+    menu.tlink("settings&annotations", II("Annotations")),
+    menu.separator2(),
+    menu.tlink("settings&investors", II("Investors"))
+  ];
+
+  Ropts = [
+    menu.tlink("settings&calendar", II("Calendar"))
+  ];
+
+  dbmenu.setDownMenu(menu.mk(Lopts, Ropts, target));
+
+  switch (target) {
+    "settings&servers":
+      serversPg.mk(wg, "");
+    "settings&annotations":
+      annsPg.mk(wg, "");
+    "settings&investors":
+      investorsPg.mk(wg);
+    "settings&calendar":
+      calendarPg.mk(wg);
+    default:
+      nicksPg.mk(wg);
+  }
+};

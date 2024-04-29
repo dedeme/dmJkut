@@ -1,0 +1,317 @@
+// Copyright 31-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Results page
+
+import "libdm/vmenu";
+import "data/model";
+import "data/evE";
+import "data/upRs";
+import "fns";
+import "global";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Order types
+oP0, oP1, oPon, oReal, oAcc, oProf, oSales =;
+
+/// Constructor.
+///   wg: Container.
+/// \<domo> -> ()
+mk = async \wg -> {
+  :arr Url = ui.url();
+  mdV = [
+    Url.size() > 1 & fns.existsModel(Url[1])
+      ? fns.getModel(Url[1])
+      : fns.getModel(cts.mainModel)
+  ];
+  :model md = mdV!;
+
+  // [<evE>.]
+  , :arr MdEvals : await client.send({
+    prg: cts.appName,
+    source: "ResultsPg",
+    rq: "idata",
+    mdId: md.id
+  });
+
+  MdIxEvs = [];
+  for (i, ev = MdEvals) MdIxEvs.push([i, ev]);
+
+  orderV = [oPon];
+
+  showV = [[]];
+  cavgRd = Q("input")
+    .att("type", "radio")
+    .att("name", "source")
+    .checked(true)
+    .on("change", \e -> showV!();)
+  ;
+  lastRd = Q("input")
+    .att("type", "radio")
+    .att("name", "source")
+    .checked(false)
+    .on("change", \e -> showV!();)
+  ;
+  avgRd = Q("input")
+    .att("type", "radio")
+    .att("name", "source")
+    .checked(false)
+    .on("change", \e -> showV!();)
+  ;
+  devRd = Q("input")
+    .att("type", "radio")
+    .att("name", "source")
+    .checked(false)
+    .on("change", \e -> showV!();)
+  ;
+  allChk = Q("input")
+    .att("type", "checkbox")
+    .checked(false)
+    .on("change", \e -> showV!();)
+  ;
+  percentChk = Q("input")
+    .att("type", "checkbox")
+    .checked(false)
+    .on("change", \e -> showV!();)
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  changeModel = \mdId -> window.location.assign("?results&" + mdId);;
+
+  // \i -> ()
+  changeOrder = \order -> {
+    orderV! = order;
+    showV!();
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \<domo>, s -> <menuEntry>
+  mkOpt = \wg, html -> return Q("td")
+    .add(Q("table")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(wg))
+        .add(Q("td")
+          .html(html))))
+  ;;
+
+  // \n, html -> <domo>
+  mkTh = \id, html -> return Q("td")
+    .klass("rhead")
+    .add(orderV! == id
+      ? Q("div")
+          .klass("frame")
+          .html(html)
+      : ui.link(\e -> changeOrder(id);)
+          .klass("link")
+          .html(html))
+  ;;
+
+  // \n, n, <upRs> -> <domo>
+  mkRow = \i, pIx, :upRs rs -> {
+    :model md = mdV!;
+    isPerc = percentChk.isChecked();
+
+    parTds = [
+      Q("td")
+        .klass("rframe")
+        .text(fns.pfmt1(md.ParamTypes[0], fns.ixToParams(md, pIx)[0]))
+    ];
+    if (arr.size(md.ParamTypes) > 1)
+      parTds.push(Q("td")
+        .klass("rframe")
+        .text(fns.pfmt1(md.ParamTypes[1], fns.ixToParams(md, pIx)[1]))
+      );
+
+    return Q("tr")
+      .add(Q("td")
+        .add(Q("a")
+          .att("href", "?charts&" + md.id + "&" + pIx)
+          .add(ui.img("see"))))
+      .add(Q("td").klass("rframe").style("opacity:0.4").text(i))
+      .add(Q("td").klass("chead"))
+      .adds(parTds)
+      .add(Q("td").klass("chead"))
+      .add(Q("td").klass("rframe").text(devRd.isChecked()
+          ? fns.nfmt(rs.pon * 100, 2)
+          : isPerc
+            ? fns.nfmt(rs.pon, 4)
+            : fns.nfmt(rs.pon * 1000, 0)
+        ))
+      .add(Q("td").klass("rframe").text(devRd.isChecked()
+          ? fns.nfmt(rs.real * 100, 2)
+          : isPerc
+            ? fns.nfmt(rs.real, 4)
+            : fns.nfmt(rs.real * global.initialCapitalV, 0)
+        ))
+      .add(Q("td").klass("rframe").text(devRd.isChecked()
+          ? fns.nfmt(rs.acc * 100, 2)
+          : isPerc
+            ? fns.nfmt(rs.acc, 4)
+            : fns.nfmt(rs.acc * global.initialCapitalV, 0)
+        ))
+      .add(Q("td").klass("rframe").text(devRd.isChecked()
+          ? fns.nfmt(rs.prof * 100, 2)
+          : isPerc
+            ? fns.nfmt(rs.prof, 4)
+            : fns.nfmt((rs.prof - 1) * 100, 2) + "%"
+        ))
+      .add(Q("td").klass("rframe").text(devRd.isChecked()
+          ? "***"
+          : isPerc
+            ? "***"
+            : fns.nfmt(rs.sales, 0)
+        ))
+    ;
+  };
+
+  // \ -> ()
+  showV! = \ -> {
+    menuWg = Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("frame")
+          .add(Q("table")
+            .add(Q("tr")
+              .add(mkOpt(cavgRd, II("Corrected<br>Average")))
+              .add(mkOpt(lastRd, II("Last<br>Value")))
+              .add(mkOpt(avgRd, II("Average")))
+              .add(mkOpt(devRd, II("Deviation<br>%")))
+            )))
+         .add(mkOpt(allChk, II("All<br>Data"))
+          .klass("frame"))
+         .add(mkOpt(percentChk, "%")
+          .klass("frame")))
+    ;
+
+    :model md = mdV!;
+
+    Ops = [
+      vmenu.title(II("Models")),
+      vmenu.separator()
+    ];
+    for (:model md = global.Models)
+      Ops.push(vmenu.option(md.id, md.id, \ -> changeModel(md.id);));
+    vmenuWg = vmenu.mk(Ops, md.id);
+
+    MdIxEvs2 = arr.copy(MdIxEvs);
+    if (!allChk.isChecked()) {
+      MdIxEvs2.filterIn(
+        \E -> return E[1][evE.avg][upRs.sales] >= global.minSalesV!;
+      );
+    }
+
+    :arr RowData = cavgRd.isChecked()
+      ? MdIxEvs2.map(\E -> return [E[0], E[1][evE.crr]];)
+      : lastRd.isChecked()
+        ? MdIxEvs2.map(\E -> return [E[0], E[1][evE.last]];)
+        : avgRd.isChecked()
+          ? MdIxEvs2.map(\E -> return [E[0], E[1][evE.avg]];)
+          : MdIxEvs2.map(\E -> return [E[0], E[1][evE.dev]];)
+    ;
+
+    RowData.sort(\E1, E2 -> return switch(orderV!) {
+      oP0: fns.ixToParams(md, E1[0])[0] < fns.ixToParams(md, E2[0])[0];
+      oP1: fns.ixToParams(md, E1[0])[1] < fns.ixToParams(md, E2[0])[1];
+      oPon: E1[1][upRs.pon] > E2[1][upRs.pon];
+      oReal: E1[1][upRs.real] > E2[1][upRs.real];
+      oAcc: E1[1][upRs.acc] > E2[1][upRs.acc];
+      oProf: E1[1][upRs.prof] > E2[1][upRs.prof];
+      default: E1[1][upRs.sales] < E2[1][upRs.sales];
+    };);
+
+    headTds = [
+      Q("td").klass("chead"),
+      mkTh(oPon, II("Points")).style("width:80px"),
+      mkTh(oReal, II("Real")).style("width:80px"),
+      mkTh(oAcc, II("Acc.")).style("width:80px"),
+      mkTh(oProf, II("Prof.")).style("width:80px"),
+      mkTh(oSales, II("Sales")).style("width:50px")
+    ];
+    if (arr.size(md.ParamNames) > 1)
+      headTds.unshift(mkTh(oP1, md.ParamNames[1]));
+    headTds.unshift(mkTh(oP0, md.ParamNames[0]));
+    headTds.unshift(Q("td").klass("chead"));
+    headTds.unshift(Q("td").klass("chead").text(II("N.")));
+    headTds.unshift(Q("td"));
+
+    Rows = [];
+    for (i, E = RowData)
+      Rows.push(mkRow(i, E[0], E[1]));
+
+    wg
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("vertical-align:top; width:5px")
+            .add(vmenuWg))
+          .add(Q("td")
+            .style("vertical-align:top")
+            .add(menuWg)
+            .add(Q("hr"))
+            .add(Q("div")
+              .klass("head")
+              .text(md.name))
+            .add(Q("div").klass("separator"))
+            .add(Q("table")
+              .att("align", "center")
+              .klass("flat")
+              .add(Q("tr")
+                .add(Q("td"))
+                .adds(arr.map(md.ParamNames, \n -> return Q("td")
+                    .klass("rhead")
+                    .text(n)
+                  ;)))
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Base") + ":"))
+                .adds(iter.map(
+                  [0:arr.size(md.ParamNames)],
+                  \i -> return Q("td")
+                    .klass("rframe")
+                    .text(fns.pfmt1(md.ParamTypes[i], global.ParamBases[md.id][i]))
+                  ;)))
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Base Increment") + ":"))
+                .adds(iter.map(
+                  [0:arr.size(md.ParamNames)],
+                  \i -> return Q("td")
+                    .klass("rframe")
+                    .text(fns.pfmt1(md.ParamTypes[i], global.ParamBaseIncs[md.id][i]))
+                  ;)))
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rhead")
+                  .text(II("Environment Increment") + ":"))
+                .adds(iter.map(
+                  [0:arr.size(md.ParamNames)],
+                  \i -> return Q("td")
+                    .klass("rframe")
+                    .text(fns.pfmt1(md.ParamTypes[i], global.ParamEnvIncs[md.id][i]))
+                  ;))))
+            .add(Q("div").klass("separator"))
+            .add(Q("table")
+              .att("align", "center")
+              .klass("flat")
+              .add(Q("tr")
+                .adds(headTds))
+              .adds(Rows)
+            ))))
+    ;
+  };
+
+  showV!();
+};

@@ -1,0 +1,178 @@
+// Copyright 14-Dic-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Global data page.
+
+import "libdm/vmenu";
+import "data/lcMenu";
+import "data/imodel";
+import "data/rkRow";
+import "data/rk";
+import "data/rkEntry";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+initialCapitalV = [0];
+
+/// \<domo>, <lcMenu> -> ()
+mk = async \wg, :lcMenu lcPath -> {
+  // \s, s -> <menuEntry>
+  mkOpt = \id, text, info -> {
+    lcP = lcPath.copy();
+    lcP.setStats(id);
+    return vmenu.mkEntry(
+      [id],
+      Q("a")
+        .att("href", lcP.toUrl())
+        .att("title", info)
+        .text(text),
+      Q("span").style("font-style: italic;").att("title", info).text(text)
+    );
+  };
+
+  Opts = [
+    mkOpt("price", II("Price"),
+      II("Price")),
+    mkOpt("average", II("Average"),
+      II("Average")),
+    mkOpt("crrAverage", II("Cr. Avg."),
+      II("Corrected average")),
+    vmenu.separator(),
+    mkOpt("deviation", II("Dev."),
+      II("Deviation"))
+  ];
+
+  vmenuWg = vmenu.mk(Opts, lcPath.stats);
+
+  dailyWg = Q("table").klass("border flat");
+  weeklyWg = Q("table").klass("border flat");
+  monthlyWg = Q("table").klass("border flat");
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:5px;vertical-align:top")
+          .add(vmenuWg))
+        .add(Q("td")
+          .add(Q("table")
+            .klass("main")
+            .add(Q("tr")
+              .add(Q("td")
+                .style("text-align:left")
+                .text(II("Daily"))))
+            .add(Q("tr")
+              .add(Q("td")
+                .add(dailyWg)))
+            .add(Q("tr")
+              .add(Q("td")
+                .add(Q("hr"))))
+            .add(Q("tr")
+              .add(Q("td")
+                .style("text-align:left")
+                .text(II("Weekly"))))
+            .add(Q("tr")
+              .add(Q("td")
+                .add(weeklyWg)))
+            .add(Q("tr")
+              .add(Q("td")
+                .add(Q("hr"))))
+            .add(Q("tr")
+              .add(Q("td")
+                .style("text-align:left")
+                .text(II("Monthly"))))
+            .add(Q("tr")
+              .add(Q("td")
+                .add(monthlyWg)))))))
+  ;
+
+  initialCapital, :arr All, :arr Models : await client.send({
+    prg: cts.appName,
+    source: "GlobalPg",
+    rq: "idata",
+    type: lcPath.valType,
+    stats: lcPath.stats
+  });
+
+  initialCapitalV! = initialCapital;
+  isDeviation = lcPath.stats == "deviation";
+  hRankWg(dailyWg, All[0], Models, isDeviation);
+  hRankWg(weeklyWg, All[1], Models, isDeviation);
+  hRankWg(monthlyWg, All[2], Models, isDeviation);
+};
+
+// \<domo>, <rkRow>, [<imodel>.], b -> ()
+hRankWg = \table, :rkRow rkr, :arr Models, isDeviation -> {
+  :arr Ranks = rkr.Ranks;
+  Ranks.sort(\:rk r1, :rk r2 -> return r1.date > r2.date;);
+  table
+    .removeAll()
+    .add(Q("tr")
+      .adds(Ranks.map(\:rk r -> return rankWg(r, Models, isDeviation);)))
+  ;
+};
+
+// \<rk>, [<imodel>.], b -> <domo>
+rankWg = \:rk rank, Models, isDeviation -> {
+  :arr Es = rank.Entries;
+  Es.sort(\:rkEntry E1, :rkEntry E2 ->
+    return E1.val == E2.val
+      ? E1.id < E2.id
+      : !E1.val
+        ? false
+        : !E2.val
+          ? true
+          : isDeviation
+            ? E1.val! < E2.val!
+            : E1.val! > E2.val!
+    ;
+  );
+  return Q("td")
+    .add(Q("table")
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 3)
+          .klass("chead")
+          .text(time.toIso(time.fromStr(rank.date)!))))
+      .adds(Es.map(\E -> return entryWg(E, Models, isDeviation);)))
+  ;
+};
+
+// \<rkEntry>, [<imodel>.], b -> <domo>
+entryWg = \:rkEntry e, :arr Models, isDeviation -> {
+  :imodel md = Models.find(\:imodel m -> return m.id == e.id;)!;
+  return !e.val
+    ? Q("tr")
+      .add(Q("td")
+        .klass("lframe")
+        .text(e.id))
+      .add(Q("td")
+        .att("colspan", 2)
+        .klass("cframe")
+        .att("title", "See log")
+        .text("***"))
+    : Q("tr")
+      .add(Q("td")
+        .klass("lframe")
+        .text(e.id))
+      .add(Q("td")
+        .klass("rframe")
+        .att("title", md.paramFmt(e.ix))
+        .text(e.ix))
+      .add(Q("td")
+        .klass("rframe")
+        .att("title", isDeviation
+            ? math.toIso(e.val! / 100, 2) + "%"
+            : "€ -> " + math.toIso(
+                (e.val! - initialCapitalV!) * 100 / initialCapitalV!, 2
+              ) + "%"
+          )
+        .text(math.toIso(e.val!, 0)))
+  ;
+};
+

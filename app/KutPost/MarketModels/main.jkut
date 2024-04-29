@@ -1,0 +1,140 @@
+// Copyright 16-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "data/lcMenu";
+import "pgs/msgPg";
+import "pgs/modelsPg";
+import "pgs/logPg";
+import "pgs/globalPg";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("Session is closed.\nAuthenticating from KutPost."));
+    window.location.assign("http://" + window.location.host + "/KutPost/KutPost");
+    return;
+  }
+
+  // Sessions control is in "Main" !!!
+  , lang : await client.send({
+    prg: "KutPost", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (lang == "en") i18n.en();
+
+  lcPath = lcMenu.fromUrl(window.location.search[1:]);
+
+  // View ----------------------------------------------------------------------
+
+  type = lcPath.valType;
+  page = lcPath.mainPg;
+
+  switch (type) {
+    "accs": Q("@body").setStyle("background-color", "#e4e5f1");
+    "refs": Q("@body").setStyle("background-color", "#f2f1e5");
+    default: Q("@body").setStyle("background-color", "#f0f1f2");
+  }
+
+  :lcMenu lcTmp = lcPath.copy();
+  lcTmp.setValType("prices");
+  prUrl = lcTmp.toUrl();
+  lcTmp.setValType("accs");
+  acUrl = lcTmp.toUrl();
+  lcTmp.setValType("refs");
+  rfUrl = lcTmp.toUrl();
+
+  menuWg = menu.mk(
+    [ menu.tlink(type + "&global", II("Global")),
+      menu.separator(),
+      menu.tlink(type + "&models", II("Models"))
+    ],
+    [ menu.mkEntry(
+        [],
+        type == "prices"
+          ? Q("span")
+            .html(" &#x2B22; ")
+          : Q("a")
+            .att("href", prUrl)
+            .html(" &#x2B21; ")
+        ),
+      menu.mkEntry([], Q("span").text(II("Prices"))),
+      menu.separator(),
+      menu.mkEntry(
+        [],
+        type == "accs"
+          ? Q("span")
+            .html(" &#x2B22; ")
+          : Q("a")
+            .att("href", acUrl)
+            .html(" &#x2B21; ")
+        ),
+      menu.mkEntry([], Q("span").text(II("Acc."))),
+      menu.separator(),
+      menu.mkEntry(
+        [],
+        type == "refs"
+          ? Q("span")
+            .html(" &#x2B22; ")
+          : Q("a")
+            .att("href", rfUrl)
+            .html(" &#x2B21; ")
+        ),
+      menu.mkEntry([], Q("span").text(II("Refs."))),
+
+      menu.separator2(),
+      menu.tlink(type + "&log", II("Log"))
+    ],
+    type + "&" + page
+  );
+
+  body = Q("div");
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+  ;
+
+  switch (page) {
+    "models": modelsPg.mk(body, lcPath);
+    "log": logPg.mk(body);
+    default: globalPg.mk(body, lcPath);
+  }
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KutPost", \isExpired -> {
+  msg = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
+  msgWg = Q("div");
+  msgPg.mk(msgWg, msg, true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+;
+
+mk(wg);

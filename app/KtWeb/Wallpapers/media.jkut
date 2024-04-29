@@ -1,0 +1,165 @@
+// Copyright 26-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Functions to media management.
+
+import "wgs/info";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// CONSTANTS
+
+/// Screen width.
+/// n
+screenWidth = window.screen.width;
+/// Screen height.
+/// n
+screenHeight = window.screen.height;
+/// Pictures width
+/// n
+picturesWidth = 1920;
+/// Pictures height
+/// n
+picturesHeight = 1080;
+/// height / width proportion
+/// n
+picturesProportion = 0.5625;
+/// Time to access server in Pictures page (milliseconds)
+/// n
+picturesTime = 15000;
+/// Sound volume
+/// n
+volume = 0.5;
+/// Time to access server to update lapse in songs page (milliseconds)
+/// n
+songsTime = 5000;
+/// Time of fade out in dance (milliseconds)
+/// n
+fadeOutSongEnd = 12000.0; // 12''
+/// Time of fade out in dance (milliseconds)
+/// n
+fadeOutDanceTime = 300000.0; // 5'
+
+// FUNCTIONS
+
+/// Calculate values to adapt pictures to screens.
+/// \ -> {n, n, n, n} :: {w, h, leftPadding, topPadding}
+redimPicture = \ -> {
+  prop =  screenHeight / screenWidth;
+  if (screenWidth == picturesWidth & screenHeight == picturesWidth) {
+    return {
+        w: picturesWidth,
+        h: picturesHeight,
+        leftPadding: 0,
+        topPadding: 0
+      };
+  } else if (prop < picturesProportion) {
+    w2 = math.toInt(picturesWidth * screenHeight / picturesHeight);
+    return {
+        w: w2,
+        h: screenHeight,
+        leftPadding: math.toInt((screenWidth - w2) / 2),
+        topPadding: 0
+      };
+  } else {
+    h2 = math.toInt(picturesHeight * screenWidth / picturesWidth);
+    return {
+        w: screenWidth,
+        h: h2,
+        leftPadding: 0,
+        topPadding: math.toInt((screenHeight - h2) / 2)
+      };
+  }
+};
+
+/// Returns visual elements
+/// \ -> {<domo>, <domo>, <domo>} :: {div, img, tm}
+visuals = \ -> {
+  redim = redimPicture();
+
+  img = Q("img")
+    .style(
+      "width:" + redim.w +"px;" +
+      "height:" + redim.h + "px;" +
+      "padding-top:" + redim.topPadding + "px;" +
+      "padding-left:" + redim.leftPadding + "px;" +
+      "z-index:1;" +
+      "transition: opacity 5s linear;"
+    )
+  ;
+
+  tm = Q("div")
+    .style(
+      "z-index:2;" +
+      "position:relative;" +
+      "top:-250px;" +
+      "left:0px;"
+    )
+  ;
+
+  div = Q("div")
+    .style(
+      "width:" + screenWidth +"px;" +
+      "height:" + screenHeight + "px;" +
+      "background-position: " +
+        "top " + redim.topPadding + "px " +
+        "right " + redim.leftPadding + "px;" +
+      "background-repeat: no-repeat;" +
+      "background-size:" + redim.w + "px " + redim.h + "px;"
+    )
+    .add(img)
+    .add(tm)
+  ;
+
+  return {div, img, tm};
+};
+
+/// Change picture in display.
+///   div  : Container of 'img'.
+///   img  : Widget that show pictures.
+///   Info : 'img' data.
+///   group: Group of the new picture to show.
+///   Pict : New picture to show.
+/// \<domo>, <domo>, <info>, s, <pict> -> ()
+changePict  = \div, img, Info, group, Pict -> {
+  url = "img/fondosEscritorio/" + group + "/" + Pict.id;
+  div
+    .setStyle(
+      "background-image",
+      "url('" + url + "')"
+    );
+  timer.delay(2000, \ -> {
+    img
+      .setStyle("opacity", "0")
+    ;
+    timer.delay(8000, \ -> {
+      Info.changeContent(info.pictureWg(group, Pict));
+      img
+        .att("src", url)
+        .setStyle("opacity", "1")
+      ;
+    });
+  });
+};
+
+/// Fades out audio
+/// \b, <audio>, n -> ()
+fadeOut = \withSignal, audio, millis -> {
+  fadeSec = millis / 1000;
+  volV = [audio.volume];
+  if (withSignal) volV! /= 3;
+  audio.volume = volV!;
+  delta = volV! / (fadeSec * 10);
+  tm2 = timer.mk(100);
+  timer.run(tm2, \ -> {
+    volV! -= delta;
+    if (volV! <= 0) {
+      audio.volume = 0;
+      timer.stop(tm2);
+      return;
+    }
+    audio.volume = volV!;
+  });
+};

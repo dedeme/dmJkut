@@ -1,0 +1,15 @@
+// Copyright 28-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Song data.
+
+/// Constructor.
+///   level : Song level (1, 2, o 3).
+///   sights: Number of sights in normal mode.
+///   lapse : Song lapse played (0-100).
+///   id    : Song name.
+/// \n, n, n, s -> <song>
+mk = \level, sights, lapse, id -> return {level, sights, lapse, id};;
+
+/// \JS -> <song>
+fromJs = \A -> return mk(A[0], A[1], A[2], A[3]);;

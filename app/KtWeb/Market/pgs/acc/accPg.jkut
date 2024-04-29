@@ -1,0 +1,58 @@
+// Copyright 15-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Accounting information, main page.
+
+import "libdm/menu";
+import "wgs/dmenu";
+import "i18n";
+import "companiesPg";
+import "balancePg";
+import "tradingPg";
+import "profitsPg";
+import "ibexPg";
+import "speedometers";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Contents maker.
+///   wg    : Container.
+///   dbMenu : Double menu.
+///   lcPath: Location path.
+/// \<domo>, <dmenu>, [s...] -> ()
+mk = \wg, dbMenu, LcPath -> {
+  mSel = !LcPath ? "profits" : LcPath[0];
+
+  // Control -------------------------------------------------------------------
+
+  // View ----------------------------------------------------------------------
+
+  Lopts = [
+    dmenu.mkHiddenButton(dbMenu),
+    menu.separator2(),
+    menu.tlink("acc&companies", II("Companies")),
+    menu.separator(),
+    menu.tlink("acc&balance", II("Balance")),
+    menu.separator(),
+    menu.tlink("acc&trading", II("Trading")),
+    menu.separator(),
+    menu.tlink("acc&profits", II("Profits")),
+    menu.separator2(),
+    menu.tlink("acc&ibex", "Ibex"),
+    menu.separator(),
+    menu.tlink("acc&speedometers", II("Speedometers"))
+  ];
+  dmenu.setDownMenu(dbMenu, menu.mk(Lopts, [], "acc&" + mSel));
+
+  switch (mSel) {
+    "companies": companiesPg.mk(wg);
+    "balance": balancePg.mk(wg);
+    "trading": tradingPg.mk(wg);
+    "profits": profitsPg.mk(wg);
+    "ibex": ibexPg.mk(wg);
+    "speedometers": speedometers.mk(wg);
+    default: balancePg.mk(wg); // profitsPg.mk(wg);
+  }
+};
+

@@ -1,0 +1,237 @@
+// Copyright 29-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Summary page
+
+import "libdm/log";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+wgV = [[]];
+dirsDiv = Q("div");
+filesDiv = Q("div");
+bkDiv = Q("div");
+logDiv = Q("div");
+
+// Control ---------------------------------------------------------------------
+
+showLog = \ -> {
+  // \(\[<logRow>.]->()) -> ()
+  load = async \fn -> {
+    , :arr Log : await client.send({
+      prg: cts.appName,
+      source: "SummaryPg",
+      rq: "getLog"
+    });
+    fn(Log);
+  };
+
+  // \(\->()) -> ()
+  reset = async \fn -> {
+    await client.send({
+      prg: cts.appName,
+      source: "SummaryPg",
+      rq: "resetLog"
+    });
+    fn();
+  };
+
+  // \s -> s
+  tlt = \tx -> return switch (tx) {
+    "All log entries will be deleted.\nContinue?":
+      II("All log entries will be deleted.\nContinue?");
+    "2 Days": II("2 Days");
+    "All": II("All");
+    "Reload": II("Reload");
+    "Delete": II("Delete");
+    "Errors": II("Errors");
+    "Log": II("Log");
+    default: tx;
+  };;
+
+  log.mk(logDiv, load, reset, tlt, true, 100, 25);
+};
+
+// \ -> ()
+updateDirs = async \ -> {
+  dirsDiv
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .text(II("Directories")))
+  ;
+
+  isBusy, pools, badPools, dirs, badDirs // b,n,n,n,n
+  : await client.send({
+    prg: cts.appName,
+    source: "SummaryPg",
+    rq: "dirs"
+  });
+
+  if (isBusy) {
+    dirsDiv
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frame")
+            .text(II("Server is busy.")))))
+    ;
+    return;
+  }
+
+  dirsDiv
+    .add(Q("table")
+      .att("align", "center")
+      .klass("white")
+      .add(mkTr(II("Pools"), -1, pools))
+      .add(mkTr(II("Pools in bad condition"), badPools, -1))
+      .add(mkTr(II("Directories"), -1, dirs))
+      .add(mkTr(II("Directories in bad condition"), badDirs, -1)))
+  ;
+};
+
+// \b, b -> ()
+updateFiles = async \read, up -> {
+  filesDiv
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .text(II("Files")))
+  ;
+
+  if (!read) {
+    filesDiv
+      .add(Q("div")
+        .style("text-align: center")
+        .add(Q("button")
+          .text(II("Test"))
+          .on("click", async \e -> {
+            await updateDirs();
+            await updateFiles(true, false);
+            await update(false);
+            showLog();
+          })))
+    ;
+    return;
+  }
+
+  body = Q("div")
+    .style("text-align: center")
+    .add(ui.img("wait.gif"))
+  ;
+  filesDiv.add(body);
+
+  isBusy, files, outdatedDirs, outdatedFiles // b,n,n,n
+  : await client.send({
+    prg: cts.appName,
+    source: "SummaryPg",
+    rq: "files"
+  });
+
+  if (isBusy) {
+    body
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frame")
+            .text(II("Server is busy.")))))
+    ;
+    return;
+  }
+
+  body
+    .removeAll()
+    .style("text-align: center")
+    .add(Q("table")
+      .att("align", "center")
+      .klass("white")
+      .add(mkTr(II("Files"), -1, files))
+      .add(mkTr(II("Directories out of data"), outdatedDirs, -1))
+      .add(mkTr(II("Files out of data"), outdatedFiles, -1)))
+    .add(Q("div")
+      .style("height:10px"))
+    .add(Q("button")
+      .text(II("Update"))
+      .on("click", \e -> {
+        Q(e.target).disabled(true);
+        update(true);
+      }))
+  ;
+};
+
+// \b -> ()
+update = async \read -> {
+  bkDiv.removeAll();
+
+  if (!read) return;
+
+  bkDiv
+    .style("text-align: center; padding-top: 10px")
+    .add(ui.img("wait.gif"))
+  ;
+
+  await client.send({
+    prg: cts.appName,
+    source: "SummaryPg",
+    rq: "update"
+  });
+
+  tm = timer.mk(1000);
+  await timer.run(tm, async \ -> {
+    , isBusy : await client.send({
+      prg: cts.appName,
+      source: "SummaryPg",
+      rq: "isBusy"
+    });
+    if (!isBusy) timer.stop(tm);
+  });
+
+  await update(false);
+  await updateDirs();
+  await updateFiles(true, false);
+  showLog();
+};
+
+// View ------------------------------------------------------------------------
+
+// \s, n, n -> <domo>
+mkTr = \title, n1, n2 -> {
+  tab = n1 < 0 ? "" : "&nbsp;&nbsp;&nbsp;&nbsp;";
+  return Q("tr")
+    .add(Q("td")
+      .klass("entry")
+      .html(tab + title))
+    .add(Q("td")
+      .klass("number2")
+      .text(n1 >= 0 ? "" + n1 : ""))
+    .add(Q("td")
+      .klass("number2")
+      .text(n2 >= 0 ? "" + n2 : ""))
+  ;
+};
+
+// \ -> ()
+show = \ -> {
+  wgV!
+    .removeAll()
+    .add(dirsDiv)
+    .add(filesDiv)
+    .add(bkDiv)
+    .add(logDiv)
+  ;
+
+  updateDirs();
+  updateFiles(false, false);
+  showLog();
+};
+
+/// \<domo> -> ()
+mk = \wg -> {
+  wgV! = wg;
+  show();
+};

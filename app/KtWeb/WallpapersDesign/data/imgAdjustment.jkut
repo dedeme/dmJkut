@@ -1,0 +1,25 @@
+// Copyright 22-Dic-2022 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Image 'adjustment' data
+
+/// Creates new 'adjustment' parameters.
+///   type: Adjustment type. One of "cut", "background" or "stretch".
+///   Params: Parameters which meaning depends on type.
+///           For "cut":
+///             - Top value (pixels).
+///            For "background":
+///              - Background color in format RGB.
+///              - Ratio of blurriness. Value between 0 and 100 (both inclusive).
+///              - Ratio of light. Value between 0 and 100 (both inclusive).
+///            For "stretch":
+///              - Pixels between 1 and 100 (both inclusive).
+/// \s, [n...] -> d<imgAdjustment>
+mk = \type, Params -> return {type, Params};;
+
+/// \<imgAdjustment> -> [*(JS)...]
+toJs = \IA -> return [IA.type, IA.Params];;
+
+/// \[*(JS)...] -> <imgAdjustment>
+fromJs = \A -> return mk(A[0], A[1]);;
+

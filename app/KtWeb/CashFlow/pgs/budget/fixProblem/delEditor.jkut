@@ -1,0 +1,97 @@
+// Copyright 04-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Annotation delete editor
+
+import "data/diary";
+import "data/diaryEntry";
+import "data/dann";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   Entry: Diary entry.
+///   fnOk : Function to run when a valid entry is accepted.
+/// \<domo>, <diaryEntry>, (\->()) ->
+///   {active: \b -> ()}
+mk = \wg, :diaryEntry entry, fnOk -> {
+trace entry;
+  am = entry.am;
+  :arr Anns = entry.Anns;
+
+  activatedV = [false];
+
+  showV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \b -> ()
+  active = \value -> {
+    activatedV! = value;
+    showV!();
+  };
+
+  // \<event> -> ()
+  ok = \ev -> {
+    sumV = [0];
+    ixV = [1];
+    for (:dann a = Anns) {
+      if (a.id == "") {
+        ui.alert(i18n.fmt(
+          II("Account of annotation '%0' is missing"), ["" +ixV!]
+        ));
+        return;
+      }
+      sumV! += a.am;
+      ixV! += 1;
+    }
+
+    if (!math.eq(sumV!, am, 0.0001)) {
+      ui.alert(i18n.fmt(
+        II("Sum of annotations (%0) does not match the cash value (%1)"),
+        [math.toIso(sumV!, 2), math.toIso(am, 2)]
+      ));
+      return;
+    }
+
+    fnOk();
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> ()
+  showV! = \ -> {
+    wg.removeAll();
+    if (!activatedV!) return;
+
+    wg
+      .add(Q("table")
+      .klass("main")
+      .adds(Anns.map(\:dann a -> return Q("tr")
+            .add(Q("td")
+              .klass("frameTx")
+              .text(a.id == "" ? "---" : a.id))
+            .add(Q("td")
+              .klass("frameNm")
+              .text(math.toIso(a.am, 2)))
+        ;))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", "3")
+          .add(Q("hr"))))
+      .add(Q("tr")
+        .add(Q("td"))
+        .add(Q("td"))
+        .add(Q("td")
+          .style("text-align: right")
+          .add(ui.link(ok).add(ui.img("ok"))))))
+    ;
+  };
+
+  showV!();
+
+  return {active};
+};

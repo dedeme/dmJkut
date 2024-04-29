@@ -1,0 +1,284 @@
+// Copyright 26-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Year data.
+
+import "cts";
+import "ann";
+import "report";
+import "rann";
+import "rsumm";
+import "i18n";
+
+II = i18n.tlt;
+
+//  Private constructor.
+//    nxId: Next annotation identifier.
+//    As  : Sorted year annotations.
+//    rpRs: Year 2 reports or error message (Result).
+//          - reports[0] is with fees.
+//          - reports[1] is without fees.
+//  \n,[<ann>.],[[<report>.]|s, b] -> <year>
+mk0 : nxId, As, RpsRs;
+
+//  Constructor.
+//    nextId: Next annotation identifier.
+//    Anns  : Year annotations. They will be sorted by date, from before to
+//            after, and in the same date first 'buy' and then 'sale'.
+//  \n, [<ann>.] -> x<year>
+mk = \nextId, :arr Anns -> {
+  Anns.sort(\:ann a1, :ann a2 -> return a1.date == a2.date
+    ? a1.isSell == a2.isSell
+      ? a1.nick > a2.nick
+      : !a1.isSell
+    : a1.date < a2.date
+  ;);
+
+  // \s -> x<year>
+  mkError = \msg -> return {nextId, anns: Anns, reports: [msg, false]};;
+
+  // Check errors --------------------------------------------------------------
+
+  Pf = {}; // {n}
+  for (:ann a = Anns) {
+      id = a.nick;
+      if (a.isSell) {
+        sOp = dic.get(Pf, id);
+        if (!!sOp) {
+          s = sOp!;
+          if (s < a.stocks)
+            return mkError(i18n.fmt(
+              II("%0\nStock for sale (%1) > Stocks in portfolio (%2)"),
+              [ann.toStr(a), "" + a.stocks, "" + s]
+            ));
+          Pf[id] = s - a.stocks;
+        } else {
+          return mkError(i18n.fmt(
+            II("%0\nNick %1 is unknown"), [ann.toStr(a), a.nick]
+          ));
+        }
+      } else {
+        sOp = dic.get(Pf, id);
+        if (!sOp) dic.put(Pf, id, a.stocks);
+        else Pf[id] = sOp! + a.stocks;
+      }
+  }
+
+  // Reports -------------------------------------------------------------------
+  // Two reports are made:
+  //    0: With Fees
+  //    1: Without fees.
+
+  Profitss = arr.fromIter(iter.map([0:2], \i -> return 0;));
+  Summaries = arr.fromIter(iter.map([0:2], \i -> return [];)); // [[<rsumm>.].]
+  Annss = arr.fromIter(iter.map([0:2], \i -> return [];)); // [[<rann>.].]
+  feesV = [0];
+
+  if (!!Anns) {
+    Summs = arr.fromIter(iter.map([0:2], \i -> return {};)); // [{rsumm.}.]
+    for (:ann a = Anns) {
+      nick = a.nick;
+      for (iRp = 0:2) {
+        SentryOp = dic.get(Summs[iRp], nick);
+        if (!SentryOp) {
+          if (!a.isSell) {
+            stocks = a.stocks;
+            priceV = [a.price];
+            totalV = [stocks * priceV!];
+            afeesOp = [];
+            if (iRp == 0) { // "report.withFees"
+              arr.push(afeesOp, a.cash - totalV!);
+              feesV! += a.cash - totalV!;
+              totalV! = a.cash;
+              priceV! = totalV! / stocks;
+            }
+            arr.push(Annss[iRp], rann.mk(
+              a.date, nick, stocks, priceV!, totalV!, [], afeesOp
+            ));
+            dic.put(Summs[iRp], nick, rsumm.mk(
+              nick, stocks, priceV!, totalV!
+            ));
+          } else return mkError(i18n.fmt(
+              II("%0\nSale of not bougth company %1"),
+              [ann.toStr(a), a.nick]
+            ));
+        } else {
+          :rsumm sentry = SentryOp!;
+          if (a.isSell) {
+            stocks = a.stocks;
+            priceV = [a.price];
+            totalV = [stocks * priceV!];
+            afeesOp = [];
+            if (iRp == 0) { // "report.withFees"
+              arr.push(afeesOp, totalV! - a.cash);
+              feesV! += totalV! - a.cash;
+              totalV! = a.cash;
+              priceV! = totalV! / stocks;
+            }
+
+            newStocks = sentry.stocks - stocks;
+            if (newStocks < 0) return mkError(i18n.fmt(
+                II("%0\nStock for sale (%1) > Stocks in portfolio (%2)"),
+                [ann.toStr(a), "" + a.stocks, "" + sentry.stocks]
+              ));
+
+            scost = math.round(stocks * sentry.price, 2);
+            newTotal = sentry.total - scost;
+            newPrice = sentry.price;
+
+            profits = totalV! - scost;
+            Profitss[iRp] += profits;
+
+            if (newStocks == 0) dic.remove(Summs[iRp], nick);
+            else Summs[iRp][nick] = rsumm.mk(
+                nick, newStocks, newPrice, newTotal
+              );
+
+            Annss[iRp].push(rann.mk(
+              a.date, nick, stocks, priceV!, totalV!, [profits], afeesOp
+            ));
+          } else {
+            stocks = a.stocks;
+            priceV = [a.price];
+            totalV = [stocks * priceV!];
+            afeesOp = [];
+            if (iRp == 0) { // "report.withFees"
+              arr.push(afeesOp, a.cash - totalV!);
+              feesV! += a.cash - totalV!;
+              totalV! = a.cash;
+              priceV! = totalV! / stocks;
+            }
+            Annss[iRp].push(rann.mk(
+              a.date, nick, stocks, priceV!, totalV!, [], afeesOp
+            ));
+
+            newStocks = sentry.stocks + stocks;
+            newTotal = stocks * priceV! + sentry.stocks * sentry.price;
+            newPrice = newTotal / newStocks;
+            Summs[iRp][nick] = rsumm.mk(
+              nick, newStocks, newPrice, newTotal
+            );
+          }
+        }
+      }
+    }
+
+    for (i = 0:2) {
+      Sm = []; // [<rsumm>.]
+      for (V = Summs[i]) Sm.push(V);
+      Summaries[i] = Sm;
+    }
+  }
+
+  Reports = []; // [<report>.]
+  for (i = 0:2) {
+    costV = [0];
+    for (:rsumm e = Summaries[i]) costV! += e.total;
+
+    Summaries[i].sort(\:rsumm e1, :rsumm e2 -> return e1.nick < e2.nick;);
+    Reports.push(report.mk(
+      costV!, Profitss[i], i == 0 ? [feesV!] : [], Summaries[i], Annss[i]
+    ));
+  }
+
+  return mk0(nextId, Anns, [Reports, true]);
+};
+
+/// Returns an empty year.
+/// \ -> <year>
+mkEmpty = \ -> return mk(0, []);;
+
+/// Returns annotations of 'Year'.
+/// \<year> -> [<ann>.]
+anns = \y -> return y[As];;
+
+/// Modifies or adds annotation.
+///   y       : Year to modify.
+///   oldAnnOp: Old annotation if the operation is modify, or '[]' if operation
+///             is add.
+///   newAnn  : New annotation.
+/// \<year>, [<ann>]|[], <ann> -> ()
+add = \y, oldAnnOp, :ann newAnn -> {
+  if (!oldAnnOp) {
+    newAnn.setId(y[nxId]);
+    y[nxId] += 1;
+    arr.push(y[As], newAnn);
+  } else {
+    :ann oldAnn = oldAnnOp!;
+    newAnn.setId(oldAnn.id);
+    oldAnn.update(newAnn);
+  }
+  newYear = mk(y[nxId], y[As]);
+  y[As] = newYear[As];
+  y[RpsRs] = newYear[RpsRs];
+};
+
+/// Remove the annotation with identifier 'annId'.
+/// \<year>, n -> ();
+remove = \y, annId -> {
+  arr.filterIn(y[As], \:ann a -> return a.id != annId;);
+};
+
+/// Returns a yearly report.
+///   Year: Year to report.
+///   type: 'cts.withFees' or 'cts.withoutFees'.
+/// \<year>,n -> [<report>|s, b] Result
+getReport = \y, type -> {
+  Reports, ok = y[RpsRs];
+  if (!ok) return [Reports, false];
+  return [type == cts.withFees ? Reports[0] : Reports[1], true];
+};
+
+/// Makes a treasury report.
+///   y: Year to report.
+/// \<year> -> {f, [<rann>.]} :: {summary, Entries}
+treasury = \y -> {
+    TRep = {}; // {<rann>.}
+
+    Reports, ok = y[RpsRs];
+    if (ok) {
+      :report Rp = Reports[0];
+      for (:rann a = Rp.Anns) {
+        if (!a.profitsOp) continue;
+
+        nick = a.nick;
+        tAnnOp = TRep.get(nick);
+        if (!tAnnOp) {
+          TRep.put(nick, a);
+        } else {
+          :rann tAnn = tAnnOp!;
+          stocks = tAnn.stocks + a.stocks;
+          total = tAnn.total + a.total;
+          profits = tAnn.profitsOp! + a.profitsOp!;
+          fees = tAnn.feesOp! + a.feesOp!;
+          price = total / stocks;
+          TRep.put(nick, rann.mk(
+            a.date, nick, stocks, price, total, [profits], [fees]
+          ));
+        }
+      }
+    } else {
+      ui.alert(Reports);
+    }
+    summaryV = [0];
+    Entries = []; // [<rann>.]
+    for (:rann a = TRep) {
+      summaryV! += a.profitsOp!;
+      Entries.push(a);
+    }
+    Entries.sort(\:rann e1, :rann e2 -> return e1.nick < e2.nick;);
+
+    return {summary: summaryV!, Entries};
+};
+
+/// \<year> -> JS
+toJs = \y -> return [
+    y[nxId],
+    arr.map(y[As], ann.toJs)
+  ];;
+
+/// \JS -> <year>
+fromJs = \A -> return mk(
+    A[0],
+    arr.map(A[1], ann.fromJs)
+  );;

@@ -1,0 +1,86 @@
+// Copyright 07-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Home page
+
+import "libdm/log";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+/// \<domo> -> ()
+mk = async \wg -> {
+  , isActive : await client.send({
+    prg: cts.appName,
+    module: "Home",
+    source: "HomePg", // No used
+    rq: "idata"
+  });
+
+  logDiv = Q("div");
+
+  // Control -------------------------------------------------------------------
+
+  // \(\[<logRow>.]->()) -> ()
+  load = async \fn -> {
+    , :arr Log : await client.send({
+      prg: cts.appName,
+      module: "Home",
+      source: "HomePg", // No used
+      rq: "getLog"
+    });
+    fn(Log);
+  };
+
+  // \(\->()) -> ()
+  reset = async \fn -> {
+    await client.send({
+      prg: cts.appName,
+      module: "Home",
+      source: "HomePg", // No used
+      rq: "resetLog"
+    });
+    fn();
+  };
+
+  // \s -> s
+  tlt = \tx -> return switch (tx) {
+    "All log entries will be deleted.\nContinue?":
+      II("All log entries will be deleted.\nContinue?");
+    "2 Days": II("2 Days");
+    "All": II("All");
+    "Reload": II("Reload");
+    "Delete": II("Delete");
+    "Errors": II("Errors");
+    "Log": II("Log");
+    default: tx;
+  };;
+
+
+  // View ----------------------------------------------------------------------
+
+  log.mk(logDiv, load, reset, tlt, true, 100, 25);
+
+  wg
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .text(II("Server")))
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("frame")
+          .att("colspan", 3)
+          .style("text-align: center")
+          .text(isActive
+            ? II("Active")
+            : II("Stopped")))))
+    .add(Q("hr"))
+    .add(logDiv)
+  ;
+};

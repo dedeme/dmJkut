@@ -1,0 +1,252 @@
+// Copyright 03-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// List editor page.
+
+import "libdm/modalBox";
+import "cts";
+import "data/bkEntry";
+import "data/fromServer";
+import "data/fromClient";
+import "pgs/reportPg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+/// \<domo> -> ()
+mk = async \wg -> {
+  // List:[<bkEntry>.]
+  :arr List, :fromServer sv, dbKey : await client.send({
+    prg: cts.appName,
+    source: "ListEditor",
+    rq: "idata"
+  });
+
+  boxDiv = Q("div");
+  box = modalBox.mk(boxDiv, false);
+  inId = ui.field("inSource").att("id", "inId").style("width: 150px");
+  inSource = ui.field("inBackup").att("id", "inSource").style("width: 500px");
+  inBackup = ui.field("inId").att("id", "inBackup").style("width: 500px");
+
+  // Control -------------------------------------------------------------------
+
+  // \-> ()
+  add = async \ -> {
+    id = str.trim(inId.getValue());
+    fromV = [str.trim(inSource.getValue())];
+    toV = [str.trim(inBackup.getValue())];
+    while (str.len(fromV!) > 1 & str.ends(fromV!, "/")) fromV! = fromV![:-1];
+    while (str.len(toV!) > 1 & str.ends(toV!, "/")) toV! = toV![:-1];
+    from = fromV!;
+    to = toV!;
+
+    err = [""];
+    if (id == "") err! = II("'Id' is missing");
+    else if (from == "") err! = II("'From' is missing");
+    else if (to == "") err! = II("'To' is missing");
+    else if (from == "/") err! = II("'From' is root");
+    else if (to == "/") err! = II("'To' is root");
+    if (err! != "") {
+      ui.alert(err!);
+      return;
+    }
+
+    if (List.any(\:bkEntry e -> return e.id == id;)) {
+      if (!ui.confirm(i18n.fmt(
+        II("Already exists a backup with id '%0'\nOverwrite?"), [id]
+      ))) {
+        return;
+      }
+    }
+
+    await client.send({
+      prg: cts.appName,
+      source: "ListEditor",
+      rq: "addModify",
+      dbKey,
+      id,
+      from,
+      to
+    });
+    mk(wg);
+  };
+
+  // \<bkEntry> -> ()
+  edit = \:bkEntry bk -> {
+    inId.value(bk.id);
+    inSource.value(bk.source);
+    inBackup.value(bk.backup);
+  };
+
+  // \<bkEntry> -> ()
+  del = async \:bkEntry bk -> {
+    id = bk.id;
+    if (!ui.confirm(i18n.fmt(II("Delete '%0'?"), [id]))) {
+      return;
+    }
+
+    await client.send({
+      prg: cts.appName,
+      source: "ListEditor",
+      rq: "del",
+      dbKey,
+      id: id
+    });
+    mk(wg);
+  };
+
+  // \<bkEntry> -> ()
+  run = async \:bkEntry bk -> {
+    await client.send({
+      prg: cts.appName,
+      source: "ListEditor",
+      rq: "run",
+      dbKey,
+      fromClient: fromClient.mk(
+          fromClient.start,
+          bk.source,
+          bk.backup
+        )
+    });
+    // NOTE: mk(wg) lock page.
+    window.location.reload(true);
+  };
+
+  // View ----------------------------------------------------------------------
+
+  tbEntry = Q("table")
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 2))
+      .add(Q("td")
+        .style("text-align:left")
+        .text(II("Id")))
+      .add(Q("td"))
+      .add(Q("td")
+        .style("text-align:left")
+        .text(II("Paths"))))
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 5)
+        .add(Q("hr"))))
+    .add(Q("tr")
+      .add(Q("td")
+        .style("width;5px")
+        .add(ui.img("blank")))
+      .add(Q("td")
+        .style("width;5px")
+        .add(ui.link(\ev -> add();)
+          .klass("link")
+          .add(ui.img("add"))))
+      .add(Q("td")
+        .add(inId))
+      .add(Q("td")
+        .style("text-align:right")
+        .text(II("From")))
+      .add(Q("td")
+        .add(inSource)))
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 3))
+      .add(Q("td")
+        .style("text-align:right")
+        .text(II("To")))
+      .add(Q("td")
+        .add(inBackup)))
+    ;
+
+  trs = !!List
+    ? List.map(\:bkEntry e -> return Q("tr")
+        .add(Q("td")
+          .klass("border")
+          .add(Q("table")
+            .add(Q("tr")
+              .add(Q("td")
+                .style("width;5px")
+                .add(ui.link(\ev -> edit(e);)
+                    .klass("link")
+                    .add(ui.img("edit"))))
+              .add(Q("td")
+                .style("width;5px")
+                .add(ui.link(\ev -> del(e);)
+                    .klass("link")
+                    .add(ui.img("delete"))))
+              .add(Q("td")
+                .add(e.sourceError != "" | e.backupError != ""
+                  ? Q("input").att("type", "text").disabled(true)
+                      .style("width:150px;color:#800000")
+                      .value(e.id)
+                  : ui.link(\ev -> run(e);)
+                      .add(Q("input").att("type", "text")
+                        .att("readonly", true)
+                        .style("width:150px;color:#000000;cursor:pointer")
+                        .value(e.id))
+                  ))
+              .add(Q("td")
+                .style("text-align:right")
+                .text(II("From")))
+              .add(Q("td")
+                .add(Q("input").att("type", "text").disabled(true)
+                  .style("width:500px;text-align:right;color:#000000;")
+                  .value(e.source)))
+              .add(Q("td")
+                .att("title", e.sourceError)
+                .add(ui.img(
+                    e.sourceError != ""
+                      ? "error"
+                      : "ok"
+                  )))
+                )
+            .add(Q("tr")
+              .add(Q("td")
+                .att("colspan", 3))
+              .add(Q("td")
+                .style("text-align:right")
+                .text(II("To")))
+              .add(Q("td")
+                .add(Q("input").att("type", "text").disabled(true)
+                  .style("width:500px;text-align:right;color:#000000;")
+                  .value(e.backup)))
+              .add(Q("td")
+                .att("title", e.backupError)
+                .add(ui.img(
+                    e.backupError != ""
+                      ? "error"
+                      : "ok"
+                  ))))))
+      ;)
+    : [
+        Q("tr")
+          .add(Q("td")
+            .add(Q("table")
+              .att("align", "center")
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("frame")
+                  .text(II("Without Backups"))))))
+      ]
+  ;
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .style("border-collapse : collapse;")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(tbEntry)))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("hr"))))
+      .adds(trs))
+    .add(box.mkWg())
+  ;
+
+  if (sv.state != fromServer.end) {
+    reportPg.mk(boxDiv, box);
+    box.show(true);
+  } else inId.e.focus();
+};

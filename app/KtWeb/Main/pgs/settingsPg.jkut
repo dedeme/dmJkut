@@ -1,0 +1,66 @@
+// Copyright 13-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Settings page
+
+import "changePassPg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  , lang : await client.send ({
+    prg: "Main",
+    source: "Settings",
+    rq: "getLang"
+  });
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  changeLang = async \ev -> {
+    await client.send({
+      prg: "Main",
+      source: "Settings",
+      rq: "setLang",
+      lang: lang == "es" ? "en" : "es"
+    });
+    window.location.reload(true);
+  };
+
+  // \<event> -> ()
+  onChangePass = \ev -> {
+    changePassPg.mk(wg, \-> mk(wg););
+  };
+
+  // View ----------------------------------------------------------------------
+
+  wg
+    .removeAll()
+    .add(Q("div")
+      .style("text-align:center")
+      .add(Q("div")
+        .klass("head")
+        .html(II("Settings")))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frame")
+            .add(Q("div")
+              .add(ui.link(changeLang)
+                .klass("link")
+                .html(i18n.fmt(
+                  II("Change Language to %0"),
+                  [lang == "es" ? "EN" : "ES"]
+                ))))
+            .add(Q("p")
+              .html("<p></p>"))
+            .add(Q("div")
+              .add(ui.link(onChangePass)
+                .klass("link")
+                .html(II("Change Password"))))))))
+  ;
+};

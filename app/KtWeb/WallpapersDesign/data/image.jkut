@@ -1,0 +1,37 @@
+// Copyright 30-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Image data.
+
+import "imgCut";
+import "imgAdjustment";
+import "imgBlur";
+
+/// Constructor.
+/// \s, [<imgCut>]|[], [<imgAdjustment>]|[], [<imgBlur>]|[] -> d<image>
+mk = \id, Cut, Adjustment, Blur -> return {id, Cut, Adjustment, Blur};;
+
+/// \<image>, [<imgCut>]|[] -> <image>
+setCut = \I, V -> return mk(I.id, V, I.Adjustment, I.Blur);;
+
+/// \<image>, [<imgAdjustment>]|[] -> <image>
+setAdjustment = \I, V -> return mk(I.id, I.Cut, V, I.Blur);;
+
+/// \<image>, [<imgBlur>]|[] -> <image>
+setBlur = \I, V -> return mk(I.id, I.Cut, I.Adjustment, V);;
+
+/// \<image> -> [*(JS)...]
+toJs = \I -> return [
+    I.id,
+    !I.Cut ? [] : [imgCut.toJs(I.Cut!)],
+    !I.Adjustment ? [] : [imgAdjustment.toJs(I.Adjustment!)],
+    !I.Blur ? [] : [imgBlur.toJs(I.Blur!)]
+  ];;
+
+/// [*(JS)...] -> <image>
+fromJs = \A -> return mk(
+    A[0],
+    !A[1] ? [] : [imgCut.fromJs(A[1]!)],
+    !A[2] ? [] : [imgAdjustment.fromJs(A[2]!)],
+    !A[3] ? [] : [imgBlur.fromJs(A[3]!)]
+  );;

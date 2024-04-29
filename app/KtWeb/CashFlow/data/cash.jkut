@@ -1,0 +1,25 @@
+// Copyright 03-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Functions of CashFlow entry annotations
+
+import "cashEntry";
+
+/// Returns 5 previous entries of ix
+/// \[<cashEntry>.], n -> [<cashEntry>.]
+previous = \Cash, ix -> {
+  start0 = ix - 5;
+  start = start0 < 0 ? 0 : start0;
+  return Cash[start:ix];
+};
+
+/// Returns 5 next entries of ix
+/// \[<cashEntry>.], n -> [<cashEntry>.]
+next = \:arr Cash, ix -> {
+  sz = Cash.size();
+  end0 = ix + 6;
+  end = end0 > sz ? sz : end0;
+  return Cash[ix + 1:end];
+};
+
+

@@ -1,0 +1,98 @@
+// Copyright 29-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "cts";
+import "pgs/msgPg";
+import "pgs/summaryPg";
+import "pgs/directoriesPg";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("Session is closed.\nAuthenticating from Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+    return;
+  }
+
+  // Sessions control is in "KtWeb:Main" !!!
+  , lang : await client.send({
+    prg: "Main", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (lang == "en") i18n.en();
+
+  body = Q("div");
+  selV = ["summary"];
+  showV = [[]];
+
+  showV! = \ -> {
+    menuWg = menu.mk(
+      [ menu.toption("summary", II("Summary"),
+          \-> { selV! = "summary"; showV!(); }),
+        menu.separator(),
+        menu.toption("dirs", II("Directories"),
+          \-> { selV! = "dirs"; showV!(); })
+      ],
+      [], selV!
+    );
+
+    wg
+      .removeAll()
+      .add(menuWg)
+      .add(body)
+    ;
+
+    switch (selV!) {
+      "summary": summaryPg.mk(body);
+      "dirs": directoriesPg.mk(body);
+      default: summaryPg.mk(body);
+    }
+  };
+
+
+  showV!();
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+/// Load main window
+load = \ -> {
+  mk(wg);
+};
+
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KtWeb", \isExpired -> {
+  message = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
+  msgWg = Q("div");
+  msgPg.mk(msgWg, message, true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+  .add(ui.upTop("up"))
+  .add(fns.measureWg)
+;
+
+load();

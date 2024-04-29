@@ -1,0 +1,12 @@
+// Copyright 08-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Files tree
+
+/// Constructor
+///   id   : Index entry identifier.
+///   doc  : [Documentation], if the entry is a file path.
+///          Otherwise its value is [].
+///   Trees: If 'doc' is '[]', entries of directory.
+/// \s, [s]|[], [<indexTree>.] -> <indexTree>
+mk : id, doc, Trees;

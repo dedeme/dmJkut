@@ -1,0 +1,193 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// JSON table designer.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    // Copyright {DATE} ºDeme
+    // GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+    /// {TYPE} table.
+
+    import "cts";
+    import "data/{OBJECT}";
+
+    fpath = path.cat([cts.dataPath, "{OBJECT}.tb"]);
+
+    /// Initializes table.
+    /// \ -> ()
+    {INIT}
+
+    /// Reads table.
+    /// \ -> {TYPE}
+    {READ}
+    {READJS}
+    /// Writes table.
+    /// \{TYPE} -> ()
+    {WRITE}{WRITEJS}
+  """;
+
+  now = time.now();
+  month = now.toDate().toLocaleString("en-US", { month: "short" });
+  dateF = ui.field("objectF")
+    .att("id", "dateF")
+    .value("")
+  ;
+
+  objectF = ui.field("dateF")
+    .att("id", "objectF")
+    .value("")
+  ;
+
+  arrayCh = Q("input")
+    .att("type", "checkbox")
+    .checked(true)
+  ;
+
+  toCh = Q("input")
+    .att("type", "checkbox")
+    .checked(false)
+  ;
+
+  fromCh = Q("input")
+    .att("type", "checkbox")
+    .checked(false)
+  ;
+
+  readJsCh = Q("input")
+    .att("type", "checkbox")
+    .checked(false)
+  ;
+
+  writeJsCh = Q("input")
+    .att("type", "checkbox")
+    .checked(false)
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    if (str.trim(dateF.getValue()) == "")
+      dateF.value(now.format("%D-" + month + "-%Y"));
+    if (str.trim(objectF.getValue()) == "")
+      objectF.value("myObject");
+
+    obj = str.trim(objectF.getValue());
+    type = arrayCh.isChecked() ? "[<" + obj + ">.]" : "<" + obj + ">";
+
+    init = arrayCh.isChecked()
+      ? "init = \\ -> if (!file.exists(fpath)) write([]);;"
+      : "init = \\ -> if (!file.exists(fpath)) write(" +
+        obj + ".newDefault());;"
+    ;
+
+    read1 = "read = \\ -> return ";
+    read2 = "js.r(file.read(fpath))";
+    read = fromCh.isChecked()
+      ? arrayCh.isChecked()
+        ? read1 + "arr.map(" + read2 + ", " + obj + ".fromJs);;"
+        : read1 + obj + ".fromJs(" + read2 + ");;"
+      : read1 + read2 + ";;"
+    ;
+
+    readJs = readJsCh.isChecked()
+      ? """
+
+          /// Reads table as JSON string.
+          /// \ -> s
+          readJs = \ -> return file.read(fpath);;
+        """
+      : ""
+    ;
+
+    par = arrayCh.isChecked() ? "tb" : "o";
+    write1 = "write = \\" + par + " -> file.write(fpath, js.w(";
+    write2 = "));;";
+    write = toCh.isChecked()
+      ? arrayCh.isChecked()
+        ? write1 + "arr.map(tb, " + obj + ".toJs)" + write2
+        : write1 + obj + ".toJs(o)" + write2
+      : write1 + par + write2
+    ;
+
+    writeJs = writeJsCh.isChecked()
+      ? """
+
+
+          /// Writes table as JSON string.
+          /// \s -> ()
+          writeJs = \s -> file.write(fpath, s);;
+        """
+      : ""
+    ;
+
+    textArea.text(tx
+      .replace("{DATE}", str.trim(dateF.getValue()))
+      .replaceAll("{OBJECT}", obj)
+      .replaceAll("{TYPE}", type)
+      .replace("{INIT}", init)
+      .replace("{READ}", read)
+      .replace("{READJS}", readJs)
+      .replace("{WRITE}", write)
+      .replace("{WRITEJS}", writeJs)
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+  dateF.on("change", \e -> update(););
+  dateF.on("focus", \ev -> ev.target.select(););
+  objectF.on("change", \e -> update(););
+  objectF.on("focus", \ev -> ev.target.select(););
+  arrayCh.on("change", \e -> update(););
+  toCh.on("change", \e -> update(););
+  fromCh.on("change", \e -> update(););
+  readJsCh.on("change", \e -> update(););
+  writeJsCh.on("change", \e -> update(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(ui.hrule(II("Date") + ":", 25))
+    .add(dateF)
+    .add(ui.hrule(II("Object") + ":", 25))
+    .add(objectF)
+    .add(Q("p")
+      .add(arrayCh)
+      .add(Q("span")
+        .text(II("Array"))))
+    .add(Q("p")
+      .add(toCh)
+      .add(Q("span")
+        .text(II("With toJs"))))
+    .add(Q("p")
+      .add(fromCh)
+      .add(Q("span")
+        .text(II("With fromJs"))))
+    .add(ui.hrule(II("Functions") + ":", 25))
+    .add(Q("p")
+      .add(readJsCh)
+      .add(Q("span")
+        .text(II("Add readJs"))))
+    .add(Q("p")
+      .add(writeJsCh)
+      .add(Q("span")
+        .text(II("Add writeJs"))))
+    .add(Q("hr"))
+  ;
+
+  update();
+};

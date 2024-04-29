@@ -1,0 +1,91 @@
+// Copyright 24-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Location menu.
+
+import "cts";
+
+/// Contructor.
+///   valType: one of cts.Types ["prices", "accs", "refs"].
+///   mainPg : Main page. One of cts.Pages [global, models, log]
+///   stats  : (In global) One of cts.Stats.
+///               [price, average, crrAverage, deviation]
+///   mdId   :  Model identifier.
+///   mdStats: (In models) One of cts.Stats except 'deviation'.
+///               [price, average, crrAverage]
+///   period : One of cts.Periods. [daily, weekly. monthly]
+///   mdView : View of data for models. One of cts.Views [rank, maps, allMaps]
+/// \s, s, s, s, s, s, s -> <lcMenu>
+mk0 : valType, mainPg, stats, mdId, mdStats, period, mdView;
+
+/// \<lcMenu>, s -> ()
+setValType = \O, v -> O[valType] = v;;
+
+/// \<lcMenu>, s -> ()
+setMainPg = \O, v -> O[mainPg] = v;;
+
+/// \<lcMenu>, s -> ()
+setStats = \O, v -> O[stats] = v;;
+
+/// \<lcMenu>, s -> ()
+setMdId = \O, v -> O[mdId] = v;;
+
+/// \<lcMenu>, s -> ()
+setMdStats = \O, v -> O[mdStats] = v;;
+
+/// \<lcMenu>, s -> ()
+setPeriod = \O, v -> O[period] = v;;
+
+/// \<lcMenu>, s -> ()
+setMdView = \O, v -> O[mdView] = v;;
+
+/// Returns a copy of 'lcM'
+/// \<lcMenu> -> <lcMenu>
+copy = \lcM -> return new mk0(
+    lcM[valType], lcM[mainPg], lcM[stats], lcM[mdId],
+    lcM[mdStats], lcM[period], lcM[mdView]
+  );;
+
+/// Contructor from URL.
+///   url  : URL after symbol '?'.
+/// \s-> <lcMenu>
+fromUrl = \url -> {
+  :arr Ps = str.split(url, "&");
+  // \[s.], i, s -> s
+  sel = \:arr A, i, df -> {
+    if (Ps.size() > i) {
+      v = Ps[i];
+      return A.any(\e -> return e == v;) ? v : df;
+    }
+    return df;
+  };
+
+  pg = sel(cts.Pages, 1, "global");
+  return mk0(
+    sel(cts.Types, 0, "prices"),
+    pg,
+    pg == "global"
+      ? sel(cts.Stats, 2, "price")
+      : "",
+    pg == "models"
+      ? Ps.size() > 2
+        ? Ps[2]
+        : cts.modelBase
+      : "",
+    pg == "models" ? sel(cts.Stats[:-1], 3, "price") : "",
+    pg == "models" ? sel(cts.Periods, 4, "daily") : "",
+    pg == "models" ? sel(cts.Views, 5, "maps") : ""
+  );
+};
+
+/// Made URL (values after "?") from a <lcMenu>
+/// \<lcMenu> -> s
+toUrl = \mn -> {
+  RV = ["?" + mn[valType] + "&" + mn[mainPg]];
+  if (mn[mainPg] == "global")
+    RV! = RV! + "&" + mn[stats];
+  else if (mn[mainPg] == "models")
+    RV! = RV! + "&" + mn[mdId] + "&" + mn[mdStats] + "&" +
+          mn[period] + "&" + mn[mdView];
+  return RV!;
+};

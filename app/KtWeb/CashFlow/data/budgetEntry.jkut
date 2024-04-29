@@ -1,0 +1,10 @@
+// Copyright 08-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// <budgetEntry> data definition.
+
+/// Constructor.
+///   accId:
+///   am   :
+/// \s,n -> <budgetEntry>
+mk : accId, am;

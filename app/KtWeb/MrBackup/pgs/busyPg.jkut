@@ -1,0 +1,23 @@
+// Copyright 29-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Server busy page.
+/// This page stops the current action and allows restart the main page.
+
+import "cts";
+import "msgPg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \ -> ()
+mk = \ -> {
+  msgWg = Q("div");
+  msgPg.mk(msgWg, II("Server is busy."), true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+};

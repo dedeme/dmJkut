@@ -1,0 +1,300 @@
+// Copyright 27-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Manual timetable page
+
+import "data/ann";
+import "cts";
+import "fns";
+import "global";
+import "libdm/datePicker";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  // s, [<ann>.](JS)
+  dbKey, Anns : await client.send({
+    prg: cts.appName,
+    source: "FixPg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+
+  //[<ann>.]
+  :arr As = arr.map(Anns, ann.fromJs);
+  As.sort(\:ann a1, :ann a2 -> return a1.date < a2.date;);
+  idV = [-1];
+
+  showV = [[]];
+
+  // Control ---------------------------------------------------------------------
+  // \n, <datePicker>, <domo>, <domo>, <domo> -> ()
+  update = async \id, :datePicker dayDp, hWg, mWg, txWg -> {
+    dateOp = dayDp.getDate();
+    tx = txWg.getValue().trim();
+
+    if (!dateOp) {
+      ui.alert(II("Day value is missing"));
+      return;
+    }
+    :time date = dateOp!;
+
+    errV = [""];
+    tm = time.mk(
+      date.day(), date.month(), date.year(),
+      math.fromStr(hWg.getValue())!, math.fromStr(mWg.getValue())!, 0
+    );
+    now = time.now();
+    if (tm - now <= 0)
+      errV! = II("Time is equals or previous to the current one");
+
+    if (tx == "") errV! = II("Command value is missing");
+
+    if (errV! != "") {
+      ui.alert(errV!);
+      return;
+    }
+
+    await client.send({
+      prg: cts.appName,
+      source: "FixPg",
+      rq: idV! == -1 ? "new" : "modify",
+      dbKey: global.dbKeyV!,
+      annotation: ann.toJs(
+          ann.mk(idV!, ann.typeFIX, js.w(math.toInt(tm / 1000)), tx
+        ))
+    });
+    mk(wg);
+  };
+
+  // \n -> ()
+  edit = \id -> {
+    idV! = id;
+    showV!();
+  };
+
+  // \ -> ()
+  editCancel = \ -> {
+    idV! = -1;
+    showV!();
+  };
+
+  // \n -> ()
+  del = async \id -> {
+    if (!ui.confirm(II("Delete annotation?"))) return;
+
+    await client.send({
+      prg: cts.appName,
+      source: "FixPg",
+      rq: "delete",
+      dbKey: global.dbKeyV!,
+      id
+    });
+    mk(wg);
+  };
+
+  // \<domo>, n -> ()
+  run = async \runSpan, id -> {
+    runSpan
+      .removeAll()
+      .add(ui.img("wait.gif"))
+    ;
+
+    // s
+    , error : await client.send({
+      prg: cts.appName,
+      source: "FixPg",
+      rq: "run",
+      id
+    });
+
+    if (error != "") {
+      ui.alert(error);
+      mk(wg);
+    } else {
+      runSpan
+        .removeAll()
+        .add(ui.link(\ev -> run(runSpan, id);)
+          .add(ui.img("run")))
+      ;
+    }
+  };
+
+  // View ------------------------------------------------------------------------
+
+  // \-> <domo>
+  th = \ -> return Q("td").style("text-align:center");;
+
+  // \ -> [<domo>...]
+  trsNew = \ -> {
+    dayWg = Q("input")
+      .att("type", "text")
+      .style("width:80px")
+      .disabled(idV! != -1)
+    ;
+    dayDp = datePicker.mk(
+      i18n.getLang() == "es",
+      time.now(),
+      \s -> {}
+    );
+    hWg = ui.select(
+      "h-new", arr.fromIter(iter.map([0:24], \i -> return fns.formatN00(i);))
+    ).disabled(idV! != -1);
+    mWg = ui.select(
+      "m-new", arr.fromIter(iter.map([0:60], \i -> return fns.formatN00(i);))
+    ).disabled(idV! != -1);
+    txWg = Q("textarea")
+      .att("spellcheck", false)
+      .att("cols", 60)
+      .att("rows", 3)
+      .disabled(idV! != -1)
+    ;
+
+    return [
+      Q("tr")
+        .add(Q("td")
+          .att("colspan", "2"))
+        .add(th()
+          .text(II("Day")))
+        .add(th()
+          .att("colspan", "2")
+          .text(II("Hour - Minute")))
+        .add(th()
+          .text(II("Command")))
+        .add(Q("td")),
+      Q("tr").add(Q("td").klass("line").att("colspan", "8")),
+      Q("tr")
+        .add(Q("td"))
+        .add(Q("td")
+          .add(idV! != -1
+            ? ui.lightImg("add")
+                .setStyle("vertical-align", "middle")
+            : ui.link(\ev -> update(-1, dayDp, hWg, mWg, txWg);)
+              .add(ui.img("add")
+                .style("vertical-align:middle"))))
+        .add(Q("td")
+          .add(dayDp.mkText(dayWg)))
+        .add(Q("td")
+          .add(hWg))
+        .add(Q("td")
+          .add(mWg))
+        .add(Q("td")
+          .add(txWg))
+        .add(Q("td")),
+      Q("tr").add(Q("td").att("colspan", "8").add(Q("hr")))
+    ];
+  };
+
+  // \<ann> -> <domo>
+  mkTr = \:ann a -> {
+    isSel = a.id == idV!;
+    isNew = idV! == -1;
+
+    dayWg = Q("input")
+      .att("type", "text")
+      .style("width:75px")
+      .disabled(!isSel);
+
+    dayDp = datePicker.mk(
+      i18n.getLang() == "es",
+      a.date(),
+      \s -> {}
+    );
+
+    hWg = ui.select(
+        "h-new",
+        arr.fromIter(iter.map([0:24], \i -> return
+          (time.hour(a.date()) == i ? "+" : "") + fns.formatN00(i)
+        ;))
+      ).disabled(!isSel)
+    ;
+    mWg = ui.select(
+        "m-new",
+        arr.fromIter(iter.map([0:60], \i -> return
+          (time.minute(a.date()) == i ? "+" : "") + fns.formatN00(i)
+        ;))
+      ).disabled(!isSel)
+    ;
+
+
+    txWg = Q("textarea")
+      .att("spellcheck", false)
+      .att("cols", 60)
+      .att("rows", 3)
+      .disabled(!isSel)
+      .value(a.text)
+    ;
+    runSpan = Q("span");
+
+    return Q("tr")
+      .add(Q("td")
+        .add(isNew
+          ? ui.link(\ev -> edit(a.id);)
+            .add(ui.img("edit"))
+          : isSel
+            ? ui.link(\ev -> editCancel();)
+              .add(ui.img("cancel"))
+            : ui.lightImg("edit")))
+      .add(Q("td")
+        .add(isNew
+          ? ui.link(\ev -> del(a.id);)
+            .add(ui.img("delete"))
+          : isSel
+            ? ui.link(\ev -> update(a.id, dayDp, hWg, mWg, txWg);)
+              .add(ui.img("enter"))
+            : ui.lightImg("delete")))
+      .add(Q("td")
+        .add(dayDp.mkText(dayWg)))
+      .add(Q("td")
+        .add(hWg))
+      .add(Q("td")
+        .add(mWg))
+      .add(Q("td")
+        .add(txWg))
+      .add(Q("td")
+        .add(runSpan
+          .removeAll()
+          .add(ui.link(\ev -> run(runSpan, a.id);)
+            .add(ui.img("run")))))
+    ;
+  };
+
+  // \ -> [<domo>...]
+  trs = \ -> {
+    if (As.size() == 0) {
+      return [
+        Q("tr")
+          .add(th()
+          .att("colspan", "7")
+          .klass("frame")
+          .text(II("Without entries")))
+      ];
+    }
+
+    return arr.map(As, \a -> return mkTr(a););
+  };
+
+  // \ -> ()
+  showV! = \ -> {
+    tb = Q("table")
+      .att("align", "center")
+      .adds(trsNew())
+      .adds(trs())
+    ;
+
+    wg
+      .removeAll()
+      .add(Q("div")
+        .klass("head")
+        .text(II("Fixed days")))
+      .add(Q("div")
+        .klass("separator"))
+      .add(tb)
+    ;
+  };
+
+  showV!();
+};

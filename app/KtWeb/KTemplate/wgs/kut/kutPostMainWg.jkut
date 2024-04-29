@@ -1,0 +1,111 @@
+// Copyright 01-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// KtWeb main module.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    // Copyright {DATE} ºDeme
+    // GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+    /// Main module.
+
+    import "db";
+    import "cts";
+    import "pgs/homePg";
+
+    // \ -> s
+    help = \ -> return "-""
+      Use {PRG} [help | version | init | <request>]
+      where
+        help   : Shows this message.
+        version: Shows program version.
+        init   : Initializes program.
+                 Must be called only the first time that the program is run.
+        request: Request sent by browser.
+      "-"";;
+
+    :arr Args = sys.args();
+
+    if (Args.size() != 1) {
+      sys.println(help());
+      return;
+    }
+
+    rq = Args[0];
+    switch (rq) {
+      "version": sys.println(cts.version);
+      "init": db.init();
+      "help": sys.println(help());
+      default: try {
+        :: Rq = js.r(rq);
+        sys.print(switch(Rq.source) {
+        //  "Home": homePg.process(Rq);
+          default: sys.throw("Value of source (" + Rq.source + ") is not valid");
+        });
+      } catch (e) {
+        sys.printError(e);
+      }
+    }
+  """;
+
+  now = time.now();
+  month = now.toDate().toLocaleString("en-US", { month: "short" });
+  dateF = ui.field("prgF")
+    .att("id", "dateF")
+    .value("")
+  ;
+  prgF = ui.field("dateF")
+    .att("id", "prgF")
+    .value("")
+  ;
+
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    if (str.trim(dateF.getValue()) == "")
+      dateF.value(now.format("%D-" + month + "-%Y"));
+    if (str.trim(prgF.getValue()) == "") prgF.value("myPrg");
+
+    textArea.text(tx
+      .replace('"-""', '"""')
+      .replace("{DATE}", str.trim(dateF.getValue()))
+      .replace("{PRG}", str.trim(prgF.getValue()))
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+
+  dateF.on("change", \e -> update(););
+  dateF.on("focus", \ev -> ev.target.select(););
+  prgF.on("change", \e -> update(););
+  prgF.on("focus", \ev -> ev.target.select(););
+
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(ui.hrule(II("Date") + ":", 25))
+    .add(dateF)
+    .add(ui.hrule(II("Command") + ":", 25))
+    .add(prgF)
+    .add(Q("hr"))
+  ;
+
+  update();
+};
+

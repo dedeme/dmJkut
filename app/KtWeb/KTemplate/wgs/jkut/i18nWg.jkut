@@ -1,0 +1,99 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// i18n dictionary snippets.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   textArea: Viewer.
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = "\n{SNIPPET}\n";
+
+  esBt = Q("input")
+    .att("type", "radio")
+    .att("name", "unic")
+    .checked(true)
+  ;
+
+  enBt = Q("input")
+    .att("type", "radio")
+    .att("name", "unic")
+    .checked(false)
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    esTx = """
+    2 Days = 2 días
+    All = Todo
+    All log entries will be deleted.\nContinue? = Todas las entradas serán borradas.\n¿Continuar?
+    Click %0 to continue. = Click %0 para continuar.
+    Data base is out of date. = La base de datos está obsoleta.
+    Delete = Borrar
+    Errors = Errores
+    Session is closed.\nAuthenticating from Main. = La sesión ha sido cerrada.\nHay que autenticarse en Main.
+    Log = Log
+    Reload = Recarga
+    Session is expired. = La sesión ha expirado.
+    here = Aquí
+    """;
+
+    enTx = """
+    2 Days = 2 Days
+    All = All
+    All log entries will be deleted.\nContinue? = All log entries will be deleted.\nContinue?
+    Click %0 to continue. = Click %0 to continue.
+    Data base is out of date. = Data base is out of date.
+    Delete = Delete
+    Errors = Errors
+    Session is closed.\nAuthenticating from Main. = Session is closed.\nAuthenticating from Main.
+    Log = Log
+    Reload = Reload
+    Session is expired. = Session is expired.
+    here = here
+    """;
+
+    t = esBt.isChecked() ? esTx
+      : enBt.isChecked() ? enTx
+      : ""
+    ;
+
+    textArea.text(tx
+      .replace("{SNIPPET}", t)
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+  esBt.on("change", \e -> update(););
+  enBt.on("change", \e -> update(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(Q("p")
+      .add(esBt)
+      .add(Q("span")
+        .text(II("Spanish"))))
+    .add(Q("p")
+      .add(enBt)
+      .add(Q("span")
+        .text(II("English"))))
+    .add(Q("hr"))
+  ;
+
+  update();
+};

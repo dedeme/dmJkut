@@ -1,0 +1,108 @@
+// Copyright 09-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Delete editor
+
+import "prEd";
+import "delEditor";
+import "data/diaryEntry";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   tr: Container row.
+///   CEntry: Diary entry.
+///   ix : Index of CEntry.
+///   activated: 'true' if deletion is activated.
+///   deactivateAllFn: Function to deactivate all operations.
+///   updateFn: Diary update. It takes as argument 'ix'.
+/// \<domo>, <diaryEntry>, n, b, (\->()), (\n->()) ->
+///     {deactivate: \->(), updateAccount: \s->()}
+mk = \tr, :diaryEntry cEntry, ix, activated, deactivateAllFn, updateFn -> {
+  activatedV = [activated];
+
+  imgDiv = Q("div");
+  annsDiv = Q("div");
+
+  showV = [[]];
+
+
+  // Control -------------------------------------------------------------------
+
+  // \ -> ()
+  activate = \ -> {
+    deactivateAllFn();
+    activatedV! = true;
+    showV!();
+  };
+
+  // \[<diaryAnnotation>.] -> ()
+  update = \ -> {
+    updateFn(ix);
+  };
+
+  :prEd delEd = delEditor.mk(annsDiv, cEntry, update);
+
+  // \ -> ()
+  deactivate = \ -> {
+    activatedV! = false;
+    showV!();
+  };
+
+  // \s -> ()
+  updateAccount = \acc -> {
+    // do nothing
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> ()
+  showV! = \ -> {
+    if (activatedV!) {
+      imgDiv
+        .removeAll()
+        .klass("frame")
+        .add(ui.lightImg("delete"))
+      ;
+      delEd.active(true);
+    } else {
+      imgDiv
+        .removeAll()
+        .klass("")
+        .add(ui.link(\ev -> activate();)
+          .klass("link")
+          .add(ui.img("delete")))
+      ;
+      delEd.active(false);
+    }
+
+    tr
+      .removeAll()
+      .add(Q("td")
+        .add(imgDiv))
+      .add(Q("td")
+        .klass("frameTx")
+        .text(cEntry.month))
+      .add(Q("td")
+        .klass("frameTx")
+        .add(Q("div")
+          .text(cEntry.desc))
+        .add(annsDiv))
+      .add(Q("td")
+        .klass("frameNm")
+        .text(math.toIso(cEntry.am, 2)))
+
+      .add(Q("td"))
+
+      .add(Q("td"))
+      .add(Q("td"))
+      .add(Q("td"))
+    ;
+  };
+
+  showV!();
+
+  return {deactivate, updateAccount};
+};

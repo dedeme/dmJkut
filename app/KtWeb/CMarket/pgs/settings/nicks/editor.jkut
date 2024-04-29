@@ -1,0 +1,409 @@
+// Copyright 12-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Nicks management. Editor.
+
+import "libdm/menu";
+import "libdm/modalBox";
+import "data/cts";
+import "data/quote";
+import "wgs/msg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+UpdatingServer = [false];
+
+/// \<domo>, [s...], s, s -> ()
+mk = async \wg, nicks, mainNick, nick -> {
+  Rp = await client.send({
+    prg: cts.appName,
+    module: "Settings",
+    source: "Nicks/Editor",
+    rq: "idata",
+    mainNick: mainNick,
+    nick: nick
+  });
+  if (!Rp.ok) {
+    msg.error(cts.failMsg, \ -> {});
+    return;
+  }
+  arr.sort(nicks, str.less);
+  Quotes = arr.reverse(arr.map(Rp.quotes, quote.fromJs));
+  manuals = Rp.manuals;
+  Mquotes = arr.reverse(arr.map(Rp.mquotes, quote.fromJs));
+  SIdCodes = arr.map(
+    Rp.sIdCodes,
+    // [s, s] -> d
+    \A -> return {id: A[0], withHistoric: A[1], code: A[2]};
+  );
+
+  QEdit = [[]];
+  QCancel = [[]];
+  QModify = [[]];
+
+  serverTestSpan = Q("span");
+  editBt = Q("button")
+    .text(II("Edit"))
+    .on("click", \e -> QEdit!(););
+  cancelBt = Q("button")
+    .text(II("Cancel"))
+    .disabled(true)
+    .on("click", \e -> QCancel!(););
+  modifyBt = Q("button")
+    .text(II("Modify"))
+    .disabled(true)
+    .on("click", \e -> QModify!(););
+  leftArea = Q("textarea")
+    .att("spellcheck", false)
+    .att("rows", 25)
+    .att("cols", 60)
+    .disabled(true);
+  rightArea = Q("textarea")
+    .att("spellcheck", false)
+    .att("rows", 25)
+    .att("cols", 60)
+    .disabled(true)
+  ;
+  msgWait = Q("div");
+  SetWait = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  QEdit! = \-> {
+    editBt.disabled(true);
+    cancelBt.disabled(false);
+    modifyBt.disabled(false);
+    leftArea.disabled(false);
+  };
+
+  QCancel! = \-> {
+    mk(wg, nicks, mainNick, nick);
+  };
+
+  QModify! = async \-> {
+    Rp = await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "Nicks/Editor",
+      rq: "qModify",
+      mainNick: mainNick,
+      nick: nick,
+      qs: str.trim(leftArea.getValue())
+    });
+    if (Rp.ok) {
+      msg.ok(II("Quotes were successfully modified"), \->{});
+      mk(wg, nicks, mainNick, nick);
+    } else {
+      msg.error(II("No modification was performed.<br>See Log."), \->{});
+    }
+  };
+
+  // \ -> ()
+  download = async \ -> {
+    SetWait!(II("Downloading..."));
+    Rp = await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "Nicks/Editor",
+      rq: "download",
+      mainNick: mainNick,
+      nick: nick
+    });
+    SetWait!("");
+
+    switch (Rp.result) {
+      "error" : msg.error(II("Some error was found.<br>See Log."), \->{});
+      "warnings": msg.info(II("Some quote was modified.<br>See Log."), \->{});
+      default: msg.ok(II("Download ok."), \->{});
+    }
+    mk(wg, nicks, mainNick, nick);
+  };
+
+  // \ -> ()
+  test = async \ -> {
+    Rp = await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "Nicks/Editor",
+      rq: "test",
+      mainNick: mainNick,
+      nick: nick,
+      qs: str.trim(leftArea.getValue())
+    });
+    switch (Rp.result) {
+      "error" : msg.error(II("An error was found.<br>See Log."), \->{});
+      "warnings": msg.info(II("Some warnings were found.<br>See Log."), \->{});
+      default: msg.ok(II("Test ok."), \->{});
+    }
+  };
+
+  // \s, s -> ()
+  updateCode = async \sId, code -> {
+    if (code == "")
+      msg.error(i18n.fmt(II("Nick code of %0 is missing"), [sId]), \ -> {});
+    else
+      UpdatingServer! = true;
+      await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "Nicks/Editor",
+        rq: "updateCode",
+        nick: nick,
+        server: sId,
+        code: code
+      });
+      mk(wg, nicks, mainNick, nick);
+  };
+
+  // \ -> ()
+  serverTests = async \-> {
+    await timer.delay(timer.mk(100), \ -> {});
+    if (UpdatingServer!) {
+      ui.alert("Updating server. Try again.");
+      UpdatingServer! = false;
+      return;
+    }
+
+    WithErrors = [false];
+    WithWarnings = [false];
+    test = async \SICs -> {
+      if (!SICs) {
+        SetWait!("");
+        if (WithErrors! & WithWarnings!)
+          msg.error(II("Errors and warnings found.<br>See log."), \->{});
+        else if (WithErrors!)
+          msg.error(II("Errors found.<br>See log."), \->{});
+        else if (WithWarnings!)
+          msg.error(II("Warnings found.<br>See log."), \->{});
+        else
+          msg.ok(II("Test ok."), \->{});
+        return;
+      }
+
+      SIC = arr.pop(SICs);
+      if (SIC.withHistoric) {
+        SetWait!(SIC.id);
+        Rp = await client.send({
+          prg: cts.appName,
+          module: "Settings",
+          source: "Nicks/Editor",
+          rq: "serverTest",
+          nick: nick,
+          server: SIC.id,
+          code: SIC.code
+        });
+        WithErrors! |= Rp.withErrors;
+        WithWarnings! |= Rp.withWarnings;
+      }
+      test(SICs);
+    };
+    test(arr.reverse(SIdCodes));
+  };
+
+  // \s -> ()
+  setRightArea = async \nick -> {
+    Rp = await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "Nicks/Editor",
+      rq: "getQuotes",
+      nick: nick
+    });
+    if (!Rp.ok) {
+      msg.error(i18n.fmt(
+        II("Quotes of %0 can not be loaded.<br>See Log."), [nick]
+      ));
+      mk(wg, nicks, mainNick, nick);
+    }
+    Qs = arr.reverse(arr.map(Rp.quotes, quote.fromJs));
+    rightArea.text(arr.join(arr.map(Qs, quote.toStr), "\n"));
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \-> <domo>
+  serversDiv = \ -> {
+    // \<sIdCode> -> <domo>
+    svTd = \S -> {
+      color = S.withHistoric ? "#000000" : "#909090";
+      field = Q("input")
+        .att("type", "text")
+        .style("width:125px")
+        .value(S.code);
+      field.on("change", \e -> updateCode(S.id, str.trim(field.getValue())););
+
+      return Q("td").add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align:center;color:" + color)
+            .text(S.id)))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(field))))
+      ;
+    };
+
+    arr.sort(SIdCodes, \S1, S2 -> return S1.id < S2.id;);
+    sz = arr.size(SIdCodes);
+    cols = 4;
+    rows = Math.ceil(sz / cols);
+    trs = []; //[domo>...]
+    for (r = 0:rows) {
+      tr = Q("tr");
+      for (c = 0:cols) {
+        i = r * cols + c;
+        tr.add(i < sz
+          ? svTd(SIdCodes[i])
+          : Q("td")
+        );
+      }
+      arr.push(trs, tr);
+    }
+
+    return Q("div")
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("vertical-align:middle")
+            .add(ui.link(\e -> serverTests();)
+              .klass("link")
+              .text(II("Test"))))
+          .add(Q("td"))
+          .add(Q("td")
+            .add(serverTestSpan
+              .removeAll()
+              .add(ui.img("unknown"))))))
+      .add(Q("table")
+        .klass("frame")
+        .att("align", "center")
+        .adds(trs))
+    ;
+  };
+
+  // \-> <domo>
+  leftMenu = \ -> {
+    lopts = [
+      menu.mkEntry([], editBt)
+    ];
+    ropts = [
+      menu.mkEntry([], cancelBt),
+      menu.mkEntry([], Q("span").html("&nbsp;")),
+      menu.mkEntry([], modifyBt)
+    ];
+    return menu.mk(lopts, ropts, "", false);
+  };
+
+  // \ -> <domo>
+  rightMenu = \ -> {
+    sel = ui.select("nks", arr.map(
+      nicks, \n -> return (n == mainNick ? "+" : "") + n;
+    ));
+    selEl = sel.e;
+    sel.on("change", \e -> setRightArea(nicks[selEl.selectedIndex]););
+    lopts = [
+      menu.mkEntry([], sel)
+    ];
+    return menu.mk(lopts, [], "", false);
+  };
+
+  // \ -> <domo>
+  textAreaHeader = \ -> return Q("td")
+      .klass("frame")
+      .text(
+        II("Date") + ":" +
+        II("Open") + ":" +
+        II("CloseN") + ":" +
+        II("Max") + ":" +
+        II("Min") + ":" +
+        II("Vol") + ":" +
+        II("State")
+      )
+    ;;
+
+  // s -> ()
+  SetWait! = \nick -> {
+    msgWait.removeAll();
+
+    if (nick != "") {
+      box = modalBox.mk(
+        Q("div")
+          .add(Q("div")
+            .style("text-align:center")
+            .add(ui.img("wait2.gif").klass("frame")))
+          .add(Q("div").style("text-align:center").html(nick)),
+        false
+      );
+      msgWait.add(box.wg);
+      modalBox.show(box, true);
+    }
+  };
+
+  wg
+    .removeAll()
+    .add(msgWait)
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("font-size: 24px;")
+          .text(str.fmt("%v [%v](%v)", [nick, arr.size(Quotes), manuals])))
+        .add(Q("td")
+          .style("text-align:right")
+          .add(ui.link(\ev -> download();)
+            .klass("link")
+            .text(II("Download")))
+          .add(Q("span").text(" · "))
+          .add(ui.link(\ev -> test();)
+            .klass("link")
+            .text(II("Test")))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 2)
+          .add(Q("hr"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 2)
+          .add(ui.hrule(II("Servers"), 50))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 2)
+          .add(serversDiv())))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 2)
+          .add(ui.hrule(II("Quotes"), 50))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 2)
+        .add(Q("table").att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .add(Q("table")
+                .style("width:100%")
+                .add(Q("tr")
+                  .add(Q("td")
+                    .add(leftMenu())))
+                .add(Q("tr")
+                  .add(textAreaHeader()))
+                .add(Q("tr")
+                  .add(Q("td")
+                    .add(leftArea
+                      .text(arr.join(arr.map(Quotes, quote.toStr), "\n")))))))
+            .add(Q("td")
+              .add(Q("table")
+                .style("width:100%")
+                .add(Q("tr")
+                  .add(Q("td")
+                    .add(rightMenu())))
+                .add(Q("tr")
+                  .add(textAreaHeader()))
+                .add(Q("tr")
+                  .add(Q("td")
+                    .add(rightArea
+                      .text(arr.join(arr.map(Mquotes, quote.toStr), "\n")))))))))))
+  );
+
+};

@@ -1,0 +1,105 @@
+// Copyright 11-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Accounting annotations widget.
+
+import "libdm/menu";
+import "libdm/datePicker";
+import "wgs/msg";
+import "cts";
+import "data/acc/ann";
+import "data/acc/opr";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Anns is ordered by after to before.
+/// \<domo>, [<ann>.], [\i->()]|[] -> ()
+mk = \wg, :arr As, DelFn -> {
+  // \s -> <domo>
+  tdDate = \d -> return Q("td")
+    .klass("border")
+    .text(d)
+  ;;
+  // \s -> <domo>
+  tdTp = \t -> return Q("td")
+    .klass("border")
+    .text(t)
+  ;;
+  // \s -> <domo>
+  tdRest = \s -> return Q("td")
+    .klass("border")
+    .style("text-align: left;")
+    .text(s)
+  ;;
+
+  // \<ann> -> [<domo>...]
+  addAnn = \:ann a -> {
+    date = tdDate(time.toIso(time.fromStr(a.date)!));
+    :opr op = a.op;
+
+    switch (op.type()){
+      opr.seT: return [date, tdTp(II("Sell")), tdRest(
+          op.nick() + "|" + math.toIso(op.stocks(), 0) + "|" +
+          math.toIso(op.price(), 4)
+        )];
+      opr.buT: return [date, tdTp(II("Buy")), tdRest(
+          op.nick() + "|" + math.toIso(op.stocks(), 0) + "|" +
+          math.toIso(op.price(), 4)
+        )];
+      opr.stT: return [date, tdTp(II("In Stock")), tdRest(
+          op.nick() + "|" + math.toIso(op.stocks(), 0) + "|" +
+          math.toIso(op.price(), 4)
+        )];
+      opr.prT: return [date, tdTp(II("Profits")), tdRest(
+          math.toIso(op.amount(), 2) + "|" + op.cause()
+        )];
+      opr.feT: return [date, tdTp(II("Fees")), tdRest(
+          math.toIso(op.amount(), 2) + "|" + op.cause()
+        )];
+      opr.inT: return [date, tdTp(II("Income")), tdRest(
+          math.toIso(op.amount(), 2)
+        )];
+      opr.wiT: return [date, tdTp(II("Withdrawal")), tdRest(
+          math.toIso(op.amount(), 2)
+        )];
+      opr.pdT: return [date, tdTp(II("Diff. +")), tdRest(
+          math.toIso(op.amount(), 2) + "|" + op.cause()
+        )];
+      opr.ndT: return [date, tdTp(II("Diff. -")), tdRest(
+          math.toIso(op.amount(), 2) + "|" + op.cause()
+        )];
+      default: throw ("Unkown operation");
+    }
+  };
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .adds(As.size() == 0
+        ? [ Q("tr")
+            .add(Q("td")
+              .klass("frame")
+              .text(II("Without Data")))
+          ]
+        : As.map(\:ann a ->
+            if (!!DelFn) {
+              if (a.date[-4:] > "0101" & opr.type(a.op) != opr.stT)
+                return Q("tr")
+                  .add(ui.link(\e -> DelFn!(a.id);)
+                    .add(ui.img("delete")))
+                  .adds(addAnn(a));
+              else
+              return Q("tr")
+                .add(Q("td"))
+                .adds(addAnn(a));
+            } else {
+              return Q("tr")
+                .adds(addAnn(a));
+            }
+          )))
+  ;
+
+};

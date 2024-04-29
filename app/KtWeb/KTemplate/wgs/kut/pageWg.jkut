@@ -1,0 +1,94 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Data base main page designer.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    // Copyright {DATE} ºDeme
+    // GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+    /// {OVERVIEW}
+
+    import "KtWeb/rp";
+    import "db";
+
+    /// \{*.} -> s
+    process = \Rq -> {
+      switch (Rq.rq) {
+        "idata": {
+
+          return rp.mk({
+            dbKey: db.readKey()
+          });
+        }
+        "updateDiary": {
+          dbKey = db.checkKey(Rq.dbKey);
+          if (dbKey == "") return rp.mkOutdated();
+
+          return rp.mk({ dbKey });
+        }
+        default: sys.throw("Value of rq (" + Rq.rq + ") is not valid");
+      }
+    };
+  """;
+
+  now = time.now();
+  month = now.toDate().toLocaleString("en-US", { month: "short" });
+  dateF = ui.field("overviewTA")
+    .value("")
+  ;
+
+  overviewTA = Q("textarea")
+    .att("id", "overviewTA")
+    .att("cols", 40)
+    .att("rows", 5)
+    .att("spellcheck", false)
+    .text("")
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    if (str.trim(dateF.getValue()) == "")
+      dateF.value(now.format("%D-" + month + "-%Y"));
+    if (str.trim(overviewTA.getValue()) == "")
+      overviewTA.value("Home page.");
+
+    textArea.text(tx
+      .replace("{DATE}", str.trim(dateF.getValue()))
+      .replace("{OVERVIEW}", str.trim(overviewTA.getValue()))
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+  dateF.on("change", \e -> update(););
+  dateF.on("focus", \ev -> ev.target.select(););
+  overviewTA.on("change", \e -> update(););
+  overviewTA.on("focus", \ev -> ev.target.select(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(ui.hrule(II("Date") + ":", 25))
+    .add(dateF)
+    .add(ui.hrule(II("Overview") + ":", 25))
+    .add(overviewTA)
+    .add(Q("hr"))
+  ;
+
+  update();
+};

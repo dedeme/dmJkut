@@ -1,0 +1,35 @@
+// Copyright 08-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Global functions.
+
+/// Returns the float value (Option) of 'n', parsing "" as 0.
+/// \s -> ([n]|[])
+float = \n -> {
+  n2 = str.replace(
+    str.replace(
+      str.trim(n),
+      ".", ""
+    ),
+    ",", "."
+  );
+  if (n2 == "") return [0];
+  rOp = math.fromStr(n2);
+  if (!rOp) return rOp;
+  return [math.round(rOp!, 2)];
+};
+
+/// Validate a year. If the validation fails, it returns the current year,
+/// otherwise return 'y'.
+/// \s -> s
+validateYear = \y -> {
+  current = time.year(time.now());
+  yOp = math.fromStr(y);
+  if (!!yOp) {
+    y = math.toInt(yOp!);
+    if (y >= current - 5 & y <= current + 1) return math.toStr(y);
+  }
+  return math.toStr(current);
+};
+
+

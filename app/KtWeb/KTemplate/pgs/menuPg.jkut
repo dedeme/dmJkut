@@ -1,0 +1,266 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Manu page.
+
+import "designPg";
+import "wgs/kut/ctsWg";
+import "wgs/kut/emptyWg";
+import "wgs/kut/ktWebMainWg";
+import "wgs/kut/kutPostMainWg";
+import "wgs/kut/recordWg";
+import "wgs/kut/pageWg";
+import "wgs/kut/dbMainWg";
+import "wgs/kut/jstbWg";
+import "wgs/kut/logWg";
+import "wgs/jkut/ctsWg" : jctsWg;
+import "wgs/jkut/globalWg";
+import "wgs/jkut/emptyWg" : jemptyWg;
+import "wgs/jkut/mainWg";
+import "wgs/jkut/msgWg";
+import "wgs/jkut/i18nWg";
+import "wgs/jkut/snippetsWg" : jsnippetsWg;
+import "wgs/jkut/recordWg" : jrecordWg;
+import "wgs/jkut/logWg" : jlogWg;
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = \wg -> {
+
+  // Control -------------------------------------------------------------------
+
+  // Kut -------------------------------
+
+  // \->()
+  constants = \title -> {
+    viewer = designPg.mkTextArea(false);
+    designerWg = Q("div");
+    ctsWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  empty = \title -> {
+    viewer = designPg.mkTextArea(false);
+    designerWg = Q("div");
+    emptyWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  ktWebMain = \title -> {
+    viewer = designPg.mkTextArea(false);
+    designerWg = Q("div");
+    ktWebMainWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  kutPostMain = \title -> {
+    viewer = designPg.mkTextArea(false);
+    designerWg = Q("div");
+    kutPostMainWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  record = \title -> {
+    viewer = designPg.mkTextArea(false);
+    designerWg = Q("div");
+    recordWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  page = \title -> {
+    viewer = designPg.mkTextArea(false);
+    designerWg = Q("div");
+    pageWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  dbMain = \title -> {
+    viewer = designPg.mkTextArea(false);
+    designerWg = Q("div");
+    dbMainWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  jstb = \title -> {
+    viewer = designPg.mkTextArea(false);
+    designerWg = Q("div");
+    jstbWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  log = \title -> {
+    viewer = designPg.mkTextArea(false);
+    designerWg = Q("div");
+    logWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // Jkut ------------------------------
+
+  // \->()
+  jconstants = \title -> {
+    viewer = designPg.mkTextArea(true);
+    designerWg = Q("div");
+    jctsWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  jglobal = \title -> {
+    viewer = designPg.mkTextArea(true);
+    designerWg = Q("div");
+    globalWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  jempty = \title -> {
+    viewer = designPg.mkTextArea(true);
+    designerWg = Q("div");
+    jemptyWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  main = \title -> {
+    viewer = designPg.mkTextArea(true);
+    designerWg = Q("div");
+    mainWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  msg = \title -> {
+    viewer = designPg.mkTextArea(true);
+    designerWg = Q("div");
+    msgWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  i18nn = \title -> {
+    viewer = designPg.mkTextArea(true);
+    designerWg = Q("div");
+    i18nWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  jrecord = \title -> {
+    viewer = designPg.mkTextArea(true);
+    designerWg = Q("div");
+    jrecordWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  jlog = \title -> {
+    viewer = designPg.mkTextArea(true);
+    designerWg = Q("div");
+    jlogWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // \->()
+  jsnippets = \title -> {
+    viewer = designPg.mkTextArea(true);
+    designerWg = Q("div");
+    jsnippetsWg.mk(designerWg, viewer);
+    designPg.mk(wg, designerWg, viewer, title);
+  };
+
+  // View ----------------------------------------------------------------------
+
+  KutOptions = [
+    [II("Constants"), constants],
+    [II("Empty Module"), empty],
+    [II("KtWeb Main"), ktWebMain],
+    [II("KutPost Main"), kutPostMain],
+    [II("Record Module"), record],
+    [II("Web Page Hub"), page],
+    [II("Database Main"), dbMain],
+    [II("JSON table"), jstb],
+    [II("Log"), log]
+  ];
+  KutOptions.sort(\e1, e2 -> return str.less(e1[0], e2[0]););
+
+  JkutOptions = [
+    [II("Constants"), jconstants],
+    [II("Global Variables"), jglobal],
+    [II("Empty Page"), jempty],
+    [II("Main Page"), main],
+    [II("Message Page"), msg],
+    [II("Record Page"), jrecord],
+    [II("Log"), jlog],
+    [II("Snippets"), jsnippets],
+    ["I18n", i18nn]
+  ];
+  JkutOptions.sort(\e1, e2 -> return str.less(e1[0], e2[0]););
+
+  max = KutOptions.size() > JkutOptions.size()
+    ? KutOptions.size()
+    : JkutOptions.size()
+  ;
+
+  for (i = KutOptions.size():max) arr.push(KutOptions, []);
+  for (i = JkutOptions.size():max) arr.push(JkutOptions, []);
+
+  tkut = Q("table")
+    .klass("frame3")
+    .add(Q("tr").add(Q("td")
+      .klass("title")
+      .style("text-align:center;")
+      .text("Kut")))
+    .adds(KutOptions.map(\Op -> { return !Op
+        ? Q("tr").add(Q("td").html("&nbsp"))
+        : Q("tr").add(Q("td")
+          .add(ui.link(\e -> Op[1](Op[0]);)
+          .klass("link")
+          .text(Op[0])))
+      ;}))
+  ;
+
+  tjkut = Q("table")
+    .klass("frame2")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("title")
+        .style("text-align:center;")
+        .text("JKut")))
+    .adds(JkutOptions.map(\Op -> { return !Op
+        ? Q("tr").add(Q("td").html("&nbsp;"))
+        : Q("tr").add(Q("td")
+          .add(ui.link(\e -> Op[1](Op[0]);)
+          .klass("link")
+          .text(Op[0])))
+      ;}))
+  ;
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("vertical-align:top;")
+          .add(tkut))
+        .add(Q("td"))
+        .add(Q("td")
+          .style("vertical-align:top;")
+          .add(tjkut))))
+  ;
+
+  //record("***");
+};
+

@@ -1,0 +1,48 @@
+// Copyright 31-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Global variables.
+
+/// Initial capital.
+/// [n]
+initialCapitalV = [0];
+/// Steps number to evaluation (for rows and columns)
+/// [n]
+evalStepsV = [0];
+/// Minimum sales to compute results.
+/// [n]
+minSalesV = [0];
+/// Simulation bases.
+/// {[f.]}::{mdId:[val.]
+ParamBases = {};
+/// Simulation base increments.
+/// {[f.]}::{mdId:[val.]
+ParamBaseIncs = {};
+/// Simulation environment increments.
+/// {[f.]}::{mdId:[val.]
+ParamEnvIncs = {};
+/// Model list.
+/// [<model>]
+Models = [];
+/// Type of order.
+/// [n]
+orderBuyV = [0];
+/// Type of order.
+/// [n]
+orderSellV = [0];
+/// Quarantine days after loss
+/// [n]
+daysLossV = [0];
+
+/// 'sell >= buy * noLossMultiplitor' is ok.
+/// [n]
+noLossMultiplicatorV = [0];
+
+// -----------------------------------------------------------------------------
+
+/// Periods to save data. ["daily", "weekly", "monthly"]
+/// [s.]
+Periods = [];
+/// Dates in period. (20)
+/// [n]
+datesInPeriodV = [0];

@@ -1,0 +1,92 @@
+// Copyright 26-Jun-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Description page.
+
+import "data/model";
+import "i18n";
+import "fns";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, s -> ()
+mk = async \wg, modelId -> {
+  Rp = await client.send({
+    prg: "CMMarket",
+    source: "Description",
+    rq: "idata",
+    modelId
+  });
+  Md = model.fromJs(Rp.model);
+
+  wg
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .text(Md.name))
+    .add(Q("div").klass("separator"))
+    .add(Q("table")
+      .att("align", "center")
+      .klass("flat")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Id") + ":"))
+        .add(Q("td")
+          .klass("rframe")
+          .text(Md.id)))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Name") + ":"))
+        .add(Q("td")
+          .klass("rframe")
+          .text(Md.name))))
+    .add(Q("div").klass("separator"))
+    .add(Q("table")
+      .att("align", "center")
+      .klass("flat")
+      .add(Q("tr")
+        .add(Q("td"))
+        .adds(arr.map(Md.paramNames, \n -> return Q("td")
+            .klass("rhead")
+            .text(n)
+          ;)))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Base") + ":"))
+        .adds(iter.map(
+          [0:arr.size(Md.paramNames)],
+          \i -> return Q("td")
+            .klass("rframe")
+            .text(fns.paramFmt(Md.paramTypes[i], Md.paramBases[i]))
+          ;)))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Base Increment") + ":"))
+        .adds(iter.map(
+          [0:arr.size(Md.paramNames)],
+          \i -> return Q("td")
+            .klass("rframe")
+            .text(fns.paramFmt(Md.paramTypes[i], Md.paramBaseIncs[i]))
+          ;)))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Environment Increment") + ":"))
+        .adds(iter.map(
+          [0:arr.size(Md.paramNames)],
+          \i -> return Q("td")
+            .klass("rframe")
+            .text(fns.paramFmt(Md.paramTypes[i], Md.paramEnvIncs[i]))
+          ;))))
+    .add(Q("div").klass("separator"))
+    .add(Q("div")
+      .klass("frame")
+      .html(Md.doc))
+  ;
+
+};

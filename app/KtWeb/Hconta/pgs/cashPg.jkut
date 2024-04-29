@@ -1,0 +1,384 @@
+// Copyright 25-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Cash page.
+
+import "libdm/datePicker";
+import "data/all";
+import "data/acc";
+import "cts";
+import "data/diaryEntry";
+import "wgs/accountSelector";
+import "msgPg";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>,s, s -> ()
+mk = \wg, account, ix -> {
+  ac = acc.descriptionOf(account) == "" | str.len(account) > 3 ? "" : account;
+  acV = [ac == "" | !dic.hasKey(acc.accounts(), ac) ? cts.cash[:3] : ac];
+  :arr CashEntryIxs = acc.usedSubaccounts(cts.cash);
+  lastIx = !CashEntryIxs ? -1 : CashEntryIxs.peek();
+
+  ixn = math.isDigits(ix) ? math.toInt(math.fromStr(ix)!) : lastIx;
+  ixFirstRowV = [ixn >= lastIx ? lastIx : ixn];
+
+  accIn = Q("input")
+    .att("type", "text")
+    .klass("frame")
+    .style("width:50px;color:#000000;text-align:center;")
+    .disabled(true)
+  ;
+  description = ui.field("amm")
+    .att("id", "autofocus")
+    .style("width:270px")
+    .on("focus", \e -> description.e.select();)
+  ;
+  ammIn = ui.field("accept")
+    .att("id", "amm")
+    .style("width:65px")
+    .on("focus", \e -> ammIn.e.select();)
+  ;
+  listDiv = Q("div");
+
+  dpV = [datePicker.mk(i18n.getLang(), time.now(), \s -> {})];
+  listV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  accept = async \ev -> {
+    dateOp = datePicker.getDate(dpV!);
+    if (!dateOp) {
+      ui.alert(II("Date is missing"));
+      return;
+    }
+    date = dateOp!;
+
+    a = str.replace(str.trim(accIn.getValue()), ".", "");
+    if (a == "") {
+      ui.alert(II("Account is missing"));
+      return;
+    }
+
+    desc = str.trim(description.getValue());
+    if (desc == "") {
+      ui.alert(II("Description is missing"));
+      return;
+    }
+
+    amOp = fns.float(ammIn.getValue());
+    if (!amOp) {
+      ui.alert(i18n.fmt(II("'%0' is not a number"), [ammIn.getValue()]));
+      return;
+    }
+    am = amOp!;
+    if (am == 0) {
+      ui.alert(II("Ammount is 0"));
+      return;
+    }
+
+    Debits = {}; // {n.}
+    if (am > 0) Debits.put(cts.cash, am);
+    else Debits.put(a, -am);
+
+    Credits = {}; // {n.}
+    if (am > 0) Credits.put(a, am);
+    else Credits.put(cts.cash, -am);
+
+    dentry = diaryEntry.mk(date, desc, Debits, Credits);
+    ix = acc.addDiary(dentry) + 4;
+
+    CashEntryIxs.clear();
+    CashEntryIxs.cat(acc.usedSubaccounts(cts.cash));
+    ixFirstRowV! = !CashEntryIxs ? -1 : CashEntryIxs.peek();
+    if (ix < ixFirstRowV!) ixFirstRowV! = ix;
+
+    ok = await all.send();
+    if (!ok) {
+      msgPg.mk(wg, II("Data base out of date."), true);
+      return;
+    }
+    accIn.value("");
+    description.value("");
+    ammIn.value("");
+    listDiv.removeAll().add(listV!());
+  };
+
+  // \n -> n
+  getEntriesIndex = \ix -> {
+    size = CashEntryIxs.size();
+    for (i = 0:size)
+      if (CashEntryIxs[i] == ix) return i;
+
+    return size - 1;
+  };
+
+  // \<event> -> ()
+  upClick = \e -> {
+    i = getEntriesIndex(ixFirstRowV!);
+    if (ixFirstRowV! > -1 & i < CashEntryIxs.size() - 1) {
+      ixFirstRowV! = CashEntryIxs[i + 1];
+      listDiv.removeAll().add(listV!());
+    }
+  };
+
+  // \<event> -> ()
+  downClick = \e -> {
+    i = getEntriesIndex(ixFirstRowV!);
+    if (i > 0) {
+      ixFirstRowV! = CashEntryIxs[i - 1];
+      listDiv.removeAll().add(listV!());
+    }
+  };
+
+  // \<event> -> ()
+  dupClick = \e -> {
+    i = getEntriesIndex(ixFirstRowV!) + math.toInt(cts.tableLen / 2);
+    if(ixFirstRowV! > -1) {
+      ixFirstRowV! = i < CashEntryIxs.size()
+        ? CashEntryIxs[i]
+        : CashEntryIxs.peek()
+      ;
+      listDiv.removeAll().add(listV!());
+    }
+  };
+
+  // \<event> -> ()
+  ddownClick = \e -> {
+    i = getEntriesIndex(ixFirstRowV!) - math.toInt(cts.tableLen / 2);
+    if (i > 0) {
+      ixFirstRowV! = CashEntryIxs[i];
+      listDiv.removeAll().add(listV!());
+    }
+  };
+
+  // \<event> -> ()
+  topClick = \e -> {
+    if (ixFirstRowV! > -1) {
+      ixFirstRowV! = CashEntryIxs.peek();
+      listDiv.removeAll().add(listV!());
+    }
+  };
+
+  // \<event> -> ()
+  bottomClick = \e -> {
+    if (ixFirstRowV! > -1) {
+      iV = [cts.tableLen - 1];
+      if (iV! >= CashEntryIxs.size()) iV! = CashEntryIxs.size() - 1;
+      ixFirstRowV! = CashEntryIxs[iV!];
+      listDiv.removeAll().add(listV!());
+    }
+  };
+
+  // \n -> ()
+  monthClick = \m -> {
+    if (ixFirstRowV! > -1) {
+      Diary = acc.diary();
+      size = CashEntryIxs.size();
+      iV = [0];
+      while (true) {
+        :diaryEntry e = Diary[CashEntryIxs[iV!]];
+        iV! += 1;
+        if (time.month(e.date) >= m | iV! == size) break;
+      }
+      ixFirstRowV! = CashEntryIxs[iV! - 1];
+      listDiv.removeAll().add(listV!());
+    }
+  };
+
+  // View ----------------------------------------------------------------------
+
+  dateField = Q("input")
+    .att("type", "text")
+    .klass("frame")
+    .style("width:80px;color:#000000;text-align:center;")
+  ;
+  acceptBt = Q("button")
+    .att("id", "accept")
+    .html(II("Accept"))
+    .on("click", accept)
+  ;
+
+  // \s, s -> ()
+  helpAccountClick = \account, desc -> {
+    acV! = account[:3];
+    accIn
+      .att("title", desc)
+      .value(acc.accFormat(account))
+    ;
+
+    Sels = []; // [{n, s, s}.] :: [{n, desc, val}.]
+    // \s, s -> ()
+    addSels = \desc, val -> {
+      toDoV = [true];
+      for (E = Sels) {
+        if (E.desc == desc & E.val == val){
+          E.n += 1;
+          toDoV! = false;
+          break;
+        }
+      }
+      if (toDoV!) Sels.push({n: 1, desc, val});
+    };
+
+    for (:diaryEntry e = acc.diary()) {
+      :dic Debits = e.debits;
+      :dic Credits = e.credits;
+      if (
+        Debits.size() == 1 &
+        Credits.size() == 1 &
+        (Debits.hasKey(cts.cash) | Credits.hasKey(cts.cash))
+      ) {
+        if (Debits.hasKey(account))
+          addSels(e.description, "-" + math.toIso(Debits[account], 2));
+        if (Credits.hasKey(account))
+          addSels(e.description, math.toIso(Credits[account], 2));
+      }
+    }
+
+    if (!!Sels) {
+      nV = [0];
+      descV = [""];
+      valV = [""];
+      for (E = Sels) {
+        if (E.n >= nV!) {
+          nV! = E.n;
+          descV! = E.desc;
+          valV! = E.val;
+        }
+      }
+      description.value(descV!);
+      ammIn.value(valV!);
+    }
+
+    description.e.focus();
+  };
+
+  // \ -> <domo>
+  listV! = \ -> {
+    Diary = acc.diary();
+    sumV = [0];
+    :arr Entries = CashEntryIxs.map(\i -> {
+      :diaryEntry e = Diary[i];
+      ammV = [0];
+      for (a, v = e.debits) if (a == cts.cash) ammV! = v;
+      for (a, v = e.credits) if (a == cts.cash) ammV! = -v;
+      sumV! += ammV!;
+      return {
+        ix: i,
+        date: e.date,
+        desc: e.description,
+        amm: ammV!,
+        sum: sumV!
+      };
+    });
+
+    // \ -> <domo>
+    td = \ -> return Q("td").klass("frame").style("vertical-align:top;");;
+    // \ -> <domo>
+    tdr = \ -> return td().setStyle("text-align", "right");;
+    // \ -> <domo>
+    tdl = \ -> return td().setStyle("text-align", "left");;
+
+    cutV = [0];
+    for (ix = 0:Entries.size()) {
+      E = Entries[ix];
+      if (E.ix >= ixFirstRowV!) {
+        cutV! = ix + 1;
+        break;
+      }
+    }
+    return Q("table")
+      .att("align", "center")
+      .adds(arr.map(
+        arr.reverse(arr.drop(Entries.take(cutV!), cutV! - cts.tableLen)),
+        \E -> return Q("tr")
+            .add(tdr()
+              .html("" + (E.ix + 1)))
+            .add(td()
+              .html(time.format(E.date, "%D/%M")))
+            .add(tdl()
+              .add(ui.link(\ev ->
+                  window.location.assign("?diary&" + acV! + "&" + E.ix);
+                ).klass("link")
+                .html(E.desc)))
+            .add(tdr()
+              .html(math.toIso(E.amm, 2)))
+            .add(tdr()
+              .html(math.toIso(E.sum, 2)))
+          ;));
+  };
+
+  // \ -> <domo>
+  left = \ -> return accountSelector.mk(acV!, helpAccountClick, true).wg;;
+
+  // \ -> <domo>
+  right = \ -> {
+    dpV! = datePicker.mk(
+      i18n.getLang(), time.now(), \m -> description.e.focus();
+    );
+    ui.changePoint(ammIn);
+    if (!all.isLastYear()) {
+      description.disabled(true);
+      ammIn.disabled(true);
+      acceptBt.disabled(true);
+    }
+
+    r = Q("td")
+      .style("text-align:center;vertical-align:top;")
+      .add(Q("div")
+        .klass("head")
+        .text(II("Cash")))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td").add(datePicker.mkText(dpV!, dateField)))
+          .add(Q("td").add(accIn))
+          .add(Q("td").add(description))
+          .add(Q("td").add(ammIn))
+          .add(Q("td").add(acceptBt))))
+      .add(Q("hr"))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td").att("colspan", 3))
+          .add(Q("td").klass("diary").add(ui.link(upClick)
+            .setStyle("font-family", "monospace").html("&nbsp;\u2191&nbsp;")))
+          .add(Q("td").klass("diary").add(ui.link(downClick)
+            .setStyle("font-family", "monospace").html("&nbsp;\u2193&nbsp;")))
+          .add(Q("td").klass("diary").add(ui.link(dupClick)
+            .setStyle("font-family", "monospace").html("\u2191\u2191")))
+          .add(Q("td").klass("diary").add(ui.link(ddownClick)
+            .setStyle("font-family", "monospace").html("\u2193\u2193")))
+          .add(Q("td").klass("diary").add(ui.link(topClick)
+            .setStyle("font-family", "monospace").html("&nbsp;\u2912&nbsp;")))
+          .add(Q("td").klass("diary").add(ui.link(bottomClick)
+            .setStyle("font-family", "monospace").html("&nbsp;\u2913&nbsp;")))
+          .add(Q("td").att("colspan", 3)))
+        .add(Q("tr")
+          .adds(iter.map([1:13], \i -> return Q("td")
+              .klass("diary")
+              .add(ui.link(\e -> monthClick(i);)
+                .html("&nbsp;" + i + "&nbsp;"));
+            ))))
+      .add(Q("hr"))
+      .add(listDiv)
+    ;
+
+    listDiv.add(listV!());
+    return r;
+  };
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(all.isLastYear() ? left() : Q("div"))
+        .add(right())))
+  ;
+};

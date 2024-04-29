@@ -1,0 +1,57 @@
+// Copyright 16-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Log page
+
+import "libdm/log";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  logDiv = Q("div");
+
+  // \(\[<logRow>.]->()) -> ()
+  load = async \fn -> {
+    , :arr Log : await client.send({
+      prg: cts.appName,
+      source: "Home",
+      rq: "getLog"
+    });
+    fn(Log);
+  };
+
+  // \(\->()) -> ()
+  reset = async \fn -> {
+    await client.send({
+      prg: cts.appName,
+      source: "Home",
+      rq: "resetLog"
+    });
+    fn();
+  };
+
+  // \s -> s
+  tlt = \tx -> return switch (tx) {
+    "All log entries will be deleted.\nContinue?":
+      II("All log entries will be deleted.\nContinue?");
+    "2 Days": II("2 Days");
+    "All": II("All");
+    "Reload": II("Reload");
+    "Delete": II("Delete");
+    "Errors": II("Errors");
+    "Log": II("Log");
+    default: tx;
+  };;
+
+  log.mk(logDiv, load, reset, tlt, true, 100, 25);
+
+  wg
+    .removeAll()
+    .add(logDiv)
+  ;
+};
+

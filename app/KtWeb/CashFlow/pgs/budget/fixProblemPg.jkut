@@ -1,0 +1,297 @@
+// Copyright 09-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Fix problem page.
+
+import "global";
+import "cts";
+import "data/diary";
+import "data/dann";
+import "data/problem";
+import "data/cashEntry";
+import "data/planEntry";
+import "data/diaryEntry";
+import "fixProblem/prEd";
+import "fixProblem/del";
+import "fixProblem/modify";
+import "fixProblem/newEntry";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, s, [<planEntry>.], [<diaryEntry>.], <problem>, (\->()) -> ()
+mk = \wg, selectedYear, :arr Plan, :arr Diary, :problem prob, fnReload -> {
+  delTr, newTr, modifyTr =;
+
+  trs = [Q("tr"), Q("tr"), Q("tr")];
+  // [[<prEd>]|[], [<prEd>]|[], [<prEd>]|[]]
+  trWgs = [[], [], []]; // del, modify, newEntry
+
+  updateLockedV = [false];
+
+  showOp = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \ -> ()
+  updateServer = async \ -> {
+    if (updateLockedV!) return;
+    updateLockedV! = true;
+
+    , dbKey : await client.send({
+      prg: cts.appName,
+      source: "FixProblem",
+      rq: "updateDiary",
+      dbKey: global.dbKeyV!,
+      year: selectedYear,
+      diary: Diary.map(diaryEntry.toJs)
+    });
+    global.dbKeyV! = dbKey;
+    fnReload();
+  };
+
+  // \s -> ()
+  updateAccount = \acc ->
+    for (edOp = trWgs) if (!!edOp) {
+      :prEd ed = edOp!;
+      ed.updateAccount(acc);
+    };
+
+  // \ -> ()
+  deactivateAll = \ ->
+    for (edOp = trWgs) if (!!edOp) {
+      :prEd ed = edOp!;
+      ed.deactivate();
+    };
+
+  // \n -> ()
+  deleteDiaryEntry = \ix -> {
+    Diary.remove(ix);
+    updateServer();
+  };
+
+  // \n, <diaryEntry> -> ()
+  addDiaryEntry = \ix, e -> {
+    Diary.insert(ix, e);
+    updateServer();
+  };
+
+  // \n, <diaryEntry> -> ()
+  modifyDiaryEntry = \ix, e -> {
+    Diary[ix] = e;
+    updateServer();
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \<domo> -> ()
+  mkCtas = \ctasDiv -> {
+    // [<planEntry>.]
+    :arr Es = !prob.hcErrOp
+      ? []
+      : \ -> {
+          :cashEntry e = prob.hcErrOp!;
+          return e.isIncome
+            ? Plan.filter(\:planEntry e -> return e.isIncome;)
+            : Plan.filter(\:planEntry e -> return !e.isIncome;)
+          ;
+        } ()
+    ;
+    return ctasDiv
+      .add(Q("div")
+        .style("padding-top:40px"))
+      .add(Q("div")
+        .klass("frame")
+        .add(Q("table")
+          .add(Q("tr")
+            .add(Q("td")
+              .html("<b>" + II("Accounts") + "</b>")))
+          .add(Q("tr")
+            .add(Q("td")
+              .add(Q("hr"))))
+          .adds(Es.map(\:planEntry e -> return Q("tr")
+              .add(Q("td")
+                .add(ui.link(\ev -> updateAccount(e.id);)
+                  .klass("link")
+                  .att("title", e.desc)
+                  .text(e.id)))
+            ;))))
+    ;
+  };
+
+  // \<domo> -> ()
+  mkBody = \bodyDiv -> {
+    // \s -> <domo>
+    tdTx = \tx -> return Q("td")
+      .klass("frameTx")
+      .text(tx)
+    ;;
+
+    // \n -> <domo>
+    tdNm = \n -> return Q("td")
+      .klass("frameNm")
+      .text(math.toIso(n, 2))
+    ;;
+
+    :arr Hcps = prob.HcPrevs;
+    :arr Cps = prob.CPrevs;
+    :arr Hcns = prob.HcNexts;
+    :arr Cns = prob.CNexts;
+
+    return bodyDiv
+      .add(Q("div")
+        .klass("head")
+        .text(II("Fix Problem")))
+      .add(Q("table")
+        .att("align", "center")
+        .klass("summary")
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", "4")
+            .style("text-align:center")
+            .html("<b>CashFlow</b>"))
+          .add(Q("td")
+            .style("padding-left:5px"))
+          .add(Q("td")
+            .att("colspan", "3")
+            .style("text-align:center")
+            .html("<b>Hconta</b>")))
+        .adds(iter.map([0:5], \i -> {
+            tr = Q("tr");
+            tr.add(Q("td"));
+            if (i < Cps.size()) {
+              :diaryEntry e = Cps[i];
+              tr.add(tdTx(e.month));
+              tr.add(tdTx(e.desc));
+              tr.add(tdNm(e.am));
+            } else {
+              for (i = 0:3) tr.add(tdTx(""));
+            }
+            tr.add(Q("td"));
+            if (i < Hcps.size()) {
+              :cashEntry e = Hcps[i];
+              tr.add(tdTx(e.month));
+              tr.add(tdTx(e.desc));
+              tr.add(tdNm(e.am));
+            } else {
+              for (i = 0:3) tr.add(tdTx(""));
+            }
+            return tr;
+          }))
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", "10"))
+            .style("height:15px"))
+        .adds(iter.map(
+            iter.filter([0:3], \i -> return !!trWgs[i];),
+            \i -> return trs[i];
+          ))
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", "10"))
+            .style("height:15px"))
+        .adds(iter.map([0:5], \i -> {
+            tr = Q("tr");
+            tr.add(Q("td"));
+            if (i < Cns.size()) {
+              :diaryEntry e = Cns[i];
+              tr.add(tdTx(e.month));
+              tr.add(tdTx(e.desc));
+              tr.add(tdNm(e.am));
+            } else {
+              for (i = 0:3) tr.add(tdTx(""));
+            }
+            tr.add(Q("td"));
+            if (i < Hcns.size()) {
+              :cashEntry e = Hcns[i];
+              tr.add(tdTx(e.month));
+              tr.add(tdTx(e.desc));
+              tr.add(tdNm(e.am));
+            } else {
+              for (i = 0:3) tr.add(tdTx(""));
+            }
+            return tr;
+          })))
+    ;
+  };
+
+  // \ -> ()
+  showOp! = \ -> {
+trace prob;
+    if (!prob.hcErrOp) {
+      if (!!prob.cErrOp) {
+        trWgs[delTr] = [del.mk(
+          trs[delTr],
+          Diary[prob.ix],
+          prob.ix,
+          true,
+          deactivateAll, deleteDiaryEntry
+        )];
+      }
+trace "here";
+    } else {
+      :cashEntry hce = prob.hcErrOp!;
+      if (!prob.cErrOp) {
+        trWgs[newTr] = [newEntry.mk(
+          trs[newTr],
+          hce,
+          diaryEntry.mk(hce.month, hce.desc, hce.isIncome, [
+              dann.mk("", hce.am)
+            ]),
+          prob.ix,
+          true,
+          deactivateAll, addDiaryEntry
+        )];
+      } else {
+        trWgs[delTr] = [del.mk(
+          trs[delTr],
+          Diary[prob.ix],
+          prob.ix,
+          false,
+          deactivateAll, deleteDiaryEntry
+        )];
+        trWgs[newTr] = [newEntry.mk(
+          trs[newTr],
+          hce,
+          diaryEntry.mk(hce.month, hce.desc, hce.isIncome, [
+              dann.mk("", hce.am)
+            ]),
+          prob.ix,
+          false,
+          deactivateAll, addDiaryEntry
+        )];
+        trWgs[modifyTr] = [modify.mk(
+          trs[modifyTr],
+          diaryEntry.mk(hce.month, hce.desc, hce.isIncome,
+            js.r(js.w(Diary[prob.ix][diaryEntry.Anns]))
+          ),
+          prob.ix,
+          false,
+          deactivateAll, modifyDiaryEntry
+        )];
+      }
+    }
+
+    ctasDiv = Q("div");
+    mkCtas(ctasDiv);
+    bodyDiv = Q("div");
+    mkBody(bodyDiv);
+    wg
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px;vertical-align:top")
+            .add(ctasDiv))
+          .add(Q("td")
+            .style("vertical-align:top")
+            .add(bodyDiv))))
+    ;
+  };
+
+  showOp!();
+
+};
+

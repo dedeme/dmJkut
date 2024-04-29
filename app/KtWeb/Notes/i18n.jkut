@@ -1,0 +1,53 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Download '%0'?": "¿Descargar '%0'?",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "Remove '%0'?": "¿Eliminar '%0'?",
+  "Restore '%0'?": "¿Restaurar '%0'?",
+  "Session is expired.": "Las sesión ha expirado.",
+  "Witout Notes": "Sin notas",
+  "here": "aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Download '%0'?": "Download '%0'?",
+  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
+  "Remove '%0'?": "Remove '%0'?",
+  "Restore '%0'?": "Restore '%0'?",
+  "Session is expired.": "Session is expired.",
+  "Witout Notes": "Witout Notes",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return !T ? s : T!;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

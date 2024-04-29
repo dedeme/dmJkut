@@ -1,0 +1,41 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Message page.
+
+import "i18n";
+import "cts";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   msg       : Message to show.
+///   withReload: If a reload message is shown.
+/// \<domo>, s, b -> ()
+mk = \wg, msg, withReload -> {
+  tx = "<a href=''>" + II("here") + "</a>";
+  reload =
+    "<p><b>" +
+    i18n.fmt(II("Click %0 to continue."), [tx]) +
+    "</b></p>";
+  wg
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .style("padding-bottom:20px;")
+      .text(cts.appName))
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("table")
+            .klass("border")
+            .att("width", "100%")
+            .style("background-color: #f8f8f8; border-collapse: collapse")
+            .add(Q("tr")
+              .add(Q("td")
+                .style("padding:0px 10px 0px 10px;")
+                .html(str.fmt("<p>%v<p>%v", [msg, withReload ? reload : ""]))
+              ))))));
+};

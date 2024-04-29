@@ -1,0 +1,11 @@
+// Copyright 27-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Functions
+
+/// Formats an integer with at least 2 digits.
+/// \n -> s
+formatN00 = \n -> {
+    r = "" + math.toInt(n);
+    return str.len(r) < 2 ? "0" + r : r;
+  };

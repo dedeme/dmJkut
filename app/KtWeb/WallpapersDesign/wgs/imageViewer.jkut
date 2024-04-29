@@ -1,0 +1,28 @@
+// Copyright 30-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Image viewer
+
+Q = ui.q;
+
+/// \<domo>, s, n, (\->()) -> ()
+mk = \Wg, url, width, onClick -> {
+  height = math.toInt(width * 9 / 16);
+  imgName = url[str.lastIndex(url, "/") + 1:];
+  Img = Q("img")
+    .att("src", url + "?t=" + time.now())
+    .att("title", imgName)
+    .att("border", 1)
+    .att("style", "cursor:pointer")
+    .on("click", \ev -> onClick();)
+  ;
+  Img.on("load", \ev -> {
+    E = Img.e;
+    if (E.width / E.height > 1.77777777) Img.att("width", width);
+    else Img.att("height", height);
+  });
+  Wg
+    .removeAll()
+    .add(Img)
+  ;
+};

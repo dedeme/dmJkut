@@ -1,0 +1,73 @@
+// Copyright 25-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// All the server data.
+
+import "cts";
+import "conf";
+import "acc";
+
+/// Constructor
+///   timeStamp: Stamp to controls if client data is updated.
+///   cf: Configuration data.
+///   ac: Accounting data.
+///  \s, <conf>, <acc> -> <all>
+mk = \timeStamp, cf, ac -> return {timeStamp, cf, ac};;
+
+/// Time stamp to controls if client data is updated.
+/// \ -> s
+timeStamp = \ -> return timeStampV!;;
+timeStampV = [""];
+
+/// Returns all the years with data (sorted from before to after).
+/// \ -> [s.]
+years = \ -> return YearsV!;;
+YearsV = [[]];
+
+/// Returns the edited year.
+/// \ -> s
+currentYear = \ -> return currentYearV!;;
+/// Sets the edited year. Used when year closing.
+/// \s -> ()
+setCurrentYear = \y -> currentYearV! = y;;
+currentYearV = ["1001"];
+
+/// Returns 'true' if 'currentYear()' is the last year of 'years()'.
+/// \ -> b
+isLastYear = \ -> return currentYearV! == arr.peek(YearsV!);;
+
+/// Sends data to server and returns 'true' if data were changed or 'false' if
+/// data were not changed because being out of date.
+/// If data is out of date no change is made.
+/// \ -> <promise>b
+send = async \ -> {
+  , timeStamp : await client.send({
+    prg: cts.appName,
+    source: "Main",
+    rq: "write",
+    timeStamp: timeStampV!,
+    year: currentYearV!,
+    data: js.w(acc.toJs())
+  });
+  if (timeStamp == "") return new Promise(\resolve, reject -> resolve(false););
+  timeStampV! = timeStamp;
+  return new Promise(\resolve, reject -> resolve(true););
+};
+
+/// Request data from server and return 'true'.
+/// \ -> <promise>b
+request = async \ -> {
+  timeStamp, year, Years, data // s, s, [s.], s
+  : await client.send({
+    prg: cts.appName,
+    source: "Main",
+    rq: "read"
+  });
+
+  timeStampV! = timeStamp;
+  YearsV! = Years;
+  currentYearV! = year;
+  acc.fromJs(js.r(data));
+
+  return new Promise(\resolve, reject -> resolve(true););
+};

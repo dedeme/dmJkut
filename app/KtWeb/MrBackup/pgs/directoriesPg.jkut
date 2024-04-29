@@ -1,0 +1,148 @@
+// Copyright 29-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Directories page
+
+import "cts";
+import "data/testRs";
+import "wgs/dirRowWg";
+import "busyPg";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \ -> ()
+mk = async \wg -> {
+  isBusy, :dic TestRss // b, {<testRs>.} :: {backupDirName: testResult}
+  : await client.send({
+    prg: cts.appName,
+    source: "DirectoriesPg",
+    rq: "idata"
+  });
+
+  if (isBusy) {
+    busyPg.mk();
+    return;
+  }
+
+  newIn = Q("input")
+    .style("width:200px")
+    .disabled(true)
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  newDirectory = async \ev -> {
+    id = str.trim(newIn.getValue());
+    err = fns.validateDirId(id);
+    if (err != "") {
+      ui.alert(err);
+      return;
+    }
+    if (dic.hasKey(TestRss, id)) {
+      ui.alert(II("Directory is duplicated"));
+      return;
+    }
+
+    , isBusy : await client.send({
+      prg: cts.appName,
+      source: "DirectoriesPg",
+      rq: "new",
+      id
+    });
+    if (isBusy) {
+      busyPg.mk();
+      return;
+    }
+    mk(wg);
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> <domo>
+  mkNewWg = \ -> {
+    editWg = Q("div");
+    doWg = Q("div");
+
+    // \<event> -> ()
+    editf = \ev -> {
+      //<event> -> ()
+      cancelf = \ev -> {
+        editWg
+          .removeAll()
+          .add(ui.link(editf)
+            .add(ui.img("edit"))
+        );
+
+        doWg
+          .removeAll()
+          .add(ui.lightImg("editOk"))
+        ;
+        newIn
+          .value("")
+          .disabled(true)
+        ;
+      };
+
+      editWg
+        .removeAll()
+        .add(ui.link(cancelf)
+          .add(ui.img("editCancel")))
+      ;
+      doWg
+        .removeAll()
+        .add(ui.link(newDirectory)
+          .add(ui.img("editOk")))
+      ;
+      newIn.disabled(false);
+    };
+
+    editWg.add(ui.link(editf)
+      .add(ui.img("edit"))
+    );
+    doWg.add(ui.lightImg("editOk"));
+
+    return Q("div")
+      .add(Q("div")
+        .klass("head")
+        .text(II("New")))
+      .add(Q("table")
+        .klass("frame")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(editWg))
+          .add(Q("td")
+            .add(doWg))
+          .add(Q("td")
+            .add(newIn))
+        ))
+    ;
+  };
+
+  // \ -> <domo>
+  mkTableWg = \ -> {
+    :arr DirNames = TestRss.keys();
+    DirNames.sort(\n1, n2 -> return str.toUpper(n1) < str.toUpper(n2););
+    return Q("div")
+      .add(Q("div")
+        .klass("head")
+        .text(II("Directories")))
+      .add(Q("table")
+        .klass("white")
+        .att("align", "center")
+        .adds(DirNames.map(
+            \dname -> return dirRowWg.mk(dname, TestRss[dname], \-> mk(wg););
+          )))
+    ;
+  };
+
+  wg
+    .removeAll()
+    .add(mkNewWg())
+    .add(mkTableWg())
+  ;
+};

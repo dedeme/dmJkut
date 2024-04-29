@@ -1,0 +1,524 @@
+// Copyright 11-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Accounting annotations of one investor.
+
+import "libdm/menu";
+import "libdm/datePicker";
+import "wgs/msg";
+import "data/acc/ann";
+import "data/acc/opr";
+import "annotationsWg";
+import "cts";
+import "global";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \s, <domo>, n -> <field>
+mkField = \name, wg, width -> return {name, wg, width};;
+
+// \s, s -> s
+checkEmpty = \field, value ->
+  if (value != "") return "";
+  else return i18n.fmt(II("'%0' is empty"), [field]);
+;
+
+// \s, s -> s
+checkInt = \field, value ->
+  if (value != "" & math.isDigits(value) & value > 0) return "";
+  else return i18n.fmt(II("'%0' is not a positive integer"), [field]);
+;
+
+// \s , s -> s
+checkFloat = \field, value ->
+  if (value != "" & !!math.fromIso(value) & math.fromIso(value)! >= 0) return "";
+  else return i18n.fmt(II("'%0' is not a number or is a negative one"), [field]);
+;
+
+// \s -> s
+dt2s = \d -> return time.toStr(time.fromIso(d, "/")!);;
+
+// Main ------------------------------------------------------------------------
+
+/// \<domo>, i, s -> ()
+mk = async \wg, year0 -> {
+  // s, b, s, [s,], [JS<ann>.], n
+  dbKey, ok, year, :arr Years, :arr AnnsJs, cash : await client.send({
+    prg: cts.appName,
+    module: "Settings",
+    source: "AnnsPg",
+    rq: "idata",
+    year: year0
+  });
+  global.dbKeyV! = dbKey;
+
+  if (!ok)
+    msg.error(II("Some error was found.<br>See Log."), \->{});
+  // [<ann>.]
+  :arr Anns = AnnsJs.map(ann.fromJs);
+  Anns.sort(\:ann a1, :ann a2 ->
+    return a1.date == a2.date
+      ? a1.id > a2.id
+      : a1.date > a2.date
+    ;
+  ); // reverse order
+
+  editor = Q("div");
+  dtPck = datePicker.mk(true, time.now(), \d->{});
+
+  showSelectorV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \<ann> -> ()
+  sendAnn = async \:ann a -> {
+    await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "AnnsPg",
+      dbKey: global.dbKeyV!,
+      rq: "new",
+      annotation: a.toJs()
+    });
+    global.dbKeyV! = dbKey;
+    mk(wg, year);
+  };
+
+  // \i -> ()
+  del = async \annId -> {
+    aOp = Anns.find(\:ann a -> return a.id == annId;);
+    if (!aOp) {
+      ui.alert(i18n.fmt(II("Annotation con id '%0' not found"), ["" + annId]));
+      return;
+    }
+    :ann a = aOp!;
+    if (ui.confirm(i18n.fmt(II("Delete %0?"), [js.w(a.toJs())]))) {
+      await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "AnnsPg",
+        rq: "del",
+        dbKey: global.dbKeyV!,
+        annId
+      });
+      global.dbKeyV! = dbKey;
+      mk(wg, year);
+    }
+  };
+
+  // \s -> ()
+  changeYear = \y -> mk(wg, y);;
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> ()
+  closeYear = \ -> msg.info("""
+    <p>Para cerrar el ejercicio hay que reiniciar el servidor una vez que
+    el nuevo año ha comenzado.</p>
+    <p>Para modificar datos del año anterior hay que
+      <ol>
+        <li>Eliminar los archivos 'data/investor/diaries/<i>lastYear</i>.db'.</li>
+        <li>Recargar la página web (sin reiniciar el servidor)</li>
+        <li>Realizar las modificaciones.</li>
+        <li>Reiniciar el servidor.</li>
+      </ol></p>
+    <p><i>Todos los datos del actual ejercicio se perderán</i></p>
+    <p>Antes del paso '1' se puede hacer una copia de los archivos que se van
+    a eliminar, borrando los asientos de inicialización, y después del proceso
+    pegar dichos archivos a los nuevos creados.</p>
+  """, \->{});;
+
+  // \s, <domo> -> <domo>
+  mkTypeDate = \tp, dt -> {
+    dt.style("width:80px;text-align:center");
+    return Q("tr").add(Q("td")
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frame2")
+            .style("text-align:center;vertical-align:bottom;")
+            .html("<big><b>" + tp + "</big></b>"))
+          .add(Q("td")
+            .add(Q("table")
+              .att("align", "right")
+              .add(Q("tr")
+                .add(Q("td").style("text-align:center;")
+                  .html(II("Date"))))
+              .add(Q("tr")
+                .add(Q("td")
+                .add(datePicker.mkText(dtPck, dt)))))))))
+    ;
+  };
+
+  // \[<Field>.] -> <domo>
+  mkFields = \:arr Fields ->
+    return Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .adds(Fields.map(\F -> return Q("td")
+            .style("text-align:center;")
+            .html(F.name)
+          ;)))
+      .add(Q("tr")
+        .adds(Fields.map(\F -> return Q("td")
+            .style("text-align:center;")
+            .add(F.wg.style("width:" + F.width + "px"))
+          ;)))
+  ;;
+
+  // \(\->()) -> <domo>
+  mkCancelAccept = \f ->
+    return Q("tr")
+      .add(Q("td")
+        .style("text-align:right;")
+        .add(ui.link(\e -> showSelectorV!();)
+          .klass("link")
+          .text(II("Cancel")))
+        .add(Q("span").html("&nbsp;&nbsp;&nbsp;"))
+        .add(ui.link(\e -> f();)
+          .klass("link")
+          .text(II("Accept"))))
+  ;;
+
+  // \ -> ()
+  sell = \ -> {
+    // \<domo> -> s
+    v = \field -> return str.trim(field.getValue());;
+    dtf = Q("input").att("type", "text");
+    nkf = Q("input").att("type", "text");
+    stf = Q("input").att("type", "text");
+    prf = Q("input").att("type", "text");
+    ui.changePoint(prf);
+    // \<ev> -> ()
+    f = \ -> {
+      R = [checkEmpty(II("Date"), v(dtf))];
+      if (R! == "") R! = checkEmpty(II("Nick"), v(nkf));
+      if (R! == "") R! = checkInt(II("Stocks"), v(stf));
+      if (R! == "") R! = checkFloat(II("Price"), v(prf));
+      if (R! == "")
+        sendAnn(ann.mk(dt2s(v(dtf)), opr.mkSe(
+          v(nkf), math.fromStr(v(stf))!, math.fromIso(v(prf))!
+        )));
+      else
+        ui.alert(R!);
+    };
+
+    editor
+      .removeAll().
+      add(Q("table")
+        .klass("main")
+        .add(mkTypeDate(II("Sell"), dtf))
+        .add(mkFields([
+          mkField(II("Nick"), nkf, 50),
+          mkField(II("Stocks"), stf, 40),
+          mkField(II("Price"), prf, 75)
+        ]))
+        .add(mkCancelAccept(f)));
+  };
+
+  // \ -> ()
+  buy = \ -> {
+    // \<domo> -> s
+    v = \field -> return str.trim(field.getValue());;
+    dtf = Q("input").att("type", "text");
+    nkf = Q("input").att("type", "text");
+    stf = Q("input").att("type", "text");
+    prf = Q("input").att("type", "text");
+    ui.changePoint(prf);
+    // \ -> ()
+    f = \ -> {
+      R = [checkEmpty(II("Date"), v(dtf))];
+      if (R! == "") R! = checkEmpty(II("Nick"), v(nkf));
+      if (R! == "") R! = checkInt(II("Stocks"), v(stf));
+      if (R! == "") R! = checkFloat(II("Price"), v(prf));
+      if (R! == "")
+        sendAnn(ann.mk(dt2s(v(dtf)), opr.mkBu(
+          v(nkf), math.fromStr(v(stf))!, math.fromIso(v(prf))!
+        )));
+      else
+        ui.alert(R!);
+    };
+
+    editor
+      .removeAll().
+      add(Q("table")
+        .klass("main")
+        .add(mkTypeDate(II("Buy"), dtf))
+        .add(mkFields([
+          mkField(II("Nick"), nkf, 50),
+          mkField(II("Stocks"), stf, 40),
+          mkField(II("Price"), prf, 75)
+        ]))
+        .add(mkCancelAccept(f)));
+  };
+
+  // \ -> ()
+  income = \ -> {
+    // \<domo> -> s
+    v = \field -> return str.trim(field.getValue());;
+    dtf = Q("input").att("type", "text");
+    amf = Q("input").att("type", "text");
+    ui.changePoint(amf);
+    // \<ev> -> ()
+    f = \ -> {
+      R = [checkEmpty(II("Date"), v(dtf))];
+      if (R! == "") R! = checkFloat(II("Amount"), v(amf));
+      if (R! == "")
+        sendAnn(ann.mk(dt2s(v(dtf)), opr.mkIn(
+          math.fromIso(v(amf))!
+        )));
+      else
+        ui.alert(R!);
+    };
+
+    editor
+      .removeAll().
+      add(Q("table")
+        .klass("main")
+        .add(mkTypeDate(II("Income"), dtf))
+        .add(mkFields([
+          mkField(II("Amount"), amf, 80)
+        ]))
+        .add(mkCancelAccept(f)));
+  };
+
+  // \ -> ()
+  withdrawal = \ -> {
+    // \<domo> -> s
+    v = \field -> return str.trim(field.getValue());;
+    dtf = Q("input").att("type", "text");
+    amf = Q("input").att("type", "text");
+    ui.changePoint(amf);
+    // \<ev> -> ()
+    f = \ -> {
+      R = [checkEmpty(II("Date"), v(dtf))];
+      if (R! == "") R! = checkFloat(II("Amount"), v(amf));
+      if (R! == "")
+        sendAnn(ann.mk(dt2s(v(dtf)), opr.mkWi(
+          math.fromIso(v(amf))!
+        )));
+      else
+        ui.alert(R!);
+    };
+
+    editor
+      .removeAll().
+      add(Q("table")
+        .klass("main")
+        .add(mkTypeDate(II("Withdrawal"), dtf))
+        .add(mkFields([
+          mkField(II("Amount"), amf, 80)
+        ]))
+        .add(mkCancelAccept(f)));
+  };
+
+  // \ -> ()
+  profits = \ -> {
+    // \<domo> -> s
+    v = \field -> return str.trim(field.getValue());;
+    dtf = Q("input").att("type", "text");
+    amf = Q("input").att("type", "text");
+    ui.changePoint(amf);
+    def = Q("input").att("type", "text");
+    // \<ev> -> ()
+    f = \ -> {
+      R = [checkEmpty(II("Date"), v(dtf))];
+      if (R! == "") R! = checkFloat(II("Amount"), v(amf));
+      if (R! == "") R! = checkEmpty(II("Description"), v(def));
+      if (R! == "")
+        sendAnn(ann.mk(dt2s(v(dtf)), opr.mkPr(
+          math.fromIso(v(amf))!, v(def)
+        )));
+      else
+        ui.alert(R!);
+    };
+
+    editor
+      .removeAll().
+      add(Q("table")
+        .klass("main")
+        .add(mkTypeDate(II("Profits"), dtf))
+        .add(mkFields([
+          mkField(II("Amount"), amf, 80),
+          mkField(II("Description"), def, 220)
+        ]))
+        .add(mkCancelAccept(f)));
+  };
+
+  // \ -> ()
+  fees = \ -> {
+    // \<domo> -> s
+    v = \field -> return str.trim(field.getValue());;
+    dtf = Q("input").att("type", "text");
+    amf = Q("input").att("type", "text");
+    ui.changePoint(amf);
+    def = Q("input").att("type", "text");
+    // \<ev> -> ()
+    f = \ -> {
+      R = [checkEmpty(II("Date"), v(dtf))];
+      if (R! == "") R! = checkFloat(II("Amount"), v(amf));
+      if (R! == "") R! = checkEmpty(II("Description"), v(def));
+      if (R! == "")
+        sendAnn(ann.mk(dt2s(v(dtf)), opr.mkFe(
+          math.fromIso(v(amf))!, v(def)
+        )));
+      else
+        ui.alert(R!);
+    };
+
+    editor
+      .removeAll().
+      add(Q("table")
+        .klass("main")
+        .add(mkTypeDate(II("Fees"), dtf))
+        .add(mkFields([
+          mkField(II("Amount"), amf, 80),
+          mkField(II("Description"), def, 220)
+        ]))
+        .add(mkCancelAccept(f)));
+  };
+
+  // \ -> ()
+  diffP = \ -> {
+    // \<domo> -> s
+    v = \field -> return str.trim(field.getValue());;
+    dtf = Q("input").att("type", "text");
+    amf = Q("input").att("type", "text");
+    ui.changePoint(amf);
+    def = Q("input").att("type", "text");
+    // \<ev> -> ()
+    f = \ -> {
+      R = [checkEmpty(II("Date"), v(dtf))];
+      if (R! == "") R! = checkFloat(II("Amount"), v(amf));
+      if (R! == "") R! = checkEmpty(II("Diff. +"), v(def));
+      if (R! == "")
+        sendAnn(ann.mk(dt2s(v(dtf)), opr.mkPd(
+          math.fromIso(v(amf))!, v(def)
+        )));
+      else
+        ui.alert(R!);
+    };
+
+    editor
+      .removeAll().
+      add(Q("table")
+        .klass("main")
+        .add(mkTypeDate(II("Fees"), dtf))
+        .add(mkFields([
+          mkField(II("Amount"), amf, 80),
+          mkField(II("Diff. +"), def, 220)
+        ]))
+        .add(mkCancelAccept(f)));
+  };
+
+  // \ -> ()
+  diffN = \ -> {
+    // \<domo> -> s
+    v = \field -> return str.trim(field.getValue());;
+    dtf = Q("input").att("type", "text");
+    amf = Q("input").att("type", "text");
+    ui.changePoint(amf);
+    def = Q("input").att("type", "text");
+    // \<ev> -> ()
+    f = \ -> {
+      R = [checkEmpty(II("Date"), v(dtf))];
+      if (R! == "") R! = checkFloat(II("Amount"), v(amf));
+      if (R! == "") R! = checkEmpty(II("Description"), v(def));
+      if (R! == "")
+        sendAnn(ann.mk(dt2s(v(dtf)), opr.mkNd(
+          math.fromIso(v(amf))!, v(def)
+        )));
+      else
+        ui.alert(R!);
+    };
+
+    editor
+      .removeAll().
+      add(Q("table")
+        .klass("main")
+        .add(mkTypeDate(II("Diff. -"), dtf))
+        .add(mkFields([
+          mkField(II("Amount"), amf, 80),
+          mkField(II("Description"), def, 220)
+        ]))
+        .add(mkCancelAccept(f)));
+  };
+
+  // \ -> ()
+  showSelectorV! = \ -> {
+    // \ -> <domo>
+    td = \ -> return Q("td").style("width:50%;");;
+    // \s, (\ev->()) -> <domo>
+    lk = \tx, f -> return year == Years[0]
+      ? ui.link(f).klass("link").html(tx)
+      : Q("span").html(tx)
+    ;;
+    editor
+      .removeAll()
+      .add(Q("table").klass("main")
+        .add(Q("tr")
+          .add(td().add(lk(II("Sell"), \e -> sell();)))
+          .add(td().add(lk(II("Buy"), \e -> buy();))))
+        .add(Q("tr")
+          .add(td().add(lk(II("Income"), \e -> income();)))
+          .add(td().add(lk(II("Withdrawal"), \e -> withdrawal();))))
+        .add(Q("tr")
+          .add(td().add(lk(II("Profits"), \e -> profits();)))
+          .add(td().add(lk(II("Fees"), \e -> fees();))))
+        .add(Q("tr")
+          .add(td().add(lk(II("Diff. +"), \e -> diffP();)))
+          .add(td().add(lk(II("Diff. -"), \e -> diffN();)))))
+    ;
+  };
+
+  Lopts = [];
+  arr.eachIx(Years, \y, i -> {
+    if (i > 0) arr.push(Lopts, menu.separator());
+    arr.push(Lopts, menu.toption(y, y, \ -> changeYear(y);));
+  });
+  Ropts = [menu.toption("close", II("Close Year Help"), closeYear)];
+  menuWg = menu.mk(Lopts, Ropts, year);
+
+  annsWg = Q("div");
+  if (year == Years[0]) annotationsWg.mk(annsWg, Anns, [del]);
+  else annotationsWg.mk(annsWg, Anns, []);
+
+  showSelectorV!();
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(Q("div")
+      .add(Q("div")
+        .klass("head")
+        .html(II("Annotations")))
+      .add(Q("table")
+        .att("align", "center")
+        .klass("frame3")
+          .add(Q("tr")
+            .add(Q("td")
+              .add(editor)))
+          .add(Q("tr")
+            .add(Q("td")
+              .add(Q("hr"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("table")
+              .att("align", "right")
+              .add(Q("tr")
+                .add(Q("td")
+                  .klass("rlabel")
+                  .add(Q("span")
+                    .html(II("Cash:"))))
+                .add(Q("td")
+                  .klass("number")
+                  .text(math.toIso(cash, 2)))
+                .add(Q("td"))))))
+        .add(Q("tr")
+          .add(Q("td").klass("frame")
+            .add(annsWg)))))
+  ;
+};

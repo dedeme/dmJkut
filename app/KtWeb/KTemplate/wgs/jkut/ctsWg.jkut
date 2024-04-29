@@ -1,0 +1,104 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Constans module designer.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   textArea: Viewer.
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    // Copyright {DATE} ºDeme
+    // GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+    /// Constants.
+
+    Q = ui.q;
+
+    /// Application name.
+    appName = "{NAME}";
+    /// Application version.
+    version = "{VERSION}";
+    /// Page foot.
+    foot = Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("hr"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align: right;color:#808080;font-size:x-small;")
+          .html(str.fmt("- © ºDeme. %v (%v) -", [appName, version]))))
+    ;
+  """;
+
+  now = time.now();
+  month = now.toDate().toLocaleString("en-US", { month: "short" });
+  dateF = ui.field("nameF")
+    .att("id", "dateF")
+    .value("")
+  ;
+
+  nameF = ui.field("versionF")
+    .att("id", "nameF")
+    .value("Name")
+  ;
+
+  versionF = ui.field("dateF")
+    .att("id", "versionF")
+    .value("")
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    if (str.trim(dateF.getValue()) == "")
+      dateF.value(now.format("%D-" + month + "-%Y"));
+    if (str.trim(nameF.getValue()) == "")
+      nameF.value("Name");
+    if (str.trim(versionF.getValue()) == "")
+      versionF.value(now.format("%Y.%M"));
+
+    textArea.text(tx
+      .replace("{DATE}", str.trim(dateF.getValue()))
+      .replace("{NAME}", str.trim(nameF.getValue()))
+      .replace("{VERSION}", str.trim(versionF.getValue()))
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+
+  dateF.on("change", \e -> update(););
+  dateF.on("focus", \ev -> ev.target.select(););
+  nameF.on("change", \e -> update(););
+  nameF.on("focus", \ev -> ev.target.select(););
+  versionF.on("change", \e -> update(););
+  versionF.on("focus", \ev -> ev.target.select(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(ui.hrule(II("Date") + ":", 25))
+    .add(dateF)
+    .add(ui.hrule(II("Application Name") + ":", 25))
+    .add(nameF)
+    .add(ui.hrule(II("Application version") + ":", 25))
+    .add(versionF)
+    .add(Q("hr"))
+  ;
+
+  update();
+};

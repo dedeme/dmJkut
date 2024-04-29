@@ -1,0 +1,11 @@
+// Copyright 07-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// <calendar> data definition.
+
+/// Constructor.
+///   general    : Default timetable of a market day.
+///   Holidays   : Holiday dates.
+///   SpecialDays: Days with special timetable.
+/// \<timetable>,[s.],[<mktDay>.] -> <calendar>
+mk : general, Holidays, SpecialDays;

@@ -1,0 +1,45 @@
+// Copyright 29-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Global functions.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Validate directory identifier.
+/// Returns an error message or "" if everything is ok.
+/// \s -> s
+validateDirId = \id -> {
+  if (id == "") return "Name is missing.";
+  for (i = 0:str.len(id)) {
+    ch = id[i];
+    if ( ch == "_" |
+        (ch >= "0" & ch <= "9") |
+        (ch >= "A" & ch <= "Z") |
+        (ch >= "a" & ch <= "z")
+    ) continue;
+    return i18n.fmt(II("Character '%0' is not allowed"), [ch]);
+  }
+  return "";
+};
+
+/// Offset for messurements.
+/// <domo>
+measureWg = Q("span").style("visibility:hidden");
+
+/// Returns the width of a string in pixels.
+/// \s -> n
+measure = \tx -> {
+  measureWg.text(tx);
+  return measureWg.e.offsetWidth;
+};
+
+/// Adjusts text to pixels.
+/// \s, n -> s
+cut = \tx, length -> {
+  txV = [tx];
+  while (measure(txV!) > length) txV! = "..." + txV![4:];
+  return txV!;
+};

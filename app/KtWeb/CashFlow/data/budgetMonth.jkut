@@ -1,0 +1,26 @@
+// Copyright 08-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Month bugdet entries.
+
+import "planEntry";
+import "budgetEntry";
+
+/// Returns an empty budgetMonth data.
+/// \[<planEntry>.] -> [<budgetEntry>.]
+mkEmpty = \:arr Plan -> return Plan.map(\:planEntry e ->
+    return budgetEntry.mk(e.id, 0);
+  );;
+
+/// Remove accounts not used and add new empty accounts
+/// \[<budgetEntry>.], [<planEntry>.] -> ()
+cleanAndComplete = \:arr Month, :arr Plan -> {
+  :arr NewEntries = Plan.map(\:planEntry pe -> {
+    for (:budgetEntry be = Month)
+      if (be.accId == pe.id) return budgetEntry.mk(be.accId, be.am);
+    return budgetEntry.mk(pe.id, 0);
+  });
+  Month.clear();
+  Month.cat(NewEntries);
+};
+

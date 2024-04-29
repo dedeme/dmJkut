@@ -1,0 +1,104 @@
+// Generate by jkutI18n. Don't modify
+
+/// Internationalization management.
+
+esDic = {
+  "2 Days": "2 días",
+  "Acc.": "Conta.",
+  "All": "Todo",
+  "All log entries will be deleted.\nContinue?": "Todas las entradas serán borradas.\n¿Continuar?",
+  "Average": "Media",
+  "Click %0 to continue.": "Click %0 para continuar.",
+  "Close": "Cierre",
+  "Corrected average": "Media corregida",
+  "Cr. Avg.": "Media C.",
+  "Daily": "Diario",
+  "Data base is out of date.": "La base de datos está obsoleta.",
+  "Delete": "Borrar",
+  "Dev.": "Desv.",
+  "Deviation": "Desviación",
+  "Errors": "Errores",
+  "Global": "Global",
+  "Hot Maps": "Mapas de calor",
+  "Hot Maps - 20": "Mapas de calor - 20",
+  "Log": "Registro",
+  "Maps": "Mapas",
+  "Maps-20": "Mapas-20",
+  "Models": "Modelos",
+  "Monthly": "Mensual",
+  "Positions": "Posiciones",
+  "Price": "Precio",
+  "Prices": "Precios",
+  "Profits": "Benef.",
+  "Rank": "Clasif.",
+  "Refs.": "Refs.",
+  "Reload": "Recarga",
+  "Session is closed.\nAuthenticating from KutPost.": "La sesión ha sido cerrada.\nHay que autenticarse en KutPost.",
+  "Session is expired.": "La sesión ha expirado.",
+  "Weekly": "Semanal",
+  "here": "Aquí"
+};
+/// \-> ()
+es = \-> Lang! = "es";;
+
+enDic = {
+  "2 Days": "2 Days",
+  "Acc.": "Acc.",
+  "All": "All",
+  "All log entries will be deleted.\nContinue?": "All log entries will be deleted.\nContinue?",
+  "Average": "Average",
+  "Click %0 to continue.": "Click %0 to continue.",
+  "Close": "Close",
+  "Corrected average": "Corrected average",
+  "Cr. Avg.": "Cr. Avg.",
+  "Data base is out of date.": "Data base is out of date.",
+  "Delete": "Delete",
+  "Dev.": "Dev.",
+  "Deviation": "Deviation",
+  "Errors": "Errors",
+  "Global": "Global",
+  "Hot Maps": "Hot Maps",
+  "Hot Maps - 20": "Hot Maps - 20",
+  "Log": "Log",
+  "Maps": "Maps",
+  "Maps-20": "Maps-20",
+  "Models": "Models",
+  "Monthly": "Monthly",
+  "Positions": "Positions",
+  "Price": "Price",
+  "Prices": "Prices",
+  "Profits": "Profits",
+  "Rank": "Rank",
+  "Refs.": "Refs.",
+  "Reload": "Reload",
+  "Session is closed.\nAuthenticating from KutPost.": "Session is closed.\nAuthenticating from KutPost.",
+  "Session is expired.": "Session is expired.",
+  "Weekly": "Weekly",
+  "here": "here"
+};
+/// \-> ()
+en = \-> Lang! = "en";;
+
+//\s -> {s...}
+dicByKey = \s -> return switch (s) {
+  "es": esDic;
+  "en": enDic;
+  default: "Unreachable";
+};;
+
+Lang = ["es"];
+/// \-> s
+getLang = \-> return Lang!;;
+
+/// \s -> s
+tlt = \s -> {
+  T = dic.get(dicByKey(Lang!), s);
+  return !T ? s : T!;
+};
+
+/// \s, [s...] -> s
+fmt = \tp, Rpls -> {
+  R = [tp];
+  for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);
+  return R!;
+};

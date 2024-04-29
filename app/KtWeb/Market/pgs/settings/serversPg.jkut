@@ -1,0 +1,413 @@
+// Copyright 09-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Servers page
+
+import "libdm/modalBox";
+import "libdm/vmenu";
+import "data/server";
+import "wgs/msg";
+import "global";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Contents maker.
+///   wg    : Container.
+///   selected: Server selected identifier.
+/// \<domo>, s -> ()
+mk = async \wg, selected -> {
+  // s, [<server>.], s, s, {s.}::{nick:serverCode}
+  dbKey, :arr Svs, dailySv, historicSv, :dic Codes : await client.send({
+    prg: cts.appName,
+    module: "Settings",
+    source: "ServersPg",
+    rq: "idata",
+    selected
+  });
+  global.dbKeyV! = dbKey;
+
+  svSelectedOp = Svs.find(\:server sv -> return sv.id == selected;);
+  :server svSelected = !svSelectedOp
+    ? server.mk("", "", false, false)
+    : svSelectedOp!
+  ;
+
+  dailyTestImg = Q("span");
+  historicTestImg = Q("span");
+  CodeFields = [];
+  TestSpans = [];
+  msgWait = Q("div");
+  showWaitV = [[]];
+
+  showV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  select = \svId -> mk(wg, svId);;
+
+  dailyTest = async \-> {
+    dailyTestImg
+      .removeAll()
+      .add(ui.img("wait.gif"))
+    ;
+    withErrors, withWarnings : await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "ServersPg",
+      rq: "testDaily",
+      svId: svSelected.id
+    });
+    if (withErrors & withWarnings)
+      msg.error(II("Errors and warnings found.<br>See log."), \->{});
+    else if (withErrors)
+      msg.error(II("Errors found.<br>See log."), \->{});
+    else if (withWarnings)
+      msg.error(II("Warnings found.<br>See log."), \->{});
+    else
+      msg.ok(II("Test ok."), \->{});
+
+    dailyTestImg
+      .removeAll()
+      .add(ui.link(\ev -> dailyTest();)
+        .add(ui.img("unknown")
+        .style("vertical-align:top")))
+    ;
+  };
+
+  historicTest = \-> {
+    :arr NksCds = Codes.toArr();
+    NksCds.sort(\Tp1, Tp2 -> return Tp1[0] > Tp2[0];);
+
+    withErrorsV = [false];
+    withWarningsV = [false];
+    test2 = async \NksCds -> {
+      if (!NksCds) {
+        showWaitV!("");
+        if (withErrorsV! & withWarningsV!)
+          msg.error(II("Errors and warnings found.<br>See log."), \->{});
+        else if (withErrorsV!)
+          msg.error(II("Errors found.<br>See log."), \->{});
+        else if (withWarningsV!)
+          msg.error(II("Warnings found.<br>See log."), \->{});
+        else
+          msg.ok(II("Test ok."), \->{});
+        return;
+      }
+
+      nick, code = NksCds.pop();
+      showWaitV!(nick);
+      withErrors, withWarnings : await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "ServersPg",
+        rq: "testCo",
+        svId: svSelected.id,
+        nick,
+        code
+      });
+      withErrorsV! |= withErrors;
+      withWarningsV! |= withWarnings;
+      test2(NksCds);
+    };
+    test2(NksCds);
+  };
+
+  // \<domo>, s, <domo> -> ()
+  coTest = async \span, nick, field -> {
+    code = str.trim(field.getValue());
+    if (code == "") {
+      msg.error("Code is empty", \->{});
+      return;
+    }
+
+    span
+      .removeAll()
+      .add(ui.img("wait.gif"))
+    ;
+    withErrors, withWarnings : await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "ServersPg",
+      rq: "testCo",
+      svId: svSelected.id,
+      nick: nick,
+      code: code
+    });
+    if (withErrors & withWarnings)
+      msg.error(II("Errors and warnings found.<br>See log."), \->{});
+    else if (withErrors)
+      msg.error(II("Errors found.<br>See log."), \->{});
+    else if (withWarnings)
+      msg.error(II("Warnings found.<br>See log."), \->{});
+    else
+      msg.ok(II("Test ok."), \->{});
+
+    span
+      .removeAll()
+      .add(ui.link(\ev -> coTest(span, nick, field);)
+        .add(ui.img("unknown")
+          .style("vertical-align:top")))
+    ;
+  };
+
+  // \ -> ()
+  reset = \ -> mk(wg, svSelected.id);;
+
+  // \ -> ()
+  modify = async \ -> {
+    // {s...}
+    Codes = {};
+    for (field = CodeFields)
+      dic.put(Codes, field.getAtt("id"), str.trim(field.getValue()));
+    , dbKey : await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "ServersPg",
+      rq: "setCodes",
+      dbKey: global.dbKeyV!,
+      svId: svSelected.id,
+      Codes: Codes
+    });
+    global.dbKeyV! = dbKey;
+    mk(wg, svSelected.id);
+  };
+
+  // View ----------------------------------------------------------------------
+
+  showV! = \ -> {
+    Opts = [vmenu.title(II("Servers")), vmenu.separator()];
+    for (:server sv = Svs) {
+      dailyWg = \-> return sv.withDaily
+        ? sv.id == dailySv
+          ? ui.img("star")
+          : ui.led("#d0ddde", 6)
+        : ui.img("stopped")
+      ;;
+
+      historicWg = \ -> return sv.withHistoric
+        ? sv.id == historicSv
+          ? ui.img("star")
+          : ui.led("#d0ddde", 6)
+        : ui.img("stopped")
+      ;;
+
+      normalWg = Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px")
+            .add(dailyWg().setStyle("vertical-align", "top")))
+          .add(Q("td")
+            .style("width:5px")
+            .add(historicWg().setStyle("vertical-align", "top")))
+          .add(Q("td")
+            .add(ui.link(\ev -> select(sv.id);)
+            .klass("link")
+            .setStyle("text-align", "left")
+            .setStyle("padding-left", "4px")
+            .text(sv.id))))
+      ;
+      selectWg = Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px")
+            .add(dailyWg().setStyle("vertical-align", "top")))
+          .add(Q("td")
+            .style("width:5px")
+            .add(historicWg().setStyle("vertical-align", "top")))
+          .add(Q("td")
+            .add(Q("span")
+              .style(
+                  "padding-left:4px;" +
+                  "text-align:left;" +
+                  "font-style:italic;" +
+                  "color:#803010"
+                )
+              .text(sv.id))))
+      ;
+
+      Opts.push(vmenu.mkEntry([sv.id], normalWg, selectWg));
+    }
+
+    vmenuWg = vmenu.mk(Opts, svSelected.id);
+
+    Rows = [];
+    cols = 4;
+    if (svSelected.id != "") {
+      Rows.push(
+        Q("tr")
+          .add(Q("td")
+            .att("colspan", cols)
+            .add(Q("div")
+              .klass("head")
+              .text(svSelected.name)))
+      );
+
+      dailyTestImg
+        .removeAll()
+        .add(svSelected.withDaily
+          ? ui.link(\ev -> dailyTest();)
+              .add(ui.img("unknown")
+                .style("vertical-align:top"))
+          : ui.img("unknown2")
+            .style("vertical-align:top"))
+      ;
+      historicTestImg
+        .removeAll()
+        .add(svSelected.withHistoric
+          ? ui.link(\ev -> historicTest();)
+              .add(ui.img("unknown")
+                .style("vertical-align:top"))
+          : ui.img("unknown2")
+            .style("vertical-align:top"))
+      ;
+
+      Rows.push(
+        Q("tr")
+          .add(Q("td")
+            .att("colspan", cols)
+            .style("padding-top:4px;padding-bottom: 4px;" +
+                   "border-bottom: 1px solid rgb(110,130,150);")
+            .add(Q("table")
+              .att("align", "center")
+              .add(Q("tr")
+                .add(Q("td")
+                  .style(
+                      "white-space:nowrap;text-align:right;" +
+                      "width:50%;padding-rigth:4px"
+                    )
+                  .add(Q("span")
+                    .add(dailyTestImg)
+                    .add(Q("span")
+                      .style("padding-left:4px")
+                      .text(II("Daily Test")))))
+                .add(Q("td")
+                  .style(
+                      "white-space:nowrap;text-align:left;" +
+                      "width:50%;padding-left:4px"
+                    )
+                  .add(Q("span")
+                    .add(historicTestImg)
+                    .add(Q("span")
+                      .style("padding-left:4px")
+                      .text(II("Historic Test"))))))))
+      );
+
+      Rows.push(
+        Q("tr")
+          .add(Q("td")
+            .att("colspan", cols)
+            .style("padding-top:4px;padding-bottom: 4px;" +
+                   "border-bottom: 1px solid rgb(110,130,150);" +
+                   "text-align:right;")
+            .add(Q("button")
+              .text(II("Reset"))
+              .on("click", \e -> reset();))
+            .add(Q("span")
+              .text(" "))
+            .add(Q("button")
+              .text(II("Modify"))
+              .on("click", \e -> modify();)))
+      );
+
+      Tds = [];
+      len = dic.size(Codes);
+      :arr Nicks = dic.keys(Codes);
+      Nicks.sort(str.less);
+      for (i = 0:len) {
+        nk = Nicks[i];
+        i1 = i + 1;
+        nextNk = i1 < len ? Nicks[i1] : Nicks[0];
+
+        field = ui.field(nextNk)
+          .att("id", nk)
+          .setStyle("width", "125px")
+          .value(Codes[nk]);
+        CodeFields.push(field);
+
+        span = Q("span")
+          .add(svSelected.withHistoric
+            ? ui.link(\ev -> coTest(span, nk, field);)
+              .add(ui.img("unknown")
+                .style("vertical-align:top"))
+            : ui.img("unknown2")
+                .style("vertical-align:top"));
+        TestSpans.push(span);
+
+        Tds.push(Q("td")
+          .style("text-align:right;white-space: nowrap;")
+          .add(Q("span")
+            .text(nk + ": "))
+          .add(field)
+          .add(span)
+        );
+      }
+
+      rowsLen = Math.ceil(len / cols);
+      if (rowsLen == 0) {
+        Rows.push(Q("tr").add(Q("td").text(II("Without Nicks"))));
+      } else {
+        for (i = 0:rowsLen) {
+          RowTds = [];
+          for (j = 0:cols) {
+            tdix = i + j * rowsLen;
+            RowTds.push(
+              tdix < len
+                ? j == 0
+                  ? Tds[tdix]
+                  : Tds[tdix].setStyle("border-left", "1px solid rgb(110,130,150)")
+                : Q("td").setStyle("border-left", "1px solid rgb(110,130,150)")
+            );
+          }
+          Rows.push(Q("tr").adds(RowTds));
+        }
+      }
+    }
+
+    body = Q("table")
+      .att("align", "center")
+      .style("border-top: 1px solid rgb(110,130,150);" +
+             "border-bottom: 1px solid rgb(110,130,150);" +
+             "border-collapse: collapse;")
+      .adds(Rows)
+    ;
+
+    wg
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px;vertical-align:top")
+            .add(vmenuWg))
+          .add(Q("td")
+            .add(body))))
+      .add(msgWait)
+    ;
+  };
+
+  // s -> ()
+  showWaitV! = \nick -> {
+    msgWait.removeAll();
+
+    if (nick != "") {
+      box = modalBox.mk(
+        Q("div")
+          .add(Q("div")
+            .style("text-align:center")
+            .add(ui.img("wait2.gif").klass("frame")))
+          .add(Q("div").style("text-align:center").html(nick)),
+        false
+      );
+      msgWait.add(box.mkWg());
+      box.show(true);
+    }
+  };
+
+  showV!();
+};

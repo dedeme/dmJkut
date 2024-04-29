@@ -1,0 +1,99 @@
+// Copyright 25-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Treasury page.
+
+import "libdm/menu";
+import "data/all";
+import "data/year";
+import "data/rann";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, [n] -> ()
+mk = async \wg, yearOp -> {
+  :all All = await all.request();
+
+  lastYear = !yearOp ? All.lastYearId() : yearOp! ;
+
+  Lopts = [];
+  firstV = [true];
+  for (myear = All.yearIds()) {
+    if (firstV!) firstV! = false;
+    else Lopts.push(menu.separator());
+
+    Lopts.push(menu.toption(
+      myear, myear, \ -> mk(wg, [myear]);
+    ));
+  }
+  menuWg = menu.mk(Lopts, [], lastYear);
+
+  yOp = dic.get(All, lastYear);
+  if (!yOp) {
+    ui.alert(i18n.fmt(II("Year %0 not found"), [lastYear]));
+    arr.push(yOp, All[All.lastYearId()]);
+  }
+  :year y = yOp!;
+
+  // n, [<rann>.]
+  summary, :arr Entries : year.treasury(y);
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(Q("div")
+      .klass("head")
+      .text(II("Summary")))
+    .add(Q("table")
+      .klass("border")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align: right; width: 80px")
+          .text(II("Profits") + ":"))
+        .add(Q("td")
+          .klass("number")
+          .text(math.toIso(summary, 2)))))
+    .add(Q("div")
+      .klass("head")
+      .text(II("Annotations")))
+    .add(Q("table")
+      .klass("border")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("header")
+          .text(II("Nick")))
+        .add(Q("td")
+          .klass("header")
+          .text(II("Stocks")))
+        .add(Q("td")
+          .klass("header")
+          .text(II("Sold")))
+        .add(Q("td")
+          .klass("header")
+          .text(II("Bought")))
+        .add(Q("td")
+          .klass("header")
+          .text(II("Profits"))))
+      .adds(Entries.map(\:rann e -> return Q("tr")
+          .add(Q("td")
+            .text(e.nick))
+          .add(Q("td")
+            .klass("number2")
+            .text(math.toIso(e.stocks, 0)))
+          .add(Q("td")
+            .klass("number")
+            .text(math.toIso(e.total, 2)))
+          .add(Q("td")
+            .klass("number")
+            .text(math.toIso(e.total - e.profitsOp!, 2)))
+          .add(Q("td")
+            .klass("number")
+            .text(math.toIso(e.profitsOp!, 2)))
+        ;))
+    )
+  ;
+};

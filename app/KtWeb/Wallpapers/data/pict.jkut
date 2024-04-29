@@ -1,0 +1,14 @@
+// Copyright 26-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Picture data.
+
+/// Constructor.
+///   level : Picture level (1, 2, o 3).
+///   sights: Number of sights in normal mode.
+///   id    : Picture name.
+/// \n, n, s -> <pict>
+mk = \level, sights, id -> return {level, sights, id};;
+
+/// \JS -> <pict>
+fromJs = \A -> return mk(A[0], A[1], A[2]);;

@@ -1,0 +1,44 @@
+// Copyright 08-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Functions over <dann> arrays.
+
+import "dann";
+
+/// Returns a new array, copy of 'Anns', setting the 'id' value of dann 'ix'.
+/// \[<dann>.], n, s -> [<dann>.]
+setAnnId = \:arr Anns, ix, id -> {
+  R = Anns.copy();
+  R[ix] = [id, R[ix][dann.am]];
+  return R;
+};
+
+/// Returns a new array, copy of 'Anns', setting the 'amount' value of dann
+/// 'ix'. After that the amount value of the last dann is changed to keep
+/// the sum of amounts equals the the new and the old arrays.
+/// It is an error if the amount of the last dann results NEGATIVE. In such
+/// case, an empty array is returned.
+/// \[<dann>.], n, n -> [<dann>.]
+setAnnAm = \:arr Anns, ix, am -> {
+  :arr R = Anns.copy();
+  R[ix] = [R[ix][0], am];
+  oldSum = Anns.reduce(0, \r, :dann e -> return r + e.am;);
+  newSum = R.reduce(0, \r, :dann e -> return r + e.am;);
+  lastValue = R.peek()[dann.am] + oldSum - newSum;
+  if (lastValue < 0) return [];
+  R.peek()[dann.am] = lastValue;
+  return R;
+};
+
+/// Returns an new array, copy of Anns, adding a new empty dann
+/// \[<dann>.] -> [<dann>.]
+addAnn = \:arr Anns -> {
+  :arr R = Anns.copy();
+  R.push(dann.mk("", 0));
+  return R;
+};
+
+/// Returns an new array, copy of Anns, removing danns with 'amount == 0'.
+/// \[<dann>.] -> [<dann>.]
+clearAnns = \:arr Anns ->
+  return Anns.filter(\:dann a -> return a.am != 0;);;

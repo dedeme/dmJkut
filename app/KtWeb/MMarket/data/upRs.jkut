@@ -1,0 +1,13 @@
+// Copyright 29-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Update result.
+
+/// Constructor.
+///   sales: Sales number.
+///   real : Assets ratio with current quotes.
+///   acc  : Assets ratio with accounting quote values,
+///   prof : Profits ratio.
+///   pon  : Ponderation ratio.
+/// \i,f,f,f,f -> <upRs>
+mk : sales, real, acc, prof, pon;

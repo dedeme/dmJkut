@@ -1,0 +1,122 @@
+// Copyright 25-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Year page.
+
+import "data/all";
+import "data/acc";
+import "cts";
+import "data/diaryEntry";
+import "msgPg";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = \wg -> {
+  year = all.currentYear();
+
+  // Control -------------------------------------------------------------------
+
+    // \s -> ()
+    changeYear = async \y -> {
+      if (arr.any(all.years(), \year -> return year == y;)) {
+        , timeStamp : await client.send({
+          prg: cts.appName,
+          source: "Main",
+          rq: "changeYear",
+          timeStamp: all.timeStamp(),
+          year: y
+        });
+        if (timeStamp == "")
+          msgPg.mk(wg, II("Data base out of date."), true);
+        else
+          window.location.assign("?" + y);
+      } else {
+        ui.alert(i18n.fmt(II("Year %0 not found"), [y]));
+      }
+    };
+
+    // \ -> ()
+    closeYear = async \ -> {
+      years = all.years();
+      newYear = math.toInt(math.fromStr(arr.peek(years))! + 1);
+      acc.close(newYear);
+      all.setCurrentYear("" + newYear);
+      ok = await all.send();
+      if (!ok) {
+        msgPg.mk(wg, II("Data base out of date."), true);
+        return;
+      }
+      window.location.assign("?" + newYear);
+    };
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> <domo>
+  years = \ -> {
+    // \s -> <domo>
+    td = \y -> return Q("td")
+      .add(
+        y == year
+          ? Q("span")
+            .klass("frame")
+            .html("·" + y + "·")
+          : ui.link(\ev -> changeYear(y);)
+              .klass("link")
+              .html("·" + y + "·")
+      )
+    ;;
+
+    return Q("tr")
+      .add(Q("td")
+        .att("colspan", 2)
+        .style("text-align:center;")
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+          .adds(arr.map(all.years(), \y -> return td(y);)))))
+    ;
+  };
+
+  // \ -> <domo>
+  close = \ ->return Q("tr")
+      .add(Q("td")
+        .att("colspan", 2)
+        .add(Q("button")
+          .html(II("Close year"))
+          .on("click", \e -> {
+            if (ui.confirm(
+              II("This operation only can be manually undone.\nContinue?")
+            )) {
+              closeYear();
+            }
+          })))
+  ;;
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .style("width:100%;text-align:center")
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", 2)
+          .html("<b>" + II("Year") + "<b>")))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:5px;white-space: nowrap;text-align:right")
+          .html(II("Change")))
+        .add(Q("td")
+          .add(Q("hr"))))
+      .add(years())
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:5px;white-space: nowrap;text-align:right")
+          .html(II("Close")))
+        .add(Q("td")
+        .add(Q("hr"))))
+      .add(close()))
+  ;
+};

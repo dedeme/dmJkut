@@ -1,0 +1,113 @@
+// Copyright 07-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Modal message
+
+import "libdm/modalBox";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+iwg = Q("div");
+box = modalBox.mk(iwg, false);
+
+/// Widget of modal box which should be include in the page which shows messages.
+/// \<domo>
+wg = box.mkWg();
+
+/// Shows a text.
+///   Icon: Name of icon to be used by 'ui.img'.
+///   msg : Message text.
+///   fn  : Function to run after closing the message.
+/// \s, s, (\->()) -> ()
+show = \icon, msg, fn -> {
+  iwg
+    .removeAll()
+    .add(Q("table")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("valign:middle;width:50px")
+          .att("rowspan", 3)
+          .add(ui.img(icon)))
+        .add(Q("td")
+          .style("text-align:left")
+          .html(msg)))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("hr"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align: right")
+          .add(Q("button")
+            .text(II("Close"))
+            .on("click", \e -> {
+                box.show(false);
+                fn();
+              })))))
+  ;
+  box.show(true);
+};
+
+/// Html ok message.
+///   msg: Message.
+///   fn : Function to run after closing the message.
+/// \s, (\->()) -> ()
+ok = \msg, fn -> {
+  show("well2", msg, fn);
+};
+
+/// Html ok message.
+///   msg: Message.
+///   fn : Function to run after closing the message.
+/// \s, (\->()) -> ()
+info = \msg, fn -> {
+  show("info", msg, fn);
+};
+
+/// Html ok message.
+///   msg: Message.
+///   fn : Function to run after closing the message.
+/// \s, (\->()) -> ()
+error = \msg, fn -> {
+  show("error2", msg, fn);
+};
+
+/// Show a Widget.
+///   wg: Widget to show.
+///   fn : Function to do after closing the message.
+/// \<domo>, (\->()) -> ()
+showWg = \wg, fn -> {
+  iwg
+    .removeAll()
+    .add(Q("table")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:100%;text-align:right;padding-bottom:5px")
+          .add(Q("span")
+            .text("[ "))
+          .add(ui.link(\e -> box.show(false);)
+            .style(
+              "cursor:pointer;text-decoration: none; font-family: sans;" +
+              "color: #000080;font-weight: normal;font-size:14px;"
+            ).text("X"))
+          .add(Q("span")
+            .text(" ]"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(wg)))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("hr"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align: center")
+          .add(Q("button")
+            .text(II("Close"))
+            .on("click", \e -> {
+              box.show(false);
+              fn();
+            })))))
+  ;
+  box.show(true);
+};

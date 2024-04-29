@@ -1,0 +1,17 @@
+// Copyright 29-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Evaluation table entry.
+
+import "fns";
+import "upRs";
+import "cts";
+
+/// Constructor.
+///   times   : Number of historic evaluations
+///   last    : Last evaluation.
+///   avg     : Evaluation average.
+///   dev     : Evaluation deviation.
+///   crr     : Evaluation corrected average.
+/// \i,<upRs>,<upRs>,<upRs>,<upRs> -> <evE>
+mk : times, last, avg, dev, crr;

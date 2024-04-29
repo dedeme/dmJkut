@@ -1,0 +1,39 @@
+// Copyright 08-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// CashFlow data definition.
+
+import "dann";
+
+/// Private constructor. Use mk.
+///   month   : Entry month.
+///   desc    : Entry description.
+///   isIncome: 'true' if entry is an income.
+///   Anns    : Entry annotations.
+///   am      : Sum of 'Anns'. Its value is ever positive.
+/// \s,n,b,[<dann>.],n -> <diaryEntry>
+mk0 : month, desc, isIncome, Anns, am;
+
+/// Constructor
+///   month   : Entry month.
+///   desc    : Entry description.
+///   isIncome: 'true' if entry is an income.
+///   Anns    : Entry annotations.
+/// \s,n,b,[<dann>.] -> <diaryEntry>
+mk = \ month, desc, isIncome, :arr Anns -> return[
+    month, desc, isIncome, Anns,
+    Anns.reduce(0, \r, :dann e -> return r + e.am;)
+  ];;
+
+/// Returns a new entry with the field 'anns' changed.
+/// \<diaryEntry>, [<dann>.] -> <diaryEntry>
+copySetAnns = \:diaryEntry entry, Anns ->
+  return mk(entry[month], entry[desc], entry[isIncome], Anns);;
+
+/// \<diaryEntry> -> JS
+toJs = \o -> return [
+    o[0], o[1], o[2], o[3]
+  ];;
+
+/// \JS -> <diaryEntry>
+fromJs = \A -> return mk(A[0], A[1], A[2], A[3]);;

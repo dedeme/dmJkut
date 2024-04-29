@@ -1,0 +1,91 @@
+// Copyright 15-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Log snippets.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   textArea: Viewer.
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    logDiv = Q("div");
+
+    // \(\[<logRow>.]->()) -> ()
+    load = async \fn -> {
+      , :arr Log : await client.send({
+        prg: cts.appName,
+        source: "{SOURCE}",
+        rq: "getLog"
+      });
+      fn(Log);
+    };
+
+    // \(\->()) -> ()
+    reset = async \fn -> {
+      await client.send({
+        prg: cts.appName,
+        source: "{SOURCE}",
+        rq: "resetLog"
+      });
+      fn();
+    };
+
+    // \s -> s
+    tlt = \tx -> return switch (tx) {
+      "All log entries will be deleted.\nContinue?":
+        II("All log entries will be deleted.\nContinue?");
+      "2 Days": II("2 Days");
+      "All": II("All");
+      "Reload": II("Reload");
+      "Delete": II("Delete");
+      "Errors": II("Errors");
+      "Log": II("Log");
+      default: tx;
+    };;
+
+    log.mk(logDiv, load, reset, tlt, true, 100, 25);
+  """;
+
+  sourceF = ui.field("sourceF")
+    .att("id", "sourceF")
+    .value("")
+  ;
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    if (str.trim(sourceF.getValue()) == "")
+      sourceF.value("Home");
+
+    textArea.text(tx
+      .replace("{SOURCE}", str.trim(sourceF.getValue()))
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+  sourceF.on("change", \e -> update(););
+  sourceF.on("focus", \ev -> ev.target.select(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(ui.hrule(II("Source") + ":", 25))
+    .add(sourceF)
+    .add(Q("hr"))
+  ;
+
+  update();
+};

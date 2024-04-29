@@ -1,0 +1,156 @@
+// Copyright 30-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting - Main page.
+
+import "libdm/menu";
+import "pgs/msgPg";
+import "pgs/summaryPg";
+import "pgs/resultsPg";
+import "pgs/mapsPg";
+import "pgs/chartsPg";
+import "pgs/descriptionPg";
+import "global";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("Session is closed.\nAuthenticating from Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+    return;
+  }
+
+  // Sessions control is in "KtWeb:Main" !!!
+  , lang : await client.send({
+    prg: "Main", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (lang == "en") i18n.en();
+
+  // Initialization.
+  initialCapital, evalSteps, minSales,
+  ParamBases, ParamBaseIncs, ParamEnvIncs, Models,
+  orderBuy, orderSell, daysLoss, noLossMultiplicator,
+  Periods, datesInPeriod : await client.send({
+    prg: cts.appName,
+    source: "MainPg",
+    rq: "idata"
+  });
+
+  global.initialCapitalV! = initialCapital;
+  global.evalStepsV! = evalSteps;
+  global.minSalesV! = minSales;
+  for (k, v = ParamBases) dic.put(global.ParamBases, k, v);
+  for (k, v = ParamBaseIncs) dic.put(global.ParamBaseIncs, k, v);
+  for (k, v = ParamEnvIncs) dic.put(global.ParamEnvIncs, k, v);
+  for (m = Models) arr.push(global.Models, m);
+  global.orderBuyV! = orderBuy;
+  global.orderSellV! = orderSell;
+  global.daysLossV! = math.toInt(daysLoss / 5) * 7; // week of 5 days to 7.
+  global.noLossMultiplicatorV! = noLossMultiplicator;
+  for (p = Periods) arr.push(global.Periods, p);
+  global.datesInPeriodV! = datesInPeriod;
+
+  :arr Url = ui.url();
+  page = !Url ? "summary" : Url[0];
+  optV = [page];
+
+  optSummaryV = ["summary"];
+  optDescriptionV = ["description"];
+  optResultsV = ["results"];
+  optMapsV = ["maps"];
+  optChartsV = ["charts"];
+
+  if (Url.size() > 1) {
+    optV! += "&" + Url[1];
+    optSummaryV! += "&" + Url[1];
+    optResultsV! += "&" + Url[1];
+    optMapsV! += "&" + Url[1];
+    optChartsV! += "&" + Url[1];
+    optDescriptionV! += "&" + Url[1];
+  }
+  if (Url.size() > 2) {
+    optV! += "&" + Url[2];
+    optSummaryV! += "&" + Url[2];
+    optResultsV! += "&" + Url[2];
+    optMapsV! += "&" + Url[2];
+    optChartsV! += "&" + Url[2];
+    optDescriptionV! += "&" + Url[2];
+  }
+  if (Url.size() > 3) {
+    optV! += "&" + Url[3];
+    optSummaryV! += "&" + Url[3];
+    optResultsV! += "&" + Url[3];
+    optMapsV! += "&" + Url[3];
+    optChartsV! += "&" + Url[3];
+    optDescriptionV! += "&" + Url[3];
+  }
+
+  // View ----------------------------------------------------------------------
+
+  Lopts = [
+    menu.tlink(optSummaryV!, II("Summary")),
+    menu.separator2(),
+    menu.tlink(optResultsV!, II("Results")),
+    menu.separator(),
+    menu.tlink(optMapsV!, II("Hot Maps")),
+    menu.separator(),
+    menu.tlink(optChartsV!, II("Charts")),
+    menu.separator(),
+    menu.tlink(optDescriptionV!, II("Description"))
+  ];
+  menuWg = menu.mk(Lopts, [], optV!);
+
+  body = Q("div");
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+  ;
+
+  switch (page) {
+    "summary": summaryPg.mk(body);
+    "results": resultsPg.mk(body);
+    "maps": mapsPg.mk(body);
+    "charts": chartsPg.mk(body);
+    "description": descriptionPg.mk(body);
+    default: window.location.assign("?");
+  }
+
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KtWeb", \isExpired -> {
+  msg = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
+  msgWg = Q("div");
+  msgPg.mk(msgWg, msg, true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+  .add(ui.upTop("up"))
+;
+
+mk(wg);

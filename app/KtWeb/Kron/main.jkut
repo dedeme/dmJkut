@@ -1,0 +1,96 @@
+// Copyright 27-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "cts";
+import "pgs/msgPg";
+import "pgs/homePg";
+import "pgs/manualPg";
+import "pgs/fixPg";
+import "pgs/periodicPg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("Session is closed.\nAuthenticating from Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+    return;
+  }
+
+  // Sessions control is in "KtWeb:Main" !!!
+  , lang : await client.send({
+    prg: "Main", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (lang == "en") i18n.en();
+
+  Url = ui.url();
+  page = !Url ? "home" : Url[0];
+  menuWg = menu.mk(
+    [ menu.tlink("home", II("Home")),
+      menu.separator2(),
+      menu.tlink("periodic", II("Periodic")),
+      menu.separator(),
+      menu.tlink("fix", II("Fix")),
+      menu.separator(),
+      menu.tlink("manual", II("Manual"))
+    ],
+    [],
+    page
+  );
+
+  body = Q("div");
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+  ;
+
+  switch (page) {
+    "periodic": periodicPg.mk(body);
+    "fix": fixPg.mk(body);
+    "manual": manualPg.mk(body);
+    default: homePg.mk(body);
+  }
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+/// Load main window
+load = \ -> {
+  mk(wg);
+};
+
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KtWeb", \isExpired -> {
+  message = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
+  msgWg = Q("div");
+  msgPg.mk(msgWg, message, true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+;
+
+load();

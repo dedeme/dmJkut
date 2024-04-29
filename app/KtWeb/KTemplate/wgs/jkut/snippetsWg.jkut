@@ -1,0 +1,90 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Snippets.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   textArea: Viewer.
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = "\n{SNIPPET}\n";
+
+  serverSendBt = Q("input")
+    .att("type", "radio")
+    .att("name", "unic")
+    .checked(true)
+  ;
+
+  serverUpdateBt = Q("input")
+    .att("type", "radio")
+    .att("name", "unic")
+    .checked(false)
+  ;
+
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    serverSendTx = """
+      , dbKey : await client.send({
+        prg: cts.appName,
+        source: "Home",
+        rq: "idata"
+      });
+      global.dbKeyV! = dbKey;
+    """;
+
+    serverUpdateTx = """
+      , dbKey : await client.send({
+        prg: cts.appName,
+        source: "Home",
+        rq: "update",
+        dbKey: global.dbKeyV!
+      });
+      global.dbKeyV! = dbKey;
+    """;
+
+    t = serverSendBt.isChecked() ? serverSendTx
+      : serverUpdateBt.isChecked() ? serverUpdateTx
+      : ""
+    ;
+
+    textArea.text(tx
+      .replace("{SNIPPET}", t)
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+
+  serverSendBt.on("change", \e -> update(););
+  serverUpdateBt.on("change", \e -> update(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(Q("p")
+      .add(serverSendBt)
+      .add(Q("span")
+        .text(II("Send to Server, getting dbKey"))))
+    .add(Q("p")
+      .add(serverUpdateBt)
+      .add(Q("span")
+        .text(II("Send to Server, sending dbKey"))))
+    .add(Q("hr"))
+  ;
+
+  update();
+};

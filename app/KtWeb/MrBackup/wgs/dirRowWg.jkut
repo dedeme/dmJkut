@@ -1,0 +1,465 @@
+// Copyright 29-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Row widget for directories page
+
+import "cts";
+import "data/testRs";
+import "pgs/busyPg";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \s, <testRs>, (\->()) -> <domo>
+mk = \dirName, :testRs test, reload -> {
+  tr = Q("tr");
+
+  geditDiv = Q("div");
+  execDiv = Q("div");
+  dirEditDiv = Q("div");
+  dirDelDiv = Q("div");
+  dirBigDiv = Q("div");
+  dirInDiv = Q("div").style("width: 220px");
+  pathEditDiv = Q("div");
+  pathOkDiv = Q("div");
+  pathInDiv = Q("div").style("width: 320px");
+
+  dirIn = Q("input").style("width: 200px");
+  pathIn = Q("input").style("width: 300px");
+
+  isGeditV = [false];
+  isDirEditV = [false];
+  isPathEditV = [false];
+
+  mkExecDivV = [[]];
+  updateTrV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  geditOn = \ev -> {
+    isGeditV! = true;
+    updateTrV!();
+  };
+
+  // \<event> -> ()
+  geditOff = \ev -> {
+    isGeditV! = false;
+    isDirEditV! = false;
+    isPathEditV! = false;
+    updateTrV!();
+  };
+
+  // \<event> -> ()
+  copyToBase = async \ev -> {
+    , isBusy : await client.send({
+      prg: cts.appName,
+      source: "DirRowWg",
+      rq: "copyToBase",
+      id: dirName
+    });
+    if (isBusy) {
+      busyPg.mk();
+      return;
+    }
+    reload();
+  };
+
+  // \<event> -> ()
+  copyFromBase = async \ev -> {
+    , isBusy : await client.send({
+      prg: cts.appName,
+      source: "DirRowWg",
+      rq: "copyFromBase",
+      id: dirName
+    });
+    if (isBusy) {
+      busyPg.mk();
+      return;
+    }
+    reload();
+  };
+
+  // \<event> -> ()
+  createPathTxt = async \ev -> {
+    , isBusy : await client.send({
+      prg: cts.appName,
+      source: "DirRowWg",
+      rq: "createPathTxt",
+      id: dirName
+    });
+    if (isBusy) {
+      busyPg.mk();
+      return;
+    }
+    reload();
+  };
+
+  // \<event> -> ()
+  execUpdate = async \ev -> {
+    execDiv
+      .removeAll()
+      .add(ui.img("wait.gif"))
+    ;
+    , isBusy : await client.send({
+      prg: cts.appName,
+      source: "DirRowWg",
+      rq: "update",
+      id: dirName
+    });
+    if (isBusy) {
+      busyPg.mk();
+      return;
+    }
+    mkExecDivV!();
+  };
+
+  // \<event> -> ()
+  dirEditOff = \ev -> {
+    isDirEditV! = false;
+    updateTrV!();
+  };
+
+  // \<event> -> ()
+  dirEditOn = \ev -> {
+    isDirEditV! = true;
+    updateTrV!();
+  };
+
+  // \<event> -> ()
+  changeDir = async \ev -> {
+    newId = str.trim(dirIn.getValue());
+    rs = fns.validateDirId(newId);
+    if (rs != "") {
+      ui.alert(rs);
+      return;
+    }
+
+    , isBusy : await client.send({
+      prg: cts.appName,
+      source: "DirRowWg",
+      rq: "changeDir",
+      id: dirName,
+      newId
+    });
+    if (isBusy) {
+      busyPg.mk();
+      return;
+    }
+    reload();
+  };
+
+  // \<event> -> ()
+  delDir = async \ev -> {
+    if (!ui.confirm(i18n.fmt(II("Delete '%0'?"), [dirName]))) return;
+
+    , isBusy : await client.send({
+      prg: cts.appName,
+      source: "DirRowWg",
+      rq: "delete",
+      id: dirName
+    });
+    if (isBusy) {
+      busyPg.mk();
+      return;
+    }
+    reload();
+  };
+
+  // \<event> -> ()
+  changeBig = async \ev -> {
+    size = test.isBig ? II("normal") : II("big");
+    if (!ui.confirm(i18n.fmt(
+      II("Change size of '%0' to %1?"), [dirName, size]
+    ))) return;
+
+    , isBusy : await client.send({
+      prg: cts.appName,
+      source: "DirRowWg",
+      rq: "changeBig",
+      id: dirName
+    });
+    if (isBusy) {
+      busyPg.mk();
+      return;
+    }
+    reload();
+  };
+
+  // \<event> -> ()
+  pathEditOff = \ev -> {
+    isPathEditV! = false;
+    updateTrV!();
+  };
+
+  // \<event> -> ()
+  pathEditOn = \ev -> {
+    isPathEditV! = true;
+    updateTrV!();
+  };
+
+  changePath = async \ev -> {
+    newPathV = [str.trim(pathIn.getValue())];
+    while (str.ends(newPathV!, "/")) newPathV! = newPathV![:-1];
+
+    if (test.withBackups) {
+      if (!ui.confirm(
+        II("There are backups inside the directory.\nChange the path anyway?")
+      )) return;
+    }
+
+    , isBusy : await client.send({
+      prg: cts.appName,
+      source: "DirRowWg",
+      rq: "changePath",
+      id: dirName,
+      newPath: newPathV!
+    });
+    if (isBusy) {
+      busyPg.mk();
+      return;
+    }
+    reload();
+  };
+
+  // \<event> -> ()
+  showDirs = \ev ->
+    client.send({
+      prg: cts.appName,
+      source: "DirRowWg",
+      rq: "showDirs",
+      id: dirName
+    })
+  ;;
+
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> ()
+  mkGedit = \ -> {
+    geditDiv.removeAll();
+    if (isGeditV!) {
+      geditDiv.add(ui.link(geditOff)
+        .add(ui.img("editCancel")))
+      ;
+    } else {
+      if (test.notInBase | test.isMissing | !test.synchronized) {
+        geditDiv.add(ui.lightImg("edit"));
+      } else {
+        geditDiv.add(ui.link(geditOn)
+          .add(ui.img("edit")))
+        ;
+      }
+    }
+  };
+
+  // \ -> ()
+  mkExecDivV! = \ -> {
+    txFn = test.notInBase
+      ? [II("Copy directory to base"), copyToBase]
+      : test.isMissing | !test.synchronized
+        ? [II("Copy directory base in the others"), copyFromBase]
+        : !test.withPathTxt
+          ? [II("Create 'path.txt'"), createPathTxt]
+          : test.dpath == ""
+            ? [II("Put a directory in 'path.txt' manually"),
+                \e -> ui.alert(txFn[0]);]
+            : !test.pathOk
+              ? [II("Put a valid directory in 'path.txt' manually"),
+                  \e -> ui.alert(txFn[0]);]
+              : [II("Update"), execUpdate]
+    ;
+
+    execDiv
+      .removeAll()
+      .add(ui.link(txFn[1])
+        .add(ui.img("run"))
+        .att("title", txFn[0]))
+    ;
+  };
+
+  // \ -> ()
+  mkDirEdit = \ -> {
+    dirEditDiv.removeAll();
+    if (isGeditV!) {
+      if (isDirEditV!) {
+        dirEditDiv.add(ui.link(dirEditOff)
+          .add(ui.img("editCancel")))
+        ;
+      } else {
+        dirEditDiv.add(ui.link(dirEditOn)
+          .add(ui.img("edit")))
+        ;
+      }
+    } else {
+      dirEditDiv.add(ui.lightImg("edit"));
+    }
+  };
+
+  // \ -> ()
+  mkDirDel = \ -> {
+    dirDelDiv.removeAll();
+    if (isGeditV!) {
+      if (isDirEditV!) {
+        dirDelDiv.add(ui.link(changeDir)
+          .add(ui.img("editOk")))
+        ;
+      } else {
+        dirDelDiv.add(ui.link(delDir)
+          .add(ui.img("delete")))
+        ;
+      }
+    } else {
+      dirDelDiv.add(ui.lightImg("delete"));
+    }
+  };
+
+  // \ -> ()
+  mkDirBig = \ -> {
+    img = test.isBig ? "bigFolder" : "normalFolder";
+    dirBigDiv.removeAll();
+    if (isGeditV!) {
+      if (isDirEditV!) {
+        dirBigDiv.add(ui.img("blank"));
+      } else {
+        dirBigDiv.add(ui.link(changeBig)
+          .add(ui.img(img)))
+        ;
+      }
+    } else {
+      dirBigDiv.add(ui.lightImg(img));
+    }
+  };
+
+  // \ -> ()
+  mkDirIn = \ -> {
+    dirInDiv.removeAll();
+    if (isDirEditV!) {
+      dirIn.value(dirName);
+      dirInDiv.add(dirIn);
+    } else {
+      dirInDiv.text(fns.cut(dirName, 195));
+    }
+  };
+
+  // \ -> ()
+  mkPathEdit = \ -> {
+    pathEditDiv.removeAll();
+    if (isGeditV! & test.withPathTxt) {
+      if (isPathEditV!) {
+        pathEditDiv.add(ui.link(pathEditOff)
+          .add(ui.img("editCancel")))
+        ;
+      } else {
+        pathEditDiv.add(ui.link(pathEditOn)
+          .add(ui.img("edit")))
+        ;
+      }
+    } else {
+      pathEditDiv.add(ui.lightImg("edit"));
+    }
+  };
+
+  // \ -> ()
+  mkPathOk = \ -> {
+    pathOkDiv.removeAll();
+    if (isGeditV! & test.withPathTxt) {
+      if (isPathEditV!) {
+        pathOkDiv.add(ui.link(changePath)
+          .add(ui.img("editOk")))
+        ;
+      } else {
+        pathOkDiv.add(ui.lightImg("editOk"));
+      }
+    } else {
+      pathOkDiv.add(ui.lightImg("editOk"));
+    }
+  };
+
+  // \ -> ()
+  mkPathIn = \ -> {
+    pathInDiv.removeAll();
+    if (isPathEditV! & test.withPathTxt) {
+      pathIn.value(test.dpath);
+      pathInDiv.add(pathIn);
+    } else {
+      pathInDiv.text(fns.cut(test.dpath, 295));
+    }
+  };
+
+  // \ -> <domo>
+  sep = \ -> return Q("td")
+      .style(
+        "border-right: 1px solid rgb(110,130,150);" +
+        "border-left: 1px solid rgb(110,130,150);"
+      )
+    ;;
+
+  // \ -> <domo>
+  info = \ -> {
+    tx = test.notInBase
+      ? II("Directory is not in base")
+      : test.isMissing
+        ? II("Directory is missing in some pool")
+        : !test.synchronized
+          ? II("Directories are no synchronized")
+          : !test.withPathTxt
+            ? II("'path.txt' is missing")
+            : test.dpath == ""
+              ? II("'path.txt' is empty")
+              : !test.pathOk
+                ? i18n.fmt(II("'%0' not found"), [test.dpath])
+                : II("Ok")
+    ;
+    img = tx == II("Ok") ? "well" : "warning";
+
+    return Q("td")
+      .add(ui.img(img)
+        .att("title", tx))
+    ;
+  };
+
+  // \ -> <domo>
+  dirsView = \ -> return Q("td")
+    .add(ui.link(showDirs)
+      .add(ui.img("view")))
+  ;;
+
+  // \ -> ()
+  updateTrV! = \ -> {
+    mkGedit();
+    mkExecDivV!();
+    mkDirEdit();
+    mkDirDel();
+    mkDirBig();
+    mkDirIn();
+    mkPathEdit();
+    mkPathOk();
+    mkPathIn();
+
+    tr
+      .removeAll()
+      .add(Q("td").add(geditDiv))
+      .add(Q("td").add(execDiv))
+      .add(sep())
+      .add(Q("td").add(dirEditDiv))
+      .add(Q("td").add(dirDelDiv))
+      .add(Q("td").add(dirBigDiv))
+      .add(Q("td").add(dirInDiv))
+      .add(sep())
+      .add(Q("td").add(pathEditDiv))
+      .add(Q("td").add(pathOkDiv))
+      .add(Q("td").add(pathInDiv))
+      .add(sep())
+      .add(info())
+      .add(sep())
+      .add(dirsView())
+    ;
+  };
+
+  updateTrV!();
+  return tr;
+};
+

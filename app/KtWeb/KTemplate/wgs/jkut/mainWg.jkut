@@ -1,0 +1,151 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Main page designer.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   textArea: Viewer.
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    // Copyright {DATE} ºDeme
+    // GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+    /// Program starting.
+
+    import "cts";
+    import "pgs/msgPg";
+    import "i18n";
+
+    Q = ui.q;
+    II = i18n.tlt;
+
+    // \<domo> -> ()
+    mk = async \wg -> {
+      ok = await client.connect();
+      if (!ok) {
+        ui.alert(II("Session is closed.\nAuthenticating from Main."));
+        window.location.assign("http://" + window.location.host + "/Main");
+        return;
+      }
+
+      // Sessions control is in "{CONTROL}" !!!
+      , lang : await client.send({
+        {LANG}
+        source: "Main",
+        rq: "lang"
+      });
+      if (lang == "en") i18n.en();
+
+      // Control -------------------------------------------------------------------
+
+      // View ----------------------------------------------------------------------
+
+      wg
+        .removeAll()
+      ;
+    };
+
+    // Main ========================================================================
+
+    wg = Q("div");
+
+    // Client must be initilized with "{INIT}" !!!
+    client.init(true, "{INIT}", \isExpired -> {
+      message = isExpired
+        ? II("Session is expired.")
+        : II("Data base is out of date.")
+      ;
+      msgWg = Q("div");
+      msgPg.mk(msgWg, message, true);
+      Q("@body")
+        .removeAll()
+        .add(msgWg)
+        .add(cts.foot)
+      ;
+    });
+
+    Q("@body")
+      .removeAll()
+      .add(wg)
+      .add(cts.foot)
+    ;
+
+    mk(wg);
+  """;
+
+  now = time.now();
+  month = now.toDate().toLocaleString("en-US", { month: "short" });
+  dateF = ui.field("dateF")
+    .att("id", "dateF")
+    .value("")
+  ;
+
+  ktWebBt = Q("input")
+    .att("type", "radio")
+    .att("name", "unic")
+    .checked(true)
+  ;
+
+  KutPostBt = Q("input")
+    .att("type", "radio")
+    .att("name", "unic")
+    .checked(false)
+  ;
+
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    if (str.trim(dateF.getValue()) == "")
+      dateF.value(now.format("%D-" + month + "-%Y"));
+
+    textArea.text(tx
+      .replace("{DATE}", str.trim(dateF.getValue()))
+      .replace("{LANG}", ktWebBt.isChecked()
+          ? 'prg: "Main", // Call to KtWeb:Main'
+          : 'prg: "KutPost", // Call to KutPost:KutPost'
+        )
+      .replace("{CONTROL}", ktWebBt.isChecked() ? "KtWeb:Main" : "KutPost")
+      .replaceAll("{INIT}", ktWebBt.isChecked() ? "KtWeb" : "KutPost")
+    );
+  };
+
+  // View ----------------------------------------------------------------------
+
+  dateF.on("change", \e -> update(););
+  dateF.on("focus", \ev -> ev.target.select(););
+  ktWebBt.on("change", \e -> update(););
+  KutPostBt.on("change", \e -> update(););
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(ui.hrule(II("Date") + ":", 25))
+    .add(dateF)
+    .add(Q("hr"))
+    .add(Q("p")
+      .add(ktWebBt)
+      .add(Q("span")
+        .text("KtWeb")))
+    .add(Q("p")
+      .add(KutPostBt)
+      .add(Q("span")
+        .text("KutPost")))
+    .add(Q("hr"))
+  ;
+
+  update();
+};

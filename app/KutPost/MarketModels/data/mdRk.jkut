@@ -1,0 +1,10 @@
+// Copyright 27-Mar-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// <mdRk> data definition.
+
+/// Constructor.
+///   date   :
+///   Entries:
+/// \s,[n.] -> <mdRk>
+mk : date, Entries;

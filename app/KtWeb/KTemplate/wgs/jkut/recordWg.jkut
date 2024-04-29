@@ -1,0 +1,295 @@
+// Copyright 29-Feb-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Record page designer.
+
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+///   wg: Container.
+///   textArea: Viewer.
+/// \<domo>, <domo> -> ()
+mk = \wg, textArea -> {
+  tx = """
+    // Copyright {DATE} ºDeme
+    // GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+    /// {OVERVIEW}
+
+    /// Constructor.{DOC}{TYPES}{CODE}{SETS}{TOJS}{FROMJS}
+  """;
+
+  now = time.now();
+  month = now.toDate().toLocaleString("en-US", { month: "short" });
+  dateF = ui.field("overviewTA")
+    .value("")
+  ;
+
+  oNameF = ui.field("oType")
+    .att("id", "oName")
+    .value("")
+  ;
+  oTypeF = ui.field("f0Name")
+    .att("id", "oType")
+    .style("width:100px")
+    .value("")
+  ;
+
+  buttonsDiv = Q("div");
+  fieldsDiv = Q("div");
+
+  // [{name:<domo>, type:<domo>, set:<domo>}.]
+  Fields = [];
+
+  // [\->()]
+  buttonsUpdateV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \->()
+  update = \ -> {
+    if (str.trim(dateF.getValue()) == "")
+      dateF.value(now.format("%D-" + month + "-%Y"));
+    if (str.trim(oNameF.getValue()) == "") oNameF.value("mk");
+    if (str.trim(oTypeF.getValue()) == "") oTypeF.value("myType");
+    oType = "<" + str.trim(oTypeF.getValue()) + ">";
+
+    maxV = [0];
+    for (i, F = Fields) {
+      name, type : F;
+      if (str.trim(name.getValue()) == "") name.value("f" + i);
+      if (str.trim(type.getValue()) == "") type.value("s");
+      len = str.trim(name.getValue()).length;
+      maxV! = maxV! > len ? maxV! : len;
+    }
+    adjs = "                                        "[:maxV!];
+
+    // [s.]
+    Doc = [];
+    for (F = Fields)
+      Doc.push(
+        "///   " + (str.trim(F.name.getValue()) + adjs)[:maxV!] + ":"
+      );
+    // [s.]
+    Types = [];
+    for (F = Fields) {
+      t = str.trim(F.type.getValue());
+      isFn = str.index(t, "->") != -1;
+      Types.push(isFn ? "(" + t + ")" : t);
+    }
+
+    // [s.]
+    Pars = [];
+    for (F = Fields) Pars.push(str.trim(F.name.getValue()));
+
+    to = Types.any(\t ->
+        return t[0] == "<" | (t[:2] == "[<" & t[-3:] == ">.]");)
+      ? "\n\n/// \\" + oType + " -> JS\ntoJs = \\o -> return [\n" +
+          arr.join(arr.fromIter(iter.map([0:Fields.size()], \i -> {
+            name, type : Fields[i];
+            n = str.trim(name.getValue());
+            t = str.trim(type.getValue());
+            return t[0] == "<"
+              ? "    " + t[1:-1] + ".toJs(o[" + n + "])"
+              : t[:2] == "[<" & t[-3:] == ">.]"
+                ? "    arr.map(o[" + n + "], " + t[2:-3] + ".toJs)"
+                : "    o[" + n + "]"
+            ;
+          })), ",\n") +
+          "\n  ];;"
+      : ""
+    ;
+
+    from = Types.any(\t ->
+        return t[0] == "<" | (t[:2] == "[<" & t[-3:] == ">.]");)
+      ? "\n\n/// \\JS -> " + oType + "\nfromJs = \\A -> return [\n" +
+          arr.join(arr.fromIter(iter.map([0:Fields.size()], \i -> {
+            name, type : Fields[i];
+            n = str.trim(name.getValue());
+            t = str.trim(type.getValue());
+            return t[0] == "<"
+              ? "    " + t[1:-1] + ".fromJs(A[" + n + "])"
+              : t[:2] == "[<" & t[-3:] == ">.]"
+                ? "    arr.map(A[" + n + "], " + t[2:-3] + ".fromJs)"
+                : "    A[" + n + "]"
+            ;
+          })), ",\n") +
+          "\n  ];;"
+      : ""
+    ;
+
+
+    Sets = [];
+    for (F = Fields) {
+      name, type, set : F;
+      if (set.isChecked()) {
+        n = str.trim(name.getValue());
+        t0 = str.trim(type.getValue());
+        t = t0.index("->") != -1 ? "(" + t0 + ")" : t0;
+        Sets.push(
+          "\n\n/// \\" + oType + ", " + t + " -> ()\n" +
+          "set" + str.toUpper(n[0]) + n[1:] + " = \\O, v -> O[" + n + "] = v;;"
+        );
+      }
+    }
+    sets = Sets.join("");
+
+    textArea.text(tx
+      .replace("{DATE}", str.trim(dateF.getValue()))
+      .replace("{OVERVIEW}", oType + " data definition.")
+      .replace("{DOC}", "\n" + Doc.join("\n"))
+      .replace(
+          "{TYPES}",
+          "\n/// \\" + Types.join(",") + " -> " + oType
+        )
+      .replace(
+          "{CODE}",
+          "\n" + str.trim(oNameF.getValue()) + " : " +
+            arr.join(Pars, ", ") + ";"
+        )
+      .replace("{SETS}", sets)
+      .replace("{TOJS}", to)
+      .replace("{FROMJS}", from)
+    );
+  };
+
+  // \-> ()
+  mkFields = \-> {
+    for (F = Fields) {
+      name, type, set : F;
+      name.on("change", \e -> update(););
+      name.on("focus", \ev -> ev.target.select(););
+      type.on("change", \e -> update(););
+      type.on("focus", \ev -> ev.target.select(););
+      set.on("change", \e -> update(););
+    }
+    fieldsDiv
+      .removeAll()
+      .add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align:left")
+            .text(II("Name")))
+          .add(Q("td")
+            .style("text-align:left")
+            .text(II("Type")))
+          .add(Q("td")
+            .style("text-align:left")
+            .text(II("Set"))))
+        .adds(Fields.map(\F -> return Q("tr")
+            .add(Q("td").add(F.name))
+            .add(Q("td").add(F.type))
+            .add(Q("td").add(F.set))
+          ;)))
+    ;
+  };
+
+  // \->()
+  remove = \-> {
+    Fields.pop();
+    :: F = Fields.peek();
+    n = Fields.size() - 1;
+    F.type = ui.field("oName")
+      .att("id", "f" + n + "Type")
+      .style("width:100px")
+      .value(F.type.getValue());
+    buttonsUpdateV!();
+    mkFields();
+    update();
+  };
+
+  // \->()
+  add = \-> {
+    n = Fields.size();
+    Fields.push({
+      name: ui.field("f" + n + "Type")
+        .att("id", "f" + n + "Name")
+        .value(""),
+      type: ui.field("oName")
+        .att("id", "f" + n + "Type")
+        .style("width:100px")
+        .value(""),
+      set: Q("input")
+        .att("type", "checkbox")
+        .checked(false)
+    });
+    if (n > 0)
+      Fields[n-1].type = ui.field("f" + n + "Name")
+        .att("id", "f" + [n-1] + "Type")
+        .style("width:100px")
+        .value(Fields[n-1].type.getValue());
+    buttonsUpdateV!();
+    mkFields();
+    update();
+  };
+
+  // \->()
+  buttonsUpdateV! = \ ->{
+    n = Fields.size();
+    buttonsDiv
+      .removeAll()
+      .add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(n > 1
+              ? ui.link(\e -> remove();)
+                .klass("link")
+                .add(ui.img("remove"))
+              : ui.lightImg("remove")))
+          .add(Q("td").style("width:10px"))
+          .add(ui.link(\e -> add();)
+            .klass("link")
+            .add(ui.img("add")))))
+    ;
+  };
+
+  // View ----------------------------------------------------------------------
+
+
+  dateF.on("change", \e -> update(););
+  dateF.on("focus", \ev -> ev.target.select(););
+  oNameF.on("change", \e -> update(););
+  oNameF.on("focus", \ev -> ev.target.select(););
+  oTypeF.on("change", \e -> update(););
+  oTypeF.on("focus", \ev -> ev.target.select(););
+
+  buttonsUpdateV!();
+  add();
+  mkFields();
+
+  wg
+    .removeAll()
+    .add(Q("p")
+      .style("text-align:left")
+      .add(ui.link(\e -> update();)
+        .klass("link")
+        .text(II("Update"))))
+    .add(Q("hr"))
+    .add(ui.hrule(II("Date") + ":", 25))
+    .add(dateF)
+    .add(ui.hrule(II("Object") + ":", 25))
+    .add(Q("table")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:left")
+          .text(II("Name")))
+        .add(Q("td")
+          .style("text-align:left")
+          .text(II("Type"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .add(oNameF))
+        .add(Q("td")
+          .add(oTypeF)))
+    )
+    .add(ui.hrule(II("Fields") + ":", 25))
+    .add(buttonsDiv)
+    .add(fieldsDiv)
+    .add(Q("hr"))
+  ;
+
+  update();
+};

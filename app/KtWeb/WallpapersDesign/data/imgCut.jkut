@@ -1,0 +1,19 @@
+// Copyright 22-Dic-2022 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Image 'cut' data
+
+/// Creates new 'cut' parameters.
+///   left: Left point to cut.
+///   top: Top point to cut.
+///   right: Right point to cut.
+///   bottom: Bottom point to cut.
+/// \n, n, n, n -> d<imgCut>
+mk = \left, top, right, bottom -> return {left, top, right, bottom};;
+
+/// \<imgCut> -> [*(JS)...]
+toJs = \IC -> return [IC.left, IC.top, IC.right, IC.bottom];;
+
+/// \[*(JS)...] -> <imgCut>
+fromJs = \A -> return mk(A[0], A[1], A[2], A[3]);;
+

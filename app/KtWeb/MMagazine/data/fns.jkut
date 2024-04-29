@@ -1,0 +1,44 @@
+// Copyright 17-Jun-2020 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Functions.
+
+/// Returns function to format parameters using 2 examples of successive
+/// values.
+/// \n, n -> (\n -> s)
+paramFormatter = \n1, n2 -> {
+  r4 = \n -> return math.toIso(n, 4);;
+  if (!str.ends(r4(n1), "0") | !str.ends(r4(n2), "0")) return r4;
+  r3 = \n -> return math.toIso(n, 3);;
+  if (!str.ends(r3(n1), "0") | !str.ends(r3(n2), "0")) return r3;
+  r2 = \n -> return math.toIso(n, 2);;
+  if (!str.ends(r2(n1), "0") | !str.ends(r2(n2), "0")) return r2;
+  r1 = \n -> return math.toIso(n, 1);;
+  if (!str.ends(r1(n1), "0") | !str.ends(r1(n2), "0")) return r1;
+  return \n -> return math.toIso(n, 0);;
+};
+
+/// Returns a function to get a color from a value between 'max' and 'min'.
+/// \n, n -> s
+valueColor = \max, min -> {
+  df = max - min;
+  return \value -> {
+    red = math.toInt((max - value) * 256 / df );
+    blue = math.toInt((value - min) * 256 / df );
+    return "rgb(" + red + ",80," + blue + ")";
+  };
+};
+
+/// Formats a integer with two digits.
+/// \n -> n
+format00  = \n -> {
+  r = math.toStr(n);
+  return str.len(r) < 2 ? "0" + r : r;
+};
+
+/// Returns the last sunday (including today) in format YYYYMMDD
+/// \ -> s
+lastSunday = \ -> {
+  d = time.now();
+  return time.toStr(time.addDays(d, -time.weekday(d)));
+};

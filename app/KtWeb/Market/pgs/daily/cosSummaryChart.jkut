@@ -1,0 +1,53 @@
+// Copyright 18-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Companies summary chart,
+
+import "libdm/lineChart";
+
+Q = ui.q;
+
+/// \[s.], [[[f].].] -> <domo>
+mk = \Labels, Values -> {
+  :: Chart = lineChart.mkExample();
+  Chart.exArea.width = 610;
+  Chart.exArea.height = 320;
+  Chart.exArea.atts.border.width = 0;
+  Chart.inPadding.top = 10;
+  Chart.inPadding.right = 10;
+  Chart.inPadding.bottom = 20;
+  Chart.inPadding.left = 85;
+  Chart.chartPadding.top = 18;
+  Chart.chartPadding.right = 4;
+  Chart.chartPadding.bottom = 18;
+  Chart.chartPadding.left = 4;
+
+  dif = arr.peek(Values[0])[0] - Values[0][0];
+  back = dif > 0
+    ? "#e9e9f2"
+    : dif < 0
+      ? "#f2e9e9"
+      : "#e9e9e9"
+    ;
+  Chart.exArea.atts.background = back;
+
+  Atts = [
+    lineChart.mkLine(1.2, "#414141", false)
+  ];
+  :: Data = lineChart.mkData(Labels, Values, Atts);
+  Data.round = 0;
+  Data.drawGrid = \lb, i -> {
+    if (i == 0) return false;
+    return Labels[i - 1] != lb;
+  };
+  Data.drawLabel = Data.drawGrid;
+
+  return Q("table")
+    .att("align", "center")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame0")
+        .style("background-color:" + back)
+        .add(lineChart.mkWg(Chart, Data))))
+  ;
+};

@@ -1,0 +1,14 @@
+// Copyright 25-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Configuration data.
+
+/// Constructor
+///   years: All the years with data (sorted from before to after).
+///   currentYear: Current year.
+/// \[s.],s -> <conf>
+mk : Years, currentYear;
+
+/// Returns 'true' if cf.currentYear is the last year of Cf.years.
+/// \<conf> -> b
+isLastYear = \cf -> return cf[currentYear] == arr.peek(cf[Years]);;

@@ -1,0 +1,124 @@
+// Copyright 22-Jul-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Summary page.
+
+import "libdm/menu";
+import "cts";
+import "data/flea";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  , :dic Summary  // {{[[f,f,f], [f,f,f], [f,f,f]]...}...}::
+                  // {date -> {model -> [best, worst, medium]}}, where
+                  // best, worst and medium are arrays [assets, profits, points]
+  : await client.send({
+    prg: cts.appName,
+    source: "SummaryPg",
+    rq: "idata"
+  });
+
+  :arr Dates = Summary.keys();
+  Dates.sort(\d1, d2 -> return d1 > d2;);
+
+  size = Dates.size();
+  iV = [0];
+  Trs = []; // [<domo>...]
+  while (true) {
+    if (iV! == size) break;
+    tr = Q("tr");
+    for (i = 0:4) {
+      if (iV! == size) {
+        for (j = i:4) tr.add(Q("td"));
+        break;
+      }
+      d = Dates[iV!];
+      tr.add(Q("td").add(mkDay(d, Summary[d])));
+      Trs.push(tr);
+      iV! += 1;
+    }
+  }
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .adds(Trs))
+  ;
+
+};
+
+// Makes a date table.
+//    date   : Date in format YYYYMMDD
+//    summary: {model -> [best, worst, medium]} where
+//             best, worst and medium are arrays [assets, profits, points].
+// \s, {[[n,n,n], [n,n,n], [n,n,n]]...} -> <domo>
+mkDay = \date, :dic Summary -> {
+  BRows = []; // Best rows. [[s, n, n, n]...] :: [[model, assets, profits, points]...]
+  WRows = []; // Worts rows. [[s, n, n, n]...] :: [[model, assets, profits, points]...]
+  ARows = []; // Average rows. [[s, n, n, n]...] :: [[model, assets, profits, points]...]
+
+  for (mdId, :arr S = Summary) {
+    :arr B = S[0];
+    B.unshift(mdId);
+    BRows.push(B);
+    :arr W = S[1];
+    W.unshift(mdId);
+    WRows.push(W);
+    :arr A = S[2];
+    A.unshift(mdId);
+    ARows.push(A);
+  }
+
+  return Q("table")
+    .klass("border")
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 4)
+        .klass("borderWhite")
+        .style("text-align:center")
+        .text(time.toIso(time.fromStr(date)!))))
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 4)
+        .klass("header")
+        .text(II("Best"))))
+    .adds(mkResults(BRows))
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 4)
+        .klass("header")
+        .text(II("Average"))))
+    .adds(mkResults(ARows))
+    .add(Q("tr")
+      .add(Q("td")
+        .att("colspan", 4)
+        .klass("header")
+        .text(II("Worst"))))
+    .adds(mkResults(WRows))
+  ;
+};
+
+// Makes a results row.
+//    Rs: Array of model identifier and results of assets, profits and points,
+// \[[s, n, n, n]...] -> <domo>
+mkResults = \:arr Rs -> {
+  Rs.sort(\R1, R2 -> return R1[3] > R2[3];);
+  Trs = []; // [<domo>...]
+  for (R = Rs) {
+    Trs.push(Q("tr")
+      .add(Q("td")
+        .klass("borderWhite")
+        .text(R[0]))
+      .add(fns.mkTdN(R[1], 2))
+      .add(fns.mkTdN(R[2], 4))
+      .add(fns.mkTdN(R[3], 0))
+    );
+  }
+  return Trs;
+};

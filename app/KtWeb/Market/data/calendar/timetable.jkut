@@ -1,0 +1,12 @@
+// Copyright 07-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Time table data.
+
+/// Constructor.
+///   hopen : Open hour.
+///   mopen : Open minute.
+///   hclose: Close hour.
+///   mclose: Close minute.
+/// \n,n,n,n -> <timetable>
+mk : hopen, mopen, hclose, mclose;

@@ -1,0 +1,12 @@
+// Copyright 15-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Investor data.
+
+import "istrategy";
+
+/// Constructor.
+///   base : Default strategy.
+///   Nicks: Dictionary nick-strategy.
+/// \<istrategy>,{<istrategy>.} -> <investor>
+mk : base, Nicks;

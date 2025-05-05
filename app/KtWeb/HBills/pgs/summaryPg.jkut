@@ -23,6 +23,7 @@ mk = async \wg -> {
     source: "SummaryPg",
     rq: "idata"
   });
+  Years.sort(\y1, y2 -> return y1 > y2;);
 
   // \ -> <domo>
   table = \ -> {

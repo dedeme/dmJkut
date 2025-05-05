@@ -34,7 +34,7 @@ mk = \wg, selectedYear, isUntil, selectedMonth,
   start = isUntil ? 0 : selectedMonth -1;
   :arr DiaryEntries = diary.filterReverse(Diary, start, selectedMonth);
 
-  :arr BudgetModel = []; // [<budgetWgEntry>.]
+  BudgetModel = []; // [<budgetWgEntry>.]
   for (:planEntry pe = Plan) {
     BudgetModel.push(budgetWgEntry.mk(
       pe.isIncome, pe.id,
@@ -44,7 +44,7 @@ mk = \wg, selectedYear, isUntil, selectedMonth,
   }
 
   accWg = Q("div");
-  accBox = modalBox.mk(accWg, false);
+  :modalBox accBox = modalBox.mk(accWg, false);
 
   /// Control ------------------------------------------------------------------
 
@@ -73,11 +73,11 @@ mk = \wg, selectedYear, isUntil, selectedMonth,
 
   // \s -> ()
   account = \id -> {
-    :arr BudgetMs = []; // [n.]
-    :arr BudgetSs = []; // [n.]
+    BudgetMs = []; // [n.]
+    BudgetSs = []; // [n.]
     budgetSumV = [0];
-    :arr RealMs = []; // [n.]
-    :arr RealSs = []; // [n.]
+    RealMs = []; // [n.]
+    RealSs = []; // [n.]
     realSumV = [0];
     for (i = 0:12) {
       b = budget.accAmount(Budget, id, i, i + 1);

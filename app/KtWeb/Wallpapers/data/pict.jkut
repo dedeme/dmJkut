@@ -8,7 +8,4 @@
 ///   sights: Number of sights in normal mode.
 ///   id    : Picture name.
 /// \n, n, s -> <pict>
-mk = \level, sights, id -> return {level, sights, id};;
-
-/// \JS -> <pict>
-fromJs = \A -> return mk(A[0], A[1], A[2]);;
+mk : level, sights, id;

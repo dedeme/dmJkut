@@ -15,7 +15,7 @@ II = i18n.tlt;
 ///   isRebuy: True if company is in rebuy state.
 ///   withRef: Is 1, with buy reference, -1 with sell reference, 0 without reference.
 ///   ref: When withRef is 1 or -1, the reference value.
-/// \[s.], [[[f].].], b, n, n -> <domo>
+/// \[s.], [[[n].].], b, n, n -> <domo>
 mk = \Labels, Values, isRebuy, withRef, ref -> {
   q = arr.peek(Values[0])!;
   back = withRef > 0 & q > ref
@@ -25,7 +25,7 @@ mk = \Labels, Values, isRebuy, withRef, ref -> {
       : "#f5f5f5"
   ;
 
-  :: Chart = lineChart.mkExample();
+  Chart = lineChart.mkExample();
   Chart.exArea.width = 305;
   Chart.exArea.height = 160;
   Chart.exArea.atts.border.width = 0;
@@ -38,7 +38,7 @@ mk = \Labels, Values, isRebuy, withRef, ref -> {
   Atts = [
     lineChart.mkLine(1.2, isRebuy ? "#a9a9a9" : "#202020", false)
   ];
-  :: Data = lineChart.mkData(Labels, Values, Atts);
+  Data = lineChart.mkData(Labels, Values, Atts);
   Data.drawGrid = \lb, i -> {
     if (i == 0) return false;
     return Labels[i - 1] != lb;

@@ -49,10 +49,10 @@ mk = \storeId, counterLimit, zeroColor, oneColor -> {
     setCounter(storeId, 0);
     setTime(storeId, time.now());
   }
-  Ch0 = arr.fromIter(
+  :arr Ch0 = arr.fromIter(
     iter.map([0:4], \i -> return Q("input").att("type", "checkbox");)
   );
-  Ch1 = arr.fromIter(
+  :arr Ch1 = arr.fromIter(
     iter.map([0:4], \i -> return Q("input").att("type", "checkbox");)
   );
 
@@ -86,7 +86,7 @@ mk = \storeId, counterLimit, zeroColor, oneColor -> {
 
   // View ----------------------------------------------------------------------
 
-  Tds = arr.concat([
+  :arr Tds = arr.concat([
     Ch0.map(\ch -> return Q("td")
       .att("style", "border: 1px solid;background-color: " + zeroColor)
       .add(ch)

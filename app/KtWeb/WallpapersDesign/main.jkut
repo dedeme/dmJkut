@@ -1,11 +1,11 @@
-// Copyright 30-May-2023 ºDeme
+// Copyright 01-May-2024 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Application entry.
 
-import "data/cts";
+import "cts";
 import "pgs/msgPg";
-import "pgs/home";
+import "pgs/homePg";
 import "i18n";
 
 Q = ui.q;
@@ -15,17 +15,18 @@ II = i18n.tlt;
 mk = async \wg -> {
   ok = await client.connect();
   if (!ok) {
-    ui.alert(II("KtWeb session is closed.\nAuthenticating from KtWeb:Main."));
+    ui.alert(II("Session is closed.\nAuthenticating from Main."));
     window.location.assign("http://" + window.location.host + "/Main");
     return;
   }
 
-  Rp = await client.send({
+  // Sessions control is in "KtWeb:Main" !!!
+  , lang : await client.send({
     prg: "Main", // Call to KtWeb:Main
     source: "Main",
     rq: "lang"
   });
-  if (Rp.lang == "en") i18n.en();
+  if (lang == "en") i18n.en();
 
   body = Q("div");
   wg
@@ -33,7 +34,7 @@ mk = async \wg -> {
     .add(body)
   ;
 
-  home.mk(body);
+  homePg.mk(body);
 };
 
 // Main ========================================================================
@@ -41,13 +42,19 @@ mk = async \wg -> {
 wg = Q("div");
 
 /// Load main window
+/// \ -> ()
 load = \ -> {
   mk(wg);
 };
 
-client.init(true, "KtWeb", \ -> {
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KtWeb", \isExpired -> {
+  message = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
   msgWg = Q("div");
-  msgPg.mk(msgWg, II("Session is expired."), true);
+  msgPg.mk(msgWg, message, true);
   Q("@body")
     .removeAll()
     .add(msgWg)

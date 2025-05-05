@@ -2,6 +2,8 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Line chart.
+/// NOTE: lineChart require at least two data.
+///
 /// LineChart atributes:
 ///   - exArea
 ///     -atts
@@ -80,17 +82,17 @@ Q = ui.q;
 // PADDING
 
 /// Playground to draw padding. Mutable.
-/// \n, n, n, n -> d<padding>
+/// \n, n, n, n -> <padding>
 mkPadding = \top, right, bottom, left ->
   return {top, right, bottom, left};;
 
 /// \<padding> -> <padding>
 paddingCopy = \P -> return mkPadding(P.top, P.right, P.bottom, P.left);;
 
-/// \<padding> -> [*(JS)...]
+/// \<padding> -> [*.]
 paddingToJs = \P -> return [P.top, P.right, P.bottom, P.left];;
 
-/// \[*(JS)...] -> <padding>
+/// \[*.] -> <padding>
 paddingFromJs = \A -> return mkPadding(A[0], A[1], A[2], A[3]);;
 
 /// \ -> <padding>
@@ -99,16 +101,16 @@ mkPaddingExample = \ -> return mkPadding(8, 10, 20, 60);;
 // LINE
 
 /// Line properties. Mutable.
-/// \n, s, b -> d<line>
+/// \n, s, b -> <line>
 mkLine = \width, color, dotted -> return {width, color, dotted};;
 
 /// \<line> -> <line>
 lineCopy = \L -> return mkLine(L.width, L.color, L.dotted);;
 
-/// \<line> -> [*(JS)...]
+/// \<line> -> [*.]
 lineToJs = \L -> return [L.width, L.color, L.dotted];;
 
-/// \[*(JS)...] -> <line>
+/// \[*.] -> <line>
 lineFromJs = \A -> return mkLine(A[0], A[1], A[2]);;
 
 /// \ -> <line>
@@ -117,16 +119,16 @@ mkLineExample = \ -> return mkLine(1, "#002040", false);;
 // AREA-ATTS
 
 /// Attributtes of a chart area (extern or intern). Mutable.
-/// \<line>, s -> d<areaAtts>
+/// \<line>, s -> <areaAtts>
 mkAreaAtts = \border, background -> return {border, background};;
 
 /// \<areaAtts> -> <areaAtts>
 areaAttsCopy = \A -> return mkAreaAtts(lineCopy(A.border), A.background);;
 
-/// \<areaAtts> -> [*(JS)...]
+/// \<areaAtts> -> [*.]
 areaAttsToJs = \A -> return [lineToJs(A.border), A.background];;
 
-/// \[*(JS)...] -> <areaAtts>
+/// \[*.] -> <areaAtts>
 areaAttsFromJs = \A -> return mkAreaAtts(lineFromJs(A[0]), A[1]);;
 
 /// \ -> <areaAtts>
@@ -135,16 +137,16 @@ mkAreaAttsExample = \ -> return mkAreaAtts(mkLineExample(), "#e9eaec");;
 // AREA
 
 /// External area attibutes. Mutable.
-/// \n, n, <areaAtts> -> m<area>
+/// \n, n, <areaAtts> -> <area>
 mkArea = \width, height, atts -> return {width, height, atts};;
 
 /// \<area> -> <area>
 areaCopy = \A -> return mkArea(A.width, A.height, areaAttsCopy(A.atts));;
 
-/// \<area> -> [*(JS)...]
+/// \<area> ->[*.]
 areaToJs = \A -> return [A.width, A.height, areaAttsToJs(A.atts)];;
 
-/// \[*(JS)...] -> <area>
+/// \[*.] -> <area>
 areaFromJs = \A -> return mkArea(A[0], A[1], areaAttsFromJs(A[2]));;
 
 /// \ -> <area>
@@ -206,7 +208,7 @@ mkUnarySetExample = \ -> return mkUnarySet("Line", 0, mkLineExample());;
 ///   Labels: X axis labels.
 ///   SetValues: Y data series.
 ///   SetAtts: Y lines attibutes.
-/// \[s...], [[[n]|[]...]...], [<line>...] -> <data>
+/// \[s.], [[([n]|[]).].], [<line>.] -> <data>
 mkData = \Labels, SetValues, SetAtts -> {
     if (!Labels) throw("'Labels' does not have values");
     if (!SetValues) throw("'SetValues' does not have values");
@@ -255,10 +257,10 @@ mkLabels = \show, onPopup -> return {show, onPopup};;
 /// \<labels> -> <labels>
 labelsCopy = \L -> return mkLabels(L.show, L.onPopup);;
 
-/// \<labels> -> [*(JS)...]
+/// \<labels> -> [*.]
 labelsToJs = \L -> return [L.show, L.onPopup];;
 
-/// \[*(JS)...] -> <labels>
+/// \[*.] -> <labels>
 labelsFromJs = \A -> return mkLine(A[0], A[1]);;
 
 /// \ -> <labels>
@@ -283,12 +285,12 @@ xCopy = \X -> return mkX(
     X.fontSize, X.isMonospace, X.isItalic, X.isBold, X.fontColor, X.grid
   );;
 
-/// \<x> -> [*(JS)...]
+/// \<x> -> [*.]
 xToJs = \X -> return [
     X.fontSize, X.isMonospace, X.isItalic, X.isBold, X.fontColor, lineToJs(X.grid)
   ];;
 
-/// \[*(JS)...] -> <x>
+/// \[*.] -> <x>
 xFromJs = \A -> return mkX(
     A[0], A[1], A[3], A[4], lineFromJs(A[5])
   );;
@@ -318,18 +320,18 @@ yCopy = \Y -> return mkY(
     Y.fontSize, Y.isMonospace, Y.isItalic, Y.isBold, Y.fontColor, Y.grid, Y.parts
   );;
 
-/// \<y> -> [*(JS)...]
+/// \<y> -> [*.]
 yToJs = \Y -> return [
     Y.fontSize, Y.isMonospace, Y.isItalic, Y.isBold, Y.fontColor,
     lineToJs(Y.grid), Y.parts
   ];;
 
-/// \[*(JS)...] -> <y>
+/// \[*.] -> <yAxis>
 yFromJs = \A -> return mkY(
     A[0], A[1], A[3], A[4], lineFromJs(A[5]), A[6]
   );;
 
-/// \ -> <x>
+/// \ -> <xAxis>
 mkYExample = \ -> return mkY(
     12, false, false, false, "#000000", mkLine(1, "#808080", true), 4
   );;
@@ -357,14 +359,14 @@ copy = \lC -> return mk(
     yCopy(lC.yAxis), lC.lang
   );;
 
-/// \<lineChart> -> [*(JS)...]
+/// \<lineChart> -> [*.]
 toJs = \lC -> return [
     areaToJs(lC.exArea), paddingToJs(lC.inPadding), areaAttsToJs(lC.inAtts),
     paddingToJs(lC.chartPadding), labelsToJs(lC.labels), xToJs(lC.xAxis),
     yToJs(lC.yAxis), lC.lang
   ];;
 
-/// \[*(JS)...] -> <lineChart>
+/// \[*.] -> <lineChart>
 fromJs = \A -> return mk(
     areaFromJs(A[0]), paddingFromJs(A[1]), areaAttsFromJs(A[2]),
     paddingFromJs(A[3]), labelsFromJs(A[4]), xFromJs(A[5]), yFromJs(A[6]), A[7]
@@ -686,7 +688,7 @@ mkWg = \lC, data -> {
     cx = ev.offsetX;
     cy = ev.offsetY;
 
-    // x = (cx - x0) * arr.size(Data.Labels) / w;
+    // x = (cx - x0) * arr.size(data.Labels) / w;
     // y = Min! + (y0 - cy) * Gap! / h;
 
     UnarySetIx = [-1];

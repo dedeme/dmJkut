@@ -3,6 +3,24 @@
 # jkut/pgs/settings/investorsPg.jkut: 191
 %0 Model = Modelo %0
 
+# jkut/pgs/settings/ibexCosPg.jkut: 101
+%0:\n  Ponderation value < 0 = %0:\n  Valor de la ponderación < 0
+
+# jkut/pgs/settings/ibexCosPg.jkut: 105
+%0:\n  Ponderation value > 100 = %0:\n  Valor de la ponderación > 100
+
+# jkut/pgs/settings/ibexCosPg.jkut: 115
+%0:\n  Stocks value <Eq 0 = %0:\n  Valor de las acciones <Eq 0
+
+# jkut/pgs/settings/ibexCosPg.jkut: 91
+%0:\n  Wrong line = %0:\n  Línea no válida
+
+# jkut/pgs/settings/ibexCosPg.jkut: 96
+%0:\n  Wrong ponderation value = %0:\n  Valor de ponderación no válido
+
+# jkut/pgs/settings/ibexCosPg.jkut: 110
+%0:\n  Wrong stocks number = %0:\n  Número de acciones no válido
+
 # jkut/pgs/settings/acc/annsPg.jkut: 25
 '%0' is empty = Falta rellenar el campo '%0'
 
@@ -12,10 +30,16 @@
 # jkut/pgs/settings/acc/annsPg.jkut: 31
 '%0' is not a positive integer = '%0' no es un entero positivo
 
-# jkut/pgs/acc/tradingPg.jkut: 131
-# jkut/pgs/acc/tradingPg.jkut: 139
-# jkut/pgs/acc/tradingPg.jkut: 162
+# jkut/pgs/acc/tradingPg.jkut: 176
+# jkut/pgs/acc/tradingPg.jkut: 184
+# jkut/pgs/acc/tradingPg.jkut: 221
 '%0' is not a valid number. = '%0' no es un número válido.
+
+# jkut/pgs/acc/executionPg.jkut: 144
+(B)uy = C
+
+# jkut/pgs/acc/executionPg.jkut: 145
+(S)ale = V
 
 # jkut/libdm/log.jkut: 35
 # jkut/pgs/home/homePg.jkut: 54
@@ -35,15 +59,16 @@ Accounting profits = Beneficios contables
 Active = Activo
 
 # jkut/libdm/log.jkut: 36
-# jkut/pgs/acc/ibexPg.jkut: 398
-# jkut/pgs/acc/profitsPg.jkut: 389
+# jkut/pgs/acc/ibexPg.jkut: 413
+# jkut/pgs/acc/profitsPg.jkut: 431
+# jkut/pgs/acc/quotesPg.jkut: 230
 # jkut/pgs/home/homePg.jkut: 55
 All = Todo
 
-# jkut/pgs/daily/dailyPg.jkut: 722
+# jkut/pgs/daily/dailyPg.jkut: 897
 All CO's = Todas las Cías.
 
-# jkut/pgs/acc/companiesPg.jkut: 357
+# jkut/pgs/acc/companiesPg.jkut: 378
 All Companies = Todas las empresas
 
 # jkut/libdm/log.jkut: 34
@@ -62,6 +87,7 @@ All log entries will be deleted.\nContinue? = Todas las entradas del registro se
 # jkut/pgs/settings/acc/annsPg.jkut: 411
 # jkut/pgs/settings/acc/annsPg.jkut: 428
 # jkut/pgs/settings/acc/annsPg.jkut: 444
+# jkut/pgs/settings/ibexCosPg.jkut: 431
 Amount = Cantidad
 
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 142
@@ -71,7 +97,7 @@ An error was found.<br>See Log. = Se ha encontrado un error.<br>Ver Log.
 Annotation con id '%0' not found = No encontrada la anotación con id '%0'
 
 # jkut/pgs/settings/acc/annsPg.jkut: 497
-# jkut/pgs/settings/settingsPg.jkut: 39
+# jkut/pgs/settings/settingsPg.jkut: 42
 Annotations = Asientos
 
 # jkut/wgs/dmenu.jkut: 27
@@ -80,35 +106,43 @@ Annotations & Settings = Anotaciones & configuración
 # jkut/pgs/acc/balancePg.jkut: 236
 Assets = Activo
 
+# jkut/pgs/acc/executionPg.jkut: 109
+B / S = C / V
+
 # jkut/pgs/settings/investorsPg.jkut: 124
 Bad number [%0] = Número no válido [%0]
 
-# jkut/pgs/acc/accPg.jkut: 36
+# jkut/pgs/acc/accPg.jkut: 38
 # jkut/pgs/acc/balancePg.jkut: 227
 Balance = Balance
 
 # jkut/pgs/acc/balancePg.jkut: 331
-# jkut/pgs/acc/tradingPg.jkut: 179
+# jkut/pgs/acc/tradingPg.jkut: 254
+# jkut/pgs/acc/tradingPg.jkut: 331
 # jkut/pgs/settings/acc/annotationsWg.jkut: 47
 # jkut/pgs/settings/acc/annsPg.jkut: 249
 # jkut/pgs/settings/acc/annsPg.jkut: 464
 Buy = Compra
 
-# jkut/pgs/acc/tradingPg.jkut: 418
+# jkut/pgs/acc/tradingPg.jkut: 559
 Buys = Compras
 
-# jkut/pgs/acc/tradingPg.jkut: 204
-# jkut/pgs/acc/tradingPg.jkut: 264
+# jkut/pgs/acc/tradingPg.jkut: 297
+# jkut/pgs/acc/tradingPg.jkut: 381
 Calculate = Calcular
 
 # jkut/pgs/settings/calendar/calendarPg.jkut: 333
-# jkut/pgs/settings/settingsPg.jkut: 45
+# jkut/pgs/settings/settingsPg.jkut: 48
 Calendar = Calendario
 
 # jkut/pgs/settings/acc/annsPg.jkut: 179
+# jkut/pgs/settings/ibexCosPg.jkut: 181
 # jkut/pgs/settings/investorsPg.jkut: 167
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 49
 Cancel = Cancelar
+
+# jkut/pgs/acc/executionPg.jkut: 78
+Capital = Capital
 
 # jkut/pgs/acc/balancePg.jkut: 265
 # jkut/pgs/verification/verificationPg.jkut: 166
@@ -117,12 +151,19 @@ Cash = Caja
 # jkut/pgs/settings/acc/annsPg.jkut: 515
 Cash: = Caja:
 
+# jkut/pgs/daily/dailyPg.jkut: 103
+Change the field 'withCurrent' in the server files = Cambiar el campo 'withCurrent' en los archivos de servidor
+
+# jkut/pgs/daily/dailyPg.jkut: 105
+Change the server identifier in 'net/readCurrent.kut'. = Cambiar el identificador del servidor en 'net/readCurrent.kut'.
+
 # jkut/pgs/acc/ibexPg.jkut: 41
 Charts = Gráficos
 
 # jkut/pgs/msgPg.jkut: 20
 Click %0 to continue. = Hacer click %0 para continuar.
 
+# jkut/pgs/settings/ibexCosPg.jkut: 239
 # jkut/wgs/msg.jkut: 43
 # jkut/wgs/msg.jkut: 106
 Close = Cerrar
@@ -131,52 +172,63 @@ Close = Cerrar
 Close Year Help = Ayuda para cerrar el ejercicio
 
 # jkut/pgs/acc/ibexPg.jkut: 129
+# jkut/pgs/acc/quotesPg.jkut: 149
 # jkut/pgs/settings/calendar/calendarPg.jkut: 147
 # jkut/pgs/settings/calendar/calendarPg.jkut: 314
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 329
 CloseN = Cierre
 
 # jkut/pgs/acc/balancePg.jkut: 327
-# jkut/pgs/acc/tradingPg.jkut: 400
-# jkut/pgs/acc/tradingPg.jkut: 405
-# jkut/pgs/acc/tradingPg.jkut: 423
-# jkut/pgs/acc/tradingPg.jkut: 432
+# jkut/pgs/acc/tradingPg.jkut: 541
+# jkut/pgs/acc/tradingPg.jkut: 546
+# jkut/pgs/acc/tradingPg.jkut: 564
+# jkut/pgs/acc/tradingPg.jkut: 573
 Co. = Cia.
 
-# jkut/pgs/acc/accPg.jkut: 34
+# jkut/pgs/acc/accPg.jkut: 36
 # jkut/pgs/acc/ibexPg.jkut: 161
-# jkut/pgs/acc/speedometers.jkut: 155
+# jkut/pgs/acc/speedometersPg.jkut: 155
 Companies = Empresas
+
+# jkut/pgs/acc/tradingPg.jkut: 263
+# jkut/pgs/acc/tradingPg.jkut: 354
+Company = Compañía
 
 # jkut/pgs/verification/verificationPg.jkut: 343
 # jkut/pgs/verification/verificationPg.jkut: 350
 Cost = Coste
 
-# jkut/pgs/acc/ibexPg.jkut: 394
-# jkut/pgs/acc/profitsPg.jkut: 385
+# jkut/pgs/settings/serversPg.jkut: 338
+Current 'ticks' Test = Prueba actual 'ticks'
+
+# jkut/pgs/acc/ibexPg.jkut: 409
+# jkut/pgs/acc/profitsPg.jkut: 427
 Current Year = Año actual
 
 # jkut/pgs/acc/balancePg.jkut: 195
 Current profits = Beneficios reales
 
-# jkut/pgs/daily/dailyPg.jkut: 116
-Currently this functions is deactivated = Esta función está actualmente desactivada
-
 # jkut/wgs/dmenu.jkut: 21
 Daily Quotes = Cotizaciones del día
 
-# jkut/pgs/settings/serversPg.jkut: 288
+# jkut/pgs/settings/serversPg.jkut: 348
 Daily Test = Prueba diario
 
 # jkut/pgs/acc/ibexPg.jkut: 43
+# jkut/pgs/acc/quotesPg.jkut: 244
+# jkut/pgs/settings/ibexCosPg.jkut: 167
 Data = Datos
 
 # jkut/main.jkut: 73
 Data base is out of date. = La base de datos está obsoleta.
 
+# jkut/pgs/settings/ibexCosPg.jkut: 123
+Data of %0 is missing. = No se encuentran los datos de %0
+
+# jkut/pgs/acc/executionPg.jkut: 112
 # jkut/pgs/acc/ibexPg.jkut: 127
-# jkut/pgs/acc/tradingPg.jkut: 401
-# jkut/pgs/acc/tradingPg.jkut: 406
+# jkut/pgs/acc/tradingPg.jkut: 542
+# jkut/pgs/acc/tradingPg.jkut: 547
 # jkut/pgs/settings/acc/annsPg.jkut: 149
 # jkut/pgs/settings/acc/annsPg.jkut: 197
 # jkut/pgs/settings/acc/annsPg.jkut: 233
@@ -201,12 +253,14 @@ Date '%0' out of year %1 = La fecha '%0' no corresponde la año %1
 # jkut/pgs/settings/calendar/calendarPg.jkut: 109
 Date before today = Fecha anterior a hoy
 
-# jkut/pgs/daily/dailyPg.jkut: 438
+# jkut/pgs/daily/dailyPg.jkut: 430
+# jkut/pgs/daily/dailyPg.jkut: 796
+# jkut/pgs/daily/dailyPg.jkut: 797
 Day = Día
 
 # jkut/pgs/settings/investorsPg.jkut: 156
 # jkut/pgs/settings/investorsPg.jkut: 190
-# jkut/pgs/settings/investorsPg.jkut: 221
+# jkut/pgs/settings/investorsPg.jkut: 225
 Default Model = Modelo por defecto
 
 # jkut/libdm/log.jkut: 38
@@ -228,6 +282,12 @@ Delete '%0'? = ¿Eliminar '%0'?
 # jkut/pgs/settings/acc/annsPg.jkut: 445
 Description = Concepto
 
+# jkut/pgs/acc/executionPg.jkut: 128
+Dif. = Dif.
+
+# jkut/pgs/acc/executionPg.jkut: 132
+Dif. % = Dif. %
+
 # jkut/pgs/daily/ixsSummaryChart.jkut: 37
 Dif. 0 = Dif. 0
 
@@ -243,10 +303,14 @@ Diff. + = Dif. +
 Diff. - = Dif. -
 
 # jkut/pgs/acc/balancePg.jkut: 310
+# jkut/pgs/daily/dailyPg.jkut: 901
 Differences = Diferencias
 
+# jkut/pgs/settings/investorsPg.jkut: 307
+Different to base = Diferente de la base
+
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 368
-# jkut/pgs/settings/nicks/nicksPg.jkut: 245
+# jkut/pgs/settings/nicks/nicksPg.jkut: 246
 Download = Descarga
 
 # jkut/pgs/acc/ibexPg.jkut: 94
@@ -263,27 +327,37 @@ Edit = Editar
 # jkut/pgs/acc/balancePg.jkut: 256
 Equity = Capital
 
+# jkut/pgs/settings/ibexCosPg.jkut: 326
+Error: Stocks number is 0 = Error: Número de acciones es 0
+
 # jkut/libdm/log.jkut: 39
+# jkut/pgs/acc/executionPg.jkut: 56
 # jkut/pgs/home/homePg.jkut: 58
+# jkut/pgs/settings/ibexCosPg.jkut: 198
 Errors = Errores
 
 # jkut/pgs/acc/ibexPg.jkut: 88
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 184
 # jkut/pgs/settings/nicks/nicksPg.jkut: 114
-# jkut/pgs/settings/nicks/nicksPg.jkut: 154
-# jkut/pgs/settings/serversPg.jkut: 65
-# jkut/pgs/settings/serversPg.jkut: 91
-# jkut/pgs/settings/serversPg.jkut: 141
+# jkut/pgs/settings/nicks/nicksPg.jkut: 155
+# jkut/pgs/settings/serversPg.jkut: 67
+# jkut/pgs/settings/serversPg.jkut: 96
+# jkut/pgs/settings/serversPg.jkut: 122
+# jkut/pgs/settings/serversPg.jkut: 170
 Errors and warnings found.<br>See log. = Se han producido errores y avisos.<br>Ver log.
 
 # jkut/pgs/acc/ibexPg.jkut: 90
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 186
 # jkut/pgs/settings/nicks/nicksPg.jkut: 116
-# jkut/pgs/settings/nicks/nicksPg.jkut: 156
-# jkut/pgs/settings/serversPg.jkut: 67
-# jkut/pgs/settings/serversPg.jkut: 93
-# jkut/pgs/settings/serversPg.jkut: 143
+# jkut/pgs/settings/nicks/nicksPg.jkut: 157
+# jkut/pgs/settings/serversPg.jkut: 69
+# jkut/pgs/settings/serversPg.jkut: 98
+# jkut/pgs/settings/serversPg.jkut: 124
+# jkut/pgs/settings/serversPg.jkut: 172
 Errors found.<br>See log. = Se han producido errores.<br>Ver log.
+
+# jkut/pgs/acc/accPg.jkut: 48
+Execution = Ejecución
 
 # jkut/pgs/acc/balancePg.jkut: 286
 # jkut/pgs/settings/acc/annotationsWg.jkut: 58
@@ -292,16 +366,16 @@ Errors found.<br>See log. = Se han producido errores.<br>Ver log.
 # jkut/pgs/settings/acc/annsPg.jkut: 470
 Fees = Comisiones
 
-# jkut/pgs/daily/dailyPg.jkut: 720
+# jkut/pgs/daily/dailyPg.jkut: 895
 Free = Libres
 
 # jkut/pgs/settings/calendar/calendarPg.jkut: 339
 General Time Table = Horario general
 
-# jkut/pgs/acc/speedometers.jkut: 89
+# jkut/pgs/acc/speedometersPg.jkut: 89
 Global = Global
 
-# jkut/pgs/settings/serversPg.jkut: 298
+# jkut/pgs/settings/serversPg.jkut: 358
 Historic Test = Prueba histórico
 
 # jkut/pgs/settings/calendar/calendarPg.jkut: 347
@@ -309,6 +383,12 @@ Holidays = Fiestas
 
 # jkut/wgs/dmenu.jkut: 17
 Home = Inicio
+
+# jkut/pgs/acc/tradingPg.jkut: 404
+Ibex = Ibex
+
+# jkut/pgs/settings/ibexCosPg.jkut: 402
+Import = Importar
 
 # jkut/pgs/settings/acc/annotationsWg.jkut: 51
 In Stock = En cartera
@@ -318,107 +398,133 @@ In Stock = En cartera
 # jkut/pgs/settings/acc/annsPg.jkut: 466
 Income = Ingreso
 
-# jkut/pgs/acc/tradingPg.jkut: 188
+# jkut/pgs/acc/tradingPg.jkut: 281
 Invest = Inversión
 
-# jkut/pgs/acc/speedometers.jkut: 95
-# jkut/pgs/acc/speedometers.jkut: 128
-# jkut/pgs/acc/speedometers.jkut: 169
+# jkut/pgs/acc/speedometersPg.jkut: 95
+# jkut/pgs/acc/speedometersPg.jkut: 128
+# jkut/pgs/acc/speedometersPg.jkut: 169
+# jkut/pgs/settings/ibexCosPg.jkut: 391
 Investment = Inversión
 
-# jkut/pgs/settings/settingsPg.jkut: 41
+# jkut/pgs/settings/settingsPg.jkut: 44
 Investors = Inversores
 
-# jkut/pgs/acc/ibexPg.jkut: 391
-# jkut/pgs/acc/profitsPg.jkut: 383
+# jkut/pgs/acc/ibexPg.jkut: 406
+# jkut/pgs/acc/profitsPg.jkut: 425
 Last Month = Último mes
 
-# jkut/pgs/acc/ibexPg.jkut: 396
-# jkut/pgs/acc/profitsPg.jkut: 387
+# jkut/pgs/acc/ibexPg.jkut: 411
+# jkut/pgs/acc/profitsPg.jkut: 429
 Last Year = Último año
 
 # jkut/pgs/acc/balancePg.jkut: 242
 Liabilities = Pasivo
 
-# jkut/pgs/settings/nicks/nicksPg.jkut: 283
+# jkut/pgs/daily/dailyPg.jkut: 903
+# jkut/pgs/settings/nicks/nicksPg.jkut: 284
 List = Lista
 
 # jkut/libdm/log.jkut: 40
 # jkut/pgs/home/homePg.jkut: 59
 Log = Registro
 
-# jkut/pgs/settings/nicks/nicksPg.jkut: 192
+# jkut/pgs/settings/nicks/nicksPg.jkut: 193
 Main = Principal
 
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 330
 Max = Max
 
 # jkut/pgs/acc/ibexPg.jkut: 130
+# jkut/pgs/acc/quotesPg.jkut: 150
 Max. = Max.
 
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 331
 Min = Min
 
 # jkut/pgs/acc/ibexPg.jkut: 131
+# jkut/pgs/acc/quotesPg.jkut: 151
 Min. = Min.
 
-# jkut/pgs/settings/investorsPg.jkut: 228
-# jkut/pgs/settings/investorsPg.jkut: 260
+# jkut/pgs/settings/investorsPg.jkut: 232
+# jkut/pgs/settings/investorsPg.jkut: 264
 Model = Modelo
 
+# jkut/pgs/settings/ibexCosPg.jkut: 171
+Modifications = Modificaciones
+
+# jkut/pgs/settings/ibexCosPg.jkut: 184
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 53
-# jkut/pgs/settings/serversPg.jkut: 314
+# jkut/pgs/settings/serversPg.jkut: 374
 Modify = Modificar
 
-# jkut/pgs/daily/dailyPg.jkut: 433
+# jkut/pgs/daily/dailyPg.jkut: 425
+# jkut/pgs/daily/dailyPg.jkut: 779
+# jkut/pgs/daily/dailyPg.jkut: 780
 # jkut/pgs/settings/acc/annsPg.jkut: 198
 # jkut/pgs/settings/acc/annsPg.jkut: 215
 # jkut/pgs/settings/acc/annsPg.jkut: 234
 # jkut/pgs/settings/acc/annsPg.jkut: 251
-# jkut/pgs/settings/investorsPg.jkut: 257
+# jkut/pgs/settings/ibexCosPg.jkut: 415
+# jkut/pgs/settings/investorsPg.jkut: 261
 Nick = Nick
 
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 151
 Nick code of %0 is missing = Falta el codigo del nick %0
 
-# jkut/pgs/settings/investorsPg.jkut: 250
+# jkut/pgs/settings/investorsPg.jkut: 254
 Nick models = Modelos de Nicks
 
-# jkut/pgs/settings/settingsPg.jkut: 35
+# jkut/pgs/settings/settingsPg.jkut: 36
 Nicks = Nicks
+
+# jkut/pgs/settings/ibexCosPg.jkut: 67
+# jkut/pgs/settings/ibexCosPg.jkut: 83
+No data read = No se leyó ningún dato
 
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 103
 No modification was performed.<br>See Log. = No se realizó ninguna modificación.<br>Ver el registro.
 
-# jkut/pgs/daily/dailyPg.jkut: 458
+# jkut/pgs/daily/dailyPg.jkut: 450
 No selected company = No se ha seleccionado ninguna compañía
 
 # jkut/pgs/acc/ibexPg.jkut: 128
+# jkut/pgs/acc/quotesPg.jkut: 148
 # jkut/pgs/settings/calendar/calendarPg.jkut: 144
 # jkut/pgs/settings/calendar/calendarPg.jkut: 311
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 328
 Open = Apertura
 
-# jkut/cts.jkut: 48
+# jkut/cts.jkut: 61
 Operation failed.\nSee log. = La operación ha fallado.\nVer el registro.
 
-# jkut/cts.jkut: 46
+# jkut/cts.jkut: 58
 Operation successfully done. = Operatión terminada correctamente.
 
-# jkut/pgs/daily/dailyPg.jkut: 430
+# jkut/pgs/acc/executionPg.jkut: 102
+Operations = Operaciones
+
+# jkut/pgs/daily/dailyPg.jkut: 422
 Order by = Ordenado por
 
-# jkut/pgs/acc/companiesPg.jkut: 356
-# jkut/pgs/daily/dailyPg.jkut: 718
+# jkut/pgs/daily/dailyPg.jkut: 803
+# jkut/pgs/daily/dailyPg.jkut: 804
+Pf = Bf
+
+# jkut/pgs/settings/ibexCosPg.jkut: 428
+Pond. = Pond.
+
+# jkut/pgs/acc/companiesPg.jkut: 374
+# jkut/pgs/acc/tradingPg.jkut: 320
+# jkut/pgs/acc/tradingPg.jkut: 397
+# jkut/pgs/daily/dailyPg.jkut: 893
 Portfolio = Cartera
 
-# jkut/pgs/acc/companiesPg.jkut: 141
-# jkut/pgs/acc/companiesPg.jkut: 214
-# jkut/pgs/acc/tradingPg.jkut: 195
-# jkut/pgs/acc/tradingPg.jkut: 225
-# jkut/pgs/acc/tradingPg.jkut: 255
-# jkut/pgs/acc/tradingPg.jkut: 274
-# jkut/pgs/acc/tradingPg.jkut: 434
+# jkut/pgs/acc/companiesPg.jkut: 157
+# jkut/pgs/acc/companiesPg.jkut: 230
+# jkut/pgs/acc/tradingPg.jkut: 288
+# jkut/pgs/acc/tradingPg.jkut: 372
+# jkut/pgs/acc/tradingPg.jkut: 575
 # jkut/pgs/settings/acc/annsPg.jkut: 200
 # jkut/pgs/settings/acc/annsPg.jkut: 217
 # jkut/pgs/settings/acc/annsPg.jkut: 236
@@ -427,86 +533,111 @@ Portfolio = Cartera
 # jkut/pgs/verification/verificationPg.jkut: 339
 Price = Precio
 
-# jkut/pgs/acc/tradingPg.jkut: 144
-Price is 0 = El precio es 0
+# jkut/pgs/acc/tradingPg.jkut: 189
+# jkut/pgs/acc/tradingPg.jkut: 226
+Price is <Eq 0 = El precio es <Eq 0
 
-# jkut/pgs/acc/accPg.jkut: 40
+# jkut/pgs/acc/accPg.jkut: 42
 # jkut/pgs/acc/balancePg.jkut: 186
 # jkut/pgs/acc/balancePg.jkut: 298
 # jkut/pgs/acc/balancePg.jkut: 342
-# jkut/pgs/acc/speedometers.jkut: 98
-# jkut/pgs/acc/speedometers.jkut: 131
-# jkut/pgs/acc/speedometers.jkut: 177
+# jkut/pgs/acc/executionPg.jkut: 82
+# jkut/pgs/acc/speedometersPg.jkut: 98
+# jkut/pgs/acc/speedometersPg.jkut: 131
+# jkut/pgs/acc/speedometersPg.jkut: 177
 # jkut/pgs/settings/acc/annotationsWg.jkut: 55
 # jkut/pgs/settings/acc/annsPg.jkut: 343
 # jkut/pgs/settings/acc/annsPg.jkut: 469
 Profits = Beneficios
 
-# jkut/pgs/acc/tradingPg.jkut: 435
+# jkut/pgs/acc/profitsPg.jkut: 60
+Profits values are missing = Falta los valores para beneficios
+
+# jkut/pgs/acc/tradingPg.jkut: 576
+# jkut/pgs/daily/dailyPg.jkut: 784
 Quote = Cotización
 
+# jkut/pgs/acc/accPg.jkut: 50
 # jkut/pgs/acc/ibexPg.jkut: 165
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 388
 Quotes = Cotizaciones
 
-# jkut/pgs/settings/nicks/nickEditorPg.jkut: 225
+# jkut/pgs/settings/nicks/nickEditorPg.jkut: 224
 Quotes of %0 can not be loaded.<br>See Log. = Las cotizaciones de %0 no se puede cargar.<br>Ver log.
 
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 100
 Quotes were successfully modified = Las cotizaciones se modificaron correctamente
 
-# jkut/pgs/daily/dailyPg.jkut: 99
+# jkut/pgs/daily/dailyPg.jkut: 82
 Reactivate daily charts? = ¿Reactivar los gráficos del día?
 
-# jkut/pgs/acc/tradingPg.jkut: 393
+# jkut/pgs/settings/ibexCosPg.jkut: 177
+Read = Leer
+
+# jkut/pgs/acc/quotesPg.jkut: 223
+Reading = Lectura
+
+# jkut/pgs/acc/executionPg.jkut: 124
+Real = Real
+
+# jkut/pgs/acc/tradingPg.jkut: 534
 Rebuys = Recompras
+
+# jkut/pgs/daily/dailyPg.jkut: 817
+# jkut/pgs/daily/dailyPg.jkut: 818
+Ref = Ref
 
 # jkut/pgs/daily/coChart.jkut: 62
 # jkut/pgs/daily/coChart.jkut: 69
 Reference = Referencia
 
-# jkut/pgs/daily/dailyPg.jkut: 726
-References = Referencias
-
 # jkut/libdm/log.jkut: 37
 # jkut/pgs/home/homePg.jkut: 56
 Reload = Recargar
 
-# jkut/pgs/settings/serversPg.jkut: 309
+# jkut/pgs/settings/serversPg.jkut: 369
 Reset = Reiniciar
 
-# jkut/pgs/daily/dailyPg.jkut: 448
+# jkut/pgs/daily/dailyPg.jkut: 440
 Reverse = Reverso
 
 # jkut/pgs/acc/balancePg.jkut: 347
 Rf. (%) = Rf. (%)
 
-# jkut/pgs/acc/speedometers.jkut: 101
-# jkut/pgs/acc/speedometers.jkut: 134
-# jkut/pgs/acc/speedometers.jkut: 185
+# jkut/pgs/acc/speedometersPg.jkut: 101
+# jkut/pgs/acc/speedometersPg.jkut: 134
+# jkut/pgs/acc/speedometersPg.jkut: 185
 Risk = Riesgo
 
-# jkut/pgs/daily/dailyPg.jkut: 724
-# jkut/pgs/settings/nicks/nicksPg.jkut: 196
+# jkut/pgs/acc/companiesPg.jkut: 376
+# jkut/pgs/acc/quotesPg.jkut: 236
+Selected = Selección
+
+# jkut/pgs/daily/dailyPg.jkut: 899
+# jkut/pgs/settings/nicks/nicksPg.jkut: 197
 Selection = Selección
 
 # jkut/pgs/acc/balancePg.jkut: 333
-# jkut/pgs/acc/tradingPg.jkut: 246
+# jkut/pgs/acc/tradingPg.jkut: 345
+# jkut/pgs/acc/tradingPg.jkut: 415
 # jkut/pgs/settings/acc/annotationsWg.jkut: 43
 # jkut/pgs/settings/acc/annsPg.jkut: 213
 # jkut/pgs/settings/acc/annsPg.jkut: 463
 Sell = Venta
 
 # jkut/pgs/acc/balancePg.jkut: 274
-# jkut/pgs/acc/tradingPg.jkut: 427
+# jkut/pgs/acc/tradingPg.jkut: 568
 Sells = Ventas
 
 # jkut/pgs/home/homePg.jkut: 72
 Server = Servidor
 
+# jkut/pgs/daily/dailyPg.jkut: 107
+Server files are in 'data/qsv/svs'. = Los archivos de servidor estan en 'data/qsv/svs'.
+
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 380
-# jkut/pgs/settings/serversPg.jkut: 182
-# jkut/pgs/settings/settingsPg.jkut: 37
+# jkut/pgs/settings/serversPg.jkut: 212
+# jkut/pgs/settings/settingsPg.jkut: 40
 Servers = Servidores
 
 # jkut/main.jkut: 24
@@ -515,16 +646,16 @@ Session is closed.\nAuthenticating from Main. = La sesión ha sido cerrada.\nHay
 # jkut/main.jkut: 72
 Session is expired. = La sesión ha expirado.
 
-# jkut/pgs/daily/dailyPg.jkut: 664
+# jkut/pgs/daily/dailyPg.jkut: 641
 Show differences = Mostrar diferencias
 
-# jkut/pgs/daily/dailyPg.jkut: 663
+# jkut/pgs/daily/dailyPg.jkut: 640
 Show values = Mostrar valores
 
-# jkut/pgs/daily/dailyPg.jkut: 443
+# jkut/pgs/daily/dailyPg.jkut: 435
 Signal = Señal
 
-# jkut/pgs/daily/dailyPg.jkut: 734
+# jkut/pgs/daily/dailyPg.jkut: 911
 Sleeping = Dormido
 
 # jkut/pgs/settings/acc/annsPg.jkut: 58
@@ -540,7 +671,7 @@ Some warnings were found.<br>See Log. = Se han encontrado avisos.<br>Ver Log.
 # jkut/pgs/settings/calendar/calendarPg.jkut: 351
 Special days = Días especiales
 
-# jkut/pgs/acc/accPg.jkut: 44
+# jkut/pgs/acc/accPg.jkut: 46
 Speedometers = Velocímetros
 
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 333
@@ -552,16 +683,23 @@ Stks. = Accs.
 
 # jkut/pgs/acc/balancePg.jkut: 247
 # jkut/pgs/acc/balancePg.jkut: 318
-# jkut/pgs/acc/speedometers.jkut: 122
-# jkut/pgs/acc/tradingPg.jkut: 214
-# jkut/pgs/acc/tradingPg.jkut: 232
-# jkut/pgs/acc/tradingPg.jkut: 433
+# jkut/pgs/acc/speedometersPg.jkut: 122
+# jkut/pgs/acc/tradingPg.jkut: 308
+# jkut/pgs/acc/tradingPg.jkut: 392
+# jkut/pgs/acc/tradingPg.jkut: 574
 # jkut/pgs/settings/acc/annsPg.jkut: 199
 # jkut/pgs/settings/acc/annsPg.jkut: 216
 # jkut/pgs/settings/acc/annsPg.jkut: 235
 # jkut/pgs/settings/acc/annsPg.jkut: 252
+# jkut/pgs/settings/ibexCosPg.jkut: 419
 # jkut/pgs/verification/verificationPg.jkut: 276
 Stocks = Acciones
+
+# jkut/pgs/settings/ibexCosPg.jkut: 256
+Stocks error: value <Eq 0 = Acciones error: Valor <= 0
+
+# jkut/pgs/settings/ibexCosPg.jkut: 251
+Stocks error: wrong integer = Acciones error: Entero no válido
 
 # jkut/pgs/home/homePg.jkut: 82
 Stopped = Detenido
@@ -569,35 +707,55 @@ Stopped = Detenido
 # jkut/pgs/verification/verificationPg.jkut: 363
 Sum = Suma
 
-# jkut/pgs/daily/dailyPg.jkut: 323
-# jkut/pgs/daily/dailyPg.jkut: 716
+# jkut/pgs/acc/executionPg.jkut: 70
+# jkut/pgs/daily/dailyPg.jkut: 315
+# jkut/pgs/daily/dailyPg.jkut: 891
 Summary = Resumen
+
+# jkut/pgs/acc/quotesPg.jkut: 278
+Sv Val = Val. sv.
+
+# jkut/pgs/acc/quotesPg.jkut: 275
+Tb Val = Val. tb.
+
+# jkut/pgs/acc/executionPg.jkut: 120
+Teoric = Teórico
 
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 284
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 372
-# jkut/pgs/settings/nicks/nicksPg.jkut: 249
+# jkut/pgs/settings/nicks/nicksPg.jkut: 250
 Test = Prueba
 
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 144
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 190
-# jkut/pgs/settings/nicks/nicksPg.jkut: 160
-# jkut/pgs/settings/serversPg.jkut: 71
-# jkut/pgs/settings/serversPg.jkut: 97
-# jkut/pgs/settings/serversPg.jkut: 147
+# jkut/pgs/settings/nicks/nicksPg.jkut: 161
+# jkut/pgs/settings/serversPg.jkut: 73
+# jkut/pgs/settings/serversPg.jkut: 102
+# jkut/pgs/settings/serversPg.jkut: 128
+# jkut/pgs/settings/serversPg.jkut: 176
 Test ok. = Test correcto.
+
+# jkut/pgs/daily/dailyPg.jkut: 101
+To change the current quotes server = Para cambiar el servidor de cotizaciones actuales
 
 # jkut/pgs/acc/balancePg.jkut: 219
 To withdraw = Para retirar
+
+# jkut/pgs/acc/tradingPg.jkut: 313
+Total = Total
 
 # jkut/pgs/settings/nicks/nicksPg.jkut: 41
 # jkut/pgs/settings/nicks/nicksPg.jkut: 95
 Total: %0. Selected: %1. = Total: %0. Seleccionados: %1.
 
-# jkut/pgs/acc/accPg.jkut: 38
+# jkut/pgs/acc/accPg.jkut: 40
 Trading = Operaciones
 
+# jkut/pgs/settings/ibexCosPg.jkut: 130
+Unknown new company. = Compañía desconocida.
+
 # jkut/pgs/acc/ibexPg.jkut: 45
-# jkut/pgs/acc/tradingPg.jkut: 381
+# jkut/pgs/acc/tradingPg.jkut: 522
 # jkut/pgs/settings/investorsPg.jkut: 203
 Update = Actualizar
 
@@ -611,19 +769,36 @@ Verification = Comprobación
 Vol = Vol
 
 # jkut/pgs/acc/ibexPg.jkut: 132
+# jkut/pgs/acc/quotesPg.jkut: 152
 Vol. = Vol.
 
-# jkut/pgs/settings/nicks/nicksPg.jkut: 281
+# jkut/pgs/settings/nicks/nicksPg.jkut: 282
 Volume = Volumen
 
 # jkut/pgs/acc/ibexPg.jkut: 92
 # jkut/pgs/settings/nicks/nickEditorPg.jkut: 188
 # jkut/pgs/settings/nicks/nicksPg.jkut: 118
-# jkut/pgs/settings/nicks/nicksPg.jkut: 158
-# jkut/pgs/settings/serversPg.jkut: 69
-# jkut/pgs/settings/serversPg.jkut: 95
-# jkut/pgs/settings/serversPg.jkut: 145
+# jkut/pgs/settings/nicks/nicksPg.jkut: 159
+# jkut/pgs/settings/serversPg.jkut: 71
+# jkut/pgs/settings/serversPg.jkut: 100
+# jkut/pgs/settings/serversPg.jkut: 126
+# jkut/pgs/settings/serversPg.jkut: 174
 Warnings found.<br>See log. = Se han producido avisos.<br>Ver log.
+
+# jkut/pgs/settings/ibexCosPg.jkut: 422
+Weight = Peso
+
+# jkut/pgs/settings/ibexCosPg.jkut: 266
+Weight error: value < 0 = Peso error: valor < 0
+
+# jkut/pgs/settings/ibexCosPg.jkut: 270
+Weight error: value > 100 = Peso error: valor > 100
+
+# jkut/pgs/settings/ibexCosPg.jkut: 261
+Weight error: wrong integer = Peso error: Entero no válido
+
+# jkut/pgs/settings/ibexCosPg.jkut: 223
+Weights list = Lista de ponderaciones
 
 # jkut/pgs/settings/acc/annotationsWg.jkut: 64
 # jkut/pgs/settings/acc/annsPg.jkut: 311
@@ -633,20 +808,23 @@ Withdrawal = Reintegro
 # jkut/pgs/settings/acc/annotationsWg.jkut: 85
 Without Data = Sin datos
 
-# jkut/pgs/settings/serversPg.jkut: 353
+# jkut/pgs/settings/serversPg.jkut: 413
 Without Nicks = Sin nicks
 
-# jkut/pgs/settings/nicks/nicksPg.jkut: 271
+# jkut/pgs/settings/nicks/nicksPg.jkut: 272
 Without companies = Sin compañías
 
 # jkut/pgs/settings/calendar/calendarPg.jkut: 175
 # jkut/pgs/settings/calendar/calendarPg.jkut: 240
 Without dates = Sin fechas
 
-# jkut/pgs/acc/tradingPg.jkut: 287
-# jkut/pgs/acc/tradingPg.jkut: 325
-# jkut/pgs/acc/tradingPg.jkut: 346
+# jkut/pgs/acc/tradingPg.jkut: 428
+# jkut/pgs/acc/tradingPg.jkut: 466
+# jkut/pgs/acc/tradingPg.jkut: 487
 Without operations = Sin operaciones
+
+# jkut/pgs/acc/quotesPg.jkut: 254
+filter = Filtro
 
 # jkut/pgs/msgPg.jkut: 17
 here = aquí

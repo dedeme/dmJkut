@@ -1,0 +1,58 @@
+// Copyright 27-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Show change of pictures time.
+
+import "data/pict";
+import "global";
+import "cts";
+import "media";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \n -> {wg:<domo>, show:(\n -> ())}
+mk = \topPadding -> {
+  topPadding2 = topPadding - media.screenHeight / 2;
+  leftPadding = "" + (media.screenWidth / 2) - 20;
+
+  content = Q("div");
+  wg = Q("div")
+    .style(
+        "z-index:4;" +
+        "position:relative;" +
+        "top: " + topPadding2 + "px;" +
+        "left: " + leftPadding  + "px;" +
+        "opacity:0;" +
+        "transition: opacity 1s linear;"
+      )
+    .add(content)
+  ;
+
+  // \n -> ()
+  show = async \value -> {
+    , dbKey : await client.send({
+      prg: cts.appName,
+      source: "PictTimeWg",
+      rq: "changePictTime",
+      dbKey: global.dbKeyV!,
+      value
+    });
+    global.dbKeyV! = dbKey;
+    content
+      .removeAll()
+      .add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frame")
+            .style("font-size: 40px")
+            .html("&nbsp;" + value + "&nbsp"))))
+    ;
+
+    wg.setStyle("opacity", "1");
+    timer.delay(1500, \-> wg.setStyle("opacity", "0"););
+  };
+
+  return {wg, show};
+};

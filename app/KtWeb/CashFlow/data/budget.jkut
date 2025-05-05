@@ -33,7 +33,7 @@ setAmount = \Budget, monthIx, accId, am -> {
 /// Remove accounts not used and add new empty accounts
 /// \[[<budgetEntry>.].], [<planEntry>.] -> ()
 cleanAndComplete = \Budget, Plan ->
-  for (i, e = Budget) Budget[i] = budgetMonth.cleanAndComplete(e, Plan);;
+  for (e = Budget) budgetMonth.cleanAndComplete(e, Plan);;
 
 /// Returns the value of an account between months. It is ever 0 or positive.
 /// fromMonthIx and toMonthIx are between 0 and 11, both inclusive.
@@ -48,7 +48,7 @@ accAmount = \Budget, accId, fromMonthIx, toMonthIx -> {
 
 /// Returns the budget balance between months.
 /// fromMonthIx and toMonthIx are between 0 and 11, both inclusive.
-/// \[[<budgetEntry>.].], <plan>, n, n -> n
+/// \[[<budgetEntry>.].], <planEntry>, n, n -> n
 totalAmount = \Budget, Plan, fromMonthIx, toMonthIx -> {
   sumV = [0];
   for (i = fromMonthIx:toMonthIx)

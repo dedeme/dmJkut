@@ -1,0 +1,123 @@
+// Copyright 26-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Pictures page.
+
+import "cts";
+import "global";
+import "data/pict";
+import "wgs/clocksWg";
+import "wgs/infoWg";
+import "wgs/pictTimeWg";
+import "media";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, (\->()) -> ()
+mk = async \wg, reload -> {
+  dbKey, group, :pict picture // s,s,<pict>
+  : await client.send({
+    prg: cts.appName,
+    source: "PicturesPg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+
+  groupV = [group];
+  pictV = [picture];
+
+  tm = timer.mk(media.picturesTime);
+
+  Visuals = media.visuals();
+
+  img = Visuals.img
+    .att("src", "img/fondosEscritorio/" + group + "/" + picture.id)
+  ;
+
+  Info = infoWg.mk(-350, infoWg.pictureWg(group, picture));
+  PictTime = pictTimeWg.mk(-350);
+
+  Clocks = clocksWg.mk(Visuals.tm);
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  goBack = \e -> {
+    timer.stop(tm);
+    reload();
+  };
+
+  // \<KeyboardEvent> -> ()
+  keyDown = \ev -> {
+    if (ev.key == "ArrowUp") {
+      goBack(ev);
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowDown") {
+      Info.changeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowLeft") {
+      Clocks.clockChangeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowRight") {
+      Clocks.chronChangeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key >= "1" & ev.key <= "6") {
+      PictTime.show(math.fromStr(ev.key)!);
+      ev.preventDefault();
+      return;
+    }
+  };
+
+  // View ----------------------------------------------------------------------
+
+
+  div = Visuals.div
+    .setStyle(
+      "background-image",
+      "url('img/fondosEscritorio/" + group + "/" + picture.id + "')"
+    )
+    .add(Info.wg)
+    .add(PictTime.wg)
+    .on("click", goBack)
+  ;
+
+  Q("@body")
+    .on("keydown", keyDown);
+
+  wg
+    .removeAll()
+    .add(div)
+  ;
+
+  div.e.requestFullscreen();
+  timer.run (tm, async \ -> {
+    dbKey, group, :pict picture // s,s,<pict>
+    : await client.send({
+      prg: cts.appName,
+      source: "PicturesPg",
+      rq: "idata"
+    });
+    global.dbKeyV! = dbKey;
+
+    if (group != groupV! | picture.id != pictV![pict.id]) {
+      groupV! = group;
+      pictV! = picture;
+      media.changePict(div, img, Info, group, picture);
+    }
+  });
+};
+

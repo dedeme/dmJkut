@@ -1,0 +1,156 @@
+// Copyright 26-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Dance selector page.
+
+import "libdm/menu";
+import "data/danceSong";
+import "cts";
+import "global";
+import "dancePg";
+import "fns";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, b, (\->()) -> ()
+mk = async \wg, isShort, reload -> {
+  dbKey, :arr Groups, group, :arr DanceSongs // s, [s.], s, [<danceSong>.]
+  : await client.send({
+    prg: cts.appName,
+    source: "DanceSelectorPg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+
+  Groups.sort(\g1, g2 -> return str.toUpper(g1) < str.toUpper(g2););
+  DanceSongs.sort(
+    \:danceSong s1, :danceSong s2 ->
+      return str.toUpper(s1.id) < str.toUpper(s2.id);
+  );
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  changeGroup = async \group -> {
+    await client.send({
+      prg: cts.appName,
+      source: "DanceSelectorPg",
+      rq: "changeGroup",
+      dbKey: global.dbKeyV!,
+      group
+    });
+    mk(wg, isShort, reload);
+  };
+
+  // \<keyboardEvend>, n -> ()
+  keyInButton = \ev, isong -> {
+    if (ev.key == "ArrowUp" & isong > 0) {
+      Q("#bt:" + (isong - 1)).e.focus();
+      ev.preventDefault();
+      return;
+    }
+    if (ev.key == "ArrowDown" & isong < DanceSongs.size() - 1) {
+      Q("#bt:" + (isong + 1)).e.focus();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowLeft") {
+      ix = Groups.index(\g -> return g == group;);
+      if (ix <= 0) reload();
+      else changeGroup(Groups[ix - 1]);
+
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowRight") {
+      ix0 = Groups.index(\g -> return g == group;);
+      ix = ix0 == -1 ? 0 : ix0;
+
+      if (ix >= Groups.size() - 1) reload();
+      else changeGroup(Groups[ix + 1]);
+
+      ev.preventDefault();
+      return;
+    }
+  };
+
+  // \s -> ()
+  play = \ssong -> dancePg.mk(wg, isShort, group, ssong, reload);;
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> [<domo>.]
+  entries = \ -> {
+    Rows = []; // [<domo>.]
+    for (i, :danceSong s = DanceSongs) {
+      Rows.push(Q("tr")
+        .add(Q("td")
+          .att("title", II("Quality"))
+          .style("width:5px")
+          .klass("frame")
+          .text(s.level == 0 ? II("???")
+              : s.level == 1 ? II("Ok")
+                : II("Good")
+            ))
+        .add(Q("td")
+          .att("title", II("Speed"))
+          .style("width:5px")
+          .klass("frame")
+          .text(s.level == 0
+            ? "???"
+            : s.speed == 0
+              ? II("Slow")
+              : II("Fast")))
+        .add(Q("td")
+          .add(Q("button")
+            .att("id", "bt:" + i)
+            .style("width:100%;white-space:nowrap;text-align:left")
+            .text(s.id))
+            .on("keydown", \e -> keyInButton(e, i);)
+            .on("click", \e -> play(s.id);))
+        .add(Q("td")
+          .klass("frame")
+          .text(fns.formatInt(isShort ? s.shortPlays : s.longPlays, 2)))
+      );
+    }
+    return Rows;
+  };
+
+  Lopts = [];
+  firstV = [true];
+  for (g = Groups) {
+    if (firstV!) firstV! = false;
+    else arr.push(Lopts, menu.separator());
+
+    arr.push(Lopts, menu.toption(g, g, \ -> changeGroup(g);));
+  }
+  Ropts = [
+    menu.toption("_back_", II("Back"), reload)
+  ];
+  menuWg = menu.mk(Lopts, Ropts, group);
+
+  wg
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .text(isShort
+        ? II("Short Dance Songs")
+        : II("Long Dance Songs")))
+    .add(Q("hr"))
+    .add(menuWg)
+   .add(Q("table")
+      .att("align", "center")
+      .klass("frame3")
+      .adds(entries()))
+  ;
+
+  timer.delay(100, \ -> {
+    mainButtonOp = null(Q("#bt:0"));
+    if (!!mainButtonOp) mainButtonOp!.e.focus();
+  });
+};
+

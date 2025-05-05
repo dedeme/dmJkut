@@ -9,11 +9,11 @@ import "i18n";
 Q = ui.q;
 II = i18n.tlt;
 
-/// \[s...], [[[f]...]...] -> <domo>
+/// \[s.], [[[n].].] -> <domo>
 mk = \Labels, Values -> {
   back = "#fafafa";
 
-  :: Chart = lineChart.mkExample();
+  Chart = lineChart.mkExample();
   Chart.exArea.width = 610;
   Chart.exArea.height = 160;
   Chart.exArea.atts.border.width = 0;
@@ -32,7 +32,7 @@ mk = \Labels, Values -> {
     lineChart.mkLine(1, "#008000", false)
   ];
 
-  :: Data = lineChart.mkData(Labels, Values, Atts);
+  Data = lineChart.mkData(Labels, Values, Atts);
   Data.UnarySets = [lineChart.mkUnarySet(
     II("Dif. 0"), 0, lineChart.mkLine(1, "#000000", false)
   )];

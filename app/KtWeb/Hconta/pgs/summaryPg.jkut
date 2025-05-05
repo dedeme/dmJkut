@@ -21,6 +21,7 @@ II = i18n.tlt;
 ///   wg: Widget.
 ///   stype: Summary type: S, P, B (Statements, Profit & losses, Balance).
 ///   sdeep: Summary deep: M, A, S (suMmary, Account, Subaccount).
+/// \<domo>, s, s -> ()
 mk = \wg, stype, sdeep -> {
   type = stype != "S" & stype != "P" & stype != "B" ? "P" : stype;
   deep = sdeep != "M" & sdeep != "A" & sdeep != "S" ? "M" : sdeep;
@@ -172,12 +173,12 @@ mk = \wg, stype, sdeep -> {
     sumTV = [0];
     Letters = ["A", "B", "C"];
     for (l = Letters) {
-      Es = arr.filter(
+      :arr Es = arr.filter(
         dic.toArr(profits.entries()),
         \Kv -> return profits.groupOf(Kv[0]) == l;
       );
       Es.sort(\Kv1, Kv2 -> return Kv1[0] < Kv2[0];);
-      Stats = arr.map(
+      :arr Stats = arr.map(
         Es,
         \Kv -> {
           sumV = [0];
@@ -254,12 +255,12 @@ mk = \wg, stype, sdeep -> {
     sumTV = [0];
     Letters = ["AA", "AB", "PA", "PB", "PC"];
     for (l = Letters) {
-      Es = arr.filter(
+      :arr Es = arr.filter(
         dic.toArr(balance.entries()),
         \Kv -> return balance.groupOf(Kv[0]) == l;
       );
       Es.sort(\Kv1, Kv2 -> return Kv1[0] < Kv2[0];);
-      Stats = Es.map(
+      :arr Stats = Es.map(
         \Kv -> {
           sumV = [0];
           Accs = []; // [[{s, s, f}, [{s, s, f}.]].] ::

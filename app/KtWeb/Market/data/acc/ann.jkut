@@ -21,12 +21,12 @@ mk = \date, op -> return mk0(-1, date, op);;
 /// \<ann>, n -> <ann>
 setId = \a, id -> return mk0(id, a[date], a[op]);;
 
-/// \<ann> -> JS
+/// \<ann> -> [*.]
 toJs = \An -> {
   R = [An[id], An[date]];
   arr.cat(R, opr.toJs(An[op]));
   return R;
 };
 
-/// \JS -> <ann>
+/// \[*.] -> <ann>
 fromJs = \A -> return mk0(math.toInt(A[0]), A[1], opr.fromJs(A[2:]));;

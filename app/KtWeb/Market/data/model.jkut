@@ -5,6 +5,7 @@
 /// No serializable, althogh 'js.w' can be used directly.
 
 /// Type of parameters.
+/// [n.]
 dayParam, percParam =;
 
 /// Constructor.

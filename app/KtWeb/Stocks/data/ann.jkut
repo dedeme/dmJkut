@@ -41,7 +41,7 @@ toStr = \a -> return
   math.toIso(a[cash], 2) +  " |"
 ;;
 
-/// \<ann> -> JS
+/// \<ann> -> [*.]
 toJs = \a -> return [
     a[id],
     a[isSell],
@@ -52,7 +52,7 @@ toJs = \a -> return [
     a[cash]
   ];;
 
-/// \[<JS>.] -> <ann>
+/// \[*.] -> <ann>
 fromJs = \A -> return mk(
     A[id],
     A[isSell],

@@ -9,7 +9,7 @@ import "danns";
 import "diaryEntry";
 
 /// Remove one entry.
-/// \[<diaryEntry>.], ix -> ()
+/// \[<diaryEntry>.], n -> ()
 del = \:arr D, ix -> D.remove(ix);;
 
 /// Changes 'oldAcc' annotation account by 'newAcc'
@@ -22,13 +22,13 @@ changeAcc = \:arr D, oldAcc, newAcc ->
 /// Returns unsorted used accounts list.
 /// \[<diaryEntry>.] -> [s.]
 accs = \D -> {
-  :dic Dic = {}; // {n};
-  for (:diaryEntry e = D) for (a = e.Anns) Dic.put(a.id, 1);
+  Dic = {}; // {n};
+  for (:diaryEntry e = D) for (:dann a = e.Anns) Dic.put(a.id, 1);
   return Dic.keys();
 };
 
 /// Returns 5 previous entries of ix
-/// \[<diaryEntry>.], n -> [<diaryAnnotation>.]
+/// \[<diaryEntry>.], n -> [<diaryEntry>.]
 previous = \D, ix -> {
   start0 = ix - 5;
   start = start0 < 0 ? 0 : start0;
@@ -36,7 +36,7 @@ previous = \D, ix -> {
 };
 
 /// Returns 5 next entries of ix
-/// \[<diaryEntry>.], n -> [<diaryAnnotation>.]
+/// \[<diaryEntry>.], n -> [<diaryEntry>.]
 next = \:arr D, ix -> {
   end0 = ix + 6;
   end = end0 > D.size() ? D.size() : end0;
@@ -50,7 +50,7 @@ next = \:arr D, ix -> {
 filterReverse = \:arr D, fromMonthIx, toMonthIx -> {
   from = month.format(fromMonthIx + 1);
   to = month.format(toMonthIx + 1);
-  :arr R = []; // [[n,<diaryEntry>].]
+  R = []; // [[n,<diaryEntry>].]
   for (i = 0:D.size()) R.push([i, D[i]]);
   R.filterIn(\tp -> {
     month = tp[1][diaryEntry.month];

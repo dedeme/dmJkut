@@ -11,56 +11,54 @@ II = i18n.tlt;
 
 // Main menu constructor.
 //    selected: Selected option.
-// \s -> <menu>
+// \s -> <domo>
 mkUpMenu= \selected -> {
-  lopts = [
-    menu.tlink("home", II("Home"), []),
+  Lopts = [
+    menu.tlink("home", II("Home")),
     menu.separator(),
-    menu.tlink("cmarket", II("CMarket"), []),
-    menu.separator(),
-    menu.tlink("mmarket", II("MMarket"), [])
+    menu.tlink("market", II("Market"))
   ];
 
-  return menu.mk(lopts, [], selected, false);
+  return menu.mk(Lopts, [], selected);
 };
 
 /// Constructor. Contains the following fields:
 /// Parameters:
 ///   wg: Container.
 ///   selected: Selected option.
-/// \<domo>, s -> x<dmenu>
+/// \<domo>, s -> <dmenu>
 mk = \wg, selected -> {
   upDiv = Q("div").style("padding:0px");
   upMenu = mkUpMenu(selected);
   downDiv = Q("div");
-  Hidden = [false];
+  hiddenV = [false];
 
-  Show = [[]];
+  showV = [[]];
 
   // Control -------------------------------------------------------------------
 
   // \<event> -> ()
   change = \ev -> {
-    Hidden! = !Hidden!;
+    hiddenV! = !hiddenV!;
     upDiv.removeAll().style("padding:0px");
-    if (!Hidden!) upDiv.add(upMenu);
+    if (!hiddenV!) upDiv.add(upMenu);
   };
 
-  /// Sets down menu.
-  /// \<menu> -> ()
+  // Sets down menu.
+  // \<domo> -> ()
   setDownMenu = \menuWg -> {
     downDiv
       .removeAll()
       .add(menuWg)
     ;
-    Hidden! = true;
+    hiddenV! = true;
     upDiv.removeAll().style("padding:0px");
   };
 
   // View ----------------------------------------------------------------------
 
   // \->()
-  Show! = \ -> {
+  showV! = \ -> {
     wg
       .removeAll()
       .add(upDiv
@@ -71,20 +69,20 @@ mk = \wg, selected -> {
     ;
   };
 
-  Show!();
+  showV!();
 
   return {setDownMenu, change};
 };
 
 /// Sets down menu.
-/// \<dmenu>, <menu> -> ()
-setDownMenu = \dmenu, downMenu -> return dmenu.setDownMenu(downMenu);;
+/// \<dmenu>, <domo> -> ()
+setDownMenu = \odmenu, downMenu -> return odmenu.setDownMenu(downMenu);;
 
 /// Returns a button to hidde-show the up menu.
 /// \<dmenu> -> <menuEntry>
-mkHiddenButton = \dmenu -> return menu.mkEntry(
+mkHiddenButton = \odmenu -> return menu.mkEntry(
     [],
-    ui.link(dmenu.change)
+    ui.link(odmenu.change)
       .add(ui.img("menu")
         .style("vertical-align:middle"))
   );;

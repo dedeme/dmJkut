@@ -8,6 +8,7 @@ import "wgs/dmenu";
 import "nicks/nicksPg";
 import "acc/annsPg";
 import "calendar/calendarPg";
+import "ibexCosPg";
 import "serversPg";
 import "investorsPg";
 import "i18n";
@@ -23,7 +24,7 @@ II = i18n.tlt;
 mk = \wg, :dmenu dbmenu, :arr LcPath -> {
   if (!LcPath) LcPath.push("nicks");
   target = "settings&" + switch (LcPath[0]) {
-      "settings", "calendar", "servers", "annotations", "investors":
+      "settings", "calendar", "ibex", "servers", "annotations", "investors":
         LcPath[0];
       default:
         "nicks";
@@ -33,6 +34,8 @@ mk = \wg, :dmenu dbmenu, :arr LcPath -> {
     dbmenu.mkHiddenButton(),
     menu.separator2(),
     menu.tlink("settings&nicks", II("Nicks")),
+    menu.separator(),
+    menu.tlink("settings&ibex", "Ibex"),
     menu.separator(),
     menu.tlink("settings&servers", II("Servers")),
     menu.separator2(),
@@ -48,6 +51,8 @@ mk = \wg, :dmenu dbmenu, :arr LcPath -> {
   dbmenu.setDownMenu(menu.mk(Lopts, Ropts, target));
 
   switch (target) {
+    "settings&ibex":
+      ibexCosPg.mk(wg);
     "settings&servers":
       serversPg.mk(wg, "");
     "settings&annotations":

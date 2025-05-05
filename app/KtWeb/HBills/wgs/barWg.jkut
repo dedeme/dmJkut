@@ -11,7 +11,7 @@ Q = ui.q;
 ///   ratio     : Part with foreground.
 ///   foreground: Foreground color (type #000000)
 ///   background: Background color (type #ffffff)
-/// \n, n, n, s, s -> x<bar>
+/// \n, n, n, s, s -> <bar>
 mk = \width, height, ratio, foreground, background -> return [
     width, height, ratio, foreground, background
   ];;

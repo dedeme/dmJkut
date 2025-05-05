@@ -48,7 +48,7 @@ mk = async \wg -> {
       return;
     }
 
-    today = time.now();
+    :time today = time.now();
     tm =  time.mk(
       today.day(), today.month(), today.year(),
       math.fromStr(hWg.getValue())!, math.fromStr(mWg.getValue())!, 0
@@ -129,7 +129,7 @@ mk = async \wg -> {
   // \ -> [<domo>...]
   trsNew = \ -> {
     dayWg = Q("div");
-    :: DayDs = daySelector.mk(dayWg, [], idV! == -1);
+    DayDs = daySelector.mk(dayWg, [], idV! == -1);
     DayDs.show();
     hWg = ui.select(
       "h-new", arr.fromIter(iter.map([0:24], \i -> return fns.formatN00(i);))
@@ -185,7 +185,7 @@ mk = async \wg -> {
     isNew = idV! == -1;
 
     dayWg = Q("div");
-    :: DayDs = daySelector.mk(dayWg, a.days(), isSel);
+    DayDs = daySelector.mk(dayWg, a.days(), isSel);
     DayDs.show();
 
     hWg = ui.select(

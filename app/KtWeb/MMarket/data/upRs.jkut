@@ -9,5 +9,5 @@
 ///   acc  : Assets ratio with accounting quote values,
 ///   prof : Profits ratio.
 ///   pon  : Ponderation ratio.
-/// \i,f,f,f,f -> <upRs>
+/// \n,n,n,n,n -> <upRs>
 mk : sales, real, acc, prof, pon;

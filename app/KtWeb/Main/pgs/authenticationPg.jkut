@@ -87,7 +87,7 @@ mk = \wg, app, fnOk -> {
       )
       .text(II("Accept"))
     ;
-    rows = [
+    Rows = [
       Q("tr")
         .add(Q("td")
           .style("padding: 10px 0px 0px 10px;text-align:right;")
@@ -128,7 +128,7 @@ mk = \wg, app, fnOk -> {
     ];
 
     if (failedV!) {
-      rows.push(
+      Rows.push(
         Q("tr")
           .add(Q("td")
             .att("colspan", 2)
@@ -148,14 +148,14 @@ mk = \wg, app, fnOk -> {
     }
 
     if (cpt.isUpLimit()) {
-      rows.push(
+      Rows.push(
         Q("tr")
           .add(Q("td")
             .att("colspan", 2)
             .att("align", "center")
             .add(cpt.mkWg))
       );
-      rows.push(
+      Rows.push(
         Q("tr")
           .add(Q("td")
             .att("colspan", 2)
@@ -186,7 +186,7 @@ mk = \wg, app, fnOk -> {
               "color:#505050;"
             )
             .html("<big><big><b>" + II("Login") + "</big></big></b>")))
-        .adds(rows));
+        .adds(Rows));
 
     pass.e.focus();
   };

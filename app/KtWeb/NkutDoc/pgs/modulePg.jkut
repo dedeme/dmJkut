@@ -1,0 +1,207 @@
+// Copyright 30-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Module page.
+
+import "i18n";
+import "cts";
+import "msgPg";
+import "data/doc";
+import "data/docEntry";
+
+Q = ui.q;
+II = i18n.tlt;
+
+tab = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+
+/// \<domo>, s, s -> ()
+mk = async \wg, pack, path -> {
+  // [<doc>]|[]
+  , docOp : await client.send({
+    prg: cts.appName,
+    source: "ModulePg",
+    rq: "doc",
+    pack: pack,
+    pth: path
+  });
+
+  if (!docOp) {
+    msgPg.mk(wg, i18n.fmt(II("[%0] Jkut file not found."), [path]), true);
+    return;
+  }
+
+  :doc d = docOp!;
+
+  arr.sort(
+    d.Indexeds,
+    \:docEntry e1, :docEntry e2 -> return str.less(e1.name, e2.name);
+  );
+  arr.sort(
+    d.Functions,
+    \:docEntry e1, :docEntry e2 -> return str.less(e1.name, e2.name);
+  );
+  arr.sort(
+    d.Values,
+    \:docEntry e1, :docEntry e2 -> return str.less(e1.name, e2.name);
+  );
+
+  // \ -> <domo>
+  index = \-> {
+    // \[<docEntry>.], s -> [<domo>.]
+    block = \:arr Entries, name -> {
+      if (!Entries) return [];
+
+      R = [];
+      R.push(Q("tr")
+        .add(Q("td")
+          .att("colspan", "3")
+          .html("<i>" + name + "</i>"))
+      );
+      size = Entries.size();
+      h = Math.floor((size - 1) / 3) + 1;
+      for (y = 0:h) {
+        R.push(Q("tr")
+          .adds(iter.map([0:3], \x -> {
+              pos = x * h + y;
+              if (pos < size) {
+                :docEntry e = Entries[pos];
+                return Q("td")
+                  .add(Q("a")
+                    .att("href", "#hp:" + e.name)
+                    .html(tab + e.name))
+                ;
+              } else {
+                return Q("td");
+              }
+            }))
+        );
+      }
+      return R;
+    };
+
+    return Q("div")
+      .add(Q("p")
+        .klass("frame2")
+        .html("<b>" + path + "</b>"))
+      .add(Q("table")
+        .klass("main")
+        .adds(block(d.Values, "Values"))
+        .adds(block(d.Indexeds, "Indexeds"))
+        .adds(block(d.Functions, "Functions")))
+    ;
+  };
+
+  // \ -> <domo>
+  overview = \ -> {
+    return Q("div")
+      .add(Q("p")
+        .klass("frame")
+        .html("<b>" + II("Overview") + "</b>"))
+      .adds(mkHelp(d.docTx))
+      .add(Q("p")
+        .html("<b>" + II("File") + "</b>")
+        .add(Q("br"))
+        .add(Q("a")
+          .att("href", "?" + pack + "@" + path + "&hp:")
+          .text(path + ".jkut")))
+      .add(Q("hr"))
+    ;
+  };
+
+  // \ -> <domo>
+  body = \ -> {
+    // \[<docEntry>.], s, b -> [<domo>.]
+    block = \:arr Entries, name, isFunction -> {
+      // \<docEntry> -> <domo>
+      endEntry = \:docEntry e -> {
+        isNewLineV = [true];
+        bfV = [""];
+        code = e.code;
+        for (i = 0:str.len(code)) {
+          ch = code[i];
+          if (isNewLineV! & ch != "\n") {
+            if (ch <= " ") {
+              bfV! += "&nbsp;";
+            } else {
+              bfV! += ch;
+              isNewLineV! = false;
+            }
+          } else if (ch == "\n") {
+            bfV! += "<br>";
+            isNewLineV! = true;
+          } else {
+            bfV! += ch;
+          }
+        }
+        return Q("div")
+          .add(Q("p")
+            .html("<tt>" + bfV! + "</tt>"))
+          .adds(mkHelp(e.docTx))
+          .add(Q("hr"))
+        ;
+      };
+
+      return Entries.map(\:docEntry e ->
+        return Q("div")
+          .add(Q("h3")
+            .att("id", "hp:" + e.name)
+            .add(Q("span")
+              .text(name + " "))
+            .add(Q("a")
+              .att(
+                "href",
+                "?" + pack + "@" + path + "&hp:" + e.link
+              ).text(e.name)))
+          .add(endEntry(e))
+        ;
+      );
+    };
+
+    return Q("div")
+      .adds(block(d.Values, "Value", false))
+      .adds(block(d.Indexeds, "Indexed", false))
+      .adds(block(d.Functions, "Function", true))
+    ;
+  };
+
+  barIx = str.lastIndex(path, "/") + 1;
+  Q("@title").text(cts.appName + " - " + path[barIx:]);
+
+  wg
+    .removeAll()
+    .add(index())
+    .add(overview())
+    .add(Q("hr").klass("frame"))
+    .add(body())
+    .adds(iter.map([0:30], \i -> return Q("p").html("&nbsp;");))
+  ;
+
+  lc = window.location.href;
+  ix = str.index(lc, "#");
+  if (ix != -1) {
+    tg = lc[ix:];
+    if (tg != "#") {
+      eOp = null(Q(tg).e);
+      if (!!eOp) eOp!.scrollIntoView(true);
+    }
+  }
+
+};
+
+// \s -> [<domo>]|[]
+mkHelp = \tx -> {
+  if (str.trim(tx) == "") return [];
+
+  html = str.replace(str.replace(tx, "&", "&amp;"), "<", "&lt;");
+  R = [];
+  R.push(Q("table")
+    .add(Q("tr")
+      .add(Q("td")
+        .klass("frame")
+        .style("white-space: nowrap")
+        .add(Q("pre")
+          .style("font-size: 14px;")
+          .html(html))))
+  );
+  return R;
+};

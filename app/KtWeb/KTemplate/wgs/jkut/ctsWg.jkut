@@ -22,10 +22,13 @@ mk = \wg, textArea -> {
     Q = ui.q;
 
     /// Application name.
+    /// s
     appName = "{NAME}";
     /// Application version.
+    /// s
     version = "{VERSION}";
     /// Page foot.
+    /// <domo>
     foot = Q("table")
       .klass("main")
       .add(Q("tr")
@@ -38,7 +41,7 @@ mk = \wg, textArea -> {
     ;
   """;
 
-  now = time.now();
+  :time now = time.now();
   month = now.toDate().toLocaleString("en-US", { month: "short" });
   dateF = ui.field("nameF")
     .att("id", "dateF")
@@ -60,11 +63,11 @@ mk = \wg, textArea -> {
   // \->()
   update = \ -> {
     if (str.trim(dateF.getValue()) == "")
-      dateF.value(now.format("%D-" + month + "-%Y"));
+      dateF.value(now.fmt("%D-" + month + "-%Y"));
     if (str.trim(nameF.getValue()) == "")
       nameF.value("Name");
     if (str.trim(versionF.getValue()) == "")
-      versionF.value(now.format("%Y.%M"));
+      versionF.value(now.fmt("%Y.%M"));
 
     textArea.text(tx
       .replace("{DATE}", str.trim(dateF.getValue()))

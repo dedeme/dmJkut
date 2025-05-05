@@ -1,0 +1,51 @@
+// Copyright 26-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Pictures page.
+
+import "media";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, (\->()) -> ()
+mk = \wg, reload -> {
+  Visuals = media.visuals();
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  goBack = \e -> {
+    reload();
+  };
+
+  // \<KeyboardEvent> -> ()
+  keyDown = \ev -> {
+    if (ev.key == "ArrowUp") {
+      goBack(ev);
+      ev.preventDefault();
+      return;
+    }
+  };
+
+  // View ----------------------------------------------------------------------
+
+
+  div = Visuals.div
+    .setStyle("background-color", "#000000")
+    .on("click", goBack)
+  ;
+  Visuals.img.setStyle("opacity", "0");
+
+  Q("@body")
+    .on("keydown", keyDown);
+
+  wg
+    .removeAll()
+    .add(div)
+  ;
+
+  div.e.requestFullscreen();
+};
+

@@ -116,7 +116,7 @@ enDic = {
 /// \-> ()
 en = \-> Lang! = "en";;
 
-//\s -> {s...}
+//: \s -> {s.}
 dicByKey = \s -> return switch (s) {
   "es": esDic;
   "en": enDic;
@@ -133,7 +133,7 @@ tlt = \s -> {
   return !T ? s : T!;
 };
 
-/// \s, [s...] -> s
+/// \s, [s.] -> s
 fmt = \tp, Rpls -> {
   R = [tp];
   for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);

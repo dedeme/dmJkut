@@ -3,7 +3,8 @@
 
 /// Functions to media management.
 
-import "wgs/info";
+import "data/pict";
+import "wgs/infoWg";
 import "i18n";
 
 Q = ui.q;
@@ -45,7 +46,7 @@ fadeOutDanceTime = 300000.0; // 5'
 // FUNCTIONS
 
 /// Calculate values to adapt pictures to screens.
-/// \ -> {n, n, n, n} :: {w, h, leftPadding, topPadding}
+/// \ -> {w:n, h:n, leftPadding:n, topPadding:n}
 redimPicture = \ -> {
   prop =  screenHeight / screenWidth;
   if (screenWidth == picturesWidth & screenHeight == picturesWidth) {
@@ -75,7 +76,7 @@ redimPicture = \ -> {
 };
 
 /// Returns visual elements
-/// \ -> {<domo>, <domo>, <domo>} :: {div, img, tm}
+/// \ -> {div:<domo>, img:<domo>, tm:<domo>}
 visuals = \ -> {
   redim = redimPicture();
 
@@ -121,10 +122,10 @@ visuals = \ -> {
 ///   img  : Widget that show pictures.
 ///   Info : 'img' data.
 ///   group: Group of the new picture to show.
-///   Pict : New picture to show.
+///   pict : New picture to show.
 /// \<domo>, <domo>, <info>, s, <pict> -> ()
-changePict  = \div, img, Info, group, Pict -> {
-  url = "img/fondosEscritorio/" + group + "/" + Pict.id;
+changePict  = \div, img, Info, group, :pict pic -> {
+  url = "img/fondosEscritorio/" + group + "/" + pic.id;
   div
     .setStyle(
       "background-image",
@@ -135,7 +136,34 @@ changePict  = \div, img, Info, group, Pict -> {
       .setStyle("opacity", "0")
     ;
     timer.delay(8000, \ -> {
-      Info.changeContent(info.pictureWg(group, Pict));
+      Info.changeContent(infoWg.pictureWg(group, pic));
+      img
+        .att("src", url)
+        .setStyle("opacity", "1")
+      ;
+    });
+  });
+};
+
+/// Change pinup in display.
+///   div  : Container of 'img'.
+///   img  : Widget that show pictures.
+///   Info : 'img' data.
+///   pict : New picture to show.
+/// \<domo>, <domo>, <info>, s, <pict> -> ()
+changePinup  = \div, img, Info, :pict pic -> {
+  url = "img/pinups/" + pic.id;
+  div
+    .setStyle(
+      "background-image",
+      "url('" + url + "')"
+    );
+  timer.delay(2000, \ -> {
+    img
+      .setStyle("opacity", "0")
+    ;
+    timer.delay(8000, \ -> {
+      Info.changeContent(infoWg.pictureWg("-", pic));
       img
         .att("src", url)
         .setStyle("opacity", "1")

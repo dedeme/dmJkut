@@ -16,8 +16,8 @@ II = i18n.tlt;
 ///   wg: Container.
 ///   Entry: Diary entry.
 ///   fnOk : Function to run when a valid entry is accepted.
+///   RETURN: {active: \b -> (), updateAccount: \s -> ()}
 /// \<domo>, <diaryEntry>, (\->()) -> <annsEditor>
-///   {active: \b -> (), updateAccount: \s -> ()}
 mk = \wg, :diaryEntry entry, fnOk -> {
   am = entry.am;
   :arr Anns = entry.Anns;

@@ -13,16 +13,17 @@ II = i18n.tlt;
 ///   textArea: Viewer.
 /// \<domo>, <domo> -> ()
 mk = \wg, textArea -> {
-  tx = """
+  tx0 = """
     // Copyright {DATE} ºDeme
     // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
     /// {OVERVIEW}
 
-    /// Constructor.{DOC}{TYPES}{CODE}{SETS}{TOJS}{FROMJS}
+    /*/ Constructor.{DOC}{TYPES}{CODE}{SETS}{TOJS}{FROMJS}
   """;
+  tx = str.replace(tx0, "/*/", "///");
 
-  now = time.now();
+  :time now = time.now();
   month = now.toDate().toLocaleString("en-US", { month: "short" });
   dateF = ui.field("overviewTA")
     .value("")
@@ -52,7 +53,7 @@ mk = \wg, textArea -> {
   // \->()
   update = \ -> {
     if (str.trim(dateF.getValue()) == "")
-      dateF.value(now.format("%D-" + month + "-%Y"));
+      dateF.value(now.fmt("%D-" + month + "-%Y"));
     if (str.trim(oNameF.getValue()) == "") oNameF.value("mk");
     if (str.trim(oTypeF.getValue()) == "") oTypeF.value("myType");
     oType = "<" + str.trim(oTypeF.getValue()) + ">";

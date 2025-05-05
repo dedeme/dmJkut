@@ -6,10 +6,13 @@
 Q = ui.q;
 
 /// Application name.
+/// s
 appName = "HBills";
 /// Application version.
+/// s
 version = "202404";
 /// Page foot.
+/// <domo>
 foot = Q("table")
   .klass("main")
   .add(Q("tr")

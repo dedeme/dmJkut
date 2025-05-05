@@ -1,17 +1,8 @@
-// Copyright 26-May-2023 ºDeme
+// Copyright 03-May-2024 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Profits data of all the investors.
 
 /// Creates a profits entry.
-///   \s, n -> d<ProfitsEntry>
-mk = \date, profits -> return {
-  date,
-  profits
-};;
-
-/// \<ProfitsEntry> -> [*(JS)...]
-toJs = \Pe -> return [Pe.date, Pe.profits];;
-
-/// \[*(JS)...] -> <ProfitsEntry>
-fromJs = \A -> return mk(A[0], A[1]);;
+/// \s,n -> <profitsEntry>
+mk : date, profits;

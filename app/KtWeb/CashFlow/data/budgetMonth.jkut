@@ -12,7 +12,7 @@ mkEmpty = \:arr Plan -> return Plan.map(\:planEntry e ->
     return budgetEntry.mk(e.id, 0);
   );;
 
-/// Remove accounts not used and add new empty accounts
+/// Remove accounts out of plan and add new empty accounts
 /// \[<budgetEntry>.], [<planEntry>.] -> ()
 cleanAndComplete = \:arr Month, :arr Plan -> {
   :arr NewEntries = Plan.map(\:planEntry pe -> {

@@ -1,0 +1,10 @@
+// Copyright 01-May-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Dimension data.
+
+/// Constructor.
+///   width :
+///   height:
+/// \n,n -> <dms>
+mk : width, height;

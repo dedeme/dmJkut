@@ -135,7 +135,7 @@ mk = async \wg -> {
       .style("width:80px")
       .disabled(idV! != -1)
     ;
-    dayDp = datePicker.mk(
+    :datePicker dayDp = datePicker.mk(
       i18n.getLang() == "es",
       time.now(),
       \s -> {}
@@ -198,7 +198,7 @@ mk = async \wg -> {
       .style("width:75px")
       .disabled(!isSel);
 
-    dayDp = datePicker.mk(
+    :datePicker dayDp = datePicker.mk(
       i18n.getLang() == "es",
       a.date(),
       \s -> {}

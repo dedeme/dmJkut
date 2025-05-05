@@ -14,7 +14,7 @@ Q = ui.q;
 mk = \wg, currentValue, totalValue -> {
   width = 400;
 
-  tds = [
+  Tds = [
     Q("td")
       .klass("border")
       .style(
@@ -22,7 +22,7 @@ mk = \wg, currentValue, totalValue -> {
           math.toInt(currentValue * width / totalValue) + "px"
         )
   ];
-  if (currentValue <= totalValue) tds.push(Q("td"));
+  if (currentValue <= totalValue) Tds.push(Q("td"));
 
   wg
     .removeAll()
@@ -44,7 +44,7 @@ mk = \wg, currentValue, totalValue -> {
                 .add(Q("table")
                   .style("border-collapse : collapse;width:" + width + "px")
                   .add(Q("tr")
-                    .adds(tds))))))))
+                    .adds(Tds))))))))
       .add(Q("tr")
         .add(Q("td")
           .style("text-align:center")

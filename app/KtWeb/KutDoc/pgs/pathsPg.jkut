@@ -1,16 +1,19 @@
-// Copyright 07-May-2023 ºDeme
+// Copyright 30-Apr-2024 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Paths page.
 
+import "data/dpath";
+import "data/conf";
+import "global";
 import "i18n";
 import "main";
 
 Q = ui.q;
 II = i18n.tlt;
 
-/// \<domo>, <conf>, [dpath...] -> ()
-mk = \wg, Cf, AllPaths -> {
+/// \<domo>, <conf>, [<dpath>.] -> ()
+mk = \wg, :conf cf, :arr AllPaths -> {
 
   // Returns "" is ok, otherwise an error.
   validateChar = \chars, id -> {
@@ -31,7 +34,7 @@ mk = \wg, Cf, AllPaths -> {
         : validateChar("=@/?", id)
     ;
     return r == ""
-      ? arr.any(AllPaths, \p -> return p.id == id;)
+      ? arr.any(AllPaths, \:dpath p -> return p.id == id;)
         ? i18n.fmt(II("Name '%0' is repeated"), [id])
         : ""
       : r
@@ -67,15 +70,17 @@ mk = \wg, Cf, AllPaths -> {
       return;
     }
 
-    Path = [path];
-    while (str.len(Path!) > 1 & str.ends(Path!, "/"))
-      Path! = Path![:-1];
+    pathV = [path];
+    while (str.len(pathV!) > 1 & str.ends(pathV!, "/"))
+      pathV! = pathV![:-1];
+
     await client.send({
       prg: "KutDoc",
       source: "PathsPg",
       rq: "new",
+      dbKey: global.dbKeyV!,
       id: id,
-      path: Path!
+      pth: pathV!
     });
     main.load();
   };
@@ -85,7 +90,8 @@ mk = \wg, Cf, AllPaths -> {
     await client.send({
       prg: "KutDoc",
       source: "PathsPg",
-      rq: "changeShowAll"
+      rq: "changeShowAll",
+      dbKey: global.dbKeyV!
     });
     main.load();
   };
@@ -109,9 +115,10 @@ mk = \wg, Cf, AllPaths -> {
       prg: "KutDoc",
       source: "PathsPg",
       rq: "modify",
+      dbKey: global.dbKeyV!,
       id: id,
       newId: newId,
-      path: Path!
+      pth: Path!
     });
 
     main.load();
@@ -127,6 +134,7 @@ mk = \wg, Cf, AllPaths -> {
       prg: "KutDoc",
       source: "PathsPg",
       rq: "changeShown",
+      dbKey: global.dbKeyV!,
       id: id
     });
     main.load();
@@ -139,6 +147,7 @@ mk = \wg, Cf, AllPaths -> {
       prg: "KutDoc",
       source: "PathsPg",
       rq: "delete",
+      dbKey: global.dbKeyV!,
       id: id
     });
     main.load();
@@ -146,8 +155,11 @@ mk = \wg, Cf, AllPaths -> {
 
 /// View -----------------------------------------------------------------------
 
-  Paths = Cf.showAll ? AllPaths : arr.filter(AllPaths, \p -> return p.isShown;);
-  arr.sort(Paths, \p1, p2 ->
+  :arr Paths = cf.showAll
+    ? AllPaths
+    : AllPaths.filter(\:dpath p -> return p.isShown;)
+  ;
+  Paths.sort(\:dpath p1, :dpath p2 ->
     return str.less(str.toUpper(p1.id), str.toUpper(p2.id));
   );
 
@@ -164,10 +176,10 @@ mk = \wg, Cf, AllPaths -> {
     Q("#pathIn").value("").disabled(true);
     Q("#titleInOut")
       .removeAll()
-      .add(ui.lightImg(Cf.showAll ? "out" : "in"))
+      .add(ui.lightImg(cf.showAll ? "out" : "in"))
     ;
 
-    for (p = Paths) {
+    for (:dpath p = Paths) {
       pId = p.id;
       path = p.path;
       isShown = p.isShown;
@@ -260,7 +272,7 @@ mk = \wg, Cf, AllPaths -> {
             .att("id", "titleInOut")
             .att("width", "18px")
             .add(ui.link(changeShowAll)
-              .add(ui.img(Cf.showAll ? "out" : "in"))))
+              .add(ui.img(cf.showAll ? "out" : "in"))))
           .add(Q("td")
             .add(ui.img("blank"))
             .att("width", "18px"))
@@ -274,8 +286,8 @@ mk = \wg, Cf, AllPaths -> {
           .add(Q("td")
             .add(ui.img("blank"))))
         .adds(
-          Paths.length > 0
-            ? arr.map(Paths, \entry -> {
+          Paths.size() > 0
+            ? Paths.map(\:dpath entry -> {
                 id = entry.id;
                 path = entry.path;
                 sel = entry.isShown;

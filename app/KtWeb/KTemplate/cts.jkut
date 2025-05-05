@@ -6,12 +6,15 @@
 Q = ui.q;
 
 /// Application name.
+/// s
 appName = "KTemplate";
 
 /// Application version.
+/// s
 version = "202402";
 
 /// Page foot.
+/// <domo>
 foot = Q("table")
   .klass("main")
   .add(Q("tr")

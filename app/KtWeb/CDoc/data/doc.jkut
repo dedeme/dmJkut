@@ -14,5 +14,5 @@ import "docEntry";
 ///   functions: functions documentation.
 ///   vars     : variables documentation.
 /// \s, [<docEntry>.], [<docEntry>.], [<docEntry>.], [<docEntry>.],
-///   [<docEntry>.], [<docEntry>.], [<docEntry>.] -> <doc>
+///-  [<docEntry>.], [<docEntry>.], [<docEntry>.] -> <doc>
 mk : docTx, Defines, Enums, Structs, Typedefs, Unions, Functions, Vars;

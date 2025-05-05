@@ -35,10 +35,10 @@ mk = async \wg -> {
 
   :arr Url = ui.url();
 
-  now = time.now();
+  :time now = time.now();
   page = arr.size(Url) > 0 ? Url[0] : "budget";
 
-  currentYear = now.format("%Y");
+  currentYear = now.fmt("%Y");
   selectedYear = Url[1]
     ? fns.validateYear(Url[1])
     : currentYear
@@ -61,7 +61,7 @@ mk = async \wg -> {
 
 
   selLink = page + "&" + selectedYear;
-  :: myear = menu.tlink("year&" + selectedYear, selectedYear);
+  myear = menu.tlink("year&" + selectedYear, selectedYear);
   if (selectedYear != currentYear) myear.wg.setStyle("color", "#800000");
   Lopts = [
     myear,

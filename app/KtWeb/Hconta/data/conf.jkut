@@ -9,6 +9,6 @@
 /// \[s.],s -> <conf>
 mk : Years, currentYear;
 
-/// Returns 'true' if cf.currentYear is the last year of Cf.years.
+/// Returns 'true' if cf.currentYear is the last year of cf.years.
 /// \<conf> -> b
 isLastYear = \cf -> return cf[currentYear] == arr.peek(cf[Years]);;

@@ -34,7 +34,7 @@ mk = \wg, textArea -> {
     };
   """;
 
-  now = time.now();
+  :time now = time.now();
   month = now.toDate().toLocaleString("en-US", { month: "short" });
   dateF = ui.field("overviewTA")
     .value("")
@@ -63,7 +63,7 @@ mk = \wg, textArea -> {
   // \->()
   update = \ -> {
     if (str.trim(dateF.getValue()) == "")
-      dateF.value(now.format("%D-" + month + "-%Y"));
+      dateF.value(now.fmt("%D-" + month + "-%Y"));
     if (str.trim(overviewTA.getValue()) == "")
       overviewTA.value("Overview");
 

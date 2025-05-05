@@ -20,6 +20,7 @@ mk = async \wg -> {
     source: "StaysPg",
     rq: "idata"
   });
+  Stays.sort(\:accAnn s1, :accAnn s2 -> return s1.date > s2.date;);
 
   // \ -> <domo>
   table = \ -> {

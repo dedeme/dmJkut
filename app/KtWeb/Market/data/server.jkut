@@ -3,10 +3,19 @@
 
 /// <server> data.
 
+/// Server states
+/// Values for 'withCurrent', 'withDaily' and 'withHistoric'.
+/// [n.]
+active, inactive, undef =;
+
 /// Constructor.
 ///   id          : Server identifier.
 ///   name        : Server name.
-///   withDaily   : 'true' if server can read daily quotes.
-///   withHistoric: 'true' if server can read historic quotes.
-/// \s,s,b,b -> <server>
-mk : id, name, withDaily, withHistoric;
+///   withFile     : If server can read current 'ticks'.
+///                  ('active', 'inactive' or 'undef')
+///   withDaily    : If server can read daily quotes.
+///                  ('active', 'inactive' or 'undef')
+///   withHistoric : If server can read historic quotes.
+///                  ('active', 'inactive' or 'undef')
+/// \s,s,n,n,n -> <server>
+mk : id, name, withCurrent, withDaily, withHistoric;

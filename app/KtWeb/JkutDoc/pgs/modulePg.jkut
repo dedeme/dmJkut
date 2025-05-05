@@ -1,4 +1,4 @@
-// Copyright 07-May-2023 ºDeme
+// Copyright 30-Apr-2024 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Module page.
@@ -7,6 +7,7 @@ import "i18n";
 import "cts";
 import "msgPg";
 import "data/doc";
+import "data/docEntry";
 
 Q = ui.q;
 II = i18n.tlt;
@@ -15,49 +16,59 @@ tab = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 
 /// \<domo>, s, s -> ()
 mk = async \wg, pack, path -> {
-  Rp = await client.send({
+  // [<doc>]|[]
+  , docOp : await client.send({
     prg: "JkutDoc",
     source: "ModulePg",
     rq: "doc",
     pack: pack,
-    path: path
+    pth: path
   });
 
-  if (!Rp.doc) {
+  if (!docOp) {
     msgPg.mk(wg, i18n.fmt(II("[%0] Jkut file not found."), [path]), true);
     return;
   }
 
-  Doc = doc.fromJs(Rp.doc!);
+  :doc d = docOp!;
 
-  arr.sort(Doc.Indexeds, \E1, E2 -> return str.less(E1.name, E2.name););
-  arr.sort(Doc.Functions, \E1, E2 -> return str.less(E1.name, E2.name););
-  arr.sort(Doc.Values, \E1, E2 -> return str.less(E1.name, E2.name););
+  arr.sort(
+    d.Indexeds,
+    \:docEntry e1, :docEntry e2 -> return str.less(e1.name, e2.name);
+  );
+  arr.sort(
+    d.Functions,
+    \:docEntry e1, :docEntry e2 -> return str.less(e1.name, e2.name);
+  );
+  arr.sort(
+    d.Values,
+    \:docEntry e1, :docEntry e2 -> return str.less(e1.name, e2.name);
+  );
 
   // \ -> <domo>
   index = \-> {
-    // \[<docEntry>...], s -> [<domo>...]
-    block = \Entries, name -> {
+    // \[<docEntry>.], s -> [<domo>.]
+    block = \:arr Entries, name -> {
       if (!Entries) return [];
 
       R = [];
-      arr.push(R, Q("tr")
+      R.push(Q("tr")
         .add(Q("td")
           .att("colspan", "3")
           .html("<i>" + name + "</i>"))
       );
-      size = arr.size(Entries);
+      size = Entries.size();
       h = Math.floor((size - 1) / 3) + 1;
       for (y = 0:h) {
-        arr.push(R, Q("tr")
+        R.push(Q("tr")
           .adds(iter.map([0:3], \x -> {
               pos = x * h + y;
               if (pos < size) {
-                E = Entries[pos];
+                :docEntry e = Entries[pos];
                 return Q("td")
                   .add(Q("a")
-                    .att("href", "#hp:" + E.name)
-                    .html(tab + E.name))
+                    .att("href", "#hp:" + e.name)
+                    .html(tab + e.name))
                 ;
               } else {
                 return Q("td");
@@ -74,9 +85,9 @@ mk = async \wg, pack, path -> {
         .html("<b>" + path + "</b>"))
       .add(Q("table")
         .klass("main")
-        .adds(block(Doc.Values, "Values"))
-        .adds(block(Doc.Indexeds, "Indexeds"))
-        .adds(block(Doc.Functions, "Functions")))
+        .adds(block(d.Values, "Values"))
+        .adds(block(d.Indexeds, "Indexeds"))
+        .adds(block(d.Functions, "Functions")))
     ;
   };
 
@@ -86,7 +97,7 @@ mk = async \wg, pack, path -> {
       .add(Q("p")
         .klass("frame")
         .html("<b>" + II("Overview") + "</b>"))
-      .adds(mkHelp(Doc.doc))
+      .adds(mkHelp(d.docTx))
       .add(Q("p")
         .html("<b>" + II("File") + "</b>")
         .add(Q("br"))
@@ -99,57 +110,57 @@ mk = async \wg, pack, path -> {
 
   // \ -> <domo>
   body = \ -> {
-    // \[<docEntry>...], s, b -> [<domo>...]
-    block = \Entries, name, isFunction -> {  // false
+    // \[<docEntry>.], s, b -> [<domo>.]
+    block = \:arr Entries, name, isFunction -> {
       // \<docEntry> -> <domo>
-      endEntry = \E -> {
-        IsNewLine = [true];
-        Bf2 = [""];
-        code = E.code;
+      endEntry = \:docEntry e -> {
+        isNewLineV = [true];
+        bfV = [""];
+        code = e.code;
         for (i = 0:str.len(code)) {
           ch = code[i];
-          if (IsNewLine! & ch != "\n") {
+          if (isNewLineV! & ch != "\n") {
             if (ch <= " ") {
-              Bf2! += "&nbsp;";
+              bfV! += "&nbsp;";
             } else {
-              Bf2! += ch;
-              IsNewLine! = false;
+              bfV! += ch;
+              isNewLineV! = false;
             }
           } else if (ch == "\n") {
-            Bf2! += "<br>";
-            IsNewLine! = true;
+            bfV! += "<br>";
+            isNewLineV! = true;
           } else {
-            Bf2! += ch;
+            bfV! += ch;
           }
         }
         return Q("div")
           .add(Q("p")
-            .html("<tt>" + Bf2! + "</tt>"))
-          .adds(mkHelp(E.doc))
+            .html("<tt>" + bfV! + "</tt>"))
+          .adds(mkHelp(e.docTx))
           .add(Q("hr"))
         ;
       };
 
-      return arr.map(Entries, \E ->
+      return Entries.map(\:docEntry e ->
         return Q("div")
           .add(Q("h3")
-            .att("id", "hp:" + E.name)
+            .att("id", "hp:" + e.name)
             .add(Q("span")
               .text(name + " "))
             .add(Q("a")
               .att(
                 "href",
-                "?" + pack + "@" + path + "&hp:" + E.link
-              ).text(E.name)))
-          .add(endEntry(E))
+                "?" + pack + "@" + path + "&hp:" + e.link
+              ).text(e.name)))
+          .add(endEntry(e))
         ;
       );
     };
 
     return Q("div")
-      .adds(block(Doc.Values, "Value", false))
-      .adds(block(Doc.Indexeds, "Indexed", false))
-      .adds(block(Doc.Functions, "Function", true))
+      .adds(block(d.Values, "Value", false))
+      .adds(block(d.Indexeds, "Indexed", false))
+      .adds(block(d.Functions, "Function", true))
     ;
   };
 
@@ -170,20 +181,20 @@ mk = async \wg, pack, path -> {
   if (ix != -1) {
     tg = lc[ix:];
     if (tg != "#") {
-      E = null(Q(tg).e);
-      if (!!E) E!.scrollIntoView(true);
+      eOp = null(Q(tg).e);
+      if (!!eOp) eOp!.scrollIntoView(true);
     }
   }
 
 };
 
-// \s -> [<domo>...]
+// \s -> [<domo>]|[]
 mkHelp = \tx -> {
   if (str.trim(tx) == "") return [];
 
   html = str.replace(str.replace(tx, "&", "&amp;"), "<", "&lt;");
   R = [];
-  arr.push(R, Q("table")
+  R.push(Q("table")
     .add(Q("tr")
       .add(Q("td")
         .klass("frame")

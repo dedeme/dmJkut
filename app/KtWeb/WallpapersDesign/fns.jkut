@@ -1,0 +1,12 @@
+// Copyright 01-May-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Functions.
+
+/// Returns a RGB color type "FFFFFF".
+/// \n -> s
+intToColor = \c -> return math.toHexFix(c, 6);;
+
+/// 'c' is a RGB color type "ffffff".
+/// \s -> n
+colorToInt = \c ->  return math.fromHex(c)!;;

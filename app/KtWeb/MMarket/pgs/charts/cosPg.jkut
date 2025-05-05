@@ -18,7 +18,7 @@ II = i18n.tlt;
 ///   Cos: Company nicks.
 ///   Closes: Closes (dates x cos)
 ///   rs: Simulation result.
-/// \<domo>, [s.], [s.], [[f.].], <stRs> -> ()
+/// \<domo>, [s.], [s.], [[n.].], <stRs> -> ()
 mk = \wg, :arr Dates, :arr Cos, :arr Closes, :stRs rs -> {
 
   nlossesV = [0];
@@ -26,7 +26,7 @@ mk = \wg, :arr Dates, :arr Cos, :arr Closes, :stRs rs -> {
 
 
   modalDiv = Q("div");
-  mBox = modalBox.mk(modalDiv, true);
+  :modalBox mBox = modalBox.mk(modalDiv, true);
   clientResultsDiv = Q("div");
   GrDivs = []; // [[<domo>.]]
 
@@ -46,7 +46,7 @@ mk = \wg, :arr Dates, :arr Cos, :arr Closes, :stRs rs -> {
 
   // \s, <data> -> ()
   showBigChart = \co, Data -> {
-    :: Ch = lineChart.mkExample();
+    Ch = lineChart.mkExample();
     Ch.exArea.width = 800;
     Ch.exArea.height = 400;
     Ch.exArea.atts.background = "#ffffff";
@@ -73,13 +73,13 @@ mk = \wg, :arr Dates, :arr Cos, :arr Closes, :stRs rs -> {
       co = Cos[ico];
       div = GrDivs[math.toInt(ico / 3)][ico % 3];
 
-      Refs = arr.dropWhile(
+      :arr Refs = arr.dropWhile(
         arr.map(rs.Refs, \Row -> return Row[ico];),
         \r -> return r < 0;
       );
       skip = arr.size(Closes) - Refs.size();
       Dts = arr.drop(Dates, skip);
-      Qs = arr.map(arr.drop(Closes, skip), \Row -> return Row[ico];);
+      :arr Qs = arr.map(arr.drop(Closes, skip), \Row -> return Row[ico];);
       Labels = arr.map(Dts, \d -> return d[4:6];);
       profits = rs.Profits[ico];
       sales = arr.size(rs.Sales[ico]);
@@ -103,13 +103,13 @@ mk = \wg, :arr Dates, :arr Cos, :arr Closes, :stRs rs -> {
       if (profits < 0) nlossesV! += 1;
       ratiosSumV! += profits;
 
-      :: Ch = lineChart.mkExample();
+      Ch = lineChart.mkExample();
       Ch.exArea.width = 300;
       Ch.exArea.height = 150;
       Ch.exArea.atts.background = "#ffffff";
       Ch.inAtts.background = "#e9e9e9";
 
-      :: Data = lineChart.mkData(
+      Data = lineChart.mkData(
         Labels,
         [ RefsUp,
           RefsDown,

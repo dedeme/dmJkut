@@ -1,15 +1,18 @@
-// Copyright 14-May-2023 ºDeme
+// Copyright 02-May-2024 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
-/// Constants and global functions.
+/// Constants.
 
 Q = ui.q;
 
 /// Application name.
+/// s
 appName = "Notes";
 /// Application version.
-version = "202309";
+/// s
+version = "2024.05";
 /// Page foot.
+/// <domo>
 foot = Q("table")
   .klass("main")
   .add(Q("tr")
@@ -20,6 +23,3 @@ foot = Q("table")
       .style("text-align: right;color:#808080;font-size:x-small;")
       .html(str.fmt("- © ºDeme. %v (%v) -", [appName, version]))))
 ;
-
-
-

@@ -1,0 +1,166 @@
+// Copyright 01-May-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Editor of cut operation.
+
+import "libdm/modalBox";
+import "cts";
+import "data/image";
+import "data/imgCut";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, <image>, (\<image>->()) -> ()
+mk = \imgDiv, :image im, onChange -> {
+  cutOp = im.cutOp;
+  isActivatedV = [!cutOp ? false: true];
+
+  // \s, s, n -> <domo>
+  mkIn = \id, nextId, value -> return ui.changePoint(ui.field(nextId)
+      .att("id", id)
+      .style("width:80px")
+      .value(value)
+    );;
+
+  df = cts.pixelsCut;
+  top = mkIn("top", "right", isActivatedV! ? cutOp![imgCut.top] : df);
+  left = mkIn("left", "top", isActivatedV! ? cutOp![imgCut.left] : df);
+  bottom = mkIn("bottom", "left", isActivatedV! ? cutOp![imgCut.bottom] : df);
+  right = mkIn("right", "bottom", isActivatedV! ? cutOp![imgCut.right] : df);
+
+  editorDiv = Q("div");
+
+  mkEditorV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \b -> ()
+  activate = \value -> {
+    isActivatedV! = value;
+    mkEditorV!(editorDiv);
+  };
+
+  // \<event> -> ()
+  restore = \ev -> {
+    cutOp = im.cutOp;
+    isActivatedV = [!cutOp ? false : true];
+
+    df = cts.pixelsCut;
+    top.value(isActivatedV! ? cutOp![imgCut.top] : df);
+    left.value(isActivatedV! ? cutOp![imgCut.left] : df);
+    bottom.value(isActivatedV! ? cutOp![imgCut.bottom] : df);
+    right.value(isActivatedV! ? cutOp![imgCut.right] : df);
+
+    onChange(im);
+    mkEditorV!(editorDiv);
+  };
+
+  // \<event> -> ()
+  update = \ev -> {
+    // \<domo> -> n
+    value = \i -> {
+      rOp = math.fromStr(i.getValue());
+      if (!rOp) {
+        arr.push(rOp, cts.pixelsCut);
+        i.value("" + rOp!);
+      }
+      return rOp!;
+    };
+    cutOp = isActivatedV!
+      ? [ imgCut.mk(
+            value(left), value(top), value(right), value(bottom)
+          )]
+      : []
+    ;
+
+    onChange(image.setCutOp(im, cutOp));
+    mkEditorV!(editorDiv);
+  };
+
+  // \<event> -> ()
+  close = \ev -> modalBox.show(cts.box, false);;
+
+  // View ----------------------------------------------------------------------
+
+  // \<domo> -> ()
+  mkEditorV! = \div -> {
+    left.disabled(!isActivatedV!);
+    top.disabled(!isActivatedV!);
+    right.disabled(!isActivatedV!);
+    bottom.disabled(!isActivatedV!);
+
+    div
+      .removeAll()
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", 3)
+            .add(isActivatedV!
+                ? ui.link(\ev -> activate(false);)
+                    .klass("link")
+                    .text(II("Deactivate"))
+                : ui.link(\ev -> activate(true);)
+                    .klass("link")
+                    .text(II("Activate"))
+              )))
+        .add(Q("tr")
+          .add(Q("td")
+            .text(II("Left")))
+          .add(Q("td"))
+          .add(Q("td")
+            .text(II("Top"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(left))
+          .add(Q("td"))
+          .add(Q("td")
+            .add(top)))
+        .add(Q("tr")
+          .add(Q("td")
+            .text(II("Right")))
+          .add(Q("td"))
+          .add(Q("td")
+            .text(II("Bottom"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(right))
+          .add(Q("td"))
+          .add(Q("td")
+            .add(bottom))))
+    ;
+  };
+
+  mkEditorV!(editorDiv);
+
+  cts.boxContent
+    .removeAll()
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td"))
+        .add(Q("td")
+          .style("text-align:right")
+          .add(ui.link(close)
+            .klass("link")
+            .text(II("Close")))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:left")
+          .add(ui.link(update)
+            .klass("link")
+            .text(II("Update")))
+          .add(Q("span")
+            .html("&nbsp;&nbsp;"))
+          .add(ui.link(restore)
+            .klass("link")
+            .text(II("Restore"))))
+        .add(Q("td"))))
+    .add(Q("hr"))
+    .add(editorDiv)
+    .add(Q("hr"))
+    .add(imgDiv)
+  ;
+};

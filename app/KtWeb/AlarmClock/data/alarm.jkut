@@ -15,8 +15,11 @@ mk : id, tm;
 
 /// \<alarm> -> s
 timeToStr = \a -> {
-  now = time.now();
-  return (now.day() == time.day(a[tm]) ? II("Today") : II("Tomorrow")) +
-    " " + II("at") + " " + time.format(a[tm], "%t")[:-3]
+  :time now = time.now();
+  return (now.day() == time.day(a[tm])
+      ? II("Today")
+      : II("Tomorrow")
+    ) +
+    " " + II("at") + " " + time.fmt(a[tm], "%t")[:-3]
   ;
 };

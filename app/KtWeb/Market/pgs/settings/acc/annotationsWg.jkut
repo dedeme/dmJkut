@@ -15,7 +15,7 @@ Q = ui.q;
 II = i18n.tlt;
 
 /// Anns is ordered by after to before.
-/// \<domo>, [<ann>.], [\i->()]|[] -> ()
+/// \<domo>, [<ann>.], ([\n->()]|[]) -> ()
 mk = \wg, :arr As, DelFn -> {
   // \s -> <domo>
   tdDate = \d -> return Q("td")

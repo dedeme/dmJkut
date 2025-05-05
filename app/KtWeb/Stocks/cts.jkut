@@ -6,10 +6,13 @@
 Q = ui.q;
 
 /// Application name.
+/// s
 appName = "Stocks";
 /// Application version.
+/// s
 version = "2024.04";
 /// Page foot.
+/// <domo>
 foot = Q("table")
   .klass("main")
   .add(Q("tr")
@@ -21,7 +24,8 @@ foot = Q("table")
       .html(str.fmt("- © ºDeme. %v (%v) -", [appName, version]))))
 ;
 
-///
+/// s
 initialYear = "2020";
 /// Report type
+/// [n.]
 withFees, withoutFees=;

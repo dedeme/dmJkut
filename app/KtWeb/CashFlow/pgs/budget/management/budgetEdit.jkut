@@ -28,7 +28,7 @@ II = i18n.tlt;
 ///   PreviousBudget: Previous Budget.
 ///   updateFinalBalanceFn: Funtion to update balance.
 /// \<domo>, s, n, [<planEntry>.], [<diaryEntry>.], [[<budgetEntry>.].],
-///  [[<budgetEntry>.].], (\-> ()) -> ()
+///-  [[<budgetEntry>.].], (\-> ()) -> ()
 mk = \wg, selectedYear, selectedMonth,
       :arr Plan, :arr Diary, :arr Budget, :arr PreviousBudget,
       updateFinalBalanceFn -> {

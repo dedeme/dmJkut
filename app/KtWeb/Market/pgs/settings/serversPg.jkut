@@ -19,8 +19,9 @@ II = i18n.tlt;
 ///   selected: Server selected identifier.
 /// \<domo>, s -> ()
 mk = async \wg, selected -> {
-  // s, [<server>.], s, s, {s.}::{nick:serverCode}
-  dbKey, :arr Svs, dailySv, historicSv, :dic Codes : await client.send({
+  // s, [<server>.], {s.}::{nick:serverCode}
+  dbKey, :arr Svs, :dic Codes :
+  await client.send({
     prg: cts.appName,
     module: "Settings",
     source: "ServersPg",
@@ -31,10 +32,11 @@ mk = async \wg, selected -> {
 
   svSelectedOp = Svs.find(\:server sv -> return sv.id == selected;);
   :server svSelected = !svSelectedOp
-    ? server.mk("", "", false, false)
+    ? server.mk("", "", server.undef, server.undef, server.undef)
     : svSelectedOp!
   ;
 
+  currentTestImg = Q("span");
   dailyTestImg = Q("span");
   historicTestImg = Q("span");
   CodeFields = [];
@@ -48,6 +50,35 @@ mk = async \wg, selected -> {
 
   // \s -> ()
   select = \svId -> mk(wg, svId);;
+
+  currentTest = async \-> {
+    currentTestImg
+      .removeAll()
+      .add(ui.img("wait.gif"))
+    ;
+    withErrors, withWarnings : await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "ServersPg",
+      rq: "testCurrent",
+      svId: svSelected.id
+    });
+    if (withErrors & withWarnings)
+      msg.error(II("Errors and warnings found.<br>See log."), \->{});
+    else if (withErrors)
+      msg.error(II("Errors found.<br>See log."), \->{});
+    else if (withWarnings)
+      msg.error(II("Warnings found.<br>See log."), \->{});
+    else
+      msg.ok(II("Test ok."), \->{});
+
+    currentTestImg
+      .removeAll()
+      .add(ui.link(\ev -> currentTest();)
+        .add(ui.img("unknown")
+        .style("vertical-align:top")))
+    ;
+  };
 
   dailyTest = async \-> {
     dailyTestImg
@@ -98,7 +129,7 @@ mk = async \wg, selected -> {
         return;
       }
 
-      nick, code = NksCds.pop();
+      nick, = NksCds.pop();
       showWaitV!(nick);
       withErrors, withWarnings : await client.send({
         prg: cts.appName,
@@ -106,8 +137,7 @@ mk = async \wg, selected -> {
         source: "ServersPg",
         rq: "testCo",
         svId: svSelected.id,
-        nick,
-        code
+        nick
       });
       withErrorsV! |= withErrors;
       withWarningsV! |= withWarnings;
@@ -134,8 +164,7 @@ mk = async \wg, selected -> {
       source: "ServersPg",
       rq: "testCo",
       svId: svSelected.id,
-      nick: nick,
-      code: code
+      nick: nick
     });
     if (withErrors & withWarnings)
       msg.error(II("Errors and warnings found.<br>See log."), \->{});
@@ -179,25 +208,34 @@ mk = async \wg, selected -> {
   // View ----------------------------------------------------------------------
 
   showV! = \ -> {
-    Opts = [vmenu.title(II("Servers")), vmenu.separator()];
+    Opts = [
+      vmenu.title(II("Servers")),
+      vmenu.mkEntry([], Q("div").text("(C-D-H)"), Q("div")),
+      vmenu.separator()
+    ];
     for (:server sv = Svs) {
-      dailyWg = \-> return sv.withDaily
-        ? sv.id == dailySv
-          ? ui.img("star")
-          : ui.led("#d0ddde", 6)
-        : ui.img("stopped")
-      ;;
-
-      historicWg = \ -> return sv.withHistoric
-        ? sv.id == historicSv
-          ? ui.img("star")
-          : ui.led("#d0ddde", 6)
-        : ui.img("stopped")
-      ;;
+      currentWg = \-> return switch (sv.withCurrent) {
+          server.active  : ui.img("star");
+          server.inactive: ui.img("star2");
+          default         : ui.led("#d0ddde", 6);
+        };;
+      dailyWg = \-> return switch (sv.withDaily) {
+          server.active  : ui.img("star");
+          server.inactive: ui.img("star2");
+          default         : ui.led("#d0ddde", 6);
+        };;
+      historicWg = \-> return switch (sv.withHistoric) {
+          server.active  : ui.img("star");
+          server.inactive: ui.img("star2");
+          default         : ui.led("#d0ddde", 6);
+        };;
 
       normalWg = Q("table")
         .klass("main")
         .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px")
+            .add(currentWg().setStyle("vertical-align", "top")))
           .add(Q("td")
             .style("width:5px")
             .add(dailyWg().setStyle("vertical-align", "top")))
@@ -214,6 +252,9 @@ mk = async \wg, selected -> {
       selectWg = Q("table")
         .klass("main")
         .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px")
+            .add(currentWg().setStyle("vertical-align", "top")))
           .add(Q("td")
             .style("width:5px")
             .add(dailyWg().setStyle("vertical-align", "top")))
@@ -248,6 +289,15 @@ mk = async \wg, selected -> {
               .text(svSelected.name)))
       );
 
+      currentTestImg
+        .removeAll()
+        .add(svSelected.withCurrent
+          ? ui.link(\ev -> currentTest();)
+              .add(ui.img("unknown")
+                .style("vertical-align:top"))
+          : ui.img("unknown2")
+            .style("vertical-align:top"))
+      ;
       dailyTestImg
         .removeAll()
         .add(svSelected.withDaily
@@ -279,7 +329,17 @@ mk = async \wg, selected -> {
                 .add(Q("td")
                   .style(
                       "white-space:nowrap;text-align:right;" +
-                      "width:50%;padding-rigth:4px"
+                      "width:33%;padding-rigth:4px"
+                    )
+                  .add(Q("span")
+                    .add(currentTestImg)
+                    .add(Q("span")
+                      .style("padding-left:4px")
+                      .text(II("Current 'ticks' Test")))))
+                .add(Q("td")
+                  .style(
+                      "white-space:nowrap;text-align:center;" +
+                      "width:33%;padding-rigth:4px"
                     )
                   .add(Q("span")
                     .add(dailyTestImg)
@@ -289,7 +349,7 @@ mk = async \wg, selected -> {
                 .add(Q("td")
                   .style(
                       "white-space:nowrap;text-align:left;" +
-                      "width:50%;padding-left:4px"
+                      "width:33%;padding-left:4px"
                     )
                   .add(Q("span")
                     .add(historicTestImg)
@@ -396,7 +456,7 @@ mk = async \wg, selected -> {
     msgWait.removeAll();
 
     if (nick != "") {
-      box = modalBox.mk(
+      :modalBox box = modalBox.mk(
         Q("div")
           .add(Q("div")
             .style("text-align:center")

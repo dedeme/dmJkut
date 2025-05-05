@@ -7,9 +7,9 @@ import "libdm/lineChart";
 
 Q = ui.q;
 
-/// \[s.], [[[f].].] -> <domo>
+/// \[s.], [[[n].].] -> <domo>
 mk = \Labels, Values -> {
-  :: Chart = lineChart.mkExample();
+  Chart = lineChart.mkExample();
   Chart.exArea.width = 610;
   Chart.exArea.height = 320;
   Chart.exArea.atts.border.width = 0;
@@ -34,7 +34,7 @@ mk = \Labels, Values -> {
   Atts = [
     lineChart.mkLine(1.2, "#414141", false)
   ];
-  :: Data = lineChart.mkData(Labels, Values, Atts);
+  Data = lineChart.mkData(Labels, Values, Atts);
   Data.round = 0;
   Data.drawGrid = \lb, i -> {
     if (i == 0) return false;

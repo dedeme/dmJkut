@@ -127,8 +127,8 @@ mk = async \wg -> {
   // View ----------------------------------------------------------------------
 
   :timetable gral = cal.general;
-  openGroup = hourWg.mk(gral.hopen, gral.mopen, generalChange);
-  closeGroup = hourWg.mk(gral.hclose, gral.mclose, generalChange);
+  :hourWg openGroup = hourWg.mk(gral.hopen, gral.mopen, generalChange);
+  :hourWg closeGroup = hourWg.mk(gral.hclose, gral.mclose, generalChange);
   openGroupV! = openGroup;
   closeGroupV! = closeGroup;
 
@@ -159,7 +159,7 @@ mk = async \wg -> {
 
   // \ -> ()
   holidaysWg = \ -> {
-    Hs = arr.copy(cal.Holidays);
+    :arr Hs = arr.copy(cal.Holidays);
     Hs.sort(\e1, e2 -> return e1 < e2;);
 
     // \ -> [<domo>.]
@@ -190,7 +190,7 @@ mk = async \wg -> {
       .att("type", "text")
       .style("text-align:center;width:166px")
     ;
-    dp = datePicker.mk(
+    :datePicker dp = datePicker.mk(
       i18n.getLang() == "es",
       time.now(),
       \d -> if (d == "") {
@@ -224,7 +224,7 @@ mk = async \wg -> {
 
   // \ -> ()
   specialDaysWg = \ -> {
-    Ss = arr.copy(cal.SpecialDays);
+    :arr Ss = arr.copy(cal.SpecialDays);
     Ss.sort(\:mktDay s1, :mktDay s2 -> return s1.date < s2.date;);
 
   // \ -> [<domo>...]
@@ -263,7 +263,7 @@ mk = async \wg -> {
       .att("type", "text")
       .style("text-align:center;width:166px")
     ;
-    dp = datePicker.mk(
+    :datePicker dp = datePicker.mk(
       i18n.getLang() == "es",
       time.now(),
       \d -> if (d == "") {
@@ -276,8 +276,8 @@ mk = async \wg -> {
         }
     );
 
-    open = hourWg.mk(openGroup.hour(), openGroup.minute(), \ -> {});
-    close = hourWg.mk(closeGroup.hour(), closeGroup.minute(), \ -> {});
+    :hourWg open = hourWg.mk(openGroup.hour(), openGroup.minute(), \ -> {});
+    :hourWg close = hourWg.mk(closeGroup.hour(), closeGroup.minute(), \ -> {});
     specialDaysDiv
       .removeAll()
       .add(Q("table")

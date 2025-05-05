@@ -13,14 +13,15 @@ II = i18n.tlt;
 ///   textArea: Viewer.
 /// \<domo>, <domo> -> ()
 mk = \wg, textArea -> {
-  tx = """
+  tx0 = """
     // Copyright {DATE} ºDeme
     // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
     /// {OVERVIEW}
 
-    /// Constructor.{DOC}{TYPES}{CODE}{SETS}{TOJS}{FROMJS}
-  """;
+    /*/ Constructor.{DOC}{TYPES}{CODE}{SETS}{TOJS}{FROMJS}
+    """;
+  tx = str.replace(tx0, "/*/", "///");
 
   :time now = time.now();
   month = now.toDate().toLocaleString("en-US", { month: "short" });
@@ -52,7 +53,7 @@ mk = \wg, textArea -> {
   // \->()
   update = \ -> {
     if (str.trim(dateF.getValue()) == "")
-      dateF.value(now.format("%D-" + month + "-%Y"));
+      dateF.value(now.fmt("%D-" + month + "-%Y"));
     if (str.trim(oNameF.getValue()) == "") oNameF.value("new");
     if (str.trim(oTypeF.getValue()) == "") oTypeF.value("myType");
     oType = "<" + str.trim(oTypeF.getValue()) + ">";
@@ -87,7 +88,7 @@ mk = \wg, textArea -> {
 
     to = Types.any(\t ->
         return t[0] == "<" | (t[:2] == "[<" & t[-3:] == ">.]");)
-      ? "\n\n/// \\" + oType + " -> JS\ntoJs = \\o -> return [\n" +
+      ? "\n\n/// \\" + oType + " -> [*.]\ntoJs = \\o -> return [\n" +
           arr.join(arr.fromIter(iter.map([0:Fields.size()], \i -> {
             n = str.trim(Fields[i].name.getValue());
             t = str.trim(Fields[i].type.getValue());
@@ -106,7 +107,7 @@ mk = \wg, textArea -> {
         return t == "i" | t == "[i.]" |
           t[0] == "<" | (t[:2] == "[<" & t[-3:] == ">.]");
       )
-      ? "\n\n/// \\JS -> " + oType + "\nfromJs = \\A -> return [\n" +
+      ? "\n\n/// \\[*.] -> " + oType + "\nfromJs = \\A -> return [\n" +
           arr.join(arr.fromIter(iter.map([0:Fields.size()], \i -> {
             n = str.trim(Fields[i].name.getValue());
             t = str.trim(Fields[i].type.getValue());
@@ -130,7 +131,7 @@ mk = \wg, textArea -> {
       name, type, set : F;
       if (set.isChecked()) {
         n = str.trim(name.getValue());
-        t0 = str.trim(type.getValue());
+        :str t0 = str.trim(type.getValue());
         t = t0.index("->") != -1 ? "(" + t0 + ")" : t0;
         Sets.push(
           "\n\n/// \\" + oType + ", " + t + " -> ()\n" +
@@ -193,8 +194,8 @@ mk = \wg, textArea -> {
   // \->()
   remove = \-> {
     Fields.pop();
-    :: F = arr.peek(Fields);
-    n = arr.size(Fields) - 1;
+    F = Fields.peek();
+    n = Fields.size() - 1;
     F.type = ui.field("oName")
       .att("id", "f" + n + "Type")
       .style("width:100px")

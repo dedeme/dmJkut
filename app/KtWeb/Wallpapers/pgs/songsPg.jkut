@@ -1,0 +1,218 @@
+// Copyright 27-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Songs page.
+
+import "cts";
+import "global";
+import "data/pict";
+import "data/song";
+import "wgs/clocksWg";
+import "wgs/infoWg";
+import "wgs/pictTimeWg";
+import "media";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, (\->()) -> ()
+mk = async \wg, reload -> {
+  dbKey, group, :pict picture, songGroup, :song ssong // s,s,<pict>,s,<song>
+  : await client.send({
+    prg: cts.appName,
+    source: "SongsPg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+
+  groupV = [group];
+  pictV = [picture];
+  songGroupV = [songGroup];
+  songV = [ssong];
+
+  pictTm = timer.mk(media.picturesTime);
+  songTm = timer.mk(media.songsTime);
+
+  Visuals = media.visuals();
+
+  img = Visuals.img
+    .att("src", "img/fondosEscritorio/" + group + "/" + picture.id)
+  ;
+
+  Clocks = clocksWg.mk(Visuals.tm);
+
+  audio = new Audio();
+  audio.src = "songs/" + songGroup + "/" + ssong.id;
+  audio.controls = true;
+  audio.volume = media.volume;
+  audioLoadedV = [false];
+  timer.delay (1000, \ -> {
+    tm1 = timer.mk(500);
+    timer.run(tm1, \ -> {
+      d = audio.duration - 0.1;
+      audio.currentTime = d;
+      if (d == audio.currentTime | audio.currentTime == 0) {
+        timer.stop(tm1);
+        tm2 = timer.mk(500);
+        t = (audio.duration * ssong.lapse) / 100.0;
+        timer.run(tm2, \ -> {
+          audio.currentTime = t;
+          if (t == audio.currentTime | audio.currentTime == 0) {
+            audio.play();
+            timer.stop(tm2);
+            audioLoadedV! = true;
+          }
+        });
+      }
+    });
+  });
+
+  InfoPicture = infoWg.mk(-485, infoWg.pictureWg(group, picture));
+  InfoSong = infoWg.mk(-480, infoWg.songWg(songGroup, ssong, audio));
+  PictTime = pictTimeWg.mk(-480);
+
+  goBackCallsV = [0];
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  goBack = \e -> {
+    if (goBackCallsV! > 0) {
+      reload();
+      return;
+    }
+
+    timer.stop(pictTm);
+    timer.stop(songTm);
+    goBackCallsV! += 1;
+    media.fadeOut(false, audio, media.fadeOutSongEnd);
+    timer.delay(math.toInt(media.fadeOutSongEnd), reload);
+  };
+
+  // \<KeyboardEvent> -> ()
+  keyDown = \ev -> {
+    if (ev.key == "ArrowUp") {
+      goBack(ev);
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowDown") {
+      InfoPicture.changeOpacity();
+      InfoSong.changeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowLeft") {
+      Clocks.clockChangeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowRight") {
+      Clocks.chronChangeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key >= "1" & ev.key <= "6") {
+      PictTime.show(math.fromStr(ev.key)!);
+      ev.preventDefault();
+      return;
+    }
+  };
+
+  // View ----------------------------------------------------------------------
+
+  div = Visuals.div
+    .setStyle(
+      "background-image",
+      "url('img/fondosEscritorio/" + group + "/" + picture.id + "')"
+    )
+    .add(InfoPicture.wg)
+    .add(InfoSong.wg)
+    .add(PictTime.wg)
+    .on("click", goBack)
+  ;
+
+  Q("@body")
+    .on("keydown", keyDown);
+
+  wg
+    .removeAll()
+    .add(div)
+  ;
+
+  div.e.requestFullscreen();
+  firstPictureV = [true];
+  timer.run (pictTm, async \ -> {
+    if (!firstPictureV! & !audioLoadedV!) return;
+    firstPictureV! = false;
+
+    dbKey, group, :pict picture // s,s,<pict>
+    : await client.send({
+      prg: cts.appName,
+      source: "SongsPg",
+      rq: "pictData"
+    });
+    global.dbKeyV! = dbKey;
+    if (group != groupV! | picture.id != pictV![pict.id]) {
+      groupV! = group;
+      pictV! = picture;
+      media.changePict(div, img, InfoPicture, group, picture);
+    }
+  });
+
+  timer.run (songTm, async \ -> {
+    if (audio.ended) {
+      audio.pause();
+      audioLoadedV! = false;
+      dbKey, group, ssong // s,s,<song>
+      : await client.send({
+        prg: cts.appName,
+        source: "SongsPg",
+        rq: "newSong",
+        dbKey: global.dbKeyV!
+      });
+      global.dbKeyV! = dbKey;
+      songGroupV! = group;
+      songV! = ssong;
+      audio.src = "songs/" + songGroup + "/" + ssong.id;
+      InfoSong.changeContent(infoWg.songWg(songGroup, ssong, audio));
+      timer.delay (1000, \ -> {
+        tm1 = timer.mk(50);
+        timer.run(tm1, \ -> {
+          d = audio.duration - 0.1;
+          audio.currentTime = d;
+          if (d == audio.currentTime | audio.currentTime == 0) {
+            timer.stop(tm1);
+            tm2 = timer.mk(50);
+            t = (audio.duration * ssong.lapse) / 100.0;
+            timer.run(tm2, \ -> {
+              audio.currentTime = t;
+              if (t == audio.currentTime | audio.currentTime == 0) {
+                audio.play();
+                timer.stop(tm2);
+                audioLoadedV! = true;
+              }
+            });
+          }
+        });
+      });
+    } else if (audioLoadedV! == true) {
+      , dbKey : await client.send({
+        prg: cts.appName,
+        source: "SongsPg",
+        rq: "setLapse",
+        dbKey: global.dbKeyV!,
+        group: songGroupV!,
+        ssong: songV![song.id],
+        lapse: audio.currentTime * 100 / audio.duration
+      });
+      global.dbKeyV! = dbKey;
+    }
+  });
+};
+

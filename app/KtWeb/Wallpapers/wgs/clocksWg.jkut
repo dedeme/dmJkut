@@ -1,0 +1,69 @@
+// Copyright 26-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Clocks widget.
+
+import "libdm/clock";
+import "data/pict";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> { clockChangeOpacity:(\ -> ()),
+///-             chronChangeOpacity:(\ -> ()),
+///-             chronOutOfTime:(\ -> ()) }
+mk = \wg -> {
+  :clock cl = clock.mk();
+  cl.setWidth(cl.width * 2);
+  cl.setHeight(cl.height * 2);
+  clWg = cl.mkWg();
+  clWg.style(
+    "opacity:0;" +
+    "transition: opacity 2s linear;"
+  );
+  :clock ch = clock.mk();
+  ch.setChron(true);
+  ch.setWidth(ch.width * 2);
+  ch.setHeight(ch.height * 2);
+  chWg = ch.mkWg();
+  chWg.style(
+    "background:radial-gradient(#000333,#e6f6f6);" +
+    "border: 1px solid rgb(110,130,150);" +
+    "border-radius: 44px;" +
+    "opacity:0;" +
+    "transition: opacity 2s linear;"
+  );
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(clWg))
+        .add(Q("td")
+          .add(chWg))))
+  ;
+
+  // Change opacity to "0" or to '1'.
+  //: \ -> ()
+  clockChangeOpacity = \ -> {
+    isHidden = clWg.e.style.getPropertyValue("opacity") == "0";
+    clWg.setStyle("opacity", isHidden ? "1" : "0");
+  };
+
+  // Change opacity to "0" or to '1'.
+  //: \ -> ()
+  chronChangeOpacity = \ -> {
+    isHidden = chWg.e.style.getPropertyValue("opacity") == "0";
+    chWg.setStyle("opacity", isHidden ? "1" : "0");
+  };
+
+  // Change background of chronometer
+  //: \ -> ()
+  chronOutOfTime = \ -> {
+    chWg.setStyle("background", "radial-gradient(#330300,#f6f6e6)");
+  };
+
+  return {clockChangeOpacity, chronChangeOpacity, chronOutOfTime};
+};

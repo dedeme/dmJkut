@@ -1,0 +1,271 @@
+// Copyright 01-May-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Editor of adjustment operations.
+
+import "libdm/modalBox";
+import "cts";
+import "fns";
+import "data/image";
+import "data/imgAdj";
+import "imageViewerWg";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, <image>, (\<image> -> ()) -> ()
+mk = \imgDiv, :image im, onChange -> {
+  adjOp = im.adjOp;
+  stateV = [!adjOp ? -1 : adjOp![imgAdj.type]];
+
+  // \s, s, n -> <domo>
+  mkIn = \id, nextId, value -> return ui.changePoint(ui.field(nextId)
+      .att("id", id)
+      .style("width:80px")
+      .value(value)
+    );;
+
+  startCut = mkIn(
+    "startCut", "startCut",
+    stateV! == imgAdj.cut ? adjOp![imgAdj.Params][0] : 0
+  );
+  ratioBlur = mkIn(
+    "ratioBlur", "ratioLight",
+    stateV! == imgAdj.background ? adjOp![imgAdj.Params][1] : 50
+  );
+  ratioLight = mkIn(
+    "ratioLight", "ratioBlur",
+    stateV! == imgAdj.background ? adjOp![imgAdj.Params][2] : 30
+  );
+  pixelsStretch = mkIn(
+    "pixelsStretch", "pixelsStretch",
+    stateV! == imgAdj.stretch ? adjOp![imgAdj.Params][0] : 10
+  );
+
+  color = Q("input")
+    .att("type", "color")
+    .value(stateV! == imgAdj.background
+        ? "#" + fns.intToColor(adjOp![imgAdj.Params][0])
+        : "#ffffff"
+      )
+  ;
+
+  editorDiv = Q("div");
+
+  mkEditorV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \s -> ()
+  setState = \v -> {
+    stateV! = v;
+    mkEditorV!(editorDiv);
+  };
+
+  // \<event> -> ()
+  restore = \ev -> {
+    adjOp = im.adjOp;
+    stateV = [!adjOp ? -1 : adjOp![imgAdj.type]];
+
+    startCut.value(stateV! == imgAdj.cut ? adjOp![imgAdj.Params][0] : 0);
+    ratioBlur.value(stateV! == imgAdj.background ? adjOp![imgAdj.Params][1] : 50);
+    ratioLight.value(stateV! == imgAdj.background ? adjOp![imgAdj.Params][2] : 30);
+    pixelsStretch.value(stateV! == imgAdj.stretch ? adjOp![imgAdj.Params][0] : 10);
+    color.value(
+      stateV! == imgAdj.background
+        ? fns.intToColor(adjOp![imgAdj.Params][0])
+        : "#ffffff"
+    );
+
+    onChange(im);
+    mkEditorV!(editorDiv);
+  };
+
+  // \<event> -> ()
+  update = \ev -> {
+    // \<domo>, n, n, n -> n
+    value = \i, min, max, def -> {
+      rV = math.fromStr(i.getValue());
+      if (!rV) {
+        arr.push(rV, def);
+        i.value("" + rV!);
+      } else if (rV! > max) {
+        rV! = max;
+        i.value("" + rV!);
+      } else if (rV! < min) {
+        rV! = min;
+        i.value("" + rV!);
+      }
+      return rV!;
+    };
+    adjOp = switch (stateV!) {
+      imgAdj.cut: [imgAdj.mk(stateV!, [value(startCut, 0, 10000, 0)])];
+      imgAdj.background: [
+          imgAdj.mk(
+            stateV!,
+            [ fns.colorToInt(color.getValue()[1:]),
+              value(ratioBlur, 0, 100, 50),
+              value(ratioLight, 0, 100, 30)
+            ]
+          )
+        ];
+      imgAdj.stretch: [imgAdj.mk(stateV!, [value(pixelsStretch, 1, 100, 10)])];
+      default: [];
+    };
+
+    onChange(image.setAdjOp(im, adjOp));
+    mkEditorV!(editorDiv);
+  };
+
+  // \<event> -> ()
+  close = \ev -> modalBox.show(cts.box, false);;
+
+  // View ----------------------------------------------------------------------
+
+  // \<domo> -> ()
+  mkEditorV! = \div -> {
+    deactivateBt = Q("input")
+      .att("type", "radio")
+      .att("name", "type")
+      .checked(stateV! == -1)
+      .on("click", \ev -> setState(-1);)
+    ;
+    cutBt = Q("input")
+      .att("type", "radio")
+      .att("name", "type")
+      .checked(stateV! == imgAdj.cut)
+      .on("click", \ev -> setState(imgAdj.cut);)
+    ;
+    backgroundBt = Q("input")
+      .att("type", "radio")
+      .att("name", "type")
+      .checked(stateV! == imgAdj.background)
+      .on("click", \ev -> setState(imgAdj.background);)
+    ;
+    stretchBt = Q("input")
+      .att("type", "radio")
+      .att("name", "type")
+      .checked(stateV! == imgAdj.stretch)
+      .on("click", \ev -> setState(imgAdj.stretch);)
+    ;
+    left = Q("div")
+      .add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(deactivateBt))
+          .add(Q("td")
+            .style("text-align:left")
+            .text(II("Deactivate"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(cutBt))
+          .add(Q("td")
+            .style("text-align:left")
+            .text(II("Cut"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(backgroundBt))
+          .add(Q("td")
+            .style("text-align:left")
+            .text(II("Background"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(stretchBt))
+          .add(Q("td")
+            .style("text-align:left")
+            .text(II("Stretch"))))
+      )
+    ;
+    right = Q("div");
+    if (stateV! == imgAdj.cut) {
+      right
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .text(II("Pixels from top / left"))))
+          .add(Q("tr")
+            .add(startCut)))
+      ;
+    } else if (stateV! == imgAdj.background) {
+      right
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .text(II("Color")))
+            .add(Q("td")
+              .text(II("Blur (0 - 100)")))
+            .add(Q("td")
+              .text(II("Light (0 - 100)"))))
+          .add(Q("tr")
+            .add(Q("td")
+              .add(color))
+            .add(Q("td")
+              .add(ratioBlur))
+            .add(Q("td")
+              .add(ratioLight))))
+      ;
+    } else if (stateV! == imgAdj.stretch) {
+      right
+        .removeAll()
+        .add(Q("table")
+          .att("align", "center")
+          .add(Q("tr")
+            .add(Q("td")
+              .text(II("Pixels to sample"))))
+          .add(Q("tr")
+            .add(pixelsStretch)))
+      ;
+    } else {
+      right.removeAll();
+    }
+
+    div
+      .removeAll()
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(Q("td")
+            .style("width:5px;text-align:left")
+            .add(left))
+          .add(Q("td")
+            .add(right))))
+    ;
+  };
+
+
+  mkEditorV!(editorDiv);
+
+  cts.boxContent
+    .removeAll()
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td"))
+        .add(Q("td")
+          .style("text-align:right")
+          .add(ui.link(close)
+            .klass("link")
+            .text(II("Close")))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:left")
+          .add(ui.link(update)
+            .klass("link")
+            .text(II("Update")))
+          .add(Q("span")
+            .html("&nbsp;&nbsp;"))
+          .add(ui.link(restore)
+            .klass("link")
+            .text(II("Restore"))))
+        .add(Q("td"))))
+    .add(Q("hr"))
+    .add(editorDiv)
+    .add(Q("hr"))
+    .add(imgDiv)
+  ;
+};

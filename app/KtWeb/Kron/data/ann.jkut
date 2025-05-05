@@ -4,6 +4,7 @@
 /// Entry of annotations table.
 
 /// Annotation type
+/// [n.]
 typePERIODIC, typeFIX, typeMANUAL=;
 
 
@@ -36,7 +37,7 @@ fromJs = \A -> return [
   ];;
 
 /// Returns [time, weekday] if type is Ann_PERIODIC.
-/// \<ann> -> [n...]
+/// \<ann> -> [n.]
 days = \a -> {
   if (a[type] != typePERIODIC)
     throw("Expected type typePERIODIC, but it is " + a[data]);

@@ -4,6 +4,7 @@
 /// Server to client channel.
 
 /// States enumeration.
+/// {n.}
 end, error, readingSource, readingTarget, selecting, copying, deleting :;
 
 /// Constructor.

@@ -80,7 +80,7 @@ mk = \wg, textArea -> {
     mk(wg);
   """;
 
-  now = time.now();
+  :time now = time.now();
   month = now.toDate().toLocaleString("en-US", { month: "short" });
   dateF = ui.field("dateF")
     .att("id", "dateF")
@@ -105,7 +105,7 @@ mk = \wg, textArea -> {
   // \->()
   update = \ -> {
     if (str.trim(dateF.getValue()) == "")
-      dateF.value(now.format("%D-" + month + "-%Y"));
+      dateF.value(now.fmt("%D-" + month + "-%Y"));
 
     textArea.text(tx
       .replace("{DATE}", str.trim(dateF.getValue()))

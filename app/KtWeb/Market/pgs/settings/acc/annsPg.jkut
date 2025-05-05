@@ -16,7 +16,7 @@ import "i18n";
 Q = ui.q;
 II = i18n.tlt;
 
-// \s, <domo>, n -> <field>
+// \s, <domo>, n -> <field> :: {s, <domo>, n}
 mkField = \name, wg, width -> return {name, wg, width};;
 
 // \s, s -> s
@@ -42,7 +42,7 @@ dt2s = \d -> return time.toStr(time.fromIso(d, "/")!);;
 
 // Main ------------------------------------------------------------------------
 
-/// \<domo>, i, s -> ()
+/// \<domo>, n, s -> ()
 mk = async \wg, year0 -> {
   // s, b, s, [s,], [JS<ann>.], n
   dbKey, ok, year, :arr Years, :arr AnnsJs, cash : await client.send({
@@ -127,7 +127,7 @@ mk = async \wg, year0 -> {
     <p><i>Todos los datos del actual ejercicio se perderán</i></p>
     <p>Antes del paso '1' se puede hacer una copia de los archivos que se van
     a eliminar, borrando los asientos de inicialización, y después del proceso
-    pegar dichos archivos a los nuevos creados.</p>
+    pegar los archivos restantes a los nuevos creados.</p>
   """, \->{});;
 
   // \s, <domo> -> <domo>
@@ -154,7 +154,7 @@ mk = async \wg, year0 -> {
   };
 
   // \[<Field>.] -> <domo>
-  mkFields = \:arr Fields ->
+  mkFields= \:arr Fields ->
     return Q("table")
       .klass("main")
       .add(Q("tr")

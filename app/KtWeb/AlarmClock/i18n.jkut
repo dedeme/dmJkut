@@ -7,16 +7,21 @@ esDic = {
   "Bad Format. Use": "Mal formato. Use:",
   "Click %0 to continue.": "Click %0 para continuar.",
   "Data base is out of date.": "La base de datos está obsoleta.",
+  "Delete": "Borrar",
   "Duplicated alarm": "Alarma ya existente",
+  "Errors": "Errores",
   "Hour out of range": "La hora está fuera de rango",
   "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
+  "Log": "Registro",
   "Minutes out of range": "Los minutos están fuera de rango.",
   "New Alarm": "Nueva alarma",
   "Programmed Alarms": "Alarmas programadas",
+  "Reload": "Recargar",
   "Remove the alarm": "Eliminar la alarma",
   "Separator is missing": "Falta el separador",
   "Session is expired.": "Las sesión ha expirado.",
   "Today": "Hoy",
+  "Tomorrow": "Mañana",
   "Without Alarms": "Sin alarmas",
   "at": "a las",
   "here": "aquí",
@@ -40,6 +45,7 @@ enDic = {
   "Separator is missing": "Separator is missing",
   "Session is expired.": "Session is expired.",
   "Today": "Today",
+  "Tomorrow": "Tomorrow",
   "Without Alarms": "Without Alarms",
   "at": "at",
   "here": "here",
@@ -48,7 +54,7 @@ enDic = {
 /// \-> ()
 en = \-> Lang! = "en";;
 
-//\s -> {s...}
+//: \s -> {s.}
 dicByKey = \s -> return switch (s) {
   "es": esDic;
   "en": enDic;
@@ -65,7 +71,7 @@ tlt = \s -> {
   return !T ? s : T!;
 };
 
-/// \s, [s...] -> s
+/// \s, [s.] -> s
 fmt = \tp, Rpls -> {
   R = [tp];
   for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);

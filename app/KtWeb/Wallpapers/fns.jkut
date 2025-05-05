@@ -4,6 +4,7 @@
 /// Functions.
 
 /// Returns n with 'digits' digits.
+/// \n, n -> s
 formatInt = \n, digits -> {
   rV = ["" + n];
   while (str.len(rV!) < digits) rV! = "0" + rV!;

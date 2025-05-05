@@ -3,9 +3,12 @@
 /// Internationalization management.
 
 esDic = {
+  "2 Days": "2 Días",
   "Accept": "Aceptar",
   "Activate": "Activar",
   "Adjustment": "Ajuste",
+  "All": "Todo",
+  "All log entries will be deleted.\nContinue?": "Todas las entradas del registro será borradas.\n¿Continuar?",
   "Background": "Fondo",
   "Blur": "Desenfoque",
   "Blur (0 - 100)": "Desenfoque (0 - 100)",
@@ -15,18 +18,23 @@ esDic = {
   "Close": "Cerrar",
   "Color": "Color",
   "Cut": "Recorte",
+  "Data base is out of date.": "La base de datos está obsoleta.",
   "Deactivate": "Desactivar",
+  "Delete": "Eliminar",
+  "Errors": "Errores",
   "Image '%0' can not be processed": "La imagen '%0' no puede ser procesada",
-  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
   "Left": "Izquierda",
   "Light (0 - 100)": "Luz (0 - 100)",
+  "Log": "Registro",
   "Percentage (0 - 100)": "Porcentaje (0 - 100)",
   "Pixels from top / left": "Pixles desde arriba / izquierda",
   "Pixels to sample": "Pixels para muestra",
+  "Reload": "Recargar",
   "Restore": "Restaurar",
   "Right": "Derecha",
   "Save in Group %0": "Guadar en el grupo %0",
   "Save pictures in group %0?": "¿Guardar las imágenes en el grupo %0?",
+  "Session is closed.\nAuthenticating from Main.": "La sesión ha sido cerrada.\nHay que autenticarse en Main.",
   "Session is expired.": "Las sesión ha expirado.",
   "Stretch": "Estirar",
   "There are duplicated pictures": "Hay imágenes repetidas",
@@ -39,9 +47,12 @@ esDic = {
 es = \-> Lang! = "es";;
 
 enDic = {
+  "2 Days": "2 Days",
   "Accept": "Accept",
   "Activate": "Activate",
   "Adjustment": "Adjustment",
+  "All": "All",
+  "All log entries will be deleted.\nContinue?": "All log entries will be deleted.\nContinue?",
   "Background": "Background",
   "Blur": "Blur",
   "Blur (0 - 100)": "Blur (0 - 100)",
@@ -51,18 +62,23 @@ enDic = {
   "Close": "Close",
   "Color": "Color",
   "Cut": "Cut",
+  "Data base is out of date.": "Data base is out of date.",
   "Deactivate": "Deactivate",
+  "Delete": "Delete",
+  "Errors": "Errors",
   "Image '%0' can not be processed": "Image '%0' can not be processed",
-  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
   "Left": "Left",
   "Light (0 - 100)": "Light (0 - 100)",
+  "Log": "Log",
   "Percentage (0 - 100)": "Percentage (0 - 100)",
   "Pixels from top / left": "Pixels from top / left",
   "Pixels to sample": "Pixels to sample",
+  "Reload": "Reload",
   "Restore": "Restore",
   "Right": "Right",
   "Save in Group %0": "Save in Group %0",
   "Save pictures in group %0?": "Save pictures in group %0?",
+  "Session is closed.\nAuthenticating from Main.": "Session is closed.\nAuthenticating from Main.",
   "Session is expired.": "Session is expired.",
   "Stretch": "Stretch",
   "There are duplicated pictures": "There are duplicated pictures",
@@ -74,7 +90,7 @@ enDic = {
 /// \-> ()
 en = \-> Lang! = "en";;
 
-//\s -> {s...}
+//: \s -> {s.}
 dicByKey = \s -> return switch (s) {
   "es": esDic;
   "en": enDic;
@@ -91,7 +107,7 @@ tlt = \s -> {
   return !T ? s : T!;
 };
 
-/// \s, [s...] -> s
+/// \s, [s.] -> s
 fmt = \tp, Rpls -> {
   R = [tp];
   for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);

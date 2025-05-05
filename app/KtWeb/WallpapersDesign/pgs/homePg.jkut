@@ -1,0 +1,197 @@
+// Copyright 01-May-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Home page
+
+import "libdm/modalBox";
+import "data/image";
+import "data/dms";
+import "wgs/dimSelectorWg";
+import "wgs/trWg";
+import "cts";
+import "global";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  dbKey, :arr Images // s, [<image>.]
+  : await client.send({
+    prg: cts.appName,
+    source: "HomePg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+
+  groupV = [0];
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  save = async \ev ->
+    if (ui.confirm(i18n.fmt(II("Save pictures in group %0?"), [groupV!]))) {
+      cts.boxContent
+        .removeAll()
+        .add(ui.img("wait.gif"))
+      ;
+      modalBox.show(cts.box, true);
+      await client.send({
+        prg: cts.appName,
+        source: "HomePg",
+        rq: "save",
+        dbKey: global.dbKeyV!,
+        group: groupV!
+      });
+      window.location.reload(true);
+    }
+  ;
+
+  // \<domo> -> ()
+  mkSave = async \td -> {
+    td
+      .removeAll()
+      .add(ui.img("wait.gif"));
+    dbKey, Duplicates, group // s, [s.], s
+    : await client.send({
+      prg: cts.appName,
+      source: "HomePg",
+      rq: "idata2"
+    });
+    global.dbKeyV! = dbKey;
+    groupV! = group;
+
+    if (!Duplicates) {
+      td
+        .removeAll()
+        .add(ui.link(save)
+          .klass("link")
+          .text(i18n.fmt(II("Save in Group %0"), [groupV!])))
+      ;
+    } else {
+      td
+        .removeAll()
+        .html("<p>" + II("There are duplicated pictures") + ":</p><p>" +
+            arr.join(Duplicates, "<br>") + "</p>")
+      ;
+    }
+  };
+
+  // \s -> ()
+  changeDim = \dim -> {
+    // \-> ()
+    cancel = \ -> modalBox.show(cts.box, false);;
+    // \<dms> -> ()
+    accept = async \:dms dim -> {
+      await client.send({
+        prg: cts.appName,
+        source: "HomePg",
+        rq: "changeDim",
+        dbKey: global.dbKeyV!,
+        width: dim.width,
+        height: dim.height
+      });
+      window.location.reload(true);
+    };
+
+    dimSelectorWg.mk(cts.boxContent, dim, cancel, accept);
+    modalBox.show(cts.box, true);
+  };
+
+  // \<domo> -> ()
+  mkDim = async \td -> {
+    td
+      .removeAll()
+      .add(ui.img("wait.gif"));
+    dbKey, width, height // s, n, n
+    : await client.send({
+      prg: cts.appName,
+      source: "HomePg",
+      rq: "dim"
+    });
+    global.dbKeyV! = dbKey;
+    dim = "" + width + " x " + height;
+
+    td
+      .removeAll()
+      .add(ui.link(\ev -> changeDim(dim);)
+        .klass("link")
+        .text(dim))
+    ;
+  };
+
+  // View ----------------------------------------------------------------------
+
+  if (!Images) {
+    wg
+      .removeAll()
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+          .klass("frame")
+          .text(II("There are no pictures to adjust")))))
+    ;
+    return;
+  }
+
+  tdSave = Q("td")
+    .klass("frame")
+    .style("text-aling:left;width:5px;white-space:nowrap")
+  ;
+  tdDim = Q("td")
+    .klass("frame")
+    .style("text-align:right;width:5px;white-space:nowrap")
+  ;
+  Trs = [];
+  Trs.push(Q("tr")
+    .add(Q("td")
+      .att("colspan", 5)
+      .style(
+          "pading-top:15px;" +
+          "pading-bottom:10px"
+        )
+      .add(Q("table")
+        .klass("main")
+        .add(Q("tr")
+          .add(tdSave)
+          .add(Q("td"))
+          .add(tdDim))))
+  );
+  Trs.push(Q("tr")
+    .add(Q("td")
+      .att("colspan", 5)
+      .add(Q("hr")))
+  );
+
+  mkSave(tdSave);
+  mkDim(tdDim);
+
+  Images.eachSync(
+    async \ix, im -> {
+        tr = await trWg.mk(Images, ix);
+        Trs.push(tr);
+        wg
+          .removeAll()
+          .add(Q("table")
+            .att("align", "center")
+            .adds(Trs))
+        ;
+      },
+    \ -> {
+        wg
+          .removeAll()
+          .add(Q("table")
+            .att("align", "center")
+            .adds(Trs))
+          .add(cts.box.wg)
+        ;
+      }
+  );
+
+  wg
+    .removeAll()
+    .add(ui.img("wait.gif"))
+  ;
+};

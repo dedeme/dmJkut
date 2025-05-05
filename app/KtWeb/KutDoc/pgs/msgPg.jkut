@@ -1,10 +1,10 @@
-// Copyright 05-May-2023 ºDeme
+// Copyright 30-Apr-2024 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Message page.
 
-import "i18n";
 import "cts";
+import "i18n";
 
 Q = ui.q;
 II = i18n.tlt;
@@ -14,7 +14,7 @@ II = i18n.tlt;
 ///   withReload: If a reload message is shown.
 /// \<domo>, s, b -> ()
 mk = \wg, msg, withReload -> {
-  tx = "<a href='?@'>" + II("here") + "</a>";
+  tx = "<a href=''>" + II("here") + "</a>";
   reload =
     "<p><b>" +
     i18n.fmt(II("Click %0 to continue."), [tx]) +

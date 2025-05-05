@@ -9,10 +9,13 @@ Q = ui.q;
 II = i18n.tlt;
 
 /// Application name.
+/// s
 appName = "Market";
 /// Application version.
+/// s
 version = "2024.04";
 /// Page foot.
+/// <domo>
 foot = Q("table")
   .klass("main")
   .add(Q("tr")
@@ -25,35 +28,52 @@ foot = Q("table")
 ;
 
 /// me nick.
+/// s
 meNick = "<ME>";
 /// Ibex nick
+/// s
 ibexNick = "<IBEX>";
 /// Euro index nick.
+/// s
 euroNick = "<EURO>";
 
-/// Limit over which a company has enough trading.
+/// Limit over which a company has enough volume to trade.
+/// n
 trading = 1_500_000;
-/// Ammount to make a buy. (Used in trading and to calculate withdrawals)
-bet = 12000.0;
-/// Investor initial capital. (Used to calculate withdrawals)
+/// Ammount to make a buy.
+/// Used in tradingPg and balancePg and to calculate withdrawals, and in dailPg
+/// to calculate references.
+/// n
+bet = 15000.0;
+/// Minumum to bet. (Used in blancePg and to calculate withdrawals)
+/// n
+minToBet = 16000.0;
+/// Investor initial capital. (Used in balancePg to calculate withdrawals)
+/// n
 initialCapital = 300000.0;
 /// Server states.
+/// [n.]
 serverStopped, serverActive, serverSelected =;
 /// Number of quotes for accounting charts.
+/// n
 accountingQuotes = 250;
 
 /// Standar messsage for server fails.
+/// s
 okMsg = II("Operation successfully done.");
 /// Standar messsage for server fails.
+/// s
 failMsg = II("Operation failed.\nSee log.");
 
 /// ToBuy references colors (one by investor)
+/// [s.]
 toBuyColors = [
   "rgba(160, 0, 0)",
   "rgba(224, 160, 0)",
   "rgba(240, 224, 0)"
 ];
 /// ToSell references colors (one by investor)
+/// [s.]
 toSellColors = [
   "rgba(0, 0, 160)",
   "rgba(0, 160, 224)",
@@ -61,7 +81,13 @@ toSellColors = [
 ];
 
 /// Activiy states
+/// {n.}
 active, sleeping :;
 
 /// Order types in daily charts.
+/// [n.]
 chartOrderNick, chartOrderDay, chartOrderSignal =;
+
+/// Order nicks in daily list.
+/// [n.]
+lTick, lNick, lDayPerc, lDay, lPf, lPfPerc, lRef =;

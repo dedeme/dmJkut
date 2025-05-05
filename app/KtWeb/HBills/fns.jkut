@@ -6,6 +6,7 @@
 import "i18n";
 
 /// Format 'value' with 2 decimals.
+/// \n -> s
 cFmt = \value -> return "&nbsp;" +
     (i18n.getLang() == "es" ? math.toIso(value, 2) : math.toEn(value, 2))
   ;;

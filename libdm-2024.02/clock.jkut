@@ -18,7 +18,7 @@ Q = ui.q;
 ///   shand  : Second hand color. (HTML format. e.g. "#f0f0f0")
 ///   fn     : Function '\tm -> ()' to call every second. This function receive
 ///            the current time.
-/// \b,i,i,i,s,s,s,s,s,s,(\i->()) -> <clock>
+/// \b,n,n,n,s,s,s,s,s,s,(\n->()) -> <clock>
 mk0 : isChron, start, width, height, bg, number, axis, hhand, mhand, shand, fn;
 
 /// Equals to
@@ -35,13 +35,13 @@ mk = \ -> return mk0(
 /// \<clock>, b -> ()
 setChron = \O, v -> O[isChron] = v;;
 
-/// \<clock>, i -> ()
+/// \<clock>, n -> ()
 setStart = \O, v -> O[start] = v;;
 
-/// \<clock>, i -> ()
+/// \<clock>, n -> ()
 setWidth = \O, v -> O[width] = v;;
 
-/// \<clock>, i -> ()
+/// \<clock>, n -> ()
 setHeight = \O, v -> O[height] = v;;
 
 /// \<clock>, s -> ()
@@ -62,7 +62,7 @@ setMhand = \O, v -> O[mhand] = v;;
 /// \<clock>, s -> ()
 setShand = \O, v -> O[shand] = v;;
 
-/// \<clock>, (\i->()) -> ()
+/// \<clock>, (\n->()) -> ()
 setFn = \O, v -> O[fn] = v;;
 
 /// Returns a new clock widget.

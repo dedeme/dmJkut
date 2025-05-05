@@ -17,7 +17,7 @@ II = i18n.tlt;
 ///   Cos: Company nicks.
 ///   Closes: Closes (dates x cos)
 ///   rs: Simulation result.
-/// \<domo>, [s.], [[f.].], <stRs> -> ()
+/// \<domo>, [s.], [[n.].], <stRs> -> ()
 mk = \wg, :arr Cos, :arr Closes, :stRs rs -> {
   :arr Orders = rs.Orders;
   :arr LastCloses = Closes.peek();

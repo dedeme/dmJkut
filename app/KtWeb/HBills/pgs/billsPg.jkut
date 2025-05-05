@@ -23,10 +23,11 @@ mk = async \wg -> {
     source: "BillsPg",
     rq: "idata"
   });
+  Bills.sort(\:monthAnn b1, :monthAnn b2 -> return b1.month > b2.month;);
   global.dbKeyV! = dbKey;
 
   boxWg = Q("div");
-  box = modalBox.mk(boxWg, false);
+  :modalBox box = modalBox.mk(boxWg, false);
 
   // Control -------------------------------------------------------------------
 

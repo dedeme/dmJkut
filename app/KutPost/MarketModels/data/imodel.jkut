@@ -6,6 +6,7 @@
 import "cts";
 
 /// Paramter types.
+/// [n.]
 dayParam, percParam =;
 
 /// Constructor.
@@ -15,7 +16,7 @@ dayParam, percParam =;
 ///   ptypes: Parameter types. One of dayParam or percParam
 ///   pbases: Parameter bases.
 ///   pincs : Parameter increments.
-/// \s,s,[s.],[i.],[f.],[i.] -> <imodel>
+/// \s,s,[s.],[n.],[n.],[n.] -> <imodel>
 mk : id, name, Pnames, Ptypes, Pbases, Pincs;
 
 /// \<imodel>, n -> s

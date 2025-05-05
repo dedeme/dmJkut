@@ -15,8 +15,8 @@ import "diary";
 ///   cErrOp : Error entry or empty if there is any extra CashFlow entry.
 ///   CPrevs : 5 previous entries from before to after.
 ///   CNexts : 5 next entries from before to after.
-/// \n,[<cashEntry>]|[],[<cashEntry>.],[<cashEntry>.],
-///    [<diaryEntry>]|[],[<diaryEntry>.],[<diaryEntry>.]  -> <problem>
+/// \n,([<cashEntry>]|[]),[<cashEntry>.],[<cashEntry>.],
+///-   ([<diaryEntry>]|[]),[<diaryEntry>.],[<diaryEntry>.]  -> <problem>
 mk : ix, hcErrOp, HcPrevs, HcNexts, cErrOp, CPrevs, CNexts;
 
 // Returns a nomal error.

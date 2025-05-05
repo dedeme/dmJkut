@@ -1,4 +1,4 @@
-// Copyright 13-Sep-2023 ºDeme
+// Copyright 02-May-2024 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Edit page.
@@ -6,6 +6,7 @@
 import "cts";
 import "msgPg";
 import "edit";
+import "global";
 import "i18n";
 
 Q = ui.q;
@@ -13,19 +14,19 @@ II = i18n.tlt;
 
 /// \<domo>, b -> ()
 mk = async \wg, isTrash -> {
-  Rp = await client.send({
+  dbKey, List, text // s,[{id:s, name:s}.],s
+  : await client.send({
     prg: cts.appName,
     source: "Edit",
     rq: "idata",
     isTrash
   });
+  global.dbKeyV! = dbKey;
 
-  List = Rp.list; // [{id:s, name:s}.]
-
-  textV = [Rp.text]; // [s]
+  textV = [text]; // [s]
   selV = [!List ? "" : List[0]];
 
-  tm = timer.mk(1000);
+  :timer tm = timer.mk(1000);
 
   bodyEd = Q("textarea")
     .att("cols", 100)
@@ -47,6 +48,7 @@ mk = async \wg, isTrash -> {
     await client.send({
       prg: cts.appName,
       source: "Edit",
+      dbKey: global.dbKeyV!,
       rq: "new"
     });
 
@@ -56,18 +58,20 @@ mk = async \wg, isTrash -> {
   // \s -> ()
   download = async \id, name -> {
     if (!ui.confirm(i18n.fmt(II("Download '%0'?"), [name]))) return;
-    Rp = await client.send({
+    dbKey, text // s, s
+    : await client.send({
       prg: cts.appName,
       source: "Edit",
       rq: "download",
       name,
       id
     });
+    global.dbKeyV! = dbKey;
 
-    text = window.encodeURIComponent(Rp.text);
+    text2 = window.encodeURIComponent(text);
 
     link = Q("a")
-      .att("href", "data:text/plain;charset=utf-8," + text)
+      .att("href", "data:text/plain;charset=utf-8," + text2)
       .att("download", name)
       .setStyle("display", "none")
     ;
@@ -81,10 +85,12 @@ mk = async \wg, isTrash -> {
   // \s -> ()
   remove = async \id, name -> {
     if (!ui.confirm(i18n.fmt(II("Remove '%0'?"), [name]))) return;
+    tm.stop();
     await client.send({
       prg: cts.appName,
       source: "Edit",
       rq: "remove",
+      dbKey: global.dbKeyV!,
       id
     });
 
@@ -98,6 +104,7 @@ mk = async \wg, isTrash -> {
       prg: cts.appName,
       source: "Edit",
       rq: "rescue",
+      dbKey: global.dbKeyV!,
       id
     });
 
@@ -106,16 +113,18 @@ mk = async \wg, isTrash -> {
 
   // \{id:s, name:s} -> ()
   select = async \E -> {
-    Rp = await client.send({
+    dbKey, text // s,s
+    : await client.send({
       prg: cts.appName,
       source: "Edit",
       rq: "getText",
       isTrash,
       id: E.id
     });
+    global.dbKeyV! = dbKey;
     selV! = E;
-    bodyEd.value(Rp.text);
-    textV! = Rp.text;
+    bodyEd.value(text);
+    textV! = text;
     showV!();
   };
 
@@ -124,14 +133,18 @@ mk = async \wg, isTrash -> {
     text = bodyEd.getValue();
     if (text != textV!) {
       E = selV!;
-      Rp = await client.send({
+      dbKey, name // s,s
+      : await client.send({
         prg: cts.appName,
         source: "Edit",
         rq: "setText",
+        dbKey: global.dbKeyV!,
         id: E.id,
         text
       });
-      name = Rp.name;
+      global.dbKeyV! = dbKey;
+      textV! = text;
+
       if (name != E.name) {
         E.name = name;
         show2V!();
@@ -252,5 +265,5 @@ mk = async \wg, isTrash -> {
   };
 
   showV!();
-  if (!isTrash) timer.run(tm, refresh);
+  if (!isTrash) tm.run(refresh);
 };

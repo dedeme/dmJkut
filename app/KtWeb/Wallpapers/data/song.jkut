@@ -6,10 +6,7 @@
 /// Constructor.
 ///   level : Song level (1, 2, o 3).
 ///   sights: Number of sights in normal mode.
-///   lapse : Song lapse played (0-100).
 ///   id    : Song name.
+///   lapse : Song lapse played (0-100).
 /// \n, n, n, s -> <song>
-mk = \level, sights, lapse, id -> return {level, sights, lapse, id};;
-
-/// \JS -> <song>
-fromJs = \A -> return mk(A[0], A[1], A[2], A[3]);;
+mk : level, sights, id, lapse;

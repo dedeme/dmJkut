@@ -11,7 +11,9 @@ import "balancePg";
 import "tradingPg";
 import "profitsPg";
 import "ibexPg";
-import "speedometers";
+import "speedometersPg";
+import "executionPg";
+import "quotesPg";
 
 Q = ui.q;
 II = i18n.tlt;
@@ -20,7 +22,7 @@ II = i18n.tlt;
 ///   wg    : Container.
 ///   dbMenu : Double menu.
 ///   lcPath: Location path.
-/// \<domo>, <dmenu>, [s...] -> ()
+/// \<domo>, <dmenu>, [s.] -> ()
 mk = \wg, dbMenu, LcPath -> {
   mSel = !LcPath ? "profits" : LcPath[0];
 
@@ -41,7 +43,11 @@ mk = \wg, dbMenu, LcPath -> {
     menu.separator2(),
     menu.tlink("acc&ibex", "Ibex"),
     menu.separator(),
-    menu.tlink("acc&speedometers", II("Speedometers"))
+    menu.tlink("acc&speedometers", II("Speedometers")),
+    menu.separator(),
+    menu.tlink("acc&execution", II("Execution")),
+    menu.separator(),
+    menu.tlink("acc&quotes", II("Quotes"))
   ];
   dmenu.setDownMenu(dbMenu, menu.mk(Lopts, [], "acc&" + mSel));
 
@@ -51,7 +57,9 @@ mk = \wg, dbMenu, LcPath -> {
     "trading": tradingPg.mk(wg);
     "profits": profitsPg.mk(wg);
     "ibex": ibexPg.mk(wg);
-    "speedometers": speedometers.mk(wg);
+    "speedometers": speedometersPg.mk(wg);
+    "execution": executionPg.mk(wg);
+    "quotes": quotesPg.mk(wg);
     default: balancePg.mk(wg); // profitsPg.mk(wg);
   }
 };

@@ -4,22 +4,31 @@
 /// Accounting operatiom data.
 
 /// Sell operation type
+/// s
 seT = "se";
 /// Buy operation type
+/// s
 buT = "bu";
 /// Stock operation type
+/// s
 stT = "st";
 /// Income operation type
+/// s
 inT = "in";
 /// Withdrawal operation type
+/// s
 wiT = "wi";
 /// Profits operation type
+/// s
 prT = "pr";
 /// Fees operation type
+/// s
 feT = "fe";
 /// Positive differences operation type
+/// s
 pdT = "pd";
 /// Negative differences operation type
+/// s
 ndT = "nd";
 
 // Constructor. Use 'mkXX' contructors.
@@ -55,7 +64,7 @@ mkWi = \amount -> return mk0(wiT, 0, amount, "");;
 mkPr = \amount, cause -> return mk0(prT, 0, amount, cause);;
 
 /// Makes a fees operation
-/// \f, s -> <opr>
+/// \n, s -> <opr>
 mkFe = \amount, cause -> return mk0(feT, 0, amount, cause);;
 
 /// Makes a 'positive differences' operation
@@ -89,7 +98,7 @@ amount = \op -> return op[f];;
 /// \<opr> -> s
 cause = \op -> return op[s];;
 
-/// \<opr> -> JS
+/// \<opr> -> [*.]
 toJs = \op -> switch(op[tp]) {
     seT, buT, stT: return [op[tp], op[s], op[i], op[f]];
     prT, feT, pdT, ndT: return [op[tp], op[f], op[s]];
@@ -97,7 +106,7 @@ toJs = \op -> switch(op[tp]) {
     default: throw "Unknown operation of type " + op[tp];
   };
 
-/// \JS -> <opr>
+/// \[*.] -> <opr>
 fromJs = \A -> {
   tp = A[0];
   switch(tp) {

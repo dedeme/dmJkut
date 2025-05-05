@@ -10,7 +10,7 @@ II = i18n.tlt;
 
 /// \<domo>, <domo> -> ()
 mk = \wg, textArea -> {
-  tx = """
+  tx0 = """
     // Copyright {DATE} ºDeme
     // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
@@ -19,22 +19,23 @@ mk = \wg, textArea -> {
     import "cts";
     import "data/{OBJECT}";
 
-    fpath = path.cat([cts.dataPath, "{OBJECT}.tb"]);
+    :file fpath = file.cat([cts.dataPath, "{OBJECT}.tb"]);
 
     /// Initializes table.
     /// \ -> ()
     {INIT}
 
-    /// Reads table.
-    /// \ -> {TYPE}
+    /*/ Reads table.
+    /*/ \ -> {TYPE}
     {READ}
     {READJS}
-    /// Writes table.
-    /// \{TYPE} -> ()
+    /*/ Writes table.
+    /*/ \{TYPE} -> ()
     {WRITE}{WRITEJS}
   """;
+  tx = str.replace(tx0, "/*/", "///");
 
-  now = time.now();
+  :time now = time.now();
   month = now.toDate().toLocaleString("en-US", { month: "short" });
   dateF = ui.field("objectF")
     .att("id", "dateF")
@@ -76,7 +77,7 @@ mk = \wg, textArea -> {
   // \->()
   update = \ -> {
     if (str.trim(dateF.getValue()) == "")
-      dateF.value(now.format("%D-" + month + "-%Y"));
+      dateF.value(now.fmt("%D-" + month + "-%Y"));
     if (str.trim(objectF.getValue()) == "")
       objectF.value("myObject");
 
@@ -84,13 +85,13 @@ mk = \wg, textArea -> {
     type = arrayCh.isChecked() ? "[<" + obj + ">.]" : "<" + obj + ">";
 
     init = arrayCh.isChecked()
-      ? "init = \\ -> if (!file.exists(fpath)) write([]);;"
-      : "init = \\ -> if (!file.exists(fpath)) write(" +
+      ? "init = \\ -> if (!fpath.exists()) write([]);;"
+      : "init = \\ -> if (!fpath.exists()) write(" +
         obj + ".newDefault());;"
     ;
 
     read1 = "read = \\ -> return ";
-    read2 = "js.r(file.read(fpath))";
+    read2 = "js.r(fpath.read())";
     read = fromCh.isChecked()
       ? arrayCh.isChecked()
         ? read1 + "arr.map(" + read2 + ", " + obj + ".fromJs);;"
@@ -103,13 +104,13 @@ mk = \wg, textArea -> {
 
           /// Reads table as JSON string.
           /// \ -> s
-          readJs = \ -> return file.read(fpath);;
+          readJs = \ -> return fpath.read();;
         """
       : ""
     ;
 
     par = arrayCh.isChecked() ? "tb" : "o";
-    write1 = "write = \\" + par + " -> file.write(fpath, js.w(";
+    write1 = "write = \\" + par + " -> fpath.write(js.w(";
     write2 = "));;";
     write = toCh.isChecked()
       ? arrayCh.isChecked()
@@ -124,7 +125,7 @@ mk = \wg, textArea -> {
 
           /// Writes table as JSON string.
           /// \s -> ()
-          writeJs = \s -> file.write(fpath, s);;
+          writeJs = \s -> fpath.write(s);;
         """
       : ""
     ;

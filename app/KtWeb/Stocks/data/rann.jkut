@@ -12,5 +12,5 @@
 ///   profitsOp: Profits of a sell operation. If operation is a Buy, its value
 ///               is '[]'.
 ///   feesOp   : Fees of operation. Only has value if report is 'report.withFees'.
-/// \n,s,n,n,n,[n]|[],[n]|[] -> <rann>
+/// \n,s,n,n,n,([n]|[]),([n]|[]) -> <rann>
 mk : date, nick, stocks, price, total, profitsOp, feesOp;

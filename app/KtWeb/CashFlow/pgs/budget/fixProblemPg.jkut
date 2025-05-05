@@ -218,7 +218,6 @@ mk = \wg, selectedYear, :arr Plan, :arr Diary, :problem prob, fnReload -> {
 
   // \ -> ()
   showOp! = \ -> {
-trace prob;
     if (!prob.hcErrOp) {
       if (!!prob.cErrOp) {
         trWgs[delTr] = [del.mk(
@@ -229,7 +228,6 @@ trace prob;
           deactivateAll, deleteDiaryEntry
         )];
       }
-trace "here";
     } else {
       :cashEntry hce = prob.hcErrOp!;
       if (!prob.cErrOp) {

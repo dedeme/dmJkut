@@ -1,0 +1,44 @@
+// Copyright 01-May-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Dimension selector widget
+
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, s, (\->()), (\<dms>->()) -> <domo>
+mk = \wg, dimStr, cancel, accept -> {
+  dimV = [dimStr];
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .adds(arr.map(dic.toArr(cts.Dims), \Kv ->
+        return Q("tr")
+          .add(Q("td")
+            .add(Q("input")
+              .att("type", "radio")
+              .att("name", "dims")
+              .checked(dimV! == Kv[0])
+              .on("click", \ev -> dimV! = Kv[0];)))
+          .add(Q("td")
+            .style("text-align: left")
+            .text(Kv[0]))
+        ;)))
+    .add(Q("hr"))
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(Q("button")
+            .text(II("Cancel"))
+            .on("click", \ev -> cancel();))
+          .add(Q("span").html("&nbsp;&nbsp;"))
+          .add(Q("button")
+            .text(II("Accept"))
+            .on("click", \ev -> accept(cts.Dims[dimV!]);)))))
+  ;
+};

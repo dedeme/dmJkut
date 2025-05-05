@@ -13,5 +13,5 @@ import "cts";
 ///   avg     : Evaluation average.
 ///   dev     : Evaluation deviation.
 ///   crr     : Evaluation corrected average.
-/// \i,<upRs>,<upRs>,<upRs>,<upRs> -> <evE>
+/// \n,<upRs>,<upRs>,<upRs>,<upRs> -> <evE>
 mk : times, last, avg, dev, crr;

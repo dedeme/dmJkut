@@ -21,7 +21,7 @@ initialCapitalV = [0];
 mk = async \wg, :lcMenu lcPath -> {
   // \s, s -> <menuEntry>
   mkOpt = \id, text, info -> {
-    lcP = lcPath.copy();
+    :lcMenu lcP = lcPath.copy();
     lcP.setStats(id);
     return vmenu.mkEntry(
       [id],

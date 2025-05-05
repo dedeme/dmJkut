@@ -16,6 +16,7 @@ Q = ui.q;
 II = i18n.tlt;
 
 /// Order types
+/// [n.]
 oP0, oP1, oPon, oReal, oAcc, oProf, oSales =;
 
 /// Constructor.
@@ -44,7 +45,7 @@ mk = async \wg -> {
   orderV = [oPon];
 
   showV = [[]];
-  cavgRd = Q("input")
+  avgRd = Q("input")
     .att("type", "radio")
     .att("name", "source")
     .checked(true)
@@ -56,7 +57,7 @@ mk = async \wg -> {
     .checked(false)
     .on("change", \e -> showV!();)
   ;
-  avgRd = Q("input")
+  cavgRd = Q("input")
     .att("type", "radio")
     .att("name", "source")
     .checked(false)
@@ -181,9 +182,9 @@ mk = async \wg -> {
           .klass("frame")
           .add(Q("table")
             .add(Q("tr")
-              .add(mkOpt(cavgRd, II("Corrected<br>Average")))
-              .add(mkOpt(lastRd, II("Last<br>Value")))
               .add(mkOpt(avgRd, II("Average")))
+              .add(mkOpt(lastRd, II("Last<br>Value")))
+              .add(mkOpt(cavgRd, II("Corrected<br>Average")))
               .add(mkOpt(devRd, II("Deviation<br>%")))
             )))
          .add(mkOpt(allChk, II("All<br>Data"))
@@ -202,7 +203,7 @@ mk = async \wg -> {
       Ops.push(vmenu.option(md.id, md.id, \ -> changeModel(md.id);));
     vmenuWg = vmenu.mk(Ops, md.id);
 
-    MdIxEvs2 = arr.copy(MdIxEvs);
+    :arr MdIxEvs2 = arr.copy(MdIxEvs);
     if (!allChk.isChecked()) {
       MdIxEvs2.filterIn(
         \E -> return E[1][evE.avg][upRs.sales] >= global.minSalesV!;

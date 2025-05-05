@@ -6,10 +6,13 @@
 Q = ui.q;
 
 /// Application name.
+/// s
 appName = "CDoc";
 /// Application version.
+/// s
 version = "2024.03";
 /// Page foot.
+/// <domo>
 foot = Q("table")
   .klass("main")
   .add(Q("tr")

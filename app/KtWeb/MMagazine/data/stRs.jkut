@@ -1,0 +1,11 @@
+// Copyright 05-Jan-2025 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Strategy result data definition.
+
+/// Constructor.
+///   strategy: Strategy id.
+///   Params  : Parameters evaluated.
+///   points  : Evalutation result.
+/// \s,[n.],n -> <stRs>
+mk : model, Params, points;

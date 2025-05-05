@@ -1,0 +1,181 @@
+// Copyright 01-May-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Images row
+
+import "libdm/modalBox";
+import "cts";
+import "data/image";
+import "imageViewerWg";
+import "cutEditorWg";
+import "adjustmentEditorWg";
+import "blurEditorWg";
+import "global";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \[<image>.], n -> <domo>
+mk = async \:arr Images, ix -> {
+  imV = [Images[ix]];
+
+  optionsDiv = Q("div");
+  sourceDiv = Q("div");
+  targetDiv = Q("div");
+  imgEditorDiv = Q("div");
+
+  updateImageV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  editCut = \ev -> {
+    cutEditorWg.mk(imgEditorDiv, imV!, updateImageV!);
+    modalBox.show(cts.box, true);
+  };
+
+  // \<event> -> ()
+  editAdjustment = \ev -> {
+    adjustmentEditorWg.mk(imgEditorDiv, imV!, updateImageV!);
+    modalBox.show(cts.box, true);
+  };
+
+  // \<event> -> ()
+  editBlur = \ev -> {
+    blurEditorWg.mk(imgEditorDiv, imV!, updateImageV!);
+    modalBox.show(cts.box, true);
+  };
+
+  // View ----------------------------------------------------------------------
+
+  // \-> ()
+  showSourceImg = \ -> {
+    action = \ -> {
+      imageViewerWg.mk(
+        cts.boxContent, "source/" + imV![image.id], 800,
+        \ -> modalBox.show(cts.box, false);
+      );
+      modalBox.show(cts.box, true);
+    };
+
+    imageViewerWg.mk(sourceDiv, "source/" + imV![image.id], 240, action);
+  };
+
+  // \ -> ()
+  showOptions = \ -> {
+    optionsDiv
+      .removeAll()
+      .add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("input")
+              .att("type", "checkbox")
+              .disabled(true)
+              .checked(!!imV![image.cutOp])))
+          .add(Q("td")
+            .add(ui.link(editCut)
+              .klass("link")
+              .text(II("Cut")))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("input")
+              .att("type", "checkbox")
+              .disabled(true)
+              .checked(!!imV![image.adjOp])))
+          .add(Q("td")
+            .add(ui.link(editAdjustment)
+              .klass("link")
+              .text(II("Adjustment")))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("input")
+              .att("type", "checkbox")
+              .disabled(true)
+              .checked(!!imV![image.blurOp])))
+          .add(Q("td")
+            .add(ui.link(editBlur)
+              .klass("link")
+              .text(II("Blur")))))
+      )
+    ;
+  };
+
+  // \ -> ()
+  showTargetImg = \ -> {
+    ix = str.lastIndex(imV![image.id], ".");
+    newId = ix == -1
+      ? imV![image.id] + ".jpg"
+      : imV![image.id][:ix] + ".jpg"
+    ;
+
+    action = \ -> {
+      imageViewerWg.mk(
+        cts.boxContent, "target/" + newId, 800,
+        \ -> modalBox.show(cts.box, false);
+      );
+      modalBox.show(cts.box, true);
+    };
+
+    imageViewerWg.mk(targetDiv, "target/" + newId, 240, action);
+    imageViewerWg.mk(imgEditorDiv, "target/" + newId, 800, \ -> {});
+  };
+
+  // \ -> ()
+  showTarget = async \ -> {
+    optionsDiv.removeAll().add(ui.img("wait.gif"));
+    targetDiv.removeAll().add(ui.img("wait.gif"));
+    imgEditorDiv.removeAll().add(ui.img("wait.gif"));
+    , ok : await client.send({
+      prg: cts.appName,
+      source: "TrWg",
+      rq: "idata",
+      im: imV!
+    });
+    if (!ok) {
+      ui.alert(i18n.fmt(II("Image '%0' can not be processed"), [imV![image.id]]));
+      window.location.reload(true);
+    } else {
+      showOptions();
+      showTargetImg();
+    }
+  };
+
+  // \<image> -> ()
+  updateImageV! = async \:image im -> {
+    imV! = im;
+    Images[ix] = im;
+    , dbKey : await client.send({
+      prg: cts.appName,
+      source: "TrWg",
+      rq: "update",
+      dbKey: global.dbKeyV!,
+      Images
+    });
+    global.dbKeyV! = dbKey;
+
+    showTarget();
+  };
+
+  // \ -> ()
+  update = async \ -> {
+    showSourceImg();
+    await showTarget();
+  };
+
+  await update();
+  return Q("tr")
+    .add(Q("td")
+      .style("text-align:left;vertical-align:middle")
+      .add(optionsDiv))
+    .add(Q("td").klass("separator"))
+    .add(Q("td")
+      .style("text-align:center;vertical-align:middle")
+      .add(sourceDiv))
+    .add(Q("td").klass("separator"))
+    .add(Q("td")
+      .style("text-align:center;vertical-align:middle")
+      .add(targetDiv))
+    .add(Q("td").klass("separator"))
+  ;
+};

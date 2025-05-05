@@ -10,8 +10,4 @@
 ///   shortPlays: Number of times played in short mode.
 ///   longPlays: Number of times played in long mode.
 /// \n, n, s, n, n -> <danceSong>
-mk = \level, speed, id, shortPlays, longPlays ->
-  return {level, speed, id, shortPlays, longPlays};;
-
-/// \JS -> <danceSong>
-fromJs = \A -> return mk(A[0], A[1], A[2], A[3], A[4]);;
+mk : level, speed, id, shortPlays, longPlays;

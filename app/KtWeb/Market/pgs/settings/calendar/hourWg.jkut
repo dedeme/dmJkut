@@ -13,7 +13,7 @@ II = i18n.tlt;
 ///   hour  : 24 hours day hour.
 ///   minute: Minute.
 ///   action: Action to do when hour or minute changes.
-/// \n, n, (\->()) -> <hourWg>
+/// \n, n, (\->()) -> <whour>
 mk = \hour, minute, fn -> {
   Hlist = arr.fromIter(iter.map([0:24], \n ->
     return (n == hour ? "+" : "") + fns.format00(n);

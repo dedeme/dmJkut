@@ -19,7 +19,7 @@ import "cts";
 /// \n,n,s,[n.],n,n,n,n -> <flea>
 mk : id, cycle, mdId, Params, assets, profits, points, sales;
 
-/// \JS -> <myType>
+/// \[*.] -> <myType>
 fromJs = \A -> return [
     A[id],
     A[cycle],
@@ -35,7 +35,7 @@ fromJs = \A -> return [
 /// A result of '1000' indicates neither profits nor losses.
 ///   assets : Assets (money).
 ///   profits: Profits (ratio).
-/// \f, f -> f
+/// \n, n -> n
 evaluate = \assets, profits -> return math.toInt(
     ( assets * cts.assetsRatio / cts.maxAssets +
         (1.0 + profits) * cts.profitsAvgRatio / cts.maxProfitsAvgRatio

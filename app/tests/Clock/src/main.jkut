@@ -11,7 +11,8 @@ cl = clock.mk();
 clock.setWidth(cl, clock.width(cl) * 2);
 clock.setHeight(cl, clock.height(cl) * 2);
 
-cl2 = clock.mkChron();
+cl2 = clock.mk();
+clock.setChron(true);
 clock.setWidth(cl2, clock.width(cl2) * 2);
 clock.setHeight(cl2, clock.height(cl2) * 2);
 Q("@body")
@@ -20,10 +21,10 @@ Q("@body")
     .att("align", "center")
     .add(Q("tr")
       .add(Q("td")
-        .add(clock.wg(cl)
+        .add(clock.mkWg(cl)
           .style("opacity: 0.5")))
       .add(Q("td")
-        .add(clock.wg(cl2)
+        .add(clock.mkWg(cl2)
           .att(
             "style",
             "background:radial-gradient(#000333,#e6f6f6);" +

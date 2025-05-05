@@ -26,13 +26,13 @@ mk = async \wg -> {
 
   // Sessions control is in "Main" !!!
   , lang : await client.send({
-    prg: "KutPost", // Call to KtWeb:Main
+    prg: "KutPost", // Call to KutPost:Main
     source: "Main",
     rq: "lang"
   });
   if (lang == "en") i18n.en();
 
-  lcPath = lcMenu.fromUrl(window.location.search[1:]);
+  :lcMenu lcPath = lcMenu.fromUrl(window.location.search[1:]);
 
   // View ----------------------------------------------------------------------
 

@@ -51,7 +51,7 @@ Session is closed.\nAuthenticating from Main. = La sesión ha sido cerrada.\nHay
 # jkut/main.jkut: 74
 Session is expired. = Las sesión ha expirado.
 
-# jkut/wgs/formWg.jkut: 48
+# jkut/wgs/formWg.jkut: 50
 Set Place = Poner lugar
 
 # jkut/main.jkut: 41

@@ -22,15 +22,31 @@ mk = async \wg -> {
     source: "CompaniesPg",
     rq: "idata"
   });
-  List = Lst.map(\E -> return {nick: E[0], bought: E[1], url: E[2]};);
+  :arr List = Lst.map(\E ->
+    return {nick: E[0], sel: E[1], bought: E[2], url: E[3]};
+  );
 
   showAllV = [false];
+  showSelV = [false];
   showV = [[]];
 
   // Control -------------------------------------------------------------------
 
-  changeShowAll = \ -> {
-    showAllV! = !showAllV!;
+  showAll = \ -> {
+    showAllV! = true;
+    showSelV! = false;
+    showV!();
+  };
+
+  showSel = \ -> {
+    showAllV! = false;
+    showSelV! = true;
+    showV!();
+  };
+
+  showPortfolio = \ -> {
+    showAllV! = false;
+    showSelV! = false;
     showV!();
   };
 
@@ -43,11 +59,11 @@ mk = async \wg -> {
       .html("<hr>"))
   ;;
 
-  // \n, [n.], n -> s
-  backColor = \prevQ, :arr Refs, nextQ ->
-    return Refs.any(\ref -> return prevQ < ref & ref < nextQ;)
+  // \n, n, n -> s
+  backColor = \prevQ, ref, nextQ ->
+    return prevQ < ref & ref < nextQ
       ? "#fff0f0"
-      : Refs.any(\ref -> return prevQ > ref & ref > nextQ;)
+      : prevQ > ref & ref > nextQ
         ? "#f0f0ff"
         : "#c9c9c9"
     ;;
@@ -69,7 +85,7 @@ mk = async \wg -> {
     error, // s
     price, // n. Price if nick is in portfolio, otherwise -1.
     profits, // n. Profits if nick is in portfolio, otherwise 0.
-    :arr Dates, :arr Closes, :arr Refs // [s.], [n.], [n.]
+    :arr Dates, :arr Closes, :arr Refs // [s.], [n.], [[n.]]
     : await client.send({
       prg: cts.appName,
       module: "Acc",
@@ -94,13 +110,13 @@ mk = async \wg -> {
 
     back = backColor(
       Closes[-2:][0],
-      arr.map(Refs, \Rs -> return Rs[-2:][0];),
+      Refs[-2:][0],
       arr.peek(Closes)
     );
 
     // \ -> <domo>
     mkSmallGr = \ -> {
-      :: Ch = lineChart.mkExample();
+      Ch = lineChart.mkExample();
       Ch.exArea.width = 300;
       Ch.exArea.height = 150;
       Ch.exArea.atts.background = back;
@@ -119,7 +135,7 @@ mk = async \wg -> {
       Vals = [[], [], []];
       :arr Dates2 = Dates[-250:];
       :arr Closes2 = Closes[-250:];
-      :arr Refs2 = Refs[0][-250:];
+      :arr Refs2 = Refs[-250:];
       for (i = 0:Dates2.size()) {
         cl = Closes2[i];
         rf = Refs2[i];
@@ -133,7 +149,7 @@ mk = async \wg -> {
         lineChart.mkLine(1.2, "#aa4100", false),
         lineChart.mkLine(1.2, "#0041aa", false)
       ];
-      :: Data = lineChart.mkData(Lbs, Vals, Atts);
+      Data = lineChart.mkData(Lbs, Vals, Atts);
       Data.Labels = Lbs;
       Data.SetValues = [Vals[0], Vals[1], Vals[2]];
       if (price >= 0)
@@ -169,7 +185,7 @@ mk = async \wg -> {
 
     // \ -> <domo>
     mkBigGr = \ -> {
-      :: Ch = lineChart.mkExample();
+      Ch = lineChart.mkExample();
       Ch.exArea.width = 600;
       Ch.exArea.height = 300;
       Ch.exArea.atts.background = back;
@@ -190,7 +206,7 @@ mk = async \wg -> {
         Vals = [[], [], []]; // Removed investors 1 and 2.
         :arr Dates2 = zoom ? Dates[-30:] : Dates;
         :arr Closes2 = zoom ? Closes[-30:] : Closes;
-        :arr Refs2 = zoom ? Refs[0][-30:] : Refs[0];
+        :arr Refs2 = zoom ? Refs[-30:] : Refs;
 
         for (i = 0:Dates2.size()) {
           cl = Closes2[i];
@@ -206,7 +222,7 @@ mk = async \wg -> {
           lineChart.mkLine(wln, "#aa4100", false),
           lineChart.mkLine(wln, "#0041aa", false)
         ];
-        :: Data = lineChart.mkData(Lbs, Vals, Atts);
+        Data = lineChart.mkData(Lbs, Vals, Atts);
         Data.Labels = Lbs;
         Data.SetValues = [Vals[0], Vals[1], Vals[2]];
         if (price >= 0 & !zoom)
@@ -305,7 +321,9 @@ mk = async \wg -> {
   showV! = \ -> {
     :arr Ls = showAllV!
       ? List
-      : List.filter(\E -> return E.bought;)
+      : showSelV!
+        ? List.filter(\E -> return E.sel;)
+        : List.filter(\E -> return E.bought;)
     ;
     Ls.sort(\E1, E2 -> return E1.nick < E2.nick;);
 
@@ -316,6 +334,7 @@ mk = async \wg -> {
     TrV = [Q("tr")];
     chs.add(TrV!);
     n1 = Ls.size() - 1;
+
     Ls.eachSync (
       async \i, e -> {
         chart = Q("div");
@@ -345,17 +364,26 @@ mk = async \wg -> {
       }
     );
 
-
     wg
       .removeAll()
-      .add(Q("div")
-        .style("text-align:center")
-        .add(ui.link(\e -> changeShowAll();)
-          .klass("link")
-          .html(showAllV!
-              ? II("Portfolio")
-              : II("All Companies")
-            )))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(menu.mk(
+              [ menu.toption("pf", II("Portfolio"), showPortfolio),
+                menu.separator2(),
+                menu.toption("sel", II("Selected"), showSel),
+                menu.separator2(),
+                menu.toption("all", II("All Companies"), showAll)
+              ],
+              [],
+              showAllV!
+                ? "all"
+                : showSelV!
+                  ? "sel"
+                  : "pf"
+              )))))
       .add(chs)
     ;
   };

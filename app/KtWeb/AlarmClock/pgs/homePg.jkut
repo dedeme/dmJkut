@@ -22,7 +22,7 @@ mk = async \wg -> {
   });
   Alarms.sort(\:alarm a1, :alarm a2 -> return a1.tm < a2.tm;);
 
-  clk = clock.mk();
+  :clock clk = clock.mk();
   butonSpan = Q("span");
   entry = ui.field("_accept")
     .style("width:50px")
@@ -35,7 +35,7 @@ mk = async \wg -> {
     .klass("frame")
     .style("text-align:center")
   ;
-  clk.setFn(\tm -> dclockDiv.text(time.format(tm, "%t")););
+  clk.setFn(\tm -> dclockDiv.text(time.fmt(tm, "%t")););
 
   // Control -------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ mk = async \wg -> {
       return;
     }
 
-    tm = time.now();
+    :time tm = time.now();
     hnow = tm.hour();
     mnow = tm.minute();
 

@@ -65,6 +65,7 @@ mk = async \wg -> {
 wg = Q("div");
 
 /// Load main window
+/// \ -> ()
 load = \ -> {
   mk(wg);
 };

@@ -10,10 +10,10 @@ Q = ui.q;
 II = i18n.tlt;
 
 iwg = Q("div");
-box = modalBox.mk(iwg, false);
+:modalBox box = modalBox.mk(iwg, false);
 
 /// Widget of modal box which should be include in the page which shows messages.
-/// \<domo>
+/// <domo>
 wg = box.mkWg();
 
 /// Shows a text.

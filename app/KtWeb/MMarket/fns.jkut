@@ -28,10 +28,12 @@ rsFmt = \source, n -> return switch (source) {
 
 
 /// Returns a model from its identifier.
+/// \s -> <model>
 getModel = \mdId ->
   return arr.find(global.Models, \:model m -> return m.id == mdId;)!;;
 
-/// Returns a model from its identifier.
+/// Returns 'true' if 'mdId' exists.
+/// \s -> b
 existsModel = \mdId ->
   return arr.any(global.Models, \:model m -> return m.id == mdId;);;
 

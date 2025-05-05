@@ -1,0 +1,80 @@
+// Copyright 29-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Percentages page
+
+import "libdm/lineChart";
+import "cts";
+import "data/profitsEntry";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  // [<profitsEntry>.]
+  , :arr Profits : await client.send({
+    prg: cts.appName,
+    module: "Market",
+    source: "ProfitsPg",
+    rq: "idata"
+  });
+  if (!Profits) {
+    Profits.push(profitsEntry.mk(
+      time.toStr(time.mkDate(1, 1, time.year(time.now()))), 0
+    ));
+  }
+
+  if (Profits.size() == 1) Profits.push(Profits[0]);
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> <domo>
+  caption = \ ->
+    return Q("table")
+      .klass("frame")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:30px")
+          .add(ui.led("#0000A0", 6)))
+        .add(Q("td")
+          .style("vertical-align: middle")
+          .text(II("Investor"))))
+    ;;
+
+  // [s...]
+  Labels = [];
+  // [[[n]|[]...]...]
+  Sets = [[]];
+  for (:profitsEntry e = Profits) {
+    Labels.push(e.date[6:] + "/" + e.date[4:6]);
+    arr.push(Sets[0], [e.profits]);
+  }
+  SetAtts = [lineChart.mkLineExample()];
+  SetAtts[0].color = "#0000A0";
+  Chart = lineChart.mkExample();
+  Chart.exArea.width = 600;
+  Chart.exArea.height = 400;
+  Chart.inPadding = lineChart.mkPadding(25, 25, 30, 100);
+
+  Data = lineChart.mkData(Labels, Sets, SetAtts);
+  lenGroup = math.toInt(Labels.size() / 10) + 1;
+  Data.drawLabel = \l, i -> return i > 0 & i % lenGroup == 0;;
+  Data.drawGrid = \l, i ->
+    return i > 0 & i % lenGroup == 0 & i < Labels.size() - 1;;
+
+  wg
+    .removeAll()
+      .removeAll()
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(caption())))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(lineChart.mkWg(Chart, Data)))))
+  ;
+};

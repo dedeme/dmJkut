@@ -18,8 +18,8 @@ II = i18n.tlt;
 ///   activated: 'true' if addition is activated.
 ///   deactivateAllFn: Function to deactivate all operations.
 ///   updateFn: Diary update. It takes as argument 'ix' and CEntry.
-/// \<domo>, <diaryEntry>, n, b, (\->()), \n,<diaryEntry>->()) ->
-///     {deactivate: \->(), updateAccount: \s->()}
+///   RETURN: {deactivate: \->(), updateAccount: \s->()}
+/// \<domo>, <diaryEntry>, n, b, (\->()), (\n,<diaryEntry>->()) -> <modify>
 mk = \tr, :diaryEntry entry, ix, activated, deactivateAllFn, updateFn -> {
   activatedV = [activated];
 

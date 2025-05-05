@@ -4,6 +4,7 @@
 /// Client to server channel.
 
 /// Actions enumeration
+/// {n.}
 start, stop :;
 
 /// Constructor.

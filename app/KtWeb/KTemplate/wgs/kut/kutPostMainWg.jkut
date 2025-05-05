@@ -20,7 +20,7 @@ mk = \wg, textArea -> {
     import "cts";
     import "pgs/homePg";
 
-    // \ -> s
+    //: \ -> s
     help = \ -> return "-""
       Use {PRG} [help | version | init | <request>]
       where
@@ -44,7 +44,7 @@ mk = \wg, textArea -> {
       "init": db.init();
       "help": sys.println(help());
       default: try {
-        :: Rq = js.r(rq);
+        Rq = js.r(rq);
         sys.print(switch(Rq.source) {
         //  "Home": homePg.process(Rq);
           default: sys.throw("Value of source (" + Rq.source + ") is not valid");
@@ -55,7 +55,7 @@ mk = \wg, textArea -> {
     }
   """;
 
-  now = time.now();
+  :time now = time.now();
   month = now.toDate().toLocaleString("en-US", { month: "short" });
   dateF = ui.field("prgF")
     .att("id", "dateF")
@@ -72,7 +72,7 @@ mk = \wg, textArea -> {
   // \->()
   update = \ -> {
     if (str.trim(dateF.getValue()) == "")
-      dateF.value(now.format("%D-" + month + "-%Y"));
+      dateF.value(now.fmt("%D-" + month + "-%Y"));
     if (str.trim(prgF.getValue()) == "") prgF.value("myPrg");
 
     textArea.text(tx

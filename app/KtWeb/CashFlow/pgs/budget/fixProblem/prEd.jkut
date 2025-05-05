@@ -5,16 +5,16 @@
 
 /// Set active value.
 /// In 'annsEditor' and 'delEditor'.
-/// \<prEd>, b -> ()
+/// \(<annsEditor> | <delEditor>), b -> ()
 active = \ed, value -> ed.active(value);;
 
 /// Deactivate editor.
 /// In 'del', 'modify' and 'newEntry'.
-/// \<prEd> -> ()
+/// \(<delEditor> | <modify> | <newEntry>) -> ()
 deactivate = \ed -> ed.deactivate();;
 
 /// Update account 'acc' with editor data.
 /// In 'annsEditor', 'modify' and 'newEntry'.
-/// \<prEd>, s -> ()
+/// \(<annsEditor> | <modify> | <newEntry>), s -> ()
 updateAccount = \ed, acc -> ed.updateAccount(acc);;
 

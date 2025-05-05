@@ -12,7 +12,7 @@ Q = ui.q;
 ///             has not border.
 ///   back    : A style color like "#6e8296" or "white". If it is [] 'bg'
 ///             has no background.
-/// \n, n, [s]|[], [s]|[] -> <domo>
+/// \n, n, ([s]|[]), ([s]|[]) -> <domo>
 mk = \value, wgRatio, borderOp, backOp -> {
   ratio = wgRatio < 0 ? 0 : wgRatio;
   w = math.toInt(300 * ratio);

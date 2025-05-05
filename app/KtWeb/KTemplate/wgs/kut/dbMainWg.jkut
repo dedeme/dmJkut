@@ -19,7 +19,7 @@ mk = \wg, textArea -> {
     import "cts";
 
     klen = 20;
-    dbStateKeyTb = path.cat([cts.dataPath, "dbStateKey.tb"]);
+    dbStateKeyTb = file.cat([cts.dataPath, "dbStateKey.tb"]);
 
     /// Initializes data base
     /// \ -> ()
@@ -35,7 +35,7 @@ mk = \wg, textArea -> {
     };
 
     /// Returns the state identifier.
-    /// \ -> ();
+    /// \ -> ()
     readKey = \ -> return str.trim(file.read(dbStateKeyTb));;
 
     /// Checks the state identifier 'key' and returns:
@@ -52,7 +52,7 @@ mk = \wg, textArea -> {
     };
   """;
 
-  now = time.now();
+  :time now = time.now();
   month = now.toDate().toLocaleString("en-US", { month: "short" });
   dateF = ui.field("dateF")
     .att("id", "dateF")
@@ -64,7 +64,7 @@ mk = \wg, textArea -> {
   // \->()
   update = \ -> {
     if (str.trim(dateF.getValue()) == "")
-      dateF.value(now.format("%D-" + month + "-%Y"));
+      dateF.value(now.fmt("%D-" + month + "-%Y"));
 
     textArea.text(tx
       .replace("{DATE}", str.trim(dateF.getValue()))

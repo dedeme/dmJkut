@@ -14,9 +14,9 @@ II = i18n.tlt;
 
 /// \<domo> -> ()
 mk = async \wg -> {
-  , :dic Summary  // {{[[f,f,f], [f,f,f], [f,f,f]]...}...}::
-                  // {date -> {model -> [best, worst, medium]}}, where
-                  // best, worst and medium are arrays [assets, profits, points]
+  , :dic Summary  // {{[flea(Js).]}.}::
+                  // {date -> {model -> best}}, where
+                  // best is a JSONized flea.
   : await client.send({
     prg: cts.appName,
     source: "SummaryPg",
@@ -38,7 +38,10 @@ mk = async \wg -> {
         break;
       }
       d = Dates[iV!];
-      tr.add(Q("td").add(mkDay(d, Summary[d])));
+      tr
+        .add(Q("td")
+          .style("vertical-align:top")
+          .add(mkDay(d, Summary[d])));
       Trs.push(tr);
       iV! += 1;
     }
@@ -55,24 +58,15 @@ mk = async \wg -> {
 
 // Makes a date table.
 //    date   : Date in format YYYYMMDD
-//    summary: {model -> [best, worst, medium]} where
-//             best, worst and medium are arrays [assets, profits, points].
-// \s, {[[n,n,n], [n,n,n], [n,n,n]]...} -> <domo>
+//    summary: {model -> best} where
+//             is a JSONized flea.
+// \s, {[flea(JS).]} -> <domo>
 mkDay = \date, :dic Summary -> {
-  BRows = []; // Best rows. [[s, n, n, n]...] :: [[model, assets, profits, points]...]
-  WRows = []; // Worts rows. [[s, n, n, n]...] :: [[model, assets, profits, points]...]
-  ARows = []; // Average rows. [[s, n, n, n]...] :: [[model, assets, profits, points]...]
+  Rows = []; // Best rows. [[s, n, n, n]...] :: [[model, assets, profits, points]...]
 
-  for (mdId, :arr S = Summary) {
-    :arr B = S[0];
-    B.unshift(mdId);
-    BRows.push(B);
-    :arr W = S[1];
-    W.unshift(mdId);
-    WRows.push(W);
-    :arr A = S[2];
-    A.unshift(mdId);
-    ARows.push(A);
+  for (mdId, Fjs = Summary) {
+    :flea fl = flea.fromJs(Fjs);
+    Rows.push([mdId, fl.assets, fl.profits, fl.points, fl.Params, fl.sales]);
   }
 
   return Q("table")
@@ -81,39 +75,29 @@ mkDay = \date, :dic Summary -> {
       .add(Q("td")
         .att("colspan", 4)
         .klass("borderWhite")
-        .style("text-align:center")
+        .style("text-align:center;background:#c9c9c9;")
         .text(time.toIso(time.fromStr(date)!))))
-    .add(Q("tr")
-      .add(Q("td")
-        .att("colspan", 4)
-        .klass("header")
-        .text(II("Best"))))
-    .adds(mkResults(BRows))
-    .add(Q("tr")
-      .add(Q("td")
-        .att("colspan", 4)
-        .klass("header")
-        .text(II("Average"))))
-    .adds(mkResults(ARows))
-    .add(Q("tr")
-      .add(Q("td")
-        .att("colspan", 4)
-        .klass("header")
-        .text(II("Worst"))))
-    .adds(mkResults(WRows))
+    .adds(mkResults(Rows))
   ;
 };
 
 // Makes a results row.
 //    Rs: Array of model identifier and results of assets, profits and points,
-// \[[s, n, n, n]...] -> <domo>
+// \[[s, n, n, n, [n, n], n]...] -> <domo>
 mkResults = \:arr Rs -> {
   Rs.sort(\R1, R2 -> return R1[3] > R2[3];);
   Trs = []; // [<domo>...]
   for (R = Rs) {
     Trs.push(Q("tr")
       .add(Q("td")
-        .klass("borderWhite")
+        .klass("link")
+        .style("text-align:right;background:#fafafa;cursor:pointer")
+        .att(
+            "title",
+            II("Params") + ": [" + R[4] + "]\n" +
+            II("Sales") + " : " + R[5]
+          )
+        .on("click", \ev -> window.location="?rankings&" + R[0];)
         .text(R[0]))
       .add(fns.mkTdN(R[1], 2))
       .add(fns.mkTdN(R[2], 4))

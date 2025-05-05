@@ -1,0 +1,470 @@
+// Copyright 26-Oct-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Management of Ibex companies to operate.
+
+import "libdm/modalBox";
+import "global";
+import "data/ibexCo";
+import "wgs/msg";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+stInpWidth = "110px";
+wInpWidth = "50px";
+
+/// Constructor.
+///   wg: Container.
+/// \<domo> -> ()
+mk = async \wg -> {
+  // s, [<model>.], <investor>
+  dbKey, capital, :arr Cos, :dic Ponds : await client.send({
+    prg: cts.appName,
+    module: "Settings",
+    source: "IbexCosPg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+  Cos.sort(\:ibexCo c1, :ibexCo c2 -> return c1 < c2;);
+
+  b1Divs = []; // [<domo>.]
+  b2Divs = []; // [<domo>.]
+  stDivs = []; // [<domo>.]
+  wDivs = []; // [<domo>.]
+
+  stImp = ui.field("wImp").att("id", "stImp").style("width:" + stInpWidth);
+  wImp = ui.field("stImp").att("id", "wImp").style("width:" + wInpWidth);
+
+  boxWg = Q("div");
+  :modalBox box = modalBox.mk(boxWg, false);
+
+  // Control -------------------------------------------------------------------
+
+  cancelV = [[]]; // [\ -> ()]
+
+  // \ -> ()
+  importFn = \ -> {
+    NewCos = []; // [<ibexCo>.]
+    inpArea = Q("textarea")
+      .att("cols", 50)
+      .att("rows", 40)
+      .att("spellcheck", false)
+    ;
+    modArea = Q("textarea")
+      .att("cols", 40)
+      .att("rows", 10)
+      .att("spellcheck", false)
+      .disabled(true)
+    ;
+    errArea = Q("textarea")
+      .att("cols", 40)
+      .att("rows", 10)
+      .att("spellcheck", false)
+      .disabled(true)
+      .text(II("No data read"))
+    ;
+    modBt = Q("button")
+      .disabled(true)
+    ;
+
+    // \ -> ()
+    cancel = \ -> box.show(false);;
+
+    // \ -> ()
+    read = \ -> {
+      modBt.disabled(true);
+      errArea.text("");
+      modArea.text("");
+      :str tx = str.trim(inpArea.getValue());
+      if (tx == "") {
+        errArea.text(II("No data read"));
+        return;
+      }
+      NewCos.clear();
+      for (i, l = tx.splitTrim("\n")) {
+        if (l == "") continue;
+        :arr Fs = str.splitTrim(l, " ");
+        if (Fs.size() < 3) {
+          errArea.text(i18n.fmt(II("%0:\n  Wrong line"), [l]));
+          return;
+        }
+        pondOp = math.fromStr(Fs.pop());
+        if (!pondOp) {
+          errArea.text(i18n.fmt(II("%0:\n  Wrong ponderation value"), [l]));
+          return;
+        }
+        pond = math.toInt(pondOp!);
+        if (pond < 0) {
+          errArea.text(i18n.fmt(II("%0:\n  Ponderation value < 0"), [l]));
+          return;
+        }
+        if (pond > 100) {
+          errArea.text(i18n.fmt(II("%0:\n  Ponderation value > 100"), [l]));
+          return;
+        }
+        stocksOp = math.fromStr(str.replace(Fs.pop(), ".", ""));
+        if (!stocksOp) {
+          errArea.text(i18n.fmt(II("%0:\n  Wrong stocks number"), [l]));
+          return;
+        }
+        stocks = math.toInt(stocksOp!);
+        if (stocks <= 0) {
+          errArea.text(i18n.fmt(II("%0:\n  Stocks value <Eq 0"), [l]));
+          return;
+        }
+        NewCos.push(ibexCo.mk(Fs[0], false, stocks, pond));
+      }
+
+      for (:ibexCo c = Cos)
+        if (!NewCos.any(\:ibexCo nc -> return c.nick == nc.nick;)) {
+          errArea.text(i18n.fmt(II("Data of %0 is missing."), [c.nick]));
+          return;
+        }
+      ModTx = []; // [s.]
+      for (:ibexCo nc = NewCos) {
+        cOp = Cos.find(\:ibexCo c -> return c.nick == nc.nick;);
+        if (!cOp) {
+          errArea.text(i18n.fmt(II("Unknown new company."), [nc.nick]));
+          return;
+        }
+        :ibexCo c = cOp!;
+        nc.sel = c.sel;
+
+        if (c.stocks != nc.stocks)
+          ModTx.push(c.nick + ": " + c.stocks + " -> " + nc.stocks);
+        if (c.pond != nc.pond)
+          ModTx.push(c.nick + ": " + c.pond + " -> " + nc.pond);
+      }
+      modArea.text(ModTx.join("\n"));
+
+      modBt.disabled(false);
+    };
+
+    // \ -> ()
+    update = async \ -> {
+      await client.send({
+        prg: cts.appName,
+        module: "Settings",
+        source: "IbexCosPg",
+        rq: "updateAll",
+        Cos: NewCos,
+        dbKey: global.dbKeyV!
+      });
+
+      mk(wg);
+    };
+
+    boxWg
+      .removeAll()
+      .add(Q("table")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("div")
+              .klass("head")
+              .text(II("Data"))))
+          .add(Q("td")
+            .add(Q("div")
+              .klass("head")
+              .text(II("Modifications")))))
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align:right")
+            .add(Q("button")
+              .on("click", \ev -> read();)
+              .text(II("Read"))))
+          .add(Q("td")
+            .style("text-align:right")
+            .add(Q("button")
+              .text(II("Cancel"))
+                .on("click", \ev -> cancel();))
+            .add(modBt
+              .text(II("Modify"))
+                .on("click", \ev -> update();))))
+        .add(Q("tr")
+          .add(Q("td")
+            .att("rowspan", 3)
+            .add(inpArea))
+          .add(Q("td")
+            .style("vertical-align:top")
+            .add(modArea)))
+        .add(Q("tr")
+          .add(Q("td")
+            .style("vertical-align:top")
+            .add(Q("div")
+              .klass("head")
+              .text(II("Errors")))))
+        .add(Q("tr")
+          .add(Q("td")
+            .style("vertical-align:top")
+            .add(errArea)))
+      );
+    box.show(true);
+  };
+
+  // \ -> ()
+  list = async \ -> {
+    // [[s,b,n].] :: [[nick, isSelected, weight].]
+    Rp = await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "IbexCosPg",
+      rq: "list"
+    });
+    :arr Cos = Rp.Cos;
+    Cos.sort(\E1, E2 -> return E1[2] > E2[2];);
+
+    boxWg
+      .removeAll()
+      .add(Q("div")
+        .klass("head")
+        .text(II("Weights list")))
+      .add(Q("div")
+        .add(Q("textarea")
+          .att("cols", 18)
+          .att("rows", 20)
+          .att("spellcheck", false)
+          .disabled(true)
+          .text(arr.join(
+              Cos.map(\E -> return
+                (E[1] ? "+" : "-") +
+                ("   " + E[0])[-5:] + ": " +
+                math.toIso(E[2], 4) + "%"
+              ;),
+              "\n"
+            ))))
+      .add(Q("button")
+        .text(II("Close"))
+        .on("click", \ev -> box.show(false);))
+    ;
+    box.show(true);
+  };
+
+  // \n -> ()
+  update = async \i -> {
+    :ibexCo c = Cos[i];
+
+    stocks = str.replace(stImp.getValue(), ".", "");
+    if (!math.isDigits(stocks)) {
+      msg.error(II("Stocks error: wrong integer"), \->{});
+      return;
+    }
+    stocksN = math.fromStr(stocks)!;
+    if (stocksN <= 0) {
+      msg.error(II("Stocks error: value <Eq 0"), \->{});
+      return;
+    }
+    weight = str.replace(wImp.getValue(), ".", "");
+    if (!math.isDigits(weight)) {
+      msg.error(II("Weight error: wrong integer"), \->{});
+      return;
+    }
+    weightN = math.fromStr(weight)!;
+    if (weightN < 0) {
+      msg.error(II("Weight error: value < 0"), \->{});
+      return;
+    }
+    if (weightN > 100) {
+      msg.error(II("Weight error: value > 100"), \->{});
+      return;
+    }
+
+    await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "IbexCosPg",
+      rq: "update",
+      ibexC: ibexCo.mk(c.nick, c.sel, stocksN, weightN),
+      dbKey: global.dbKeyV!
+    });
+
+    mk(wg);
+  };
+
+  // \n -> ()
+  edit = \i -> {
+    for (ix = 0:Cos.size()) {
+      b1Divs[ix]
+        .removeAll()
+        .add(ui.img("blank"))
+      ;
+      b2Divs[ix]
+        .removeAll()
+        .add(ui.img("blank"))
+      ;
+    }
+
+    b1Divs[i]
+      .removeAll()
+      .add(ui.link(\e -> update(i);)
+        .add(ui.img("ok")))
+    ;
+    b2Divs[i]
+      .removeAll()
+      .add(ui.link(\e -> cancelV!();)
+        .add(ui.img("cancel")))
+    ;
+    :ibexCo c = Cos[i];
+    stImp.value(c.stocks);
+    stDivs[i]
+      .removeAll()
+      .add(stImp)
+    ;
+    wImp.value(c.pond);
+    wDivs[i]
+      .removeAll()
+      .add(wImp)
+    ;
+  };
+
+  // \n -> ()
+  select = async \i -> {
+    :ibexCo c = Cos[i];
+    if (c.stocks == 0) {
+      msg.error(II("Error: Stocks number is 0"), \->{});
+      return;
+    }
+
+    await client.send({
+      prg: cts.appName,
+      module: "Settings",
+      source: "IbexCosPg",
+      rq: "select",
+      nick: c.nick,
+      dbKey: global.dbKeyV!
+    });
+
+    mk(wg);
+  };
+
+  // \ -> ()
+  cancelV! = \ -> {
+    for (i, :ibexCo c = Cos) {
+      b1Divs[i]
+        .removeAll()
+        .add(ui.link(\e -> edit(i);)
+          .add(ui.img("edit")))
+      ;
+      b2Divs[i]
+        .removeAll()
+        .add(ui.link(\e -> select(i);)
+          .add(ui.img(!Ponds.get(c.nick) ? "plus" : "minus2")))
+      ;
+      stDivs[i]
+        .removeAll()
+        .text(math.toIso(c.stocks, 0))
+      ;
+      wDivs[i]
+        .removeAll()
+        .text(math.toIso(c.pond, 0))
+      ;
+    }
+  };
+
+  // View ----------------------------------------------------------------------
+
+  for (i, :ibexCo c = Cos) {
+    b1Divs.push(Q("div")
+      .add(ui.link(\e -> edit(i);)
+        .add(ui.img("edit")))
+    );
+    b2Divs.push(!Ponds.get(c.nick)
+      ? Q("div")
+        .add(ui.link(\e -> select(i);)
+          .add(ui.img("plus")))
+      : Q("div")
+        .add(ui.link(\e -> select(i);)
+          .add(ui.img("minus2")))
+    );
+    stDivs.push(Q("div").text(math.toIso(c.stocks, 0)));
+    wDivs.push(Q("div").text(math.toIso(c.pond, 0)));
+  }
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .text(II("Investment") + ": "))
+        .add(Q("td")
+          .klass("border")
+          .text(math.toIso(capital, 2)))))
+    .add(Q("div")
+      .klass("head")
+      .text(" "))
+    .add(Q("div")
+      .style("text-align:center")
+      .add(ui.link(\ev -> importFn();)
+        .klass("link")
+        .text(II("Import")))
+      .add(Q("div")
+        .style("height:5px")))
+    .add(Q("table")
+      .klass("white")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .add(ui.link(\ev -> list();)
+            .add(ui.img("transOn"))))
+        .add(Q("td"))
+        .add(Q("td")
+          .klass("header")
+          .html(II("Nick")))
+        .add(Q("td")
+          .klass("header")
+          .style("width:" + stInpWidth)
+          .html(II("Stocks")))
+        .add(Q("td")
+          .klass("header")
+          .html(II("Weight")))
+        .add(Q("td")
+          .klass("header")
+          .html(" "))
+        .add(Q("td")
+          .klass("header")
+          .html(II("Pond.")))
+        .add(Q("td")
+          .klass("header")
+          .html(II("Amount"))))
+      .adds(\ -> {
+        R = []; // [<domo>.]
+        for (i, :ibexCo c = Cos) {
+          R.push(Q("tr")
+            .add(Q("td")
+              .add(b1Divs[i]))
+            .add(Q("td")
+              .add(b2Divs[i]))
+            .add(Q("td")
+              .klass("border")
+              .text(c.nick))
+            .add(Q("td")
+              .klass("number")
+              .add(stDivs[i]))
+            .add(Q("td")
+              .klass("number")
+              .add(wDivs[i]))
+            .add(Q("td")
+              .klass("border")
+              .text(" "))
+            .add(Q("td")
+              .klass("number")
+              .text(\ -> {
+                  pOp = Ponds.get(c.nick);
+                  return math.toIso(!pOp ? 0 : pOp!, 4);
+                }()))
+            .add(Q("td")
+              .klass("number")
+              .text(\ -> {
+                  pOp = Ponds.get(c.nick);
+                  return math.toIso(!pOp ? 0 : pOp! * capital, 2);
+                }()))
+          );
+        }
+        return R;
+      }())
+      .add(box.mkWg()))
+  ;
+};

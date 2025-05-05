@@ -10,7 +10,7 @@ Q = ui.q;
 II = i18n.tlt;
 
 /// Constructor
-/// \<montAnn>, \->(), \<montAnn> -> () -> <domo>
+/// \<monthAnn>, \->(), \<monthAnn> -> () -> <domo>
 mk = \:monthAnn ann, fclose, faccept -> {
   place = !ann.placeOp ? "" : ann.placeOp!;
   entry = Q("input")
@@ -42,6 +42,8 @@ mk = \:monthAnn ann, fclose, faccept -> {
   });
 
   return Q("table")
+    .att("align", "center")
+    .klass("frame")
     .add(Q("tr")
       .add(Q("td")
         .klass("head")

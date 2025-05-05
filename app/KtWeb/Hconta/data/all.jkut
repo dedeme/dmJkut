@@ -7,13 +7,6 @@ import "cts";
 import "conf";
 import "acc";
 
-/// Constructor
-///   timeStamp: Stamp to controls if client data is updated.
-///   cf: Configuration data.
-///   ac: Accounting data.
-///  \s, <conf>, <acc> -> <all>
-mk = \timeStamp, cf, ac -> return {timeStamp, cf, ac};;
-
 /// Time stamp to controls if client data is updated.
 /// \ -> s
 timeStamp = \ -> return timeStampV!;;
@@ -39,7 +32,8 @@ isLastYear = \ -> return currentYearV! == arr.peek(YearsV!);;
 /// Sends data to server and returns 'true' if data were changed or 'false' if
 /// data were not changed because being out of date.
 /// If data is out of date no change is made.
-/// \ -> <promise>b
+/// Returns promise<b>.
+/// \ -> <promise>
 send = async \ -> {
   , timeStamp : await client.send({
     prg: cts.appName,
@@ -55,7 +49,8 @@ send = async \ -> {
 };
 
 /// Request data from server and return 'true'.
-/// \ -> <promise>b
+/// Returns promise<b>.
+/// \ -> <promise>
 request = async \ -> {
   timeStamp, year, Years, data // s, s, [s.], s
   : await client.send({

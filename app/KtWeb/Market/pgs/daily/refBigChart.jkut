@@ -12,9 +12,9 @@ II = i18n.tlt;
 /// Creates company chart.
 ///   Labels: Chart labels.
 ///   Values: Chart values.
-/// \[s.], [[[f].].], b -> <domo>
+/// \[s.], [[[n].].], b -> <domo>
 mk = \Labels, Values -> {
-  :: Chart = lineChart.mkExample();
+  Chart = lineChart.mkExample();
   Chart.exArea.width = 305;
   Chart.exArea.height = 160;
   Chart.exArea.atts.border.width = 0;
@@ -29,7 +29,7 @@ mk = \Labels, Values -> {
     lineChart.mkLine(1.2, "#404040", false),
     lineChart.mkLine(1.2, "#00aaff", false)
   ];
-  :: Data = lineChart.mkData(Labels, Values, Atts);
+  Data = lineChart.mkData(Labels, Values, Atts);
   Data.drawGrid = \lb, i -> {
     if (i == 0) return false;
     return Labels[i - 1] != lb;

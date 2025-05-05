@@ -1,0 +1,325 @@
+// Copyright 30-Jul-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Quotes check page.
+
+import "libdm/modalBox";
+import "wgs/msg";
+import "cts";
+import "data/tableCheck";
+import "data/co";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  // Cos is [<co>.]. Checks is [<tableCheck>.]
+  dbKey, :arr Cos, :arr Checks : await client.send({
+    prg: cts.appName,
+    module: "Acc",
+    source: "QuotesPg",
+    rq: "idata"
+  });
+  Cos.sort(\:co c1, :co c2 -> return c1.nick < c2.nick;);
+
+  CheckBoxes = []; // [<domo>.]
+  filterV = [true];
+
+  divWait = Q("div");
+  showV = [[]]; //  [(\->())]
+
+  // Control -------------------------------------------------------------------
+
+  // Returns promise<s>
+  //: \s, s -> <promise>
+  readNick = async \dbK, nick -> {
+    , dbKey : await client.send({
+      prg: cts.appName,
+      module: "Acc",
+      source: "QuotesPg",
+      rq: "readNick",
+      dbKey: dbK,
+      nick
+    });
+    return dbKey;
+  };
+
+  //: \s -> ()
+  showWait = \nick -> {
+    divWait.removeAll();
+    :modalBox box = modalBox.mk(
+      Q("div")
+        .add(Q("div")
+          .style("text-align:center")
+          .add(ui.img("wait2.gif").klass("frame")))
+        .add(Q("div").style("text-align:center").html(nick)),
+      false
+    );
+    divWait.add(box.mkWg());
+    box.show(box);
+  };
+
+  //: \s -> ()
+  updateNick = async \nick -> {
+    showWait(nick);
+    await readNick(dbKey, nick);
+    window.location.reload();
+  };
+
+  //: \ -> ()
+  updateSelected = \ -> {
+    dbKeyV = [dbKey];
+    arr.eachSync(
+      CheckBoxes.filter(\ch -> return ch.isChecked();),
+      async \ix, ch -> {
+          nick = ch.getValue();
+          showWait(nick);
+          dbKeyV! = await readNick(dbKeyV!, nick);
+        },
+      \ -> window.location.reload();
+    );
+  };
+
+  //: \ -> ()
+  updateAll = \ -> {
+    dbKeyV = [dbKey];
+    arr.eachSync(
+      CheckBoxes,
+      async \ix, ch -> {
+          nick = ch.getValue();
+          showWait(nick);
+          dbKeyV! = await readNick(dbKeyV!, nick);
+        },
+      \ -> window.location.reload();
+    );
+  };
+
+  //: \<tableCheck> -> ()
+  del = async \tc -> {
+    await client.send({
+      prg: cts.appName,
+      module: "Acc",
+      source: "QuotesPg",
+      rq: "delNick",
+      dbKey,
+      tc
+    });
+    window.location.reload();
+  };
+
+  //: \<tableCheck> -> ()
+  undel = async \tc -> {
+    await client.send({
+      prg: cts.appName,
+      module: "Acc",
+      source: "QuotesPg",
+      rq: "undelNick",
+      dbKey,
+      tc
+    });
+    window.location.reload();
+  };
+
+  //: \<tableCheck> -> ()
+  update = async \tc -> {
+    , ok : await client.send({
+      prg: cts.appName,
+      module: "Acc",
+      source: "QuotesPg",
+      rq: "updateNick",
+      dbKey,
+      tc
+    });
+    if (ok) window.location.reload();
+    else msg.error(cts.failMsg, \ -> {});
+  };
+
+  //: \b -> ()
+  filter = \ok -> {
+    filterV! = ok;
+    showV!();
+  };
+
+  // Return complete name of the field 'f'
+  // \s -> s
+  fieldToStr = \f -> return switch(f) {
+      "o": II("Open");
+      "c": II("CloseN");
+      "x": II("Max.");
+      "n": II("Min.");
+      default: II("Vol.");
+    };;
+
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> [<domo>.]
+  mkNickReadingWg = \ -> {
+    CheckBoxes.clear();
+    R = [];
+    for (:co c = Cos) {
+      ch = Q("input").att("type", "checkbox").value(c.nick);
+      CheckBoxes.push(ch);
+
+      R.push(Q("span").text(" · "));
+      R.push(ch);
+      R.push(ui.link(\e -> updateNick(c.nick);).klass("link").text(c.nick));
+    }
+    return R[1:];
+  };
+
+  // \ -> ()
+  showV! = \ -> {
+    :arr Chks = filterV!
+      ? Checks.filter(\:tableCheck t -> return !t.deleted;)
+      : Checks
+    ;
+    Chks.sort(\:tableCheck t1, :tableCheck t2 -> return
+        t1.nick == t2.nick
+          ? t1.date == t2.date
+            ? t1.field == t2.field
+              ? t1.svId < t2.svId
+              :t1.field < t2.field
+            : t1.date > t2.date
+          : t1.nick < t2.nick
+      ;);
+
+    if (filterV!) {
+      Groups = []; //[[<tableCheck>.].]
+      Gr = []; // [<tableCheck>.]
+      for (:tableCheck c = Chks) {
+        if (Gr.size() == 0 | c.eqQuote(Gr[0])) Gr.push(c);
+        else {
+          Groups.push(Gr.copy());
+          Gr.clear();
+          Gr.push(c);
+        }
+      }
+      if (Gr.size() != 0) Groups.push(Gr);
+      Chks.clear();
+      for (:arr G = Groups) {
+        if (G.size() < 2) continue;
+        :tableCheck c0 = G[0];
+        if (G.size() == 2) {
+          :tableCheck c1 = G[1];
+          if (c1.svValue != c0.svValue) continue;
+        }
+        if (c0.field == tableCheck.v) {
+          val = c0.tbValue;
+          dif = val * 0.05;
+          up = val + dif;
+          down = val - dif;
+          if (G.any(\:tableCheck c -> return c.svValue < up & c.svValue > down;))
+            continue;
+        }
+        for (c = G) Chks.push(c);
+      }
+    }
+
+    wg
+      .removeAll()
+      .add(ui.hrule(II("Reading"), 50))
+      .add(Q("table")
+        .klass("white")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(ui.link(\ev -> return updateAll();)
+              .klass("link")
+              .text(II("All"))))
+          .add(Q("span")
+            .text(" · "))
+          .add(Q("td")
+            .add(ui.link(\ev -> return updateSelected();)
+              .klass("link")
+              .text(II("Selected"))))))
+      .add(Q("div")
+        .klass("separator"))
+      .add(Q("table")
+        .klass("white")
+        .add(Q("tr")
+          .add(Q("td")
+            .adds(mkNickReadingWg()))))
+      .add(ui.hrule(II("Data"), 50))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(Q("input")
+              .att("type", "checkbox")
+              .on("click", \e -> filter(Q(e.target).isChecked());)
+              .checked(filterV!))
+            .add(Q("span")
+              .text(II("filter"))))))
+      .add(Q("table")
+        .klass("white")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("header"))
+          .add(Q("td")
+            .klass("header")
+            .text("Nick"))
+          .add(Q("td")
+            .klass("header")
+            .text("Date"))
+          .add(Q("td")
+            .klass("header")
+            .text("Field"))
+          .add(Q("td")
+            .klass("header")
+            .text("Server"))
+          .add(Q("td")
+            .klass("header")
+            .text(II("Tb Val")))
+          .add(Q("td")
+            .klass("header")
+            .text(II("Sv Val")))
+          .add(Q("td")
+            .klass("header")))
+        .adds(Chks.map(\:tableCheck ch -> return Q("tr")
+            .add(Q("td")
+              .klass("borderWhite")
+              .add(ch.deleted
+                ? ui.img("blank")
+                : ui.link(\ev -> update(ch);)
+                    .klass("link")
+                    .add(ui.img("ok"))))
+            .add(Q("td")
+              .klass("borderWhite")
+              .text(ch.nick))
+            .add(Q("td")
+              .klass("borderWhite")
+              .text(ch.date))
+            .add(Q("td")
+              .klass("borderWhite")
+              .text(fieldToStr(ch.field)))
+            .add(Q("td")
+              .klass("borderWhite")
+              .text(ch.svId))
+            .add(Q("td")
+              .klass("borderWhite")
+              .style("text-align:right")
+              .text(ch.tbValue))
+            .add(Q("td")
+              .klass("borderWhite")
+              .style("text-align:right")
+              .text(ch.svValue))
+            .add(Q("td")
+              .klass("borderWhite")
+              .add(ch.deleted
+                ? ui.link(\ev -> undel(ch);)
+                    .klass("link")
+                    .add(ui.img("reload"))
+                : ui.link(\ev -> del(ch);)
+                    .klass("link")
+                    .add(ui.img("delete"))))
+            ;
+          )))
+      .add(divWait)
+    ;
+  };
+
+  showV!();
+};

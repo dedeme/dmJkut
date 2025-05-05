@@ -76,12 +76,12 @@ mk2 = \wg, Fleas, order -> {
     "1sa":
       arr.sort(Fleas, \:flea f1, :flea f2 -> return f1.sales == f2.sales
         ? flea.greater(f1, f2)
-        : f1.profits > f2.profits
+        : f1.sales > f2.sales
       ;);
     "2sa":
       arr.sort(Fleas, \:flea f1, :flea f2 -> return f1.sales == f2.sales
         ? flea.greater(f1, f2)
-        : f1.profits < f2.profits
+        : f1.sales < f2.sales
       ;);
     default:
       arr.sort(Fleas, flea.greater);

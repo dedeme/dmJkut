@@ -122,7 +122,7 @@ mk = async \wg -> {
       }
       nk = Nks.pop();
       showWaitV!(nk);
-      , result : await client.send({
+      dbKey, result : await client.send({
         prg: cts.appName,
         module: "Settings",
         source: "NickEditorPg", // Reuse of server call
@@ -136,11 +136,12 @@ mk = async \wg -> {
       else if (result == "warnings") withWarningsV! = true;
       download2(Nks);
     };
-    Nicks = arr.filter(
+    :arr Nicks = arr.filter(
       Cos.map(\:co c -> return c.nick;),
-      \nk -> return nk != mainNick!;
+      \nk -> return nk != mainNickV!;
     );
-    Nicks.unshift(mainNick!);
+
+    Nicks.unshift(mainNickV!);
     download2(Nicks.reverse());
   };
 
@@ -305,7 +306,7 @@ mk = async \wg -> {
     msgWait.removeAll();
 
     if (nick != "") {
-      box = modalBox.mk(
+      :modalBox box = modalBox.mk(
         Q("div")
           .add(Q("div")
             .style("text-align:center")

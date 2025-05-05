@@ -20,16 +20,20 @@ mk = \wg, textArea -> {
     /// Constants.
 
     {IMPORT}/// Application name.
+    /// s
     appName = "{NAME}";
     /// Application version.
+    /// s
     version = "{VERSION}";
     {APP_PATH}/// Data version.
+    /// s
     dataVersion = "{DVERSION}";
     /// Data path.
+    /// s
     dataPath = {DATA_PATH};
   """;
 
-  now = time.now();
+  :time now = time.now();
   month = now.toDate().toLocaleString("en-US", { month: "short" });
   dateF = ui.field("nameF")
     .att("id", "dateF")
@@ -68,23 +72,23 @@ mk = \wg, textArea -> {
   // \->()
   update = \ -> {
     if (str.trim(dateF.getValue()) == "")
-      dateF.value(now.format("%D-" + month + "-%Y"));
+      dateF.value(now.fmt("%D-" + month + "-%Y"));
     if (str.trim(nameF.getValue()) == "")
       nameF.value("NAME");
     if (str.trim(versionF.getValue()) == "")
-      versionF.value(now.format("%Y.%M"));
+      versionF.value(now.fmt("%Y.%M"));
     if (str.trim(dversionF.getValue()) == "")
-      dversionF.value(now.format("%Y.%M"));
+      dversionF.value(now.fmt("%Y.%M"));
 
     importTx = ktWebBt.isChecked() ? 'import "KtWeb/global";\n\n': "";
     appPathTx = ktWebBt.isChecked()
       ? "/// Application path.\n" +
-        'appPath = path.cat([global.root, "prgs", appName, "kut"]);\n'
+        'appPath = file.cat([global.root, "prgs", appName, "kut"]);\n'
       : ""
     ;
     dataPathTx = ktWebBt.isChecked()
-      ? 'path.cat([global.cgiRoot, appName])'
-      : 'path.cat([sys.home(), ".dmKutApp", "KutPost", appName])'
+      ? 'file.cat([global.cgiRoot, appName])'
+      : 'file.cat([sys.home(), ".dmKutApp", "KutPost", appName])'
     ;
 
     textArea.text(tx

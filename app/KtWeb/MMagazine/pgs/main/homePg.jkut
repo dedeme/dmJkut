@@ -1,0 +1,145 @@
+// Copyright 26-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Home page.
+
+import "libdm/log";
+import "cts";
+import "data/stRs";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// Constructor.
+/// \<domo> -> ()
+mk = async \wg -> {
+  :stRs invRs, :stRs mdRs, :stRs bestRs
+  : await client.send({
+    prg: cts.appName,
+    module: "Main",
+    source: "HomePg",
+    rq: "idata"
+  });
+
+  logDiv = Q("div");
+
+  // \(\[<logRow>.]->()) -> ()
+  load = async \fn -> {
+    , :arr Log : await client.send({
+      prg: cts.appName,
+      module: "Main",
+      source: "HomePg",
+      rq: "getLog"
+    });
+    fn(Log);
+  };
+
+  // \(\->()) -> ()
+  reset = async \fn -> {
+    await client.send({
+      prg: cts.appName,
+      module: "Main",
+      source: "HomePg",
+      rq: "resetLog"
+    });
+    fn();
+  };
+
+  // \s -> s
+  tlt = \tx -> return switch (tx) {
+    "All log entries will be deleted.\nContinue?":
+      II("All log entries will be deleted.\nContinue?");
+    "2 Days": II("2 Days");
+    "All": II("All");
+    "Reload": II("Reload");
+    "Delete": II("Delete");
+    "Errors": II("Errors");
+    "Log": II("Log");
+    default: tx;
+  };;
+
+  await log.mk(logDiv, load, reset, tlt, true, 100, 25);
+
+  wg
+    .removeAll()
+    .add(Q("div")
+      .klass("head")
+      .text(II("Strategy Results")))
+    .add(Q("div")
+      .klass("separator"))
+    .add(Q("table")
+      .klass("flat")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td"))
+        .add(Q("td")
+          .klass("lhead")
+          .text(II("Model")))
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Params.")))
+        .add(Q("td")
+          .klass("rhead")
+          .text(II("Points"))))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("lframe")
+          .text(II("Investor")))
+        .add(Q("td")
+          .klass("lframe")
+          .text(invRs.model))
+        .add(Q("td")
+          .klass("rframe")
+          .text("[" +
+              arr.join(
+                arr.map(invRs.Params, \p -> return math.toIso(p, 2);),
+                ", "
+              ) +
+              "]"
+            ))
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(invRs.points, 0))))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("lframe")
+          .text(II("Best of Investor Model")))
+        .add(Q("td")
+          .klass("lframe")
+          .text(mdRs.model))
+        .add(Q("td")
+          .klass("rframe")
+          .text("[" +
+              arr.join(
+                arr.map(mdRs.Params, \p -> return math.toIso(p, 2);),
+                ", "
+              ) +
+              "]"
+            ))
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(mdRs.points, 0))))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("lframe")
+          .text(II("Best Strategy")))
+        .add(Q("td")
+          .klass("lframe")
+          .text(bestRs.model))
+        .add(Q("td")
+          .klass("rframe")
+          .text("[" +
+              arr.join(
+                arr.map(bestRs.Params, \p -> return math.toIso(p, 2);),
+                ", "
+              ) +
+              "]"
+            ))
+        .add(Q("td")
+          .klass("rframe")
+          .text(math.toIso(bestRs.points, 0))))
+      )
+    .add(logDiv)
+  ;
+};

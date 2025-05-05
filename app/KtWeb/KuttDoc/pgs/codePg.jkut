@@ -1,0 +1,341 @@
+// Copyright 30-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Code page.
+
+import "i18n";
+import "cts";
+import "pgs/msgPg";
+
+Q = ui.q;
+II = i18n.tlt;
+
+Reserved = str.split(
+  "break catch continue default else false finally for if import " +
+  "return switch throw trace true try while",
+  " "
+);
+
+:arr Lib = str.split(
+  "arr b64 bytes cryp dic file iter js math path regex str sys tcp " +
+  "thread time",
+  " "
+);
+
+// stateVs.
+stCode = 0;
+stLong = stCode + 1; // Long comment
+stQ = stLong + 1; // Quote
+stType = stQ + 1; // Type
+
+/// \<domo>, s, s, s -> ()
+mk = async \wg, pack, path, anchor  -> {
+  prefix = anchor.startsWith("hp::") ? "hp::" : "hp:";
+  leftV = [""];
+  rightV = [""];
+  lineCounterV = [0];
+  charQuotesV = [""];
+  stateV = [stCode];
+
+  // \-> ()
+  newLine = \-> {
+    lineCounterV! += 1;
+    rightV! += "<br>";
+    if (anchor == "hp:" + lineCounterV!)
+      leftV! += "<span id='" + anchor + "'></spam>";
+    leftV! += "<span style='font-family: monospace;font-size: 12px;" +
+      "background-color: rgb(215, 215, 215);color: #998866;'>" +
+      formatN(lineCounterV!) +
+      "</span><br>";
+  };
+
+  // \s -> ()
+  processCode = \l -> {
+    rV = [toHtml(l)];
+
+    for (w = Reserved) {
+      ixV = [str.index(rV!, w)];
+      while (ixV! != -1) {
+        ix1 = ixV!;
+        ix2 = ix1 + w.length;
+        if ((ix1 == 0 | isNotId(rV![ix1 - 1])) &
+            (ix2 == str.len(rV!) | isNotId(rV![ix2]))
+        ) {
+          rV! = rV![:ixV!] + "<span==>" + w +
+            "</span>" + rV![ixV! + w.length:];
+        }
+        ixV! = str.indexFrom(rV!, w, ix2 + 25);
+      }
+    }
+    rV! = str.replace(rV!, "<span==>", "<span class='reserved'>");
+
+    for (w = Lib) {
+      ixV = [str.index(rV!, w)];
+      while (ixV! != -1) {
+        ix1 = ixV!;
+        ix2 = ix1 + w.length;
+        if ((ix1 == 0 | isNotId(rV![ix1 - 1])) &
+            (ix2 == str.len(rV!) | isNotId(rV![ix2]))
+        ) {
+          rV! = rV![:ixV!] + "<span class='package'>" + w +
+            "</span>" + rV![ixV! + w.length:];
+        }
+        ixV! = str.indexFrom(rV!, w, ix2 + 25);
+      }
+    }
+
+    stV = [0];
+    rightV! += arr.reduce(str.split(rV!, ""), "", \seed, ch -> {
+      if (stV! == 0 | stV! == 3) { // -------------------------- start or not id
+        if (isNumber(ch)) {
+          stV! = 1;
+          return seed + "<span class='number'>" + ch;
+        }
+        if (isUpper(ch)) {
+          stV! = 2;
+          return seed + "<span class='container'>" + ch;
+        }
+        if (isNotId(ch)) {
+          stV! = 3;
+          return seed + ch;
+        }
+        stV! = 4;
+        return seed + ch;
+      }
+      if (stV! == 1) { // ---------------------------------------------- Number
+        if (isNumber(ch))
+          return seed + ch;
+        stV! = 4;
+        if (isNotId(ch)) {
+          stV! = 3;
+        }
+        return seed + "</span>" + ch;
+      }
+      if (stV! == 2) { // ------------------------------------------ Class name
+        if (isNotId(ch)) {
+          stV! = 3;
+          return seed + "</span>" + ch;
+        }
+        return seed + ch;
+      } // ------------------------------------------------------------ Letter
+      if (isNotId(ch))
+        stV! = 3;
+      return seed + ch;
+    });
+    if (stV! == 1 | stV! == 2) {
+      rightV! += "</span>";
+    }
+  };
+
+  // \s -> ()
+  processLine = \l -> {
+    if (stateV! == stType) { // ---------------------------------------- stType
+      lTrim = str.trim(l);
+      if (str.starts(lTrim, "//")){
+        rightV! += "<span class='type'>" + toHtml(l) + "</span>";
+        newLine();
+        return;
+      } else {
+        stateV! = stCode;
+        // Continue bellow
+      }
+    }
+
+    if (stateV! == stLong) { // ---------------------------------------- stLong
+      ix = l.indexOf("*/");
+      if (ix != -1) {
+        stateV! = stCode;
+        rightV! += toHtml(l[:ix + 2]) + "</span>";
+        processLine(l[ix + 2:]);
+      } else {
+        rightV! += toHtml(l);
+        newLine();
+      }
+    } else if (stateV! == stQ) { // --------------------------------------- stQ
+      qix = l.indexOf(charQuotesV!);
+      if (qix == -1) {
+        if (str.len(charQuotesV!) == 3) {
+          rightV! += toHtml(l);
+          newLine();
+        } else {
+          rightV! += toHtml(l) + "</span>";
+          newLine();
+          stateV! = stCode;
+        }
+        return;
+      }
+      if (charQuotesV!.length == 3) {
+        stateV! = stCode;
+        rightV! += toHtml(l[:qix + 3]) + "</span>";
+        processLine(l[qix + 3:]);
+      } else {
+        bix = l.indexOf("\\");
+        if (bix != -1 & bix < qix) {
+          rightV! += toHtml(l[:bix + 2]);
+          processLine(l[bix + 2:]);
+        } else {
+          stateV! = stCode;
+          rightV! += toHtml(l[:qix + 1]) + "</span>";
+          processLine(l[qix + 1:]);
+        }
+      }
+    } else { // ------------------------------------------------------- stCode;
+      if (l.trim() == "") {
+        newLine();
+        return;
+      }
+      rV = [0];
+      Pos = [2000];
+      ixV = [l.indexOf("/*")]; // 1
+      if (ixV! != -1) {
+        rV! = 1;
+        Pos! = ixV!;
+      }
+      ixV! = l.indexOf("//"); // 2
+      if (ixV! != -1 & ixV! < Pos!) {
+        rV! = 2;
+        Pos! = ixV!;
+      }
+      ixV! = l.indexOf("\""); // 3
+      if (ixV! != -1 & ixV! < Pos!) {
+        rV! = 3;
+        Pos! = ixV!;
+      }
+      ixV! = l.indexOf("'"); // 4
+      if (ixV! != -1 & ixV! < Pos!) {
+        rV! = 4;
+        Pos! = ixV!;
+      }
+
+      if (rV! == 1) { // /*
+        processCode(l[:Pos!]);
+        l2 = l[Pos! + 2:];
+        if (str.starts(l2, "*")) {
+          rightV! += "<span class='comment'>/*";
+          stateV! = stLong;
+        } else {
+          rightV! += "<span class='comment'>/*";
+          stateV! = stLong;
+        }
+        processLine(l2);
+      } else if (rV! == 2) { // //
+        processCode(l[:Pos!]);
+        l2 = l[Pos! + 2:];
+        if (str.starts(l2, ":")) {
+          rightV! += "<span class='type'>//";
+          stateV! = stType;
+        } else {
+          rightV! += "<span class='comment'>//";
+        }
+        rightV! += toHtml(l2) + "</span>";
+        newLine();
+      } else if (rV! == 3) { // "
+        processCode(l[:Pos!]);
+        stateV! = stQ;
+        l2 = l[Pos! + 1:];
+        if (str.starts(l2, "\"\"")) {
+          charQuotesV! = "\"\"\"";
+          rightV! += "<span class='quote'>\"\"\"";
+          processLine(l2[2:]);
+        } else {
+          charQuotesV! = "\"";
+          rightV! += "<span class='quote'>\"";
+          processLine(l2);
+        }
+      } else if (rV! == 4) { // '
+        processCode(l[:Pos!]);
+        stateV! = stQ;
+        charQuotesV! = "'";
+        rightV! += "<span class='quote'>'";
+        processLine(l[Pos! + 1:]);
+      } else {
+        processCode(l);
+        newLine();
+      }
+    }
+  };
+
+  // \s -> ()
+  process = \code -> {
+    for (l = code.split("\n")) processLine(l);
+  };
+
+  // MAIN code ----------------------------------------------------------------
+
+  // s
+  Mods, codeOp : await client.send({
+    prg: "KuttDoc",
+    source: "CodePg",
+    rq: "code",
+    pack,
+    pth: path
+  });
+
+  if (!codeOp) {
+    msgPg.mk(wg, i18n.fmt(II("[%0] Kutt file not found."), [path]), true);
+    return;
+  }
+
+  Lib.cat(Mods);
+  process(codeOp!);
+
+  barIx = str.lastIndex(path, "/") + 1;
+  Q("@title").text(
+    cts.appName + " - " + path[barIx:] + ".kut"
+  );
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("id", prefix)
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("frame")
+          .add(Q("a")
+            .att("href", "?" + pack + "@" + path)
+            .text(path)))))
+    .add(Q("table")
+      .style("boder:0;width:100%")
+      .att("cellspacing", "0")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("prel")
+          .style("width:10px")
+          .html(leftV!))
+        .add(Q("td")
+          .klass("prer")
+          .html(rightV!))))
+    .adds(iter.map([0:30], \i -> return Q("p").html("&nbsp;");))
+  ;
+
+  tgOp = null(Q("#" + anchor).e);
+  if (!!tgOp) tgOp!.scrollIntoView(true);
+};
+
+// \s -> b
+isNumber = \ch -> return ch >= "0" & ch <= "9";;
+
+// \s -> b
+isUpper = \ch -> return (ch >= "A" & ch <= "Z");;
+
+// \s -> b
+isLetter = \ch -> return (ch >= "a" & ch <= "z") | (ch >= "A" & ch <= "Z");;
+
+// \s -> b
+isNotId  = \ch -> return !isNumber(ch) & !isLetter(ch);;
+
+// \s -> s
+toHtml = \s -> return s
+  .split("&").join("&amp;")
+  .split(" ").join("&nbsp;")
+  .split("<").join("&lt;")
+;;
+
+// \n -> s
+formatN = \n -> {
+  r = "" + n;
+  return iter.reduce(
+    [0: 4 - str.len(r)], r, \seed, i -> return "&nbsp;" + seed;
+  );
+};
+

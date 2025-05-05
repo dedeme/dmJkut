@@ -1,0 +1,88 @@
+// Copyright 16-Apr-2025 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Index page.
+
+import "i18n";
+import "msgPg";
+import "cts";
+import "data/indexTree";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, s -> ()
+mk = async \wg, pack -> {
+  // [<indexTree>]|[]
+  , treeOp : await client.send({
+    prg: "KuttDoc",
+    source: "IndexPg",
+    rq: "index",
+    pack
+  });
+
+  if (!treeOp) {
+    msgPg.mk(wg, II("Library path not found o not valid."), true);
+    return;
+  }
+
+  :indexTree tree = treeOp!;
+  linkPrefix = "?" + pack + "@";
+
+  Q("@title").text(cts.appName + " - " + pack);
+
+  Trs = [];
+  add(Trs, tree.Trees, "", 0, linkPrefix);
+
+  wg
+    .removeAll()
+    .add(Q("div")
+      .klass("frame")
+      .add(Q("table")
+        .klass("main")
+        .adds(Trs)))
+  ;
+};
+
+// [<domo>.], [<indexTree>.], s, i, s -> ()
+add = \:arr Trs, :arr Trees, ppath, space, linkPrefix -> {
+  path = ppath != "" ? ppath + "/" : ppath;
+
+  Trees.sort(\:indexTree t1, :indexTree t2 ->
+    return t1.type == indexTree.kfile
+      ? t2.type == indexTree.kfile
+        ? str.less(str.toUpper(t1.id), str.toUpper(t2.id))
+        : false
+      : t2.type == indexTree.kfile
+        ? true
+        : str.less(str.toUpper(t1.id), str.toUpper(t2.id))
+    ;
+  );
+
+  for (:indexTree t = Trees) {
+    if (t.type == indexTree.kfile) {
+      Trs.push(Q("tr")
+        .add(Q("td")
+          .style('width:10px;padding-left:' + space + 'px')
+          .html(str.fmt(
+              '<a href="%v%v%v">%v</a>',
+              [linkPrefix, path, t.id, t.id]
+            )))
+        .add(Q("td")
+          .style("padding-left:10px")
+          .text(t.doc))
+      );
+    } else {
+      Trs.push(Q("tr")
+        .add(Q("td")
+          .style(
+              'padding-left:' + space + 'px;' +
+              (t.type == indexTree.library ? "color:#600060;" : "")
+            )
+          .html('<b>' + t.id + '</b>'))
+        .add(Q("td"))
+      );
+      add(Trs, t.Trees, path + t.id, space + 20, linkPrefix);
+    }
+  }
+};

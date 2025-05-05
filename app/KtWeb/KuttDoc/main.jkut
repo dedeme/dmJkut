@@ -1,0 +1,123 @@
+// Copyright 15-Apr-2025 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Program starting.
+
+import "libdm/menu";
+import "data/dpath";
+import "data/conf";
+import "pgs/msgPg";
+import "pgs/pathsPg";
+import "pgs/indexPg";
+import "pgs/modulePg";
+import "pgs/codePg";
+import "cts";
+import "global";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+// \<domo> -> ()
+mk = async \wg -> {
+  ok = await client.connect();
+  if (!ok) {
+    ui.alert(II("Session is closed.\nAuthenticating from Main."));
+    window.location.assign("http://" + window.location.host + "/Main");
+    return;
+  }
+
+  // Sessions control is in "KtWeb:Main" !!!
+  , lang : await client.send({
+    prg: "Main", // Call to KtWeb:Main
+    source: "Main",
+    rq: "lang"
+  });
+  if (lang == "en") i18n.en();
+
+  // s, <conf>, [<dpath>.]
+  dbKey, :conf cf, :arr Paths : await client.send({
+    prg: "KuttDoc",
+    source: "MainPg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+  Paths.sort(\:dpath p1, :dpath p2 -> return str.less(p1.id, p2.id););
+
+  :arr Url = ui.url();
+  page = !Url ? cf.path : Url[0];
+
+  :arr Parts = page.split("@");
+  pack = page == "@" ? page : Parts[0];
+  pkPathOp = Parts.size() > 1 & pack != "@" ? [Parts[1]] : [];
+
+  anchorOp = Url.size() > 1 ? [Url[1]] : [];
+
+  Rp = await client.send({
+    prg: "KuttDoc",
+    source: "MainPg",
+    rq: "savePath",
+    dbKey: global.dbKeyV!,
+    npath: !pkPathOp ? pack : pack + "@" + pkPathOp!
+  });
+  global.dbKeyV! = Rp.dbKey;
+
+  Lopts = [menu.ilink("@", "asterisk")];
+
+  for (:dpath p = Paths) {
+    if (p.isValid & p.isShown) {
+      arr.push(Lopts, menu.separator());
+      arr.push(Lopts, menu.tlink(p.id, p.id));
+    }
+  }
+  menuWg = menu.mk(Lopts, [], pack);
+
+  body = Q("div");
+  if (pack == "@") pathsPg.mk(body, cf, Paths);
+  else if (!pkPathOp) indexPg.mk(body, pack);
+  else if (!anchorOp) modulePg.mk(body, pack, pkPathOp!);
+  else codePg.mk(body, pack, pkPathOp!, anchorOp!);
+
+  wg
+    .removeAll()
+    .add(menuWg)
+    .add(body)
+  ;
+};
+
+// Main ========================================================================
+
+wg = Q("div");
+
+/// Load main window
+/// \ -> ()
+load = async \ -> {
+  await mk(wg);
+
+  Fc = ui.qOp("#autofocus");
+  if (!!Fc) Fc!.e.focus();
+};
+
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KtWeb", \isExpired -> {
+  message = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
+  msgWg = Q("div");
+  msgPg.mk(msgWg, message, true);
+  Q("@body")
+    .removeAll()
+    .add(msgWg)
+    .add(cts.foot)
+  ;
+});
+
+Q("@body")
+  .removeAll()
+  .add(wg)
+  .add(cts.foot)
+  .add(ui.upTop("up"))
+;
+
+load();

@@ -9,7 +9,8 @@ Q = ui.q;
 ///   Id: Entry identifier. If the entry is not selectable its value must
 ///       be [].
 ///   wg: Widget to be shown.
-/// \[s]|[], <domo> -> <menuEntry>{[s]|[], <domo>}
+///   RETURN: <menuEntry> is {Id:([s]|[]), wg:<domo>}
+/// \([s]|[]), <domo> -> <menuEntry>
 mkEntry = \Id, wg -> return {Id, wg};;
 
 // Menu constructor.
@@ -19,7 +20,7 @@ mkEntry = \Id, wg -> return {Id, wg};;
 //                  not match any identifier, no one will be selected.
 //   withSeparator: If its value is 'true' a vertical bar separates 'lopts'
 //                  and 'ropts'.
-// \[<menuEntry>...], [<menuEntry...], s, b -> <domo>
+// \[<menuEntry>.], [<menuEntry.], s, b -> <domo>
 mk0 = \Lopts, Ropts, selected, withSeparator -> {
   setId = \o -> {
     if (!!o.Id)
@@ -61,7 +62,7 @@ mk0 = \Lopts, Ropts, selected, withSeparator -> {
 ///   Ropts        : Right options.
 ///   selected     : Identifier of the initial selected option. It it does
 ///                  not match any identifier, no one will be selected.
-/// \[<menuEntry>...], [<menuEntry...], s -> <domo>
+/// \[<menuEntry>.], [<menuEntry>.], s -> <domo>
 mk = \Lopts, Ropts, selected -> return mk0(Lopts, Ropts, selected, false);;
 
 /// Menu constructor with a vertical bar which separates 'Lopts' and 'Ropts'.
@@ -69,7 +70,7 @@ mk = \Lopts, Ropts, selected -> return mk0(Lopts, Ropts, selected, false);;
 ///   Ropts        : Right options.
 ///   selected     : Identifier of the initial selected option. It it does
 ///                  not match any identifier, no one will be selected.
-/// \[<menuEntry>...], [<menuEntry...], s -> <domo>
+/// \[<menuEntry>.], [<menuEntry>.], s -> <domo>
 mkWithSeparator =
   \Lopts, Ropts, selected -> return mk0(Lopts, Ropts, selected, true);;
 

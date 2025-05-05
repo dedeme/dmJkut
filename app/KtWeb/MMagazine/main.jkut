@@ -1,13 +1,12 @@
-// Copyright 26-May-2023 ºDeme
+// Copyright 03-May-2024 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Application entry.
 
-import "data/cts";
+import "cts";
 import "pgs/msgPg";
-import "pgs/cmarket";
-import "pgs/mmarket";
-import "pgs/main/home";
+import "pgs/market";
+import "pgs/main/homePg";
 import "wgs/dmenu";
 import "i18n";
 
@@ -18,27 +17,28 @@ II = i18n.tlt;
 mk = async \wg -> {
   ok = await client.connect();
   if (!ok) {
-    ui.alert(II("KtWeb session is closed.\nAuthenticating from KtWeb:Main."));
+    ui.alert(II("Session is closed.\nAuthenticating from Main."));
     window.location.assign("http://" + window.location.host + "/Main");
     return;
   }
 
-  Rp = await client.send({
+  // Sessions control is in "KtWeb:Main" !!!
+  , lang : await client.send({
     prg: "Main", // Call to KtWeb:Main
     source: "Main",
     rq: "lang"
   });
-  if (Rp.lang == "en") i18n.en();
+  if (lang == "en") i18n.en();
 
   search = window.location.search;
-  LcPath = search == ""
+  :arr LcPath = search == ""
     ? []
     : search[1:].split("&")
   ;
   if (!LcPath) LcPath.push("home");
 
   target = switch (LcPath[0]) {
-      "cmarket", "mmarket": LcPath[0];
+      "market": LcPath[0];
       default: "home";
     };
   arr.shift(LcPath);
@@ -48,9 +48,8 @@ mk = async \wg -> {
   menu = dmenu.mk(menuDiv, target);
 
   switch (target) {
-    "cmarket": cmarket.process(bodyDiv, menu, LcPath);
-    "mmarket": mmarket.process(bodyDiv, menu, LcPath);
-    default: home.mk(bodyDiv);
+    "market": market.process(bodyDiv, menu, LcPath);
+    default: homePg.mk(bodyDiv);
   }
 
   wg
@@ -65,13 +64,19 @@ mk = async \wg -> {
 wg = Q("div");
 
 /// Load main window
+/// \ -> ()
 load = \ -> {
   mk(wg);
 };
 
-client.init(true, "KtWeb", \ -> {
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KtWeb", \isExpired -> {
+  message = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
   msgWg = Q("div");
-  msgPg.mk(msgWg, II("Session is expired."), true);
+  msgPg.mk(msgWg, message, true);
   Q("@body")
     .removeAll()
     .add(msgWg)

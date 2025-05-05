@@ -21,8 +21,9 @@ II = i18n.tlt;
 ///   activated: 'true' if addition is activated.
 ///   deactivateAllFn: Function to deactivate all operations.
 ///   updateFn: Diary update. It takes as argument 'ix' and CEntry.
-/// \<domo>, <cashEntry>, <diaryEntry>, n, b, (\->()), \n,<diaryEntry>->()) ->
-///     {deactivate: \->(), updateAccount: \s->()}
+///   RETURN: {deactivate: \->(), updateAccount: \s->()}
+/// \<domo>, <cashEntry>, <diaryEntry>, n, b, (\->()), (\n,<diaryEntry>->()) ->
+///-  <newEntry>
 mk = \tr, :cashEntry hcEntry, :diaryEntry entry, ix, activated,
         deactivateAllFn, updateFn -> {
   activatedV = [activated];

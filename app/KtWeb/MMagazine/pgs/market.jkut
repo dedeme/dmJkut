@@ -1,0 +1,36 @@
+// Copyright 03-May-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// ktmarket hub.
+
+import "libdm/menu";
+import "wgs/dmenu";
+import "market/profitsPg";
+import "market/percentsPg";
+import "i18n";
+
+II = i18n.tlt;
+
+/// Constructor
+///   wg    : Container.
+///   dbmenu : Double menu.
+///   LcPath: Location path.
+/// \<domo>, <dmenu>, [s.] -> ()
+process = \wg, dbmenu, LcPath -> {
+  if (!LcPath) arr.push(LcPath, "profits");
+
+  lopts = [
+    dmenu.mkHiddenButton(dbmenu),
+    menu.separator2(),
+    menu.tlink("market&profits", II("Profits")),
+    menu.separator(),
+    menu.tlink("market&percents", II("Percentages"))
+  ];
+  menuWg = menu.mk(lopts, [], "market&" + LcPath[0]);
+  dmenu.setDownMenu(dbmenu, menuWg);
+
+  switch (LcPath[0]) {
+    "percents": percentsPg.mk(wg);
+    default: profitsPg.mk(wg);
+  }
+};

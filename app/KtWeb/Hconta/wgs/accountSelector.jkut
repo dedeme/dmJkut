@@ -18,7 +18,7 @@ II = i18n.tlt;
 ///            is selected.
 ///   forCash: If it is 'true', only searh in accounts used with the main cash
 ///            (Caixabank).
-/// \s, \s, b ->(), b -> {<domo>} :: {"wg" -> widget}
+/// \s, \s, b ->(), b -> {wg:<domo>}
 mk = \ac, fn, forCash -> {
   planDiv = Q("div");
   acV = [ac];
@@ -70,7 +70,7 @@ mk = \ac, fn, forCash -> {
     .add(Q("li")
       .add(Q("hr")))
     .adds(\ -> {
-      Subs = arr.filter(
+      :arr Subs = arr.filter(
         dic.toArr(acc.sub(acV!)),
         \Kv -> return Kv[0] != cts.cash | !forCash;
       );

@@ -522,10 +522,10 @@ mk = \wg, account, ix -> {
                 all.isLastYear()
                   ? ui.link(\e -> modifyClick(lix);)
                     .klass("link")
-                    .html(time.format(e.date, "%D/%M"))
+                    .html(time.fmt(e.date, "%D/%M"))
                   : Q("span")
                     .style("color:#800000;")
-                    .html(time.format(e.date, "%D/%M"))))
+                    .html(time.fmt(e.date, "%D/%M"))))
               .add(tdl().add(desc))
               .add(tdr().html(math.toIso(
                   arr.reduce(

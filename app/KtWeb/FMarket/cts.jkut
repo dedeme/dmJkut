@@ -6,10 +6,13 @@
 Q = ui.q;
 
 /// Application name.
+/// s
 appName = "FMarket";
 /// Application version.
+/// s
 version = "202207";
 /// Page foot.
+/// <domo>
 foot = Q("table")
   .klass("main")
   .add(Q("tr")
@@ -22,17 +25,22 @@ foot = Q("table")
 ;
 
 /// Investors initial capital for each cycle
+/// n
 initialCapital = 250000.0;
 
 /// Assets ratio for evaluation.
+/// n
 assetsRatio = 0.6;
 
 /// Profits ratio for evaluation.
+/// n
 profitsAvgRatio = 1.0 - assetsRatio;
 
 /// Maximum ratio for profits evaluation. (1€ generates 3€)
+/// n
 maxProfitsAvgRatio = 3.0;
 
 /// Maximum assets to calculate evaluation ratio. (IC € generate IC*MPAR €)
+/// n
 maxAssets = initialCapital * maxProfitsAvgRatio;
 

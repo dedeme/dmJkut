@@ -119,6 +119,7 @@ Q("@body")
 ;
 
 /// Load main window
+/// \ -> ()
 load = async \ -> {
   await mk(wg);
 

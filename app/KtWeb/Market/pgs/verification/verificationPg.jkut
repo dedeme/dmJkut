@@ -125,7 +125,7 @@ mk2 = async \wg, date -> {
   );
 
   // [[s, s, s, s].]
-  StocksStocksS = StocksStocks.map(\E -> return [
+  :arr StocksStocksS = StocksStocks.map(\E -> return [
       E[0], // nick
       math.toIso(E[1], 0), // stocks
       math.toIso(E[2], 4), // price
@@ -175,7 +175,7 @@ mkCash = \div, market, hconta -> {
         .add(Q("td")
           .klass("border")
           .style("width:100px;text-align:right")
-          .text("CMarket"))
+          .text("Market"))
         .add(Q("td")
           .klass("border")
           .style("width:100px;text-align:right")
@@ -244,7 +244,7 @@ mkStocks = \div, :arr MarketStocks, :arr StocksStocks, stocksSum, hcontaSum -> {
     if (d == "") {
       mk(wgV!);
     } else {
-      y = time.format(time.now(), "%Y");
+      y = time.fmt(time.now(), "%Y");
       if (d[:4] != y) {
         ui.alert(i18n.fmt(II("Date '%0' out of year %1"), [d, y]));
         mk(wgV!);
@@ -289,7 +289,7 @@ mkStocks = \div, :arr MarketStocks, :arr StocksStocks, stocksSum, hcontaSum -> {
           .klass("border")
           .att("colspan", "2")
           .style("text-align:center")
-          .text("CMarket"))
+          .text("Market"))
 
         .add(Q("td"))
 

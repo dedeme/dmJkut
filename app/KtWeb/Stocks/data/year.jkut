@@ -197,7 +197,7 @@ anns = \y -> return y[As];;
 ///   oldAnnOp: Old annotation if the operation is modify, or '[]' if operation
 ///             is add.
 ///   newAnn  : New annotation.
-/// \<year>, [<ann>]|[], <ann> -> ()
+/// \<year>, ([<ann>]|[]), <ann> -> ()
 add = \y, oldAnnOp, :ann newAnn -> {
   if (!oldAnnOp) {
     newAnn.setId(y[nxId]);
@@ -214,7 +214,7 @@ add = \y, oldAnnOp, :ann newAnn -> {
 };
 
 /// Remove the annotation with identifier 'annId'.
-/// \<year>, n -> ();
+/// \<year>, n -> ()
 remove = \y, annId -> {
   arr.filterIn(y[As], \:ann a -> return a.id != annId;);
 };
@@ -222,7 +222,7 @@ remove = \y, annId -> {
 /// Returns a yearly report.
 ///   Year: Year to report.
 ///   type: 'cts.withFees' or 'cts.withoutFees'.
-/// \<year>,n -> [<report>|s, b] Result
+/// \<year>,n -> [(<report>|s), b]
 getReport = \y, type -> {
   Reports, ok = y[RpsRs];
   if (!ok) return [Reports, false];
@@ -231,7 +231,7 @@ getReport = \y, type -> {
 
 /// Makes a treasury report.
 ///   y: Year to report.
-/// \<year> -> {f, [<rann>.]} :: {summary, Entries}
+/// \<year> -> {summary:n, Entries:[<rann>.]}
 treasury = \y -> {
     TRep = {}; // {<rann>.}
 
@@ -271,13 +271,13 @@ treasury = \y -> {
     return {summary: summaryV!, Entries};
 };
 
-/// \<year> -> JS
+/// \<year> -> [*.]
 toJs = \y -> return [
     y[nxId],
     arr.map(y[As], ann.toJs)
   ];;
 
-/// \JS -> <year>
+/// \[*.] -> <year>
 fromJs = \A -> return mk(
     A[0],
     arr.map(A[1], ann.fromJs)

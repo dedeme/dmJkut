@@ -30,7 +30,7 @@ mk = \wg -> {
   :model md = mdV!;
 
   showV = [[]];
-  cavgRd = Q("input")
+  avgRd = Q("input")
     .att("type", "radio")
     .att("name", "period")
     .checked(true)
@@ -42,7 +42,7 @@ mk = \wg -> {
     .checked(false)
     .on("change", \e -> showV!();)
   ;
-  avgRd = Q("input")
+  cavgRd = Q("input")
     .att("type", "radio")
     .att("name", "period")
     .checked(false)
@@ -146,6 +146,7 @@ mk = \wg -> {
                   fns.pfmt(md.id, i) + "\n" + fns.rsFmt(vsource, Vals[i])
                 )
               .style(
+                  "padding:0px;" +
                   "background:" + color(Vals[i]) +
                   ";width:100px;height:5px;" +
                   "cursor:pointer"
@@ -165,6 +166,7 @@ mk = \wg -> {
                   fns.pfmt(md.id, i) + "\n" + fns.rsFmt(vsource, Vals[i])
                 )
               .style(
+                  "padding:0px;" +
                   "background:" + color(Vals[i]) +
                   ";width:5px;height:5px;" +
                   "cursor:pointer"
@@ -226,9 +228,9 @@ mk = \wg -> {
           .style("align:left")
           .add(Q("table")
             .add(Q("tr")
-              .add(mkOpt(cavgRd, II("Corrected<br>Average")))
-              .add(mkOpt(lastRd, II("Last<br>Value")))
               .add(mkOpt(avgRd, II("Average")))
+              .add(mkOpt(lastRd, II("Last<br>Value")))
+              .add(mkOpt(cavgRd, II("Corrected<br>Average")))
             )))
          .add(Q("td"))
          .add(Q("td")

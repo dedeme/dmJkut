@@ -1,0 +1,145 @@
+// Copyright 27-Sep-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Songs page.
+
+import "cts";
+import "global";
+import "data/pict";
+import "data/song";
+import "wgs/clocksWg";
+import "wgs/infoWg";
+import "wgs/pictTimeWg";
+import "media";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, (\->()) -> ()
+mk = async \wg, reload -> {
+  dbKey, group, :pict picture, radioName, radioUrl // s,s,<pict>,s,s
+  : await client.send({
+    prg: cts.appName,
+    source: "RadioPg",
+    rq: "idata"
+  });
+  global.dbKeyV! = dbKey;
+
+  groupV = [group];
+  pictV = [picture];
+
+
+  pictTm = timer.mk(media.picturesTime);
+
+  Visuals = media.visuals();
+
+  img = Visuals.img
+    .att("src", "img/fondosEscritorio/" + group + "/" + picture.id)
+  ;
+
+  Clocks = clocksWg.mk(Visuals.tm);
+
+  audio = new Audio();
+  audio.src = radioUrl;
+  audio.controls = true;
+  audio.volume = media.volume;
+  audio.autoplay = true;
+
+
+  InfoPicture = infoWg.mk(-485, infoWg.pictureWg(group, picture));
+  InfoSong = infoWg.mk(
+    -480,
+    infoWg.songWg("Radio", song.mk(0, 0, radioName, 0), audio)
+  );
+  PictTime = pictTimeWg.mk(-480);
+
+  goBackCallsV = [0];
+
+  // Control -------------------------------------------------------------------
+
+  // \<event> -> ()
+  goBack = \e -> {
+    if (goBackCallsV! > 0) {
+      reload();
+      return;
+    }
+
+    timer.stop(pictTm);
+    goBackCallsV! += 1;
+    media.fadeOut(false, audio, media.fadeOutSongEnd);
+    timer.delay(math.toInt(media.fadeOutSongEnd), reload);
+  };
+
+  // \<KeyboardEvent> -> ()
+  keyDown = \ev -> {
+    if (ev.key == "ArrowUp") {
+      goBack(ev);
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowDown") {
+      InfoPicture.changeOpacity();
+      InfoSong.changeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowLeft") {
+      Clocks.clockChangeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key == "ArrowRight") {
+      Clocks.chronChangeOpacity();
+      ev.preventDefault();
+      return;
+    }
+
+    if (ev.key >= "1" & ev.key <= "6") {
+      PictTime.show(math.fromStr(ev.key)!);
+      ev.preventDefault();
+      return;
+    }
+  };
+
+  // View ----------------------------------------------------------------------
+
+  div = Visuals.div
+    .setStyle(
+      "background-image",
+      "url('img/fondosEscritorio/" + group + "/" + picture.id + "')"
+    )
+    .add(InfoPicture.wg)
+    .add(InfoSong.wg)
+    .add(PictTime.wg)
+    .on("click", goBack)
+  ;
+
+  Q("@body")
+    .on("keydown", keyDown);
+
+  wg
+    .removeAll()
+    .add(div)
+  ;
+
+  div.e.requestFullscreen();
+  timer.run (pictTm, async \ -> {
+    dbKey, group, :pict picture // s,s,<pict>
+    : await client.send({
+      prg: cts.appName,
+      source: "RadioPg",
+      rq: "pictData"
+    });
+    global.dbKeyV! = dbKey;
+    if (group != groupV! | picture.id != pictV![pict.id]) {
+      groupV! = group;
+      pictV! = picture;
+      media.changePict(div, img, InfoPicture, group, picture);
+    }
+  });
+};
+

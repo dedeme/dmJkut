@@ -13,13 +13,13 @@ evalStepsV = [0];
 /// [n]
 minSalesV = [0];
 /// Simulation bases.
-/// {[f.]}::{mdId:[val.]
+/// {mdId:[n.]}
 ParamBases = {};
 /// Simulation base increments.
-/// {[f.]}::{mdId:[val.]
+/// {mdId:[n.]}
 ParamBaseIncs = {};
 /// Simulation environment increments.
-/// {[f.]}::{mdId:[val.]
+/// {mdId:[n.]}
 ParamEnvIncs = {};
 /// Model list.
 /// [<model>]

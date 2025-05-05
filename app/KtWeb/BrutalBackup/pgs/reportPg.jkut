@@ -24,7 +24,7 @@ mk = async \wg, box -> {
     rq: "idata"
   });
 
-  tm = timer.mk(1000);
+  :timer tm = timer.mk(1000);
   stopBtDiv = Q("div");
   reportDiv = Q("div");
   warea = Q("textarea")

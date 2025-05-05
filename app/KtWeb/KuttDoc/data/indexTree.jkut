@@ -1,0 +1,16 @@
+// Copyright 16-Apr-2025 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Files tree.
+
+/// n
+kfile, directory, library =;
+
+/// Constructor.
+///   type : One of kfile, directory or library.
+///   id   : Index entry identifier.
+///   doc  : Documentation, if the entry is a file path.
+///          Otherwise its value is "".
+///   Trees: If 'type' is directory, entries of directory.
+/// \n, s,s,[<indexTree>.] -> <indexTree>
+mk : type, id, doc, Trees;

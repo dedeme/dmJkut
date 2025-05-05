@@ -1,0 +1,177 @@
+// Copyright 15-Apr-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Ibex page.
+
+import "libdm/modalBox";
+import "cts";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+msgWait = Q("div");
+
+/// Constructor
+/// \<domo> -> ()
+mk = async \wg -> {
+  body = Q("div");
+
+  wg
+    .removeAll()
+    .add(body)
+    .add(msgWait)
+  ;
+
+  :modalBox box = modalBox.mk(
+    Q("div")
+      .add(Q("div")
+        .style("text-align:center")
+        .add(ui.img("wait2.gif").klass("frame"))),
+    false
+  );
+  msgWait
+    .removeAll()
+    .add(box.mkWg());
+  box.show(true);
+
+  // [[s, s, f, f].] :: [[nick, date, TeoricResult, RealResult],
+  // [s.]
+  :arr Operations, :arr Errors : await client.send({
+    prg: cts.appName,
+    module: "Acc",
+    source: "ExecutionPg",
+    rq: "idata"
+  });
+
+  capital, profits = Operations.reduce(
+      [0, 0],
+      \r, o -> return [r[0] + Math.abs(o[2]), r[1] + o[3] - o[2]];
+    );
+
+  if (!!Errors) {
+    body
+      .add(Q("div")
+        .klass("head")
+        .text(II("Errors")))
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .klass("frame")
+            .style("text-align: left")
+            .html(Errors.join("<br>")))))
+    ;
+  }
+
+  body
+    .add(Q("div")
+      .klass("head")
+      .text(II("Summary")))
+    .add(Q("table")
+      .klass("border")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("header")
+          .style("text-align:right")
+          .text(II("Capital")))
+        .add(Q("td")
+          .klass("header")
+          .style("text-align:right")
+          .text(II("Profits")))
+        .add(Q("td")
+          .klass("header")
+          .style("text-align:right")
+          .text("%")))
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("number")
+          .text(math.toIso(capital, 0)))
+        .add(Q("td")
+          .klass("number2")
+          .text(math.toIso(profits, 2)))
+        .add(Q("td")
+          .klass("number2")
+          .text(math.toIso(profits * 100 / capital, 2)))))
+   ;
+
+  body
+    .add(Q("div")
+      .klass("head")
+      .text(II("Operations")))
+    .add(Q("table")
+      .klass("border")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .klass("header")
+          .text(II("B / S")))
+        .add(Q("td")
+          .klass("header")
+          .text(II("Date")))
+        .add(Q("td")
+          .klass("header")
+          .style("text-align:left")
+          .text("Nick"))
+        .add(Q("td")
+          .klass("header")
+          .style("text-align:rigth")
+          .text(II("Teoric")))
+        .add(Q("td")
+          .klass("header")
+          .style("text-align:rigth")
+          .text(II("Real")))
+        .add(Q("td")
+          .klass("header")
+          .style("text-align:rigth")
+          .text(II("Dif.")))
+        .add(Q("td")
+          .klass("header")
+          .style("text-align:rigth")
+          .text(II("Dif. %"))))
+      .adds(
+          Operations.map(\o -> {
+            t = o[2];
+            r = o[3];
+            dif = r - t;
+            difPer = dif * 100 / Math.abs(t);
+            return Q("tr")
+              .add(Q("td")
+                  .klass("borderWhite")
+                  .style("text-align: center")
+                  .text(t < 0
+                      ? II("(B)uy")
+                      : II("(S)ale")
+                    ))
+              .add(Q("td")
+                  .klass("borderWhite")
+                  .text(time.toIso(time.fromStr(o[1])!)))
+              .add(Q("td")
+                  .klass("borderWhite")
+                  .style("text-align:left")
+                  .text(o[0]))
+              .add(Q("td")
+                  .klass("borderWhite")
+                  .style("text-align:right")
+                  .text(math.toIso(t, 0)))
+              .add(Q("td")
+                  .klass("borderWhite")
+                  .style("text-align:right")
+                  .text(math.toIso(r, 0)))
+              .add(Q("td")
+                  .klass("borderWhite")
+                  .style("text-align:right")
+                  .text(math.toIso(dif, 2)))
+              .add(Q("td")
+                  .klass("borderWhite")
+                  .style("text-align:right")
+                  .text(math.toIso(difPer, 2)))
+              ;
+          })
+        ))
+   ;
+
+  box.show(false);
+
+};

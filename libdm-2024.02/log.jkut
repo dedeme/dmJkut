@@ -78,8 +78,8 @@ Q = ui.q;
 ///   minified   : if it is 'true', shows the widget minified.
 ///   lineWidth  : Sets the line width in characters. Good value 120.
 ///   linesNumber: Sets the lines number of widget. Good value 25.
-/// \<domo>, \(\[<logRow>...] -> ()) -> (), \(\->()) -> (), \s -> s,
-///   b, n, n -> ()
+/// \<domo>, (\(\[<logRow>.] -> ()) -> ()), (\(\->()) -> ()), \s -> s,
+///-  b, n, n -> ()
 mk = async \wg, load, reset, tlt, minified, lineWidth, linesNumber -> {
   Rows = [];
   await load(\:arr Rs -> Rs.each(\LgRow -> Rows.push(LgRow);););

@@ -8,10 +8,10 @@
 ///   description:  Description of operation.
 ///   debits: Dictionary {DebitsCounts: values (currency)}.
 ///   credits: Dictionary {CreditsCounts: values (currency)}.
-/// \n,s,{f.},{f.} -> <diaryEntry>
+/// \n,s,{n.},{n.} -> <diaryEntry>
 mk : date, description, debits, credits;
 
-/// \<myType> -> JS
+/// \<myType> -> [*.]
 toJs = \o -> return [
     time.toStr(o[date]),
     o[description],
@@ -19,7 +19,7 @@ toJs = \o -> return [
     o[credits]
   ];;
 
-/// \JS -> <myType>
+/// \[*.] -> <myType>
 fromJs = \A -> return [
     time.fromStr(A[date])!,
     A[description],

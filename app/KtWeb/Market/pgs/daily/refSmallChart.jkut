@@ -13,8 +13,8 @@ II = i18n.tlt;
 ///   Labels: Chart labels.
 ///   Values: Chart values.
 ///   inPortfolio: 'true' if company is in portfolio.
-/// \[s.], [[[f].].], b -> <domo>
-mk = \Labels, Values, inPortfolio -> {
+/// \[s.], [[[n].].], b -> <domo>
+mk = \Labels, Values, inPortfolio, isRebuy -> {
   q = arr.peek(Values[0])!;
   back = q < 0
     ? inPortfolio
@@ -22,9 +22,14 @@ mk = \Labels, Values, inPortfolio -> {
       : "#fff0f0"
     : "#f5f5f5"
   ;
-  line = inPortfolio ? "#ff8100" : "#00aaff";
+  line = inPortfolio
+    ? "#ff8100"
+    : isRebuy
+      ? "aaaaaa"
+      : "#00aaff"
+  ;
 
-  :: Chart = lineChart.mkExample();
+  Chart = lineChart.mkExample();
   Chart.exArea.width = 140;
   Chart.exArea.height = 70;
   Chart.exArea.atts.border.width = 0;
@@ -41,7 +46,7 @@ mk = \Labels, Values, inPortfolio -> {
   Atts = [
     lineChart.mkLine(1.2, line, false)
   ];
-  :: Data = lineChart.mkData(Labels, Values, Atts);
+  Data = lineChart.mkData(Labels, Values, Atts);
   Data.drawGrid = \lb, i -> {
     if (i == 0) return false;
     if (i == 1) return true;

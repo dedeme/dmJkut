@@ -6,10 +6,13 @@
 Q = ui.q;
 
 /// Application name.
+/// s
 appName = "Hconta";
 /// Application version.
+/// s
 version = "202404";
 /// Page foot.
+/// <domo>
 foot = Q("table")
   .klass("main")
   .add(Q("tr")
@@ -22,15 +25,21 @@ foot = Q("table")
 ;
 
 /// Cash count
+/// s
 cash = "57200";
 /// Capital count
+/// s
 capital = "10200";
 /// Results count
+/// s
 results = "12000";
 
 /// Maximun table length.
+/// n
 tableLen = 20;
 /// Number of entries for most used accounts.
+/// n
 mostUsedLen = 20;
 /// Length of left help entries.
+/// n
 helpLen = 35;

@@ -1,0 +1,207 @@
+// Copyright 26-May-2023 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Percentages page
+
+import "libdm/lineChart";
+import "cts";
+import "data/profitsEntry";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo> -> ()
+mk = async \wg -> {
+  // n,[<profitsEntry>], [[s, n].]::[[date, value].]
+  // Profits and Ibes have the same number of elements.
+  initialAssets, :arr Profits, :arr Ibex
+  : await client.send({
+    prg: cts.appName,
+    module: "Market",
+    source: "PercentsPg",
+    rq: "idata"
+  });
+
+  pfColor = "#000000";
+  ibexColor = "#800000";
+
+  if (!Profits) {
+    Profits.push(profitsEntry.mk(
+      time.toStr(time.mkDate(31, 12, time.year(time.now()) - 1)), [0, 0, 0]
+    ));
+    Ibex.push(["000000", 0]);
+  }
+  if (Profits.size() == 1) {
+    Profits.push(Profits[0]);
+    Ibex.push(Ibex[0]);
+  }
+
+  :arr Ibexdts = Ibex.map(\E -> return E[0];);
+  base = Ibex[0][1];
+  :arr Ibexrts = Ibex.map(\E -> return (E[1] - base) / base;);
+
+  // View ----------------------------------------------------------------------
+
+  // \ -> ()
+  badData = \ ->
+    wg
+      .removeAll()
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", 2)
+            .klass("frame")
+            .text(II("Dates of profits and ibex does not match"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align: center;width:50%")
+            .klass("border")
+            .text(II("Profits")))
+          .add(Q("td")
+            .style("text-align: center")
+            .klass("border")
+            .text(II("Ibex"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align:center; vertical-align:top")
+            .html("<tt>" +
+                arr.join(Profits.map(\:profitsEntry p -> return p.date;), "<br>") +
+                "<tt>"
+              ))
+          .add(Q("td")
+            .style("text-align:center; vertical-align:top")
+            .html("<tt>" +
+                arr.join(Ibexdts, "<br>") +
+                "<tt>"
+              ))))
+  ;;
+
+  // \ -> <domo>
+  caption = \ ->
+    return Q("table")
+      .klass("frame")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:30px")
+          .add(ui.led(ibexColor, 6)))
+        .add(Q("td")
+          .style("vertical-align: middle;text-align:left;")
+          .text("ibex")))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:30px")
+          .add(ui.led(pfColor, 6)))
+        .add(Q("td")
+          .style("vertical-align: middle;text-align:left;")
+          .text(II("Investor"))))
+  ;;
+
+  // \ -> <domo>
+  caption2 = \ ->
+    return Q("table")
+      .klass("frame")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:30px")
+          .add(ui.led(pfColor, 6)))
+        .add(Q("td")
+          .style("vertical-align: middle;text-align:left;")
+          .text(II("Investors - Ibex"))))
+  ;;
+
+  if (Profits.map(\:profitsEntry p -> return p.date;) != Ibexdts) {
+    badData();
+    return;
+  }
+
+  // [[[n]|[]...]...]
+  Sets = [];
+  // [[n]|[].]
+  Difs = [];
+  // [s...]
+  Labels = [];
+  initialPfs = Profits[0][profitsEntry.profits];
+  for (:profitsEntry e = Profits) {
+    Labels.push(e.date[6:] + "/" + e.date[4:6]);
+    pfs = e.profits;
+    dif = (pfs - initialPfs) * 100 / initialAssets;
+    Difs.push([dif]);
+  }
+  Sets.push(Ibexrts.map(\v -> return [v * 100];));
+  Sets.push(Difs);
+
+  //[<line>...]
+  SetAtts = [];
+  IbexAtts = lineChart.mkLineExample();
+  IbexAtts.color = ibexColor;
+  IbexAtts.width = 3;
+  SetAtts.push(IbexAtts);
+  PfAtts = lineChart.mkLineExample();
+  PfAtts.color = pfColor;
+  PfAtts.width = 3;
+  SetAtts.push(PfAtts);
+
+  Data = lineChart.mkData(Labels, Sets, SetAtts);
+  lenGroup = math.toInt(arr.size(Labels) / 10) + 1;
+  Data.drawLabel = \l, i -> return i > 0 & i % lenGroup == 0;;
+  Data.drawGrid = \l, i ->
+    return i > 0 & i % lenGroup == 0 & i < arr.size(Labels) - 1;;
+
+  Chart = lineChart.mkExample();
+  Chart.exArea.width = 600;
+  Chart.exArea.height = 400;
+  Chart.inPadding = lineChart.mkPadding(25, 25, 30, 100);
+
+  Data2 = lineChart.mkData(
+    Labels,
+    [arr.fromIter(iter.map([0:Difs.size()], \i -> {
+        difOp = Difs[i];
+        return !difOp ? [] : [difOp! - Ibexrts[i] * 100];
+      }))
+    ],
+    [PfAtts]
+  );
+  Data2.drawLabel = Data.drawLabel;
+  Data2.drawGrid = Data.drawGrid;
+
+  Chart2 = lineChart.mkExample();
+  Chart2.exArea.width = 600;
+  Chart2.exArea.height = 200;
+  Chart2.inPadding = lineChart.mkPadding(25, 25, 30, 100);
+
+  wg
+    .removeAll()
+    .add(Q("table")
+      .att("align", "center")
+      .add(Q("tr")
+        .add(Q("td"))
+        .add(Q("td")
+          .add(caption())))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:5px;")
+          .text("%"))
+        .add(Q("td")
+          .add(lineChart.mkWg(Chart, Data))))
+      .add(Q("tr")
+        .add(Q("td")
+          .att("colspan", "2")
+          .style("height:15px")
+          .text(" ")))
+      .add(Q("tr")
+        .add(Q("td"))
+        .add(Q("td")
+          .add(caption2())))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("width:5px;")
+          .text("%"))
+        .add(Q("td")
+          .add(lineChart.mkWg(Chart2, Data2))))
+      )
+  ;
+};

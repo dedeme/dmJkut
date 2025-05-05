@@ -191,7 +191,7 @@ mk = async \wg, :arr Nicks, mainNick, nick -> {
         return;
       }
 
-      :: SIC = SICs.pop();
+      SIC = SICs.pop();
       if (SIC.withHistoric) {
         showWaitV!(SIC.id);
         withErrors, withWarnings : await client.send({
@@ -200,8 +200,7 @@ mk = async \wg, :arr Nicks, mainNick, nick -> {
           source: "NickEditorPg",
           rq: "serverTest",
           nick: nick,
-          server: SIC.id,
-          code: SIC.code
+          server: SIC.id
         });
         withErrorsV! |= withErrors;
         withWarningsV! |= withWarnings;
@@ -239,6 +238,7 @@ mk = async \wg, :arr Nicks, mainNick, nick -> {
   serversDiv = \ -> {
     // \{id:s, withHistoric:s, code:s} -> <domo>
     svTd = \S -> {
+trace [S.id, S.withHistoric];
       color = S.withHistoric ? "#000000" : "#909090";
       field = Q("input")
         .att("type", "text")
@@ -309,7 +309,7 @@ mk = async \wg, :arr Nicks, mainNick, nick -> {
 
   // \ -> <domo>
   rightMenu = \ -> {
-    :: sel = ui.select("nks", Nicks.map(
+    sel = ui.select("nks", Nicks.map(
       \n -> return (n == mainNick ? "+" : "") + n;
     ));
     selEl = sel.e;
@@ -339,7 +339,7 @@ mk = async \wg, :arr Nicks, mainNick, nick -> {
     msgWait.removeAll();
 
     if (nick != "") {
-      box = modalBox.mk(
+      :modalBox box = modalBox.mk(
         Q("div")
           .add(Q("div")
             .style("text-align:center")

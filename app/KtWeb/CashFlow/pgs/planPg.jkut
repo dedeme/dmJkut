@@ -7,6 +7,8 @@ import "global";
 import "cts";
 import "data/plan";
 import "data/planEntry";
+import "data/budget";
+import "data/budgetEntry";
 import "data/diary";
 import "data/diaryEntry";
 import "i18n";
@@ -20,6 +22,7 @@ II = i18n.tlt;
 /// \<domo>, s -> ()
 mk = async \wg, selectedYear -> {
   :plan Plan, // [<planEntry>.]
+  :budget Budget, // [<budgetEntry>.]
   :arr CDiary, // [<diaryEntry>.]
   dbKey
   : await client.send({
@@ -45,7 +48,8 @@ mk = async \wg, selectedYear -> {
       rq: "updatePlan",
       dbKey: global.dbKeyV!,
       year: selectedYear,
-      plan: Plan
+      plan: Plan,
+      budget: Budget
     });
     global.dbKeyV! = dbKey;
   };
@@ -59,6 +63,7 @@ mk = async \wg, selectedYear -> {
       dbKey: global.dbKeyV!,
       year: selectedYear,
       plan: Plan,
+      budget: Budget,
       diary: Diary
     });
     global.dbKeyV! = dbKey;
@@ -78,6 +83,8 @@ mk = async \wg, selectedYear -> {
         ui.alert(r);
         return;
       }
+      Budget.cleanAndComplete(Plan);
+
       await updateServerPlan();
       reload();
     } else {
@@ -87,7 +94,9 @@ mk = async \wg, selectedYear -> {
         ui.alert(r);
         return;
       }
+      Budget.cleanAndComplete(Plan);
       Diary.changeAcc(e.id, entry.id);
+
       await updateServerPlanAndDiary();
       reload();
     }
@@ -102,6 +111,8 @@ mk = async \wg, selectedYear -> {
       ui.alert(r);
       return;
     }
+    Budget.cleanAndComplete(Plan);
+
     await updateServerPlan();
     reload();
   };

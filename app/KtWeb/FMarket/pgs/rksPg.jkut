@@ -25,7 +25,7 @@ mk = async \wg -> {
     modelId
   });
 
-  Rks = dic.fromArr(
+  :dic Rks = dic.fromArr(
     RksJs.map(\Kv -> return [Kv[0], arr.map(Kv[1], flea.fromJs)];)
   );
   :arr Dates = Rks.keys();

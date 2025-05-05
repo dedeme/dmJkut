@@ -8,5 +8,5 @@
 ///   ix : Index of investor.
 ///   val: Price, reference or deviation. It it is '[]', 'val' is not valid
 ///        and there is a message in log.
-/// \s,n,[n]|[] -> <RkEntry>
+/// \s,n,([n]|[]) -> <rkEntry>
 mk : id, ix, val;

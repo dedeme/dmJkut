@@ -19,7 +19,7 @@ II = i18n.tlt;
 
 /// Contents maker.
 ///   wg         : Container.
-/// \<domo>, n -> ()
+/// \<domo> -> ()
 mk = async \wg -> {
   // s, [<model>.], <investor>
   dbKey, :arr Models, :investor inv : await client.send({
@@ -30,7 +30,7 @@ mk = async \wg -> {
   });
   global.dbKeyV! = dbKey;
 
-  waitBox = modalBox.mk(ui.img("wait2.gif"), false);
+  :modalBox waitBox = modalBox.mk(ui.img("wait2.gif"), false);
   editorDiv = Q("div");
   paramsDiv = Q("div");
 
@@ -204,12 +204,16 @@ mk = async \wg -> {
   menuWg = menu.mk([], Ropts, "");
 
   :istrategy base = inv.base;
-  :model md = Models.find(\:model m -> return m.id == base.modelId;)!;
+  baseId = base.modelId;
+  :model md = Models.find(\:model m -> return m.id == baseId;)!;
   :arr NickStrs = dic.toArr(inv.Nicks);
   NickStrs.sort(\N1, N2 -> return N1[0] < N2[0];);
-  maxNParams = NickStrs.reduce(0, \r, NS -> {
+  noBaseN, maxNParams = NickStrs.reduce([0, 0], \r, NS -> {
     :istrategy is = NS[1];
-    return arr.size(is.Params) > r ? arr.size(is.Params) : r;
+    return [
+      is.modelId ==  baseId ? r[0] : r[0] + 1,
+      arr.size(is.Params) > r[1] ? arr.size(is.Params) : r[1]
+    ];
   });
   wg
     .removeAll()
@@ -294,7 +298,17 @@ mk = async \wg -> {
               .klass("border")
               .add(ui.img(istrategy.eq(base, is) ? "blank" : "warning")))
           ;
-        })))
+        }))
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", 4)
+            .klass("border")
+            .style("text-align:left")
+            .text(II("Different to base")))
+          .add(Q("td")
+            .klass("border")
+            .text(noBaseN)
+          )))
   ;
 };
 

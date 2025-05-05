@@ -9,5 +9,5 @@
 ///   feesOp : Current fees payd. Only has value if report is 'report.withFees'.
 ///   Summary: Stocks summary.
 ///   Anns   : Diary annotations.
-/// \n,n,[n]|[],[<rsumm>.],[<rann>.] -> <rann>
+/// \n,n,([n]|[]),[<rsumm>.],[<rann>.] -> <report>
 mk : cost, profits, feesOp, Summary, Anns;

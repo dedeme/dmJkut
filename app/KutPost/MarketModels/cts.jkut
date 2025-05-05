@@ -5,11 +5,25 @@
 
 Q = ui.q;
 
+/// Server program language.
+/// s
+prgLang = (eval "plang()");
+
 /// Application name.
-appName = (eval "isJava()") ? "MarketModelsJ" : "MarketModels";
+/// s
+appName = switch (prgLang) {
+    "java": "MarketModelsJ";
+    "nkut": "MarketModelsN";
+    "haskell": "MarketModelsH";
+    "kutt": "MarketModelsT";
+    default: "MarketModels";
+  };
+
 /// Application version.
+/// s
 version = "2024.03";
 /// Page foot.
+/// <domo>
 foot = Q("table")
   .klass("main")
   .add(Q("tr")
@@ -22,16 +36,23 @@ foot = Q("table")
 ;
 
 /// Period names.
+/// [s.]
 Periods = ["daily", "weekly", "monthly"];
 /// Values types.
+/// [s.]
 Types = ["prices", "accs", "refs"];
 /// Statistics names.
+/// [s.]
 Stats = ["price", "average", "crrAverage", "deviation"];
 /// Pages
+/// [s.]
 Pages = ["global", "models", "log"];
 /// View of model data.
+/// [s.]
 Views = ["rank", "maps", "allMaps"];
 /// Steps number to calculate simulations
+/// n
 simulationSteps = 20;
 /// Investor model base.
-modelBase = "APRX";
+/// n
+modelBase = "SSBB0";

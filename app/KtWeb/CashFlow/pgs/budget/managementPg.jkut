@@ -25,8 +25,8 @@ II = i18n.tlt;
 ///   Diary: Diary annotations.
 ///   Budget: Current budget.
 ///   PreviousBudget: Previous Budget.
-/// \<domo>, s, b, n, [<planEntry>.], n,
-///   [<diaryEntry>.], [[<budgetEntry>.].], [[<budgetEntry>.].] -> ()
+/// \<domo>, s, b, n, [<planEntry>.], n, [<diaryEntry>.],
+///-  [[<budgetEntry>.].], [[<budgetEntry>.].] -> ()
 mk = \wg, selectedYear, isUntil, selectedMonth,
       Plan, balance, Diary, Budget, PreviousBudget -> {
 

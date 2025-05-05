@@ -212,7 +212,7 @@ mkHelp = \tx -> {
     if (str.starts(l, "  ")) {
       ix = str.index(l, ":");
       if (ix != -1) {
-        word = str.trim(l[:ix]);
+        :str word = str.trim(l[:ix]);
         if (word.index(" ") == -1) {
           TxxV! = Tx2;
         }

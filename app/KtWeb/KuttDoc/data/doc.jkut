@@ -1,0 +1,16 @@
+// Copyright 17-Apr-2025 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Module documentation data.
+
+/// Constructor.
+///   docTx       : Module documentation.
+///   Imports     : Imports documentation.
+///   Types       : Type definitions documentation.
+///   Values      : Values documentation.
+///   Enumerations: Enumerations documentation.
+///   Indexeds    : Indexed records documentation.
+///   Functions   : Functions documentation.
+/// \s,[<docEntry>.],[<docEntry>.],[<docEntry>.],
+///-   [<docEntry>.],[<docEntry>.],[<docEntry>.] -> <doc>
+mk : docTx, Imports, Types, Values, Enumerations, Indexeds, Functions;

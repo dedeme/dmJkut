@@ -4,45 +4,66 @@
 /// Program starting.
 
 import "libdm/menu";
-import "data/cts";
+import "cts";
+import "global";
 import "pgs/msgPg";
-import "pgs/danceSelector";
-import "pgs/pictures";
-import "pgs/songs";
-import "pgs/radio";
-import "pgs/standBy";
-import "pgs/danceManagement";
-import "pgs/songsManagement";
-import "pgs/pictsManagement";
-import "pgs/times";
+import "pgs/danceSelectorPg";
+import "pgs/picturesPg";
+import "pgs/songsPg";
+import "pgs/radioPg";
+import "pgs/pinupsPg";
+import "pgs/standByPg";
+import "pgs/danceManagementPg";
+import "pgs/songsManagementPg";
+import "pgs/pictsManagementPg";
+import "pgs/pinupsManagementPg";
+import "pgs/timesPg";
 import "i18n";
 
 Q = ui.q;
 II = i18n.tlt;
 
+// Type definition.
+/// \ -> <audio>
+//
+
 // \<domo> -> ()
 mk = async \wg -> {
   ok = await client.connect();
   if (!ok) {
-    ui.alert(II("KtWeb session is closed.\nAuthenticating from KtWeb:Main."));
+    ui.alert(II("Session is closed.\nAuthenticating from Main."));
     window.location.assign("http://" + window.location.host + "/Main");
     return;
   }
 
-  rp = await client.send({
+  // Sessions control is in "KtWeb:Main" !!!
+  , lang : await client.send({
     prg: "Main", // Call to KtWeb:Main
     source: "Main",
     rq: "lang"
   });
-  if (rp.lang == "en") i18n.en();
+  if (lang == "en") i18n.en();
 
-  client.send({
+  , dbKey : await client.send({
     prg: cts.appName,
-    source: "Main",
-    rq: "update"
+    source: "MainPg",
+    rq: "idata"
   });
+  global.dbKeyV! = dbKey;
+
+  fastUpdate = async \ -> {
+    , dbKey : await client.send({
+      prg: cts.appName,
+      source: "MainPg",
+      rq: "update",
+      dbKey: global.dbKeyV!
+    });
+    global.dbKeyV! = dbKey;
+  };
+  fastUpdate();
 
   wallpapersBt = Q("button").text(II("Wallpapers"));
+  pinupsBt = Q("button").text(II("Pinups"));
   songsBt = Q("button").text(II("Wallpapers with Music"));
   radioBt = Q("button").text(II("Wallpapers with Radio"));
   shortDanceBt = Q("button").text(II("Short Dance"));
@@ -88,22 +109,27 @@ mk = async \wg -> {
             .add(Q("td")
               .add(Q("button")
                 .text(II("Pictures Management"))
-                .on("click", \e -> pictsManagement.mk(wg, reload);))),
+                .on("click", \e -> pictsManagementPg.mk(wg, reload);))),
+          Q("tr")
+            .add(Q("td")
+              .add(Q("button")
+                .text(II("Pinup Management"))
+                .on("click", \e -> pinupsManagementPg.mk(wg, reload);))),
           Q("tr")
             .add(Q("td")
               .add(Q("button")
                 .text(II("Songs Management"))
-                .on("click", \e -> songsManagement.mk(wg, reload);))),
+                .on("click", \e -> songsManagementPg.mk(wg, reload);))),
           Q("tr")
             .add(Q("td")
               .add(Q("button")
                 .text(II("Dance Management"))
-                .on("click", \e -> danceManagement.mk(wg, reload);))),
+                .on("click", \e -> danceManagementPg.mk(wg, reload);))),
           Q("tr")
             .add(Q("td")
               .add(Q("button")
                 .text(II("Times Management"))
-                .on("click", \e -> times.mk(wg, reload);)))
+                .on("click", \e -> timesPg.mk(wg, reload);)))
         ]
       : [Q("tr")
             .add(Q("td")
@@ -118,27 +144,31 @@ mk = async \wg -> {
   showV! = \ -> {
     wallpapersBt
       .on("keydown", \e -> keyInButton(e, [], [songsBt]);)
-      .on("click", \e -> pictures.mk(wg, reload);)
+      .on("click", \e -> picturesPg.mk(wg, reload);)
     ;
     songsBt
       .on("keydown", \e -> keyInButton(e, [wallpapersBt], [radioBt]);)
-      .on("click", \e -> songs.mk(wg, reload);)
+      .on("click", \e -> songsPg.mk(wg, reload);)
     ;
     radioBt
-      .on("keydown", \e -> keyInButton(e, [songsBt], [shortDanceBt]);)
-      .on("click", \e -> radio.mk(wg, reload);)
+      .on("keydown", \e -> keyInButton(e, [songsBt], [pinupsBt]);)
+      .on("click", \e -> radioPg.mk(wg, reload);)
+    ;
+    pinupsBt
+      .on("keydown", \e -> keyInButton(e, [radioBt], [shortDanceBt]);)
+      .on("click", \e -> pinupsPg.mk(wg, reload);)
     ;
     shortDanceBt
-      .on("keydown", \e -> keyInButton(e, [songsBt], [longDanceBt]);)
-      .on("click", \e -> danceSelector.mk(wg, true, reload);)
+      .on("keydown", \e -> keyInButton(e, [pinupsBt], [longDanceBt]);)
+      .on("click", \e -> danceSelectorPg.mk(wg, true, reload);)
     ;
     longDanceBt
       .on("keydown", \e -> keyInButton(e, [shortDanceBt], [standByBt]);)
-      .on("click", \e -> danceSelector.mk(wg, false, reload);)
+      .on("click", \e -> danceSelectorPg.mk(wg, false, reload);)
     ;
     standByBt
       .on("keydown", \e -> keyInButton(e, [longDanceBt], []);)
-      .on("click", \e -> standBy.mk(wg, reload);)
+      .on("click", \e -> standByPg.mk(wg, reload);)
     ;
 
     wg
@@ -162,6 +192,9 @@ mk = async \wg -> {
             .add(radioBt)))
         .add(Q("tr")
           .add(Q("td")
+            .add(pinupsBt)))
+        .add(Q("tr")
+          .add(Q("td")
             .add(shortDanceBt)))
         .add(Q("tr")
           .add(Q("td")
@@ -178,8 +211,8 @@ mk = async \wg -> {
     timer.delay(100, \ -> {
       mainButtonOp = null(wallpapersBt);
       if (!!mainButtonOp) {
-        EOp = null(mainButtonOp!.e);
-        if (!!EOp) EOp!.focus();
+        eOp = null(mainButtonOp!.e);
+        if (!!eOp) eOp!.focus();
       }
     });
   };
@@ -192,13 +225,19 @@ mk = async \wg -> {
 wg = Q("div");
 
 /// Load main window
+/// \ -> ()
 load = \ -> {
   mk(wg);
 };
 
-client.init(true, "KtWeb", \ -> {
+// Client must be initilized with "KtWeb" !!!
+client.init(true, "KtWeb", \isExpired -> {
+  message = isExpired
+    ? II("Session is expired.")
+    : II("Data base is out of date.")
+  ;
   msgWg = Q("div");
-  msgPg.mk(msgWg, II("Session is expired."), true);
+  msgPg.mk(msgWg, message, true);
   Q("@body")
     .removeAll()
     .add(msgWg)

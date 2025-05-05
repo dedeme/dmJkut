@@ -1,0 +1,22 @@
+// Copyright 01-May-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Image 'adjustment' data
+
+/// Types of adjustment.
+/// [n.]
+cut, background, stretch =;
+
+/// Creates new 'adjustment' parameters.
+///   type: Adjustment type. One of 'cut', 'background' or 'stretch'.
+///   Params: Parameters which meaning depends on type.
+///           For 'cut':
+///             - Top value (pixels).
+///            For 'background':
+///              - Background color in format RGB.
+///              - Ratio of blurriness. Value between 0 and 100 (both inclusive).
+///              - Ratio of light. Value between 0 and 100 (both inclusive).
+///            For 'stretch':
+///              - Pixels between 1 and 100 (both inclusive).
+/// \n,[n.] -> <imgAdj>
+mk : type, Params;

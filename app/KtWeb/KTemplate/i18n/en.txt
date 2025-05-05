@@ -16,11 +16,11 @@ All = All
 All log entries will be deleted.\nContinue? = All log entries will be deleted.\nContinue?
 
 # jkut/wgs/jkut/ctsWg.jkut: 96
-# jkut/wgs/kut/ctsWg.jkut: 125
+# jkut/wgs/kut/ctsWg.jkut: 129
 Application Name = Application Name
 
 # jkut/wgs/jkut/ctsWg.jkut: 98
-# jkut/wgs/kut/ctsWg.jkut: 127
+# jkut/wgs/kut/ctsWg.jkut: 131
 Application version = Application version
 
 # jkut/wgs/kut/jstbWg.jkut: 171
@@ -44,7 +44,7 @@ Constants = Constants
 # jkut/wgs/jkut/mainWg.jkut: 63
 Data base is out of date. = Data base is out of date.
 
-# jkut/wgs/kut/ctsWg.jkut: 129
+# jkut/wgs/kut/ctsWg.jkut: 133
 Data base version = Data base version
 
 # jkut/pgs/menuPg.jkut: 192
@@ -56,7 +56,7 @@ Database Main = Database Main
 # jkut/wgs/jkut/mainWg.jkut: 136
 # jkut/wgs/jkut/msgWg.jkut: 92
 # jkut/wgs/jkut/recordWg.jkut: 271
-# jkut/wgs/kut/ctsWg.jkut: 123
+# jkut/wgs/kut/ctsWg.jkut: 127
 # jkut/wgs/kut/dbMainWg.jkut: 87
 # jkut/wgs/kut/emptyWg.jkut: 65
 # jkut/wgs/kut/jstbWg.jkut: 164
@@ -184,7 +184,7 @@ Type = Type
 # jkut/wgs/jkut/msgWg.jkut: 90
 # jkut/wgs/jkut/recordWg.jkut: 269
 # jkut/wgs/jkut/snippetsWg.jkut: 76
-# jkut/wgs/kut/ctsWg.jkut: 121
+# jkut/wgs/kut/ctsWg.jkut: 125
 # jkut/wgs/kut/dbMainWg.jkut: 85
 # jkut/wgs/kut/emptyWg.jkut: 63
 # jkut/wgs/kut/jstbWg.jkut: 162

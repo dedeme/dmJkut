@@ -8,7 +8,7 @@
 # jkut/pgs/resultsPg.jkut: 235
 Acc. = Cont.
 
-# jkut/pgs/mapsPg.jkut: 238
+# jkut/pgs/mapsPg.jkut: 243
 # jkut/pgs/summaryPg.jkut: 81
 Accounting = Contabilidad
 
@@ -25,9 +25,9 @@ All<br>Data = Todos<br>los datos
 # jkut/pgs/charts/operationsPg.jkut: 132
 Assets = Activo
 
-# jkut/pgs/mapsPg.jkut: 228
-# jkut/pgs/resultsPg.jkut: 186
-# jkut/pgs/summaryPg.jkut: 212
+# jkut/pgs/mapsPg.jkut: 231
+# jkut/pgs/resultsPg.jkut: 184
+# jkut/pgs/summaryPg.jkut: 210
 Average = Media
 
 # jkut/pgs/descriptionPg.jkut: 91
@@ -58,12 +58,12 @@ Close = Cierre
 # jkut/pgs/chartsPg.jkut: 85
 Companies = Compañías
 
-# jkut/pgs/mapsPg.jkut: 226
-# jkut/pgs/resultsPg.jkut: 184
-# jkut/pgs/summaryPg.jkut: 210
+# jkut/pgs/mapsPg.jkut: 233
+# jkut/pgs/resultsPg.jkut: 186
+# jkut/pgs/summaryPg.jkut: 212
 Corrected<br>Average = Media<br>corregida
 
-# jkut/pgs/mapsPg.jkut: 269
+# jkut/pgs/mapsPg.jkut: 274
 Daily = Diario
 
 # jkut/main.jkut: 138
@@ -125,7 +125,7 @@ In portfolio = En cartera
 # jkut/pgs/charts/historicPg.jkut: 147
 In quarantine = En cuarentena
 
-# jkut/pgs/mapsPg.jkut: 227
+# jkut/pgs/mapsPg.jkut: 232
 # jkut/pgs/resultsPg.jkut: 185
 # jkut/pgs/summaryPg.jkut: 211
 Last<br>Value = Último<br>valor
@@ -138,11 +138,11 @@ Model = Modelo
 
 # jkut/pgs/chartsPg.jkut: 70
 # jkut/pgs/descriptionPg.jkut: 40
-# jkut/pgs/mapsPg.jkut: 246
+# jkut/pgs/mapsPg.jkut: 251
 # jkut/pgs/resultsPg.jkut: 198
 Models = Modelos
 
-# jkut/pgs/mapsPg.jkut: 273
+# jkut/pgs/mapsPg.jkut: 278
 Monthly = Mensual
 
 # jkut/pgs/resultsPg.jkut: 243
@@ -158,7 +158,7 @@ Operations = Operaciones
 # jkut/pgs/charts/operationsPg.jkut: 142
 Orders = Órdenes
 
-# jkut/pgs/mapsPg.jkut: 236
+# jkut/pgs/mapsPg.jkut: 241
 # jkut/pgs/resultsPg.jkut: 233
 # jkut/pgs/summaryPg.jkut: 79
 Points = Puntos
@@ -169,7 +169,7 @@ Portfolio = Cartera
 # jkut/pgs/resultsPg.jkut: 236
 Prof. = Bfs.
 
-# jkut/pgs/mapsPg.jkut: 239
+# jkut/pgs/mapsPg.jkut: 244
 # jkut/pgs/summaryPg.jkut: 82
 Profits = Beneficios
 
@@ -181,7 +181,7 @@ Quarantine = Cuarentena
 
 # jkut/pgs/charts/historicPg.jkut: 104
 # jkut/pgs/chartsPg.jkut: 141
-# jkut/pgs/mapsPg.jkut: 237
+# jkut/pgs/mapsPg.jkut: 242
 # jkut/pgs/resultsPg.jkut: 234
 # jkut/pgs/summaryPg.jkut: 80
 Real = Real
@@ -216,7 +216,7 @@ Source = Fuente
 # jkut/main.jkut: 99
 Summary = Resumen
 
-# jkut/pgs/mapsPg.jkut: 271
+# jkut/pgs/mapsPg.jkut: 276
 Weekly = Semanal
 
 # jkut/pgs/charts/historicPg.jkut: 154

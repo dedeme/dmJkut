@@ -42,7 +42,7 @@ mk = async \wg -> {
   page = !Url ? "cash" : Url[0];
 
   year = all.currentYear();
-  :: myear = menu.tlink(year, year);
+  myear = menu.tlink(year, year);
 
   Lopts = [
     myear,
@@ -110,6 +110,7 @@ mk = async \wg -> {
 wg = Q("div");
 
 /// Load main window
+/// \ -> ()
 load = \ -> {
   mk(wg);
 };

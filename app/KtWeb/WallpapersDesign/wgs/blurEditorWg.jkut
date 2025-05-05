@@ -1,0 +1,138 @@
+// Copyright 01-May-2024 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Editor of blur operation.
+
+import "libdm/modalBox";
+import "cts";
+import "data/image";
+import "data/imgBlur";
+import "i18n";
+
+Q = ui.q;
+II = i18n.tlt;
+
+/// \<domo>, <image>, (\<image>->()) -> ()
+mk = \imgDiv, :image im, onChange -> {
+  blurOp = im.blurOp;
+  isActivatedV = [!blurOp ? false : true];
+
+  // \s, s, n -> <domo>
+  mkIn = \id, nextId, value -> return ui.changePoint(ui.field(nextId)
+      .att("id", id)
+      .style("width:80px")
+      .value(value)
+    );;
+
+  ratio = mkIn(
+    "ratio", "ratio", isActivatedV! ? blurOp![imgBlur.ratio] : cts.ratioBlur
+  );
+
+  editorDiv = Q("div");
+
+  mkEditorV = [[]];
+
+  // Control -------------------------------------------------------------------
+
+  // \b -> ()
+  activate = \value -> {
+    isActivatedV! = value;
+    mkEditorV!(editorDiv);
+  };
+
+  // \<event> -> ()
+  restore = \ev -> {
+    blurOp = im.blurOp;
+    isActivatedV = [!blurOp ? false : true];
+
+    ratio.value(isActivatedV! ? blurOp![imgBlur.ratio] : cts.ratioBlur);
+
+    onChange(im);
+    mkEditorV!(editorDiv);
+  };
+
+  // \<event> -> ()
+  update = \ev -> {
+    // \<domo> -> n
+    value = \i -> {
+      rV = math.fromStr(i.getValue());
+      if (!rV) {
+        arr.push(rV, cts.ratioBlur);
+        i.value("" + rV!);
+      }
+      return rV!;
+    };
+    blurOp = isActivatedV!
+      ? [imgBlur.mk(value(ratio))]
+      : []
+    ;
+
+    onChange(image.setBlurOp(im, blurOp));
+    mkEditorV!(editorDiv);
+  };
+
+  // \<event> -> ()
+  close = \ev -> modalBox.show(cts.box, false);;
+
+  // View ----------------------------------------------------------------------
+
+  // \<domo> -> ()
+  mkEditorV! = \div -> {
+    ratio.disabled(!isActivatedV!);
+    div
+      .removeAll()
+      .add(Q("table")
+        .att("align", "center")
+        .add(Q("tr")
+          .add(Q("td")
+            .att("colspan", 3)
+            .add(isActivatedV!
+                ? ui.link(\ev -> activate(false);)
+                    .klass("link")
+                    .text(II("Deactivate"))
+                : ui.link(\ev -> activate(true);)
+                    .klass("link")
+                    .text(II("Activate"))
+              )))
+        .add(Q("tr")
+          .add(Q("td")
+            .style("text-align:center")
+            .text(II("Percentage (0 - 100)"))))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(ratio))))
+    ;
+  };
+
+  mkEditorV!(editorDiv);
+
+  cts.boxContent
+    .removeAll()
+    .add(Q("table")
+      .klass("main")
+      .add(Q("tr")
+        .add(Q("td"))
+        .add(Q("td")
+          .style("text-align:right")
+          .add(ui.link(close)
+            .klass("link")
+            .text(II("Close")))))
+      .add(Q("tr")
+        .add(Q("td")
+          .style("text-align:left")
+          .add(ui.link(update)
+            .klass("link")
+            .text(II("Update")))
+          .add(Q("span")
+            .html("&nbsp;&nbsp;"))
+          .add(ui.link(restore)
+            .klass("link")
+            .text(II("Restore"))))
+        .add(Q("td"))))
+    .add(Q("hr"))
+    .add(editorDiv)
+    .add(Q("hr"))
+    .add(imgDiv)
+  ;
+
+};

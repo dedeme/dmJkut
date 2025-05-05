@@ -6,27 +6,28 @@ esDic = {
   "2 Days": "2 días",
   "All": "Todo",
   "All log entries will be deleted.\nContinue?": "\"Todas las entradas serán borradas.\n¿Continuar?",
-  "Assets": "Capital",
-  "CMarket": "CMarket",
+  "Best Strategy": "Mejor estrategia",
+  "Best of Investor Model": "Mejor del modelo del inversor",
   "Click %0 to continue.": "Hacer click %0 para continuar.",
+  "Data base is out of date.": "La base de datos está obsoleta.",
   "Dates of profits and ibex does not match": "Fechas de beneficios e Ibex no coinciden",
   "Delete": "Borrar",
   "Errors": "Errores",
   "Home": "Inicio",
-  "Hot Maps": "Mapas de calor",
   "Ibex": "Ibex",
   "Investor": "Inversor",
   "Investors - Ibex": "Inversores - Ibex",
-  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "La sesión de KtWeb ha sido cerrada.\nHay que autenticarse en KtWeb:Main.",
   "Log": "Registro",
-  "MMarket": "MMarket",
+  "Market": "Market",
   "Model": "Modelo",
-  "Models": "Modelos",
+  "Params.": "Params.",
   "Percentages": "Porcentajes",
   "Points": "Puntos",
   "Profits": "Beneficios",
   "Reload": "Recargar",
+  "Session is closed.\nAuthenticating from Main.": "La sesión ha sido cerrada.\nHay que autenticarse en Main.",
   "Session is expired.": "La sesión ha expirado.",
+  "Strategy Results": "Resultados de la estrategia",
   "here": "aquí"
 };
 /// \-> ()
@@ -36,33 +37,33 @@ enDic = {
   "2 Days": "2 Days",
   "All": "All",
   "All log entries will be deleted.\nContinue?": "All log entries will be deleted.\nContinue?",
-  "Assets": "Assets",
-  "CMarket": "CMarket",
+  "Best Strategy": "Best Strategy",
+  "Best of Investor Model": "Best of Investor Model",
   "Click %0 to continue.": "Click %0 to continue.",
+  "Data base is out of date.": "Data base is out of date.",
   "Dates of profits and ibex does not match": "Dates of profits and ibex does not match",
   "Delete": "Delete",
   "Errors": "Errors",
   "Home": "Home",
-  "Hot Maps": "Hot Maps",
   "Ibex": "Ibex",
   "Investor": "Investor",
   "Investors - Ibex": "Investors - Ibex",
-  "KtWeb session is closed.\nAuthenticating from KtWeb:Main.": "KtWeb session is closed.\nAuthenticating from KtWeb:Main.",
   "Log": "Log",
-  "MMarket": "MMarket",
+  "Market": "Market",
   "Model": "Model",
-  "Models": "Models",
+  "Params.": "Params.",
   "Percentages": "Percentages",
   "Points": "Points",
   "Profits": "Profits",
   "Reload": "Reload",
+  "Session is closed.\nAuthenticating from Main.": "Session is closed.\nAuthenticating from Main.",
   "Session is expired.": "Session is expired.",
   "here": "here"
 };
 /// \-> ()
 en = \-> Lang! = "en";;
 
-//\s -> {s...}
+//: \s -> {s.}
 dicByKey = \s -> return switch (s) {
   "es": esDic;
   "en": enDic;
@@ -79,7 +80,7 @@ tlt = \s -> {
   return !T ? s : T!;
 };
 
-/// \s, [s...] -> s
+/// \s, [s.] -> s
 fmt = \tp, Rpls -> {
   R = [tp];
   for (i = 0:arr.size(Rpls)) R! = str.replace(R!, "%" + sys.toStr(i), Rpls[i]);

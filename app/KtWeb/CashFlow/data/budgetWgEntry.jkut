@@ -26,20 +26,20 @@ mk = \isIncome, accId, budget, real ->
 /// \[<budgetWgEntry>.] -> n
 sumBudget = \:arr Entries -> {
   sumV = [0];
-  for (:budgetWgEntry e = Entries) sumV! += e[budget];
+  for (E = Entries) sumV! += E[budget];
   return sumV!;
 };
 
 /// \[<budgetWgEntry>.] -> n
 sumReal = \:arr Entries -> {
   sumV = [0];
-  for (:budgetWgEntry e = Entries) sumV! += e[real];
+  for (E = Entries) sumV! += E[real];
   return sumV!;
 };
 
 /// \[<budgetWgEntry>.] -> n
 sumDif = \:arr Entries -> {
   sumV = [0];
-  for (:budgetWgEntry e = Entries) sumV! += e[dif];
+  for (E = Entries) sumV! += E[dif];
   return sumV!;
 };

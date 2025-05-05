@@ -11,16 +11,16 @@ import "i18n";
 Q = ui.q;
 II = i18n.tlt;
 
-// \ -> <domo>
+//: \ -> <domo>
 mkBigTd = \ -> return Q("td").style("font-size:large;text-align:right");;
 
-// \n -> s
+//: \n -> s
 dfFmt = \n -> {
   color = n < 0 ? "aa2800" : n > 0 ? "0041aa" : "000000";
   return "<font color='" + color + "'>" + math.toIso(n, 2) + "</font>";
 };
 
-// \s, n -> <domo>
+//: \s, n -> <domo>
 mkTr = \color, val -> return Q("tr")
     .add(Q("td")
       .style("vertical-align:middle;width:5px")
@@ -56,6 +56,11 @@ mk = async \wg -> {
     source: "ProfitsPg",
     rq: "idata"
   });
+  if (!AllEs) {
+    msg = II("Profits values are missing");
+    ui.alert(msg);
+    throw msg;
+  }
 
   CEs = []; // [<profitsEntry>.] Corrected values.
   Corrects = []; // [f.]
@@ -133,7 +138,7 @@ mk = async \wg -> {
         .text(" ]")))
     ;
 
-  :: Chart = lineChart.mkExample();
+  Chart = lineChart.mkExample();
   Chart.exArea.width = 600;
   Chart.exArea.height = 200;
   Chart.exArea.atts.border.width = 0;
@@ -149,8 +154,30 @@ mk = async \wg -> {
   // LAST MONTH
 
   month = today[:6];
-  :arr E00s = AllEs.dropWhile(\:profitsEntry e -> return e.date[:6] <  month;);
-  :arr E0s = E00s.size() > 1 ? E00s : AllEs[-2:];
+  ixV = [-1];
+  for (i, :profitsEntry e = AllEs) if (e.date[:6] >=  month) {
+    ixV! = i;
+    break;
+  }
+  :arr E00s = ixV! >= 0 ? AllEs[ixV!:] : [];
+  :arr E0s = E00s.size() > 0 ? E00s : AllEs[-1:];
+
+  if (ixV! <= 0){
+    E0s.unshift(AllEs[0]);
+  } else {
+    :profitsEntry e0 = AllEs[ixV! - 1];
+    :profitsEntry e1 = E0s[0];
+
+    if (e0.date[:4] == e1.date[:4]) {
+      E0s.unshift(e0);
+    } else {
+      :profitsEntry newE = profitsEntry.mk(
+        e0.date, e0.total - e0.acc, 0, e0.risk - e0.acc
+      );
+      E0s.unshift(newE);
+    }
+  }
+
   :profitsEntry ef0 = E0s[0];
   :profitsEntry el0 = E0s.peek();
   total0 = el0.total - ef0.total;
@@ -178,7 +205,7 @@ mk = async \wg -> {
     lineChart.mkLine(2, "#414141", false),
     lineChart.mkLine(2, "#aa4100", false)
   ];
-  :: Data0 = lineChart.mkData(Lb0s, Val0s, Att0s);
+  Data0 = lineChart.mkData(Lb0s, Val0s, Att0s);
   Data0.round = 0;
   Data0.Labels = Lb0s;
   Data0.SetValues = [Val0s[0], Val0s[1], Val0s[2]];
@@ -189,7 +216,6 @@ mk = async \wg -> {
   };
   Data0.drawLabel = Data0.drawGrid;
   Data0.mapLabel = \lb, i -> return lb[:2];;
-
 
   lastMonth = Q("table")
     .att("align", "center")
@@ -205,8 +231,24 @@ mk = async \wg -> {
   // CURRENT YEAR
 
   year = today[:4];
-  :arr E10s = AllEs.dropWhile(\:profitsEntry e -> return e.date[:4] <  year;);
-  :arr E1s = E10s.size() > 1 ? E10s : AllEs[-2:];
+  ixV! = -1;
+  for (i, :profitsEntry e = AllEs) if (e.date[:4] >=  year) {
+    ixV! = i;
+    break;
+  }
+  :arr E10s = ixV! >= 0 ? AllEs[ixV!:] : [];
+  :arr E1s = E10s.size() > 0 ? E10s : AllEs[-1:];
+
+  if (ixV! <= 0){
+    E1s.unshift(AllEs[0]);
+  } else {
+    :profitsEntry e0 = AllEs[ixV! - 1];
+     :profitsEntry newE = profitsEntry.mk(
+       e0.date, e0.total - e0.acc, 0, e0.risk - e0.acc
+     );
+     E1s.unshift(newE);
+  }
+
   :profitsEntry ef1 = E1s[0];
   :profitsEntry  el1 = E1s.peek();
   total1 = el1.total - ef1.total;
@@ -236,7 +278,7 @@ mk = async \wg -> {
     lineChart.mkLine(1.5, "#414141", false),
     lineChart.mkLine(1.5, "#aa4100", false)
   ];
-  :: Data1 = lineChart.mkData(Lb1s, Val1s, Att1s);
+  Data1 = lineChart.mkData(Lb1s, Val1s, Att1s);
   Data1.round = 0;
   Data1.Labels = Lb1s;
   Data1.SetValues = [Val1s[0], Val1s[1], Val1s[2]];
@@ -291,7 +333,7 @@ mk = async \wg -> {
     lineChart.mkLine(1.5, "#414141", false),
     lineChart.mkLine(1.5, "#aa4100", false)
   ];
-  :: Data2 = lineChart.mkData(Lb2s, Val2s, Att2s);
+  Data2 = lineChart.mkData(Lb2s, Val2s, Att2s);
   Data2.round = 0;
   Data2.Labels = Lb2s;
   Data2.SetValues = [Val2s[0], Val2s[1], Val2s[2]];
@@ -354,7 +396,7 @@ mk = async \wg -> {
     lineChart.mkLine(1.5, "#414141", false),
     lineChart.mkLine(1.5, "#aa4100", false)
   ];
-  :: Data3 = lineChart.mkData(Lb3s, Val3s, Att3s);
+  Data3 = lineChart.mkData(Lb3s, Val3s, Att3s);
   Data3.round = 0;
   Data3.Labels = Lb3s;
   Data3.SetValues = [Val3s[0], Val3s[1], Val3s[2]];

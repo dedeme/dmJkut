@@ -157,7 +157,7 @@ mk = async \wg -> {
           ? P2.tpRef[0] == "*"
             ? P1.tpRef[1] < P2.tpRef[1]
             : false
-          : P1.tpRef[0] == "*"
+          : P2.tpRef[0] == "*"
             ? true
             : P1.tpRef[1] < P2.tpRef[1]
           ;
@@ -171,10 +171,11 @@ mk = async \wg -> {
     D.withdraw = \ -> {
         assets = D.equity + D.currentProfits;
         if (assets > cts.initialCapital + cts.bet + cts.bet) {
+          securAmount = cts.minToBet - cts.bet;
           dif = assets - cts.initialCapital - cts.bet;
-          if (D.cash > dif + 1000) return dif;
-          if (D.cash > cts.bet + 1000)
-            return math.toInt((D.cash - 1000) / cts.bet) * cts.bet;
+          if (D.cash > dif + securAmount) return dif;
+          if (D.cash > cts.minToBet)
+            return math.toInt((D.cash - securAmount) / cts.bet) * cts.bet;
         }
         return 0;
       }();
@@ -372,7 +373,7 @@ mk = async \wg -> {
               .html(math.toIso(R[1].profits, 2))))
           .add(Q("td")
             .klass("number")
-            .setStyle("color", R[1].tpRef[0] == "*" ? "#400000" : "")
+            .setStyle("color", R[1].tpRef[0] == "*" ? ("#" + fcolor(-1)) : "")
             .add(Q("span")
               .html(math.toIso(R[1].tpRef[1], 2))))
           ;))

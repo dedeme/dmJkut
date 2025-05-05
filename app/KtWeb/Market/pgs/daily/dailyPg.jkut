@@ -11,6 +11,7 @@ import "global";
 import "data/chart/dailyChart";
 import "data/chart/dailyInvestorData";
 import "wgs/dmenu";
+import "wgs/msg";
 import "i18n";
 import "cosSummaryChart";
 import "ixsSummaryChart";
@@ -25,34 +26,15 @@ II = i18n.tlt;
 color = \v ->
   return "color:" + (v > 0 ? "#00AAFF" : v < 0 ? "#FF8100" : "#404040");;
 
-/// Returns profits in references:
-///   APRX ->
-///     In portofio: (q < ref ? q - ref : (q - ref) * inc) * stocks
-///     Free       : (q > ref ? ref - q : (ref - q) * inc) * (cts.bet / q)
-///   modelId  : Investor model identifier.
-///   params   : Model parameters.
-///   stocks   : Stocks number in portfolio. 0 if the company is not en portfolio.
-///   q        : Current quote.
-///   ref      : Reference at the beginning of day.
-/// \s, [n.], n, m, n -> n
-refProfits = \modelId, params, stocks, q, ref -> {
-  if (modelId != "APRX") throw "Model " + modelId + " not implemented.";
-
-  inc = params[1];
-  return stocks > 0
-    ? (q < ref ? q - ref : (q - ref) * inc) * stocks
-    : (q > ref ? ref - q : (ref - q) * inc) * (cts.bet / q)
-  ;
-};
-
 /// Contents maker.
 ///   wg       : Container.
 ///   dbmenu   : Double menu.
 ///   mSel     : Submenu selection.
 ///   order    : Order to show companies.
+///   lorder   : Order to show companies list.
 ///   isReverse: If order is reverse.
-/// \<domo>, <dmenu>, s, i, b -> ()
-mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
+/// \<domo>, <dmenu>, s, n, b -> ()
+mk2 = async \wg, dbmenu, mSel, order, lorder, isReverse -> {
   dbKey,
   :arr CosData, :arr IxsData, // [<dailyChart>.], [<dailyChart>.]
   :arr CosSel, :arr Rebuys, // [s.], [s.]
@@ -67,6 +49,7 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
   global.dbKeyV! = dbKey;
 
   orderV = [order];
+  lorderV = [lorder];
   isReverseV = [isReverse];
   refDifV = [true];
 
@@ -109,11 +92,22 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
         source: "Daily",
         rq: "reactivate"
       });
-      mk2(wg, dbmenu, mSel, orderV!, isReverseV!);
+      mk2(wg, dbmenu, mSel, orderV!, lorderV!, isReverseV!);
     };
 
     // \ -> ()
-    newServer = \ -> ui.alert(II("Currently this functions is deactivated"));;
+    newServer = \ -> msg.info(
+      "<p>" +
+      II("To change the current quotes server") +
+      ":</p><ul><li>" +
+      II("Change the field 'withCurrent' in the server files") +
+      ".</li><li>" +
+      II("Change the server identifier in 'net/readCurrent.kut'.") +
+      "</li></ul><p>" +
+      II("Server files are in 'data/qsv/svs'.") +
+      "</p>",
+      \ -> {}
+    );;
 
     // \i -> ()
     updateActivityWg = \tic -> {
@@ -138,7 +132,7 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
         isSel
       });
 
-      mk2(wg, dbmenu, mSel, orderV!, isReverseV!);
+      mk2(wg, dbmenu, mSel, orderV!, lorderV!, isReverseV!);
     };
 
     // \ -> ()
@@ -155,8 +149,7 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
     separator = \ -> return Q("span").html("&nbsp;&nbsp;");;
 
     // \n -> s
-    color = \v ->
-      return "color:" + (v > 0 ? "#00aaff" : v < 0 ? "#ff8100" : "#a9a9a9")
+    color = \v -> return "color:" + (v > 0 ? "#00aaff" : "#ff8100")
     ;;
 
     nick = d.nick;
@@ -168,7 +161,6 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
     dailyProfits = iDt.stocks * (quote - (iDt.isNew ? iDt.price : close));
     totalProfits = iDt.stocks * (quote - iDt.price);
     isSel = CosSel.any(\c -> return c == nick;);
-    isRebuy = Rebuys.any(\r -> return r == nick;);
     dif = (quote - close) / close;
     rdif = close > ref ? ref / quote : quote / ref;
 
@@ -209,7 +201,7 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
           .add(Q("span")
             .style("font-size:small;" + color(close > ref
                 ? -1
-                : isRebuy ? 0 : 1
+                : 1
               ))
             .text(math.toIso(rdif * 100, 2) + "%")
           ))
@@ -235,7 +227,7 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
     todayValueV = [0];
     :arr Labels = CosData[0][dailyChart.Hours];
     size = Labels.size();
-    Values = arr.mk(size, 0);
+    :arr Values = arr.mk(size, 0);
     for (:dailyChart cD = CosData) {
       cl = cD.close;
       :arr Quotes = cD.Quotes;
@@ -481,6 +473,7 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
                     ? isToSell ? -1 : 1
                     : 0
                   ;
+                  chart = coChart.mk(Labels, Values, isRebuy, withRef, ref);
                   return Q("td")
                     .add(Q("table")
                       .klass("main")
@@ -489,9 +482,7 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
                         .add(Q("td")
                           .att("colspan", 2)
                           .add(Q("span")
-                            .add(coChart.mk(
-                                Labels, Values, isRebuy, withRef, ref
-                              ))))))
+                            .add(chart)))))
                   ;
                 }
               ));
@@ -510,66 +501,50 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
   mkRefs = \ -> {
     :arr Labels = CosData[0][dailyChart.Hours];
     size = Labels.size();
-    InPfValues = arr.mk(size, 0);
-    FreeValues = arr.mk(size, 0);
-    SumValues = arr.mk(size, 0);
+    :arr InPfValues = arr.mk(size, 0);
+    :arr FreeValues = arr.mk(size, 0);
+    :arr SumValues = arr.mk(size, 0);
 
     InPortfolio = []; // [<dailyChart>.];
     Frees = []; // [<dailyChart>.];
     for (:dailyChart coD = CosData) {
       nick = coD.nick;
       :dailyInvestorData inv = coD.invData;
-      modelId = inv.modelId;
       stocks = inv.stocks;
-      Params = inv.Params;
       ref = inv.ref;
 
       Refs = arr.mk(size, 0);
-      for (i, q = coD.Quotes) {
-        prfs = refProfits(modelId, Params, stocks, q, ref);
-        Refs[i] = prfs;
-        if (stocks > 0) {
-          SumValues[i] += prfs;
-          InPfValues[i] += prfs;
-        }
-      }
+      for (i, q = coD.Quotes)
+        Refs[i] = stocks > 0
+            ? (q - ref) * stocks
+            : (ref - q) * (cts.bet / q)
+          ;
+
       newCoD = dailyChart.mk(nick, coD.close, coD.Hours, Refs, coD.invData);
       if (stocks > 0)
         InPortfolio.push(newCoD);
-      else if (
-        ref > coD.close &
-        !Rebuys.any(\nk -> return nk == nick;)
-      )
+      else if (coD.close < ref)
         Frees.push(newCoD);
     }
 
     InPortfolio.sort(\:dailyChart coD1, :dailyChart coD2 -> {
-      v1 = arr.peek(coD1.Quotes);
-      v2 = arr.peek(coD2.Quotes);
-        return v1 < 0
-          ? v1 < v2
-          : v2 < 0
-            ? false
-            : v2 < v1
-        ;
+        v1 = arr.peek(coD1.Quotes);
+        v2 = arr.peek(coD2.Quotes);
+        return v1 < v2;
       });
     Frees.sort(\:dailyChart coD1, :dailyChart coD2 -> {
         v1 = arr.peek(coD1.Quotes);
         v2 = arr.peek(coD2.Quotes);
         return v1 < v2;
       });
-    Frees2 = arr.take(Frees, maxCos);
-    Frees2.sort(\:dailyChart coD1, :dailyChart coD2 -> {
-      v1 = arr.peek(coD1.Quotes);
-      v2 = arr.peek(coD2.Quotes);
-        return v1 < 0
-          ? v1 < v2
-          : v2 < 0
-            ? false
-            : v2 < v1
-        ;
-      });
+    :arr Frees2 = arr.take(Frees, maxCos);
 
+    for (:dailyChart coD = InPortfolio) {
+      for (i, q = coD.Quotes) {
+        SumValues[i] += q;
+        InPfValues[i] += q;
+      }
+    }
     for (:dailyChart coD = Frees2) {
       for (i, q = coD.Quotes) {
         SumValues[i] += q;
@@ -586,9 +561,10 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
       :dailyChart coD = inPortfolio ? InPortfolio[i] : Frees2[i];
       nick = coD.nick;
       isSel = CosSel.any(\c -> return c == nick;);
+      isRebuy = Rebuys.any(\nk -> return nk == nick;);
       val = math.toIso(arr.peek(coD.Quotes), 2);
       Values = [arr.map(coD.Quotes, \q -> return [q];)];
-      chart = refSmallChart.mk(Labels, Values, inPortfolio);
+      chart = refSmallChart.mk(Labels, Values, inPortfolio, isRebuy);
       return Q("td")
         .att("width", "16.7%")
         .add(Q("table")
@@ -708,6 +684,204 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
     ;
   };
 
+  // LIST
+
+  // \ -> ()
+  mkList = \ -> {
+    detachAuxV = [\ -> {
+      Q("@body")
+        .removeAll()
+        .add(wg)
+      ;
+    }];
+    // [\ -> ()]
+    detach = \e -> {
+      detachAuxV!();
+      detachAuxV! = \ -> window.location.replace("?daily&list");;
+    };
+    // \ -> ()
+    changeOrder = \newOrder -> {
+      lorderV! = newOrder;
+      mkList();
+    };
+    //: \<dailyChart> -> n
+    tick = \:dailyChart v ->
+      return arr.size(v.Quotes) > 1 ? v.Quotes[-1:]! - v.Quotes[-2:]! : 0;;
+    //: \n -> <domo>
+    tickToImg = \n -> return ui.img(n > 0
+        ? "rk-up"
+        : n < 0
+          ? "rk-down"
+          : "rk-eq"
+      );;
+    //: \<dailyChart> -> n
+    inc = \:dailyChart v ->
+      return (arr.peek(v.Quotes) - v.close) * 100 / v.close;;
+    //: \<dailyChart> -> n
+    ixDay = \:dailyChart v -> return arr.peek(v.Quotes) - v.close;;
+    //: \<dailyChart> -> n
+    coDay = \:dailyChart v -> {
+      :dailyInvestorData inv = v.invData;
+      return (inv.isNew
+          ? arr.peek(v.Quotes) - inv.price
+          : arr.peek(v.Quotes) - v.close
+        ) * inv.stocks
+      ;
+    };
+    //: \<dailyChart> -> n
+    pf = \:dailyChart v -> {
+      :dailyInvestorData inv = v.invData;
+      return (arr.peek(v.Quotes) - inv.price) * inv.stocks;
+    };
+    //: \<dailyChart> -> n
+    pfInc = \:dailyChart v -> {
+      :dailyInvestorData inv = v.invData;
+      return (arr.peek(v.Quotes) - inv.price) * 100 / inv.price;
+    };
+    ref = \:dailyChart v -> {
+      :dailyInvestorData inv = v.invData;
+      return inv.ref / arr.peek(v.Quotes) * 100;
+    };
+
+    //[<dailyChart>.]
+    :arr CosData2 = CosData.filter(\:dailyChart c -> {
+        :dailyInvestorData inv = c.invData;
+        return inv.stocks > 0;
+      });
+    switch (lorderV!) {
+      cts.lTick: CosData2.sort(\c1, c2 -> return tick(c1) > tick(c2););
+      cts.lNick: CosData2.sort(
+          \:dailyChart c1, :dailyChart c2 -> return c1.nick < c2.nick;
+        );
+      cts.lDayPerc: CosData2.sort(\c1, c2 -> return inc(c1) > inc(c2););
+      cts.lDay: CosData2.sort(\c1, c2 -> return coDay(c1) > coDay(c2););
+      cts.lPf: CosData2.sort(\c1, c2 -> return pf(c1) > pf(c2););
+      cts.lPfPerc: CosData2.sort(\c1, c2 -> return pfInc(c1) > pfInc(c2););
+      cts.lRef: CosData2.sort(\c1, c2 -> return ref(c1) > ref(c2););
+    }
+    wg
+      .removeAll()
+      .add(Q("table")
+        .att("align", "center")
+        .klass("home")
+        .add(Q("tr")
+          .add(Q("td")
+            .add(lorderV! == cts.lTick
+                ? ui.led("#000010", 6)
+                : ui.link(\e -> changeOrder(cts.lTick);)
+                    .add(ui.led("#ffffff", 6))
+              ))
+          .add(Q("td")
+            .klass("head")
+            .style(lorderV! == cts.lNick ? "font-weight:normal" : "")
+            .add(lorderV! == cts.lNick
+                ? Q("span").text(II("Nick"))
+                : ui.link(\e -> changeOrder(cts.lNick);).text(II("Nick"))
+              ))
+          .add(Q("td")
+            .klass("head")
+            .text(II("Quote")))
+          .add(Q("td")
+            .klass("head")
+            .style(lorderV! == cts.lDayPerc ? "font-weight:normal" : "")
+            .add(lorderV! == cts.lDayPerc
+                ? Q("span").text("Δ%")
+                : ui.link(\e -> changeOrder(cts.lDayPerc);).text("Δ%"))
+              )
+          .add(Q("td")
+            .klass("head")
+            .style(lorderV! == cts.lDay ? "font-weight:normal" : "")
+            .add(lorderV! == cts.lDay
+                ? Q("span").text(II("Day"))
+                : ui.link(\e -> changeOrder(cts.lDay);).text(II("Day")))
+              )
+          .add(Q("td")
+            .klass("head")
+            .style(lorderV! == cts.lPf ? "font-weight:normal" : "")
+            .add(lorderV! == cts.lPf
+                ? Q("span").text(II("Pf"))
+                : ui.link(\e -> changeOrder(cts.lPf);).text(II("Pf")))
+              )
+          .add(Q("td")
+            .klass("head")
+            .style(lorderV! == cts.lPfPerc ? "font-weight:normal" : "")
+            .add(lorderV! == cts.lPfPerc
+                ? Q("span").text("Δ%")
+                : ui.link(\e -> changeOrder(cts.lPfPerc);).text("Δ%"))
+              )
+          .add(Q("td")
+            .klass("head")
+            .style(lorderV! == cts.lRef ? "font-weight:normal" : "")
+            .add(lorderV! == cts.lRef
+                ? Q("span").text(II("Ref"))
+                : ui.link(\e -> changeOrder(cts.lRef);).text(II("Ref")))
+              )
+          )
+        .adds(IxsData.map(\:dailyChart i -> return Q("tr")
+          .add(Q("td")
+            .add(tickToImg(tick(i))))
+          .add(Q("td")
+            .klass("nick")
+            .text(switch(i.nick){
+                cts.meNick: "DEMEX";
+                cts.ibexNick: "IBEX";
+                default: "STOXX";
+              }))
+          .add(Q("td")
+            .klass("number2")
+            .text(math.toIso(arr.peek(i.Quotes), 2)))
+          .add(Q("td")
+            .klass("number2")
+            .style("color:#"+ (inc(i) < 0 ? "900000" : "000090"))
+            .text(math.toIso(inc(i), 2)))
+          .add(Q("td")
+            .klass("number2")
+            .style("color:#"+ (ixDay(i) < 0 ? "900000" : "000090"))
+            .text(math.toIso(ixDay(i), 2)))
+          .add(Q("td")
+            .att("colspan", 3))
+          ;))
+        .add(Q("tr")
+          .add(Q("td")
+            .add(ui.link(detach)
+              .add(ui.img("deme"))))
+          .add(Q("td")
+            .att("colspan", 7)
+            .add(Q("hr"))))
+        .adds(CosData2.map(\:dailyChart c -> return Q("tr")
+          .add(Q("td")
+            .add(tickToImg(tick(c))))
+          .add(Q("td")
+            .klass("nick")
+            .text(c.nick))
+          .add(Q("td")
+            .klass("number2")
+            .text(math.toIso(arr.peek(c.Quotes), 4)))
+          .add(Q("td")
+            .klass("number2")
+            .style("color:#"+ (inc(c) < 0 ? "900000" : "000090"))
+            .text(math.toIso(inc(c), 2)))
+          .add(Q("td")
+            .klass("number2")
+            .style("color:#"+ (coDay(c) < 0 ? "900000" : "000090"))
+            .text(math.toIso(coDay(c), 2)))
+          .add(Q("td")
+            .klass("number2")
+            .style("color:#"+ (pf(c) < 0 ? "900000" : "000090"))
+            .text(math.toIso(pf(c), 2)))
+          .add(Q("td")
+            .klass("number2")
+            .style("color:#"+ (pfInc(c) < 0 ? "900000" : "000090"))
+            .text(math.toIso(pfInc(c), 2)))
+          .add(Q("td")
+            .klass("number2")
+            .style("color:#"+ (ref(c) > 100 ? "900000" : "000000"))
+            .text(math.toIso(ref(c), 2)))
+          ;))
+      )
+    ;
+  };
+
   // \ -> ()
   showV! = \ -> {
     Lopts = [
@@ -723,7 +897,9 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
       menu.separator(),
       menu.tlink("daily&sel", II("Selection")),
       menu.separator2(),
-      menu.tlink("daily&refs", II("References"))
+      menu.tlink("daily&difs", II("Differences")),
+      menu.separator2(),
+      menu.tlink("daily&list", II("List"))
     ];
 
     Ropts = [
@@ -756,7 +932,8 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
 
     switch (mSel) {
       "portfolio", "free", "all", "sel": mkCos();
-      "refs": mkRefs();
+      "difs": mkRefs();
+      "list": mkList();
       default: mkSummary();
     }
   };
@@ -770,7 +947,7 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
 
     if (tic == 3) {
       timer.stop(tm);
-      mk2(wg, dbmenu, mSel, orderV!, isReverseV!);
+      mk2(wg, dbmenu, mSel, orderV!, lorderV!, isReverseV!);
       return 0;
     }
 
@@ -791,5 +968,9 @@ mk2 = async \wg, dbmenu, mSel, order, isReverse -> {
 ///   lcPath: Location path.
 /// \<domo>, <dmenu>, [s.] -> ()
 mk = async \wg, dbmenu, LcPath ->
-  mk2(wg, dbmenu, !LcPath ? "summary" : LcPath[0], cts.chartOrderSignal, false);;
+  mk2(
+    wg, dbmenu,
+    !LcPath ? "summary" : LcPath[0],
+    cts.chartOrderSignal, cts.lNick, false
+  );;
 

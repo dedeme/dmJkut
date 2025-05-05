@@ -16,7 +16,7 @@ Q = ui.q;
 II = i18n.tlt;
 
 chartsWg = Q("div");
-chartsBox = modalBox.mk(chartsWg, true);
+:modalBox chartsBox = modalBox.mk(chartsWg, true);
 
 /// \<domo>, <lcMenu> -> ()
 mk = async \wg, :lcMenu lcPath -> {
@@ -76,8 +76,7 @@ mk = async \wg, :lcMenu lcPath -> {
   Models.sort(\:imodel m1, :imodel m2 -> return m1.id < m2.id;);
 
   if (!Models.any(\:imodel m -> return m.id == lcPath.mdId;)) {
-    :imodel imd = Models[0];
-    lcPath.setMdId(imd.id);
+    lcPath.setMdId(cts.modelBase);
     window.location = lcPath.toUrl();
   }
   :imodel md = Models.find(\:imodel m -> return m.id == lcPath.mdId;)!;
@@ -119,7 +118,7 @@ mkVmenus = \tb, :lcMenu lcPath, :arr Models -> {
     mkOpt("mdView", "allMaps", II("Maps-20"),
       II("Hot Maps - 20"))
   ];
-  :: viewMenu = vmenu.mk(ViewOpts, lcPath.mdView);
+  viewMenu = vmenu.mk(ViewOpts, lcPath.mdView);
   viewMenu.e.children[0].style.width = "100%";
 
   StatOpts = [
@@ -130,11 +129,11 @@ mkVmenus = \tb, :lcMenu lcPath, :arr Models -> {
     mkOpt("mdStats", "crrAverage", II("Cr. Avg."),
       II("Corrected average"))
   ];
-  :: statMenu = vmenu.mk(StatOpts, lcPath.mdStats);
+  statMenu = vmenu.mk(StatOpts, lcPath.mdStats);
   statMenu.e.children[0].style.width = "100%";
 
   ModelOpts = Models.map(\:imodel m -> return mkOpt("modelId", m.id, m.id, m.id););
-  :: modelMenu = vmenu.mk(ModelOpts, lcPath.mdId);
+  modelMenu = vmenu.mk(ModelOpts, lcPath.mdId);
   modelMenu.e.children[0].style.width = "100%";
 
   tb
@@ -401,12 +400,12 @@ mkCharts = async \:imodel md, ix, valType, stats, period -> {
   });
   if (Positions.size() < 2 | Positions.size() < 2) return;
 
-  :: ch1 = lineChart.mkExample();
+  ch1 = lineChart.mkExample();
   ch1.chartPadding = lineChart.mkPadding(4, 4, 4, 4);
   ch1.yAxis.parts = 1;
   ch2 = lineChart.copy(ch1);
 
-  :: dt1 = lineChart.mkData(
+  dt1 = lineChart.mkData(
     Positions.map(\p -> return "";),
     [Positions.map(\p -> return [-p];)],
     [lineChart.mkLine(2, "#000000", false)]
@@ -415,7 +414,7 @@ mkCharts = async \:imodel md, ix, valType, stats, period -> {
   dt1.drawGrid = \l, n -> return false;;
   dt1.drawLabel = \l, n -> return false;;
 
-  :: dt2 = lineChart.mkData(
+  dt2 = lineChart.mkData(
     Profits.map(\p -> return "";),
     [Profits.map(\p -> return [p];)],
     [lineChart.mkLine(2, "#000000", false)]

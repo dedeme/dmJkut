@@ -10,7 +10,7 @@ Q = ui.q;
 ///          be [].
 ///   wg   : Widget to be shown when option is not selected.
 ///   selWg: Widget to be shown when option is selected.
-/// \[s]|[], <domo>, domo -> d<menuEntry>
+/// \([s]|[]), <domo>, <domo> -> <menuEntry>
 mkEntry : id, wg, selWg;
 
 /// Menu onstructor.

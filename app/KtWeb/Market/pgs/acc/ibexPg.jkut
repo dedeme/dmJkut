@@ -62,7 +62,7 @@ mk2 = async \wg, msel -> {
 
 // \ -> ()
 update = async \wg, msel -> {
-  box = modalBox.mk(
+  :modalBox box = modalBox.mk(
     Q("div")
       .add(Q("div")
         .style("text-align:center")
@@ -120,7 +120,7 @@ data = \wg, :ibex ibx -> {
   ;
 
   viewer = Q("textarea")
-    .att("cols", 70)
+    .att("cols", 75)
     .att("rows", 25)
     .att("disabled", true)
     .text(
@@ -181,7 +181,7 @@ charts = \wg, :arr Qs -> {
   now = time.now();
   today = time.toStr(now);
 
-  :: Chart = lineChart.mkExample();
+  Chart = lineChart.mkExample();
   Chart.exArea.width = 600;
   Chart.exArea.height = 200;
   Chart.exArea.atts.border.width = 0;
@@ -197,8 +197,16 @@ charts = \wg, :arr Qs -> {
   // LAST MONTH
 
   month = today[:6];
-  :arr E00s = Es.dropWhile(\:profitsEntry e -> return e.date[:6] <  month;);
-  :arr E0s = E00s.size() > 1 ? E00s : Es[-2:];
+  ixV = [-1];
+
+  for (i, :profitsEntry e = Es) if (e.date[:6] >=  month) {
+    ixV! = i;
+    break;
+  }
+  :arr E00s = ixV! >= 0 ? Es[ixV!:] : [];
+  :arr E0s = E00s.size() > 0 ? E00s : Es[-1:];
+  E0s.unshift(ixV! <= 0 ? Es[0] : Es[ixV! - 1]);
+
   :profitsEntry ef0 = E0s[0];
   :profitsEntry el0 = E0s.peek();
   total0 = el0.total - ef0.total;
@@ -220,7 +228,7 @@ charts = \wg, :arr Qs -> {
   Att0s = [
     lineChart.mkLine(2, "#0041aa", false)
   ];
-  :: Data0 = lineChart.mkData(Lb0s, Val0s, Att0s);
+  Data0 = lineChart.mkData(Lb0s, Val0s, Att0s);
   Data0.round = 0;
   Data0.Labels = Lb0s;
   Data0.SetValues = [Val0s[0]];
@@ -245,8 +253,15 @@ charts = \wg, :arr Qs -> {
   // CURRENT YEAR
 
   year = today[:4];
-  E10s = Es.dropWhile(\:profitsEntry e -> return e.date[:4] <  year;);
-  :arr E1s = E10s.size() > 1 ? E10s : Es[-2:];
+  ixV! = -1;
+  for (i, :profitsEntry e = Es) if (e.date[:4] >=  year) {
+    ixV! = i;
+    break;
+  }
+  :arr E10s = ixV! >= 0 ? Es[ixV!:] : [];
+  :arr E1s = E10s.size() > 0 ? E10s : Es[-1:];
+  E1s.unshift(ixV! <= 0 ? Es[0] : Es[ixV! - 1]);
+
   :profitsEntry ef1 = E1s[0];
   :profitsEntry el1 = E1s.peek();
   total1 = el1.total - ef1.total;
@@ -270,7 +285,7 @@ charts = \wg, :arr Qs -> {
   Att1s = [
     lineChart.mkLine(1.5, "#0041aa", false)
   ];
-  :: Data1 = lineChart.mkData(Lb1s, Val1s, Att1s);
+  Data1 = lineChart.mkData(Lb1s, Val1s, Att1s);
   Data1.round = 0;
   Data1.Labels = Lb1s;
   Data1.SetValues = [Val1s[0]];
@@ -317,7 +332,7 @@ charts = \wg, :arr Qs -> {
   Att2s = [
     lineChart.mkLine(1.5, "#0041aa", false)
   ];
-  :: Data2 = lineChart.mkData(Lb2s, Val2s, Att2s);
+  Data2 = lineChart.mkData(Lb2s, Val2s, Att2s);
   Data2.round = 0;
   Data2.Labels = Lb2s;
   Data2.SetValues = [Val2s[0]];

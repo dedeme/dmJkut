@@ -300,7 +300,7 @@ mk = \wg, account, ix -> {
             .add(tdr()
               .html("" + (E.ix + 1)))
             .add(td()
-              .html(time.format(E.date, "%D/%M")))
+              .html(time.fmt(E.date, "%D/%M")))
             .add(tdl()
               .add(ui.link(\ev ->
                   window.location.assign("?diary&" + acV! + "&" + E.ix);

@@ -159,7 +159,7 @@ mk = \wg, account, ix -> {
 
     cutV = [0];
     for (ix = 0:Entries.size()) {
-      :: E = Entries[ix];
+      E = Entries[ix];
       if (E.ix >= ixFirstRowV!) {
         cutV! = ix + 1;
         break;
@@ -173,7 +173,7 @@ mk = \wg, account, ix -> {
             .add(tdr()
               .html(""+ (E.ix + 1)))
             .add(td()
-              .html(time.format(E.date, "%D/%M")))
+              .html(time.fmt(E.date, "%D/%M")))
             .add(tdl()
               .add(ui.link(\ev -> goToDiary(E.ix);)
                 .klass("link")
